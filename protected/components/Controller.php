@@ -20,4 +20,21 @@ class Controller extends CController
 	 * for more details on how to specify this property.
 	 */
 	public $breadcrumbs=array();
+        
+        /*
+        public function init(){
+            Yii::app()->onEndRequest = array('Controller','end');
+        }
+        
+        public function end(){
+            Yii::app()->db->setActive(false);
+            gc_collect_cycles(); //Free up memory resources
+        }
+        
+        public function filterHttps( $filterChain ) {
+            $filter = new HttpsFilter;
+            $filter->filter( $filterChain );
+        }
+         * 
+         */
 }

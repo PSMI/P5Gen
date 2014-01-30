@@ -1,0 +1,51 @@
+<?php
+
+/*
+ * @author : owliber
+ * @date : 2014-01-14
+ */
+
+class Members extends CActiveRecord
+{
+    
+    public static function model($className=__CLASS__)
+    {
+            return parent::model($className);
+    }
+    
+    /**
+     * @return string the associated database table name
+     */
+    public function tableName()
+    {
+            return 'members';
+    }
+    
+    //perform one-way encryption on the password before we store it in the database
+    protected function afterValidate()
+    {
+        parent::afterValidate();
+        $this->Password = $this->hashPassword($this->Password);
+    }
+    
+    public function getUserStatus($username)
+    {
+        $query = "SELECT status FROM members 
+                  WHERE username = :username";
+        $sql = Yii::app()->db->createCommand($query);
+        $sql->bindParam(":username",$username);
+        $result = $sql->queryRow();
+        
+        if(count($result)> 0)
+        {
+            return $result['status'];
+        }
+    }
+    
+    public function hashPassword($value)
+    {
+        return md5($value);
+    }
+    
+}
+?>

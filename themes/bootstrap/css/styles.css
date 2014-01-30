@@ -1,0 +1,21 @@
+#page {
+    padding-top: 60px;
+
+}
+
+.login-title
+{
+    background: #f5f5f5;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 10px 20px;
+    margin-bottom: 30px;
+    font-size: 20px;
+    color: #999;
+    opacity: 100%;
+}
+.login-container
+{
+    margin: 10% 0 0 30%;
+    width: 500px;
+    background: url('../../../images/comodo_secure_100x85_transp.png') 35px 135px no-repeat;
+}
