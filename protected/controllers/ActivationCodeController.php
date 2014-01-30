@@ -81,5 +81,23 @@ class ActivationCodeController extends Controller
         
         $this->render('history', array('model'=>$model, 'dataProvider'=>$dataProvider));
     }
+    
+    public function actionCodes()
+    {
+        $model = new ActivationCodeModel();
+        
+        $batchId = $_GET['id'];
+        
+        $rawData = $model->selectAllCodesByBatchId($batchId);
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                        'pageSize' => 10,
+                    ),
+        ));
+        
+        $this->render('_codes', array('model'=>$model, 'dataProvider'=>$dataProvider));
+    }
 }
 ?>

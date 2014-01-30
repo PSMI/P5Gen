@@ -93,5 +93,20 @@ class ActivationCodeModel extends CFormModel
         
         return $result;
     }
+    
+    public function selectAllCodesByBatchId($batchId)
+    {
+        $connection = $this->_connection;
+        
+        $sql = "SELECT a.activation_code, a.status
+                FROM activation_codes a
+                INNER JOIN activation_code_batch b ON a.activation_code_batch_id = b.activation_code_batch_id
+                WHERE b.activation_code_batch_id = :batchId";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":batchId", $batchId);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
 }
 ?>
