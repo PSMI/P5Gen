@@ -5,24 +5,24 @@
  * @date : 2014-01-22
  */
 
-class UserRights extends Controller
+class UserRights extends CWebUser
 {
-    public function checkUserAccess($usertype)
+   
+    public function hasUserAccess()
     {
         $model = new AccessRights();
         
-        if(!$model->IsUserAllowed($usertype) || Yii::app()->user->isGuest)
-        {
-            if(empty(Yii::app()->session['UserTypeID']))
-                $this->redirect(array('site/login'));
-            else
-                $this->redirect (array('site/notallowed'));
-        }
+        
+        if(!$model->checkUserAccess($this->accountType()) || Yii::app()->user->isGuest)
+            return false;
         else
-        {
             return true;
-        }
             
+    }
+    
+    public function accountType()
+    {
+        return Yii::app()->session['account_type_id'];
     }
 }
 ?>

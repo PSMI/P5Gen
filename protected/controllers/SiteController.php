@@ -2,7 +2,9 @@
 
 class SiteController extends Controller
 {
-	/**
+        public $layout = "column2";
+        
+    	/**
 	 * Declares class-based actions.
 	 */
 	public function actions()
@@ -27,6 +29,8 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
+                if(!Yii::app()->user->hasUserAccess()) 
+                    $this->redirect(array('site/404'));
 		// renders the view file 'protected/views/site/index.php'
 		// using the default layout 'protected/views/layouts/main.php'
 		$this->render('index');
@@ -87,7 +91,7 @@ class SiteController extends Controller
 			// validate user input and redirect to the previous page if valid
 			if($model->validate() && $model->login())
                         {
-                            //AuditLog::logTransactions(1, Yii::app()->user->getId());
+                            
                             $this->redirect(array("site/index"));
                         }
 		}
@@ -111,8 +115,8 @@ class SiteController extends Controller
 //            );
 //        }
         
-        public function actionTest()
+        public function action404()
         {
-            $this->render('test');
+            $this->render('404');
         }
 }

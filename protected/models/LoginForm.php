@@ -84,6 +84,8 @@ class LoginForm extends CFormModel
                         Yii::app()->session['account_type_id'] = $member->account_type_id;
                         Yii::app()->session['member_id'] = $member->member_id;
                         
+                        //AuditLog::logTransactions(1, Yii::app()->user->getId());
+                        
 			return true;
                         
 		}
