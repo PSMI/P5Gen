@@ -29,7 +29,7 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
-                if(!Yii::app()->user->hasUserAccess()) 
+                if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
                     $this->redirect(array('site/404'));
 		// renders the view file 'protected/views/site/index.php'
 		// using the default layout 'protected/views/layouts/main.php'

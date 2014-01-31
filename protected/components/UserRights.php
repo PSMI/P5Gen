@@ -24,5 +24,13 @@ class UserRights extends CWebUser
     {
         return Yii::app()->session['account_type_id'];
     }
+    
+    public function isSuperAdmin()
+    {
+        if($this->accountType() == 1)
+            return true;
+        else
+            return false;
+    }
 }
 ?>

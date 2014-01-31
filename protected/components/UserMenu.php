@@ -11,37 +11,77 @@ class UserMenu extends Controller
     {
         $model = new AccessRights();
         
-        $menus = $model->getMenus($account_type_id);
-                          
-        foreach($menus as $menu)
+        if(Yii::app()->user->isSuperAdmin())
         {
-            $menu_id = $menu['menu_id'];
+            $menus = $model->getAllMenus();
             
-            $submenus = $model->getSubMenus($menu_id, $account_type_id); 
-            $sub_items = array();
-            
-            if(!empty($submenus))
+            foreach($menus as $menu)
             {
-                foreach($submenus as $submenu)
-                {
+                $menu_id = $menu['menu_id'];
 
-                    $sub_items[] = array(
-                        'label' => $submenu['submenu_name'],
-                        'url'   => array($submenu['submenu_link']),
-                    );
+                $submenus = $model->getAllSubMenus($menu_id); 
+                $sub_items = array();
+
+                if(!empty($submenus))
+                {
+                    foreach($submenus as $submenu)
+                    {
+
+                        $sub_items[] = array(
+                            'label' => $submenu['submenu_name'],
+                            'url'   => array($submenu['submenu_link']),
+                        );
+                    }
+
                 }
-                
+
+                 $items[] = array(
+                    'label' => $menu['menu_name'],
+                    'icon'  => $menu['menu_icon'],
+                    'url'   => array($menu['menu_link']),
+                    'active'=> $menu['menu_id'] == 1 ? true : false,
+                    'items' => $sub_items,
+                );   
+
             }
-            
-             $items[] = array(
-                'label' => $menu['menu_name'],
-                'icon'  => $menu['menu_icon'],
-                'url'   => array($menu['menu_link']),
-                'active'=> $menu['default_menu_id'] == 1 ? true : false,
-                'items' => $sub_items,
-            );   
-            
         }
+        else
+        {
+            
+        
+            $menus = $model->getMenus($account_type_id);
+
+            foreach($menus as $menu)
+            {
+                $menu_id = $menu['menu_id'];
+
+                $submenus = $model->getSubMenus($menu_id, $account_type_id); 
+                $sub_items = array();
+
+                if(!empty($submenus))
+                {
+                    foreach($submenus as $submenu)
+                    {
+
+                        $sub_items[] = array(
+                            'label' => $submenu['submenu_name'],
+                            'url'   => array($submenu['submenu_link']),
+                        );
+                    }
+
+                }
+
+                 $items[] = array(
+                    'label' => $menu['menu_name'],
+                    'icon'  => $menu['menu_icon'],
+                    'url'   => array($menu['menu_link']),
+                    'active'=> $menu['default_menu_id'] == 1 ? true : false,
+                    'items' => $sub_items,
+                );   
+
+            }
+        }
+        
         
         
         $this->menu = $items;
