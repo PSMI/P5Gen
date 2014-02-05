@@ -11,9 +11,13 @@ class ActivationCodeController extends Controller
     public $title = '';
     public $showDialog = false;
     public $showConfirm = false;
-            
+    public $layout = "column2";
+              
     public function actionIndex()
     {
+        if(!Yii::app()->user->hasUserAccess()) 
+            $this->redirect(array('site/404'));
+        
         $model = new ActivationCodeModel();
         
         if (isset($_POST["ActivationCodeModel"]))

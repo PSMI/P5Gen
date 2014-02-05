@@ -12,7 +12,7 @@
                 'type'=>'tabs',
                 'stacked'=>true,
                 'items'=>$this->menu,
-                'htmlOptions'=>array('class'=>'operations'),
+                //'htmlOptions'=>array('class'=>'operations'),
             ));
             $this->endWidget();
         ?>

@@ -119,4 +119,9 @@ class SiteController extends Controller
         {
             $this->render('404');
         }
+        
+        public function actionTest()
+        {
+            $this->render('test');
+        }
 }
