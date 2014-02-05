@@ -11,13 +11,30 @@ class ActivationCodeController extends Controller
     public $title = '';
     public $showDialog = false;
     public $showConfirm = false;
+    
     public $layout = "column2";
-              
+    
     public function actionIndex()
     {
-        if(!Yii::app()->user->hasUserAccess()) 
-            $this->redirect(array('site/404'));
+//        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
+//                $this->redirect(array('site/404'));
         
+        $model = new ActivationCodeModel();
+        
+        $rawData = $model->selectAll();
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                        'pageSize' => 10,
+                    ),
+        ));
+        
+        $this->render('_view', array('model'=>$model, 'dataProvider'=>$dataProvider));
+    }
+            
+    public function actionCreate()
+    {
         $model = new ActivationCodeModel();
         
         if (isset($_POST["ActivationCodeModel"]))
@@ -66,24 +83,7 @@ class ActivationCodeController extends Controller
             $this->showDialog = true;
         }
 
-        $this->render('index', array('model'=>$model));
-    }
-    
-    
-    public function actionHistory()
-    {
-        $model = new ActivationCodeModel();
-        
-        $rawData = $model->selectAll();
-        
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                        'keyField' => false,
-                        'pagination' => array(
-                        'pageSize' => 10,
-                    ),
-        ));
-        
-        $this->render('history', array('model'=>$model, 'dataProvider'=>$dataProvider));
+        $this->render('_create', array('model'=>$model));
     }
     
     public function actionCodes()

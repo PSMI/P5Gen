@@ -2,9 +2,10 @@
 
 /**
  * @author Noel Antonio
- * @date 01-29-2014
+ * @date 01-28-2014
  */
-class MembersController extends Controller
+
+class AccountsController extends Controller 
 {
     public $msg = '';
     public $title = '';
@@ -15,7 +16,7 @@ class MembersController extends Controller
     public $layout = 'column2';
     
     public function actionIndex()
-    {   
+    {
 //        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
 //                $this->redirect(array('site/404'));
         
@@ -24,11 +25,11 @@ class MembersController extends Controller
         if (isset($_POST["txtSearch"]) && $_POST["txtSearch"] != "")
         {
             $searchField = $_POST["txtSearch"];
-            $rawData = $model->selectMemberDetailsBySearchField($searchField);
+            $rawData = $model->selectAdminDetailsBySearchField($searchField);
         }
         else
         {
-            $rawData = $model->selectAllMemberDetails();
+            $rawData = $model->selectAllAdminDetails();
         }
         
         $dataProvider = new CArrayDataProvider($rawData, array(
@@ -38,7 +39,7 @@ class MembersController extends Controller
                     ),
         ));
         
-        $this->render('index', array('model'=>$model,'dataProvider'=>$dataProvider));
+        $this->render('index', array('dataProvider'=>$dataProvider));
     }
     
     public function actionUpdate()
@@ -82,52 +83,73 @@ class MembersController extends Controller
                 $this->showDialog = true;
             }
         }
-                
+        
         $this->render('_update', array('model'=>$model));
     }
     
-    public function actionTerminate()
+    public function actionCreate()
     {
-        $model = new MembersModel();
+        $model = new MemberDetailsModel();
+        $membersModel = new MembersModel();
+        $accountTypeModel = new AccountTypes();
         
-        if (!isset($_GET["id"])) {
-            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
-        }
-        
-        $id = $_GET["id"];
-        $rawData = $model->selectMemberDetailsStatus($id);
-        $model->attributes = $rawData;
-        
-        $fullName = $rawData["first_name"] . " " . $rawData["middle_name"] . " " . $rawData["last_name"];
-
-        $status_list = array ('1'=>'Active', '2'=>'Inactive', '3'=>'Terminated', '4'=>'Banned');
-        $currentStatus = $status_list[$rawData["status"]]; // get current status
-        unset($status_list[$rawData["status"]]); // remove the current status from the status list
+        $accountTypeList = $accountTypeModel->selectAllAccountTypes();
+        $maxId = $membersModel->selectMemberMaxId();
         
         if (isset($_POST["MembersModel"]))
         {
-            $model->attributes = $_POST["MembersModel"];
+            $membersModel->attributes = $_POST["MembersModel"];
+            $membersModel->status = 1; // set default status as ACTIVE.
+            $model->attributes = $_POST["MemberDetailsModel"];
             
-            if ($model->validate())
+            if ($model->validate() && $membersModel->validate())
             {
-                $retval = $model->updateMemberStatus();
+                $account_type_id = $membersModel->account_type_id;
+                $username = $membersModel->username;
+                $password = $membersModel->password;
+                $last_name = $model->last_name;
+                $first_name = $model->first_name;
+                $middle_name = $model->middle_name;
+                $address1 = $model->address1;
+                $address2 = $model->address2;
+                $address3 = $model->address3;
+                $zip_code = $model->zip_code;
+                $gender = $model->gender;
+                $civil_status = $model->civil_status;
+                $birth_date = $model->birth_date;
+                $mobile_no = $model->mobile_no;
+                $telephone_fax_no = $model->telephone_fax_no;
+                $email = $model->email;
+                $tin_number = $model->tin_number;
+                $company = $model->company;
+                $occupation_id = $model->occupation_id;
+                $spouse_name = $model->spouse_name;
+                $spouse_contact_no = $model->spouse_contact_no;
+                $beneficiary = $model->beneficiary;
+                $relationship = $model->relationship;
+                
+                $retval = $membersModel->insertNewMemberAccount($account_type_id, $username, $password,
+                        $last_name, $first_name, $middle_name, $address1, $address2, $address3,
+                        $zip_code, $gender, $civil_status, $birth_date, $mobile_no, $telephone_fax_no,
+                        $email, $tin_number, $company, $occupation_id, $spouse_name, $spouse_contact_no,
+                        $beneficiary, $relationship);
                 
                 if ($retval)
                 {
                     $this->title = "SUCCESSFUL";
-                    $this->msg = "Member status successfully modified.";
+                    $this->msg = "Member status successfully created.";
                     $this->showRedirect = true;
                 }
                 else
                 {
                     $this->title = "NOTIFICATION";
-                    $this->msg = "No changes made on the member's info.";
+                    $this->msg = "Error in creating account.";
                     $this->showRedirect = true;
                 }
             }
         }
-
-        $this->render('_terminate', array('model'=>$model, 'fullName'=>$fullName, 'status'=>$currentStatus, 'list'=>$status_list));
+        
+        $this->render('_create', array('model'=>$model, 'membersModel'=>$membersModel, 'accountList'=>$accountTypeList, 'maxId'=>$maxId));
     }
 }
 ?>

@@ -8,35 +8,35 @@
 <h1>Terminate Member Account</h1>
 
 <?php
-$form = $this->beginWidget('CActiveForm', array(
+$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'id' => 'terminate-form',
         'enableClientValidation' => true,
         'clientOptions' => array(
             'validateOnSubmit' => true,
-        ),        
+        ),
+        'htmlOptions'=>array('class'=>'well'),
     ));
 ?>
 
 <?php echo $form->hiddenField($model, 'member_id', array('value'=>$data["member_id"])); ?>
 
-<div style="color:red;"><?php echo $form->errorSummary($model); ?></div>
-
 <table style="width: auto;">
     <tr>
-        <td><?php echo CHtml::label("Member Name"); ?></td>
+        <td><?php echo CHtml::label("Member Name", "txtName"); ?></td>
         <td><?php echo CHtml::textField("txtName", $fullName, array('style'=>'font-weight: bold; text-align: center', 'readonly'=>true)); ?></td>
     </tr>
     <tr>
-        <td><?php echo CHtml::label("Current Status"); ?></td>
+        <td><?php echo CHtml::label("Current Status", "txtCurrent"); ?></td>
         <td><?php echo CHtml::textField("txtCurrent", $status, array('style'=>'font-weight: bold; text-align: center', 'readonly'=>true)); ?></td>
     </tr>
     <tr>
-        <td><?php echo $form->labelEx($model,'status'); ?></td>
-        <td><?php echo $form->dropDownList($model, 'status', $list, array('prompt'=>'Please Select')); ?></td>
-        <?php echo $form->error($model, 'status'); ?>
+        <td colspan="2"><?php echo $form->dropDownListRow($model, 'status', $list, array('prompt'=>'Please Select')); ?></td>
     </tr>
     <tr>
-        <td><?php echo CHtml::submitButton('SUBMIT'); ?></td>
+        <td><?php   
+                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Submit'));
+                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("members/index") . '";')));
+        ?></td>
     </tr>
 </table>
 

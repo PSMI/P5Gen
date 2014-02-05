@@ -69,7 +69,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <tr>
         <td><?php   
                     $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Update'));
-                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("members/index") . '";')));
+                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("accounts/index") . '";')));
             ?></td>
     </tr>
 </table>
@@ -92,7 +92,7 @@ else if ($this->showRedirect)
 {
     $buttons = array(
                 'OK'=>'js:function(){
-                    location.href = "'. Yii::app()->createUrl('members/index') . '";
+                    location.href = "'. Yii::app()->createUrl('accounts/index') . '";
                 }'
             );
     $trigger = $this->showRedirect;

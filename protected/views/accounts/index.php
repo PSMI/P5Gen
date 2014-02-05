@@ -1,11 +1,11 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @author Noel Antonio
+ * @date 01-28-2014
  */
 ?>
-<h1>Member Management</h1>
+<h1>Administration Accounts</h1>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -17,6 +17,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
     ));
 ?>
+
+<?php echo CHtml::link('Add New Account', Yii::app()->createUrl("accounts/create")); ?>
 
 <?php echo $this->renderPartial('_search'); ?>
 

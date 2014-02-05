@@ -15,6 +15,7 @@ class ActivationCodeModel extends CFormModel
     {
         return array(
             array('quantity','required'),
+            array('quantity', 'numerical', 'integerOnly'=>true)
         );
     }
     
