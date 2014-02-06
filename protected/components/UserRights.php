@@ -32,5 +32,9 @@ class UserRights extends CWebUser
         else
             return false;
     }
+    
+    public function getId() {
+        return Yii::app()->session['member_id'];
+    }
 }
 ?>

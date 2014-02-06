@@ -44,12 +44,18 @@ return array(
 		'user'=>array(
 			// enable cookie-based authentication
 			'allowAutoLogin'=>true,
+                        'class'=>'UserRights',
 		),
                 'bootstrap'=>array(
                     'class'=>'bootstrap.components.Bootstrap',
                 ),
+                'mailer' => array(
+                    'class' => 'application.extensions.mailer.EMailer',
+                    'pathViews' => 'application.views.email',
+                    'pathLayouts' => 'application.views.email.layouts'
+                 ),
 		// uncomment the following to enable URLs in path-format
-		/*
+		
 		'urlManager'=>array(
 			'urlFormat'=>'path',
 			'rules'=>array(
@@ -58,7 +64,7 @@ return array(
 				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
 			),
 		),
-		*/
+		
 //		'db'=>array(
 //			'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
 //		),
@@ -98,6 +104,6 @@ return array(
 	'params'=>array(
 		// this is used in contact page
 		'adminEmail'=>'webmaster@example.com',
-                'companyName'=>'Awesome Solutions',
+                'companyName'=>'P5 Marketing Incorporated',
 	),
 );

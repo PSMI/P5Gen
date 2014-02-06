@@ -9,11 +9,12 @@
             
             $this->beginWidget('zii.widgets.CPortlet');
             $this->widget('bootstrap.widgets.TbMenu', array(
-                'type'=>'tabs',
+                'type'=>'pills',
                 'stacked'=>true,
                 'items'=>$this->menu,
                 //'htmlOptions'=>array('class'=>'operations'),
             ));
+            
             $this->endWidget();
         ?>
         </div><!-- sidebar -->

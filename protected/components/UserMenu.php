@@ -39,7 +39,7 @@ class UserMenu extends Controller
                     'label' => $menu['menu_name'],
                     'icon'  => $menu['menu_icon'],
                     'url'   => array($menu['menu_link']),
-                    'active'=> $menu['menu_id'] == 1 ? true : false,
+                    //'active'=> $menu['menu_id'] == 1 ? true : false,
                     'items' => $sub_items,
                 );   
 

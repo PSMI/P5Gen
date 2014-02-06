@@ -169,14 +169,27 @@ class RegistrationForm extends CFormModel
         $conn = $this->_connection;        
         $filter = "%".$filter."%";
         
+        $model = new Downlines();
+
+        $lists = $model->getDownlineLists(Yii::app()->user->getId());
+
+        foreach($lists as $list)
+        {
+            $downlines[] = $list['downlines'];
+
+        }
+
+        $downline_lists = implode(',', $downlines);
+        //echo CJSON::encode($downline_lists);
         $query = "SELECT
                     m.member_id,
                     CONCAT(COALESCE(md.last_name,' '), ', ', COALESCE(md.first_name,' '), ' ', COALESCE(md.middle_name,' ')) AS member_name
-                  FROM member_details md
-                    INNER JOIN members m ON md.member_id = m.member_id
-                  WHERE md.last_name LIKE :filter
+                  FROM members m
+                    INNER JOIN member_details md ON m.member_id = md.member_id
+                  WHERE (md.last_name LIKE :filter
                     OR md.first_name LIKE :filter
-                    OR md.middle_name LIKE :filter
+                    OR md.middle_name LIKE :filter)
+                    AND m.member_id IN ($downline_lists)
                   ORDER BY md.last_name";
         
         $command = $conn->createCommand($query);

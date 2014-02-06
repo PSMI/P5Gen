@@ -77,10 +77,12 @@ class Downlines extends CFormModel
 
         do
         {
+            
             foreach($downlines as $downline)
             {
                 $result[] = array('level'=>$level,
-                                  'downlines'=>$downline['downline']);
+                                  'downlines'=>$downline['downline'],
+                                );
             }
             
             
@@ -96,6 +98,33 @@ class Downlines extends CFormModel
         }while($total_downlines>0 && $total_downlines>=$max_per_level);
         
         return $result;
+    }
+    
+    public function getLevelCount($member_id)
+    {
+        $downlines = $this->firstLevel($member_id);
+        $level = 1;
+
+        do
+        {
+            $total = count($downlines);
+            
+            $result[] = array('level'=>$level,
+                              'total'=>$total,
+                        );
+            
+            $rows = $this->convertToList($downlines);        
+            $downlines = $this->nextLevel($rows['listItem']);
+            $max_per_level = pow(count($downlines),$level);
+
+            $level++;
+            $total_downlines = count($downlines);
+             
+
+        }while($total_downlines>0 && $total_downlines>=$max_per_level);
+        
+        return $result;
+        
     }
 }
 ?>
