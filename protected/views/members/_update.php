@@ -36,7 +36,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <tr>
         <td><?php echo $form->textFieldRow($model, 'zip_code', array('value'=>$data["zip_code"])); ?></td>
         <td><?php echo $form->dropDownListRow($model, 'gender', array('1'=>'Male', '2'=>'Female'), array('prompt'=>'Please Select')); ?></td>
-        <td><?php echo $form->dropDownListRow($model, 'civil_status', array('-- Please Select --', 'Single', 'Married', 'Widow', 'Separated')); ?></td>
+        <td><?php echo $form->dropDownListRow($model, 'civil_status', array('-- Please Select --', 'Single', 'Married', 'Divorced', 'Separated')); ?></td>
     </tr>
     <tr>
         <td><?php echo $form->textFieldRow($model,'birth_date', array('id'=>'birth_date','readonly'=>'true', 'style'=>'width: 120px; text-align: center;')).
@@ -50,11 +50,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                   )); ?>
         </td>
         <td><?php echo $form->textFieldRow($model, 'mobile_no', array('value'=>$data["mobile_no"])); ?></td>
-        <td><?php echo $form->textFieldRow($model, 'telephone_fax_no', array('value'=>$data["telephone_fax_no"])); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'telephone_no', array('value'=>$data["telephone_no"])); ?></td>
     </tr>
     <tr>
         <td><?php echo $form->textFieldRow($model, 'email', array('value'=>$data["email"])); ?></td>
-        <td><?php echo $form->textFieldRow($model, 'tin_number', array('value'=>$data["tin_number"])); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'tin_no', array('value'=>$data["tin_no"])); ?></td>
         <td><?php echo $form->textFieldRow($model, 'company', array('value'=>$data["company"])); ?></td>
     </tr>
     <tr>
@@ -63,8 +63,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td><?php echo $form->textFieldRow($model, 'spouse_contact_no', array('value'=>$data["spouse_contact_no"])); ?></td>
     </tr>
     <tr>
-        <td><?php echo $form->textFieldRow($model, 'beneficiary', array('value'=>$data["beneficiary"])); ?></td>
-        <td><?php echo $form->textFieldRow($model, 'relationship', array('value'=>$data["relationship"])); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'beneficiary_name', array('value'=>$data["beneficiary_name"])); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'relationship_id', array('value'=>$data["relationship_id"])); ?></td>
     </tr>
     <tr>
         <td><?php   

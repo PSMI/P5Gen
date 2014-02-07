@@ -16,8 +16,8 @@ class MembersController extends Controller
     
     public function actionIndex()
     {   
-//        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
-//                $this->redirect(array('site/404'));
+        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
+                $this->redirect(array('site/404'));
         
         $model = new MemberDetailsModel();
         
@@ -72,7 +72,7 @@ class MembersController extends Controller
                 {
                     $this->title = "NOTIFICATION";
                     $this->msg = "No changes made on the member's info.";
-                    $this->showRedirect = true;
+                    $this->showDialog = true;
                 }
             }
             else
@@ -106,9 +106,16 @@ class MembersController extends Controller
         
         if (isset($_POST["MembersModel"]))
         {
+            $model->member_id = $id;
             $model->attributes = $_POST["MembersModel"];
             
-            if ($model->validate())
+            if ($model->status == "")
+            {
+                $this->title = "NOTIFICATION";
+                $this->msg = "Please select a status.";
+                $this->showDialog = true;
+            }
+            else
             {
                 $retval = $model->updateMemberStatus();
                 
@@ -122,7 +129,7 @@ class MembersController extends Controller
                 {
                     $this->title = "NOTIFICATION";
                     $this->msg = "No changes made on the member's info.";
-                    $this->showRedirect = true;
+                    $this->showDialog = true;
                 }
             }
         }
