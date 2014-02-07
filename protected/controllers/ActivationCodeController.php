@@ -12,12 +12,12 @@ class ActivationCodeController extends Controller
     public $showDialog = false;
     public $showConfirm = false;
     
-    public $layout = "column2";
+    public $layout = 'column2';
     
     public function actionIndex()
     {
-//        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
-//                $this->redirect(array('site/404'));
+        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
+                $this->redirect(array('site/404'));
         
         $model = new ActivationCodeModel();
         
@@ -30,7 +30,7 @@ class ActivationCodeController extends Controller
                     ),
         ));
         
-        $this->render('_view', array('model'=>$model, 'dataProvider'=>$dataProvider));
+        $this->render('index', array('model'=>$model, 'dataProvider'=>$dataProvider));
     }
             
     public function actionCreate()
@@ -38,16 +38,21 @@ class ActivationCodeController extends Controller
         $model = new ActivationCodeModel();
         
         if (isset($_POST["ActivationCodeModel"]))
-        {
+        { 
             $model->attributes = $_POST["ActivationCodeModel"];
-            
+            $quantity = $model->quantity;
+
             if ($model->validate())
             {
-                $quantity = $model->quantity;
-                
                 if ($quantity == 0) {
                     $this->title = "NOTIFICATION";
                     $this->msg = "Zero value not accepted. Please try again.";
+                    $this->showDialog = true;
+                }
+                else if ($quantity > 1000)
+                {
+                    $this->title = "NOTIFICATION";
+                    $this->msg = "Maximum of 1000 codes are allowed to be generated.";
                     $this->showDialog = true;
                 }
                 else {
@@ -55,12 +60,6 @@ class ActivationCodeController extends Controller
                     $this->msg = "Are you sure you want to generate " . $quantity . " activation code(s)?";
                     $this->showConfirm = true;
                 }
-            }
-            else
-            {
-                $this->title = "NOTIFICATION";
-                $this->msg = "Quantity field is empty! Please enter a valid quantity.";
-                $this->showDialog = true;
             }
         }
         else if (isset($_POST["hiddenQty"]))
