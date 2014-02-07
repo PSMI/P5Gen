@@ -44,6 +44,10 @@ class ProfileController extends Controller
                         
                         if ($retval)
                         {
+                            $param['member_id'] = $member_id;
+                            $param['plain_password'] = $new_pass;
+                            Mailer::sendChangePassword($param);
+                            
                             $this->title = "SUCCESSFUL";
                             $this->msg = "Member's password successfully modified.";
                             $this->showRedirect = true;

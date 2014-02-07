@@ -82,9 +82,9 @@ class MembersModel extends CFormModel
     
     public function insertNewMemberAccount($account_type_id, $username, $password,
                         $last_name, $first_name, $middle_name, $address1, $address2, $address3,
-                        $zip_code, $gender, $civil_status, $birth_date, $mobile_no, $telephone_fax_no,
-                        $email, $tin_number, $company, $occupation_id, $spouse_name, $spouse_contact_no,
-                        $beneficiary, $relationship)
+                        $zip_code, $gender, $civil_status, $birth_date, $mobile_no, $telephone_no,
+                        $email, $tin_no, $company, $occupation_id, $spouse_name, $spouse_contact_no,
+                        $beneficiary_name, $relationship_id)
     {
         $connection = $this->_connection;
         $beginTrans = $connection->beginTransaction();
@@ -104,13 +104,13 @@ class MembersModel extends CFormModel
                 $last_inserted_id = $connection->getLastInsertID();
                 
                 $sql2 = "INSERT INTO member_details (member_id, last_name, first_name, middle_name, address1, address2, address3,
-                            zip_code, gender, civil_status, birth_date, mobile_no, telephone_fax_no,
-                            email, tin_number, company, occupation_id, spouse_name, spouse_contact_no,
-                            beneficiary, relationship) 
+                            zip_code, gender, civil_status, birth_date, mobile_no, telephone_no,
+                            email, tin_no, company, occupation_id, spouse_name, spouse_contact_no,
+                            beneficiary_name, relationship_id) 
                     VALUES (:member_id, :last_name, :first_name, :middle_name, :address1, :address2, :address3,
-                            :zip_code, :gender, :civil_status, :birth_date, :mobile_no, :telephone_fax_no,
-                            :email, :tin_number, :company, :occupation_id, :spouse_name, :spouse_contact_no,
-                            :beneficiary, :relationship)";
+                            :zip_code, :gender, :civil_status, :birth_date, :mobile_no, :telephone_no,
+                            :email, :tin_no, :company, :occupation_id, :spouse_name, :spouse_contact_no,
+                            :beneficiary_name, :relationship_id)";
                 $command2 = $connection->createCommand($sql2);
                 $command2->bindValue(':member_id', $last_inserted_id);
                 $command2->bindValue(':last_name', $last_name);
@@ -124,15 +124,15 @@ class MembersModel extends CFormModel
                 $command2->bindValue(':civil_status', $civil_status);
                 $command2->bindValue(':birth_date', $birth_date);
                 $command2->bindValue(':mobile_no', $mobile_no);
-                $command2->bindValue(':telephone_fax_no', $telephone_fax_no);
+                $command2->bindValue(':telephone_no', $telephone_no);
                 $command2->bindValue(':email', $email);
-                $command2->bindValue(':tin_number', $tin_number);
+                $command2->bindValue(':tin_no', $tin_no);
                 $command2->bindValue(':company', $company);
                 $command2->bindValue(':occupation_id', $occupation_id);
                 $command2->bindValue(':spouse_name', $spouse_name);
                 $command2->bindValue(':spouse_contact_no', $spouse_contact_no);
-                $command2->bindValue(':beneficiary', $beneficiary);
-                $command2->bindValue(':relationship', $relationship);
+                $command2->bindValue(':beneficiary_name', $beneficiary_name);
+                $command2->bindValue(':relationship_id', $relationship_id);
                 $rowCount2 = $command2->execute();
                 
                 if ($rowCount2 > 0) {
@@ -166,6 +166,36 @@ class MembersModel extends CFormModel
         return $result;
     }
     
-
+    public function changePassword($id, $new_pass)
+    {
+        $connection = $this->_connection;
+        $beginTrans = $connection->beginTransaction();
+        
+        try
+        {
+            $sql = "UPDATE members SET password = :password
+                    WHERE member_id = :member_id";
+            $command = $connection->createCommand($sql);
+            
+            $hashedPassword = md5($new_pass);
+            
+            $command->bindValue(':member_id', $id);
+            $command->bindValue(':password', $hashedPassword);
+            $rowCount = $command->execute();
+            
+            if ($rowCount > 0) {
+                    $beginTrans->commit();
+                    return true;
+            } else {
+                $beginTrans->rollback();  
+                return false;
+            }
+        }
+        catch (CDbException $e)
+        {
+            $beginTrans->rollback();  
+            return false;
+        }
+    }
 }
 ?>
