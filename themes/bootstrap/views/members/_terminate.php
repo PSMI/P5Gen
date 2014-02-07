@@ -54,15 +54,6 @@ if ($this->showDialog)
             );
     $trigger = $this->showDialog;
 }
-else if ($this->showRedirect)
-{
-    $buttons = array(
-                'OK'=>'js:function(){
-                    location.href = "'. Yii::app()->createUrl('members/index') . '";
-                }'
-            );
-    $trigger = $this->showRedirect;
-}
 
 $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
         'id'=>'dialog-box',
@@ -83,3 +74,66 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
 
 <?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
 <!-- dialog box -->
+
+<!-- confirmation dialog box -->
+<?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'confirm-box',
+        'options'=>array(
+            'title'=>$this->title,
+            'modal'=>true,
+            'width'=>'350',
+            'height'=>'auto',
+            'resizable'=>false,
+            'autoOpen'=>$this->showConfirm,
+        ),
+)); 
+?>
+
+<br />
+<?php echo $this->msg; ?>
+<br />
+
+<div align="right">
+<?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'ajaxSubmit', 'url'=>Yii::app()->createUrl("members/terminateSuccess"), 'label'=>'YES',
+                                                                'ajaxOptions'=>array(
+                                                                    'type'=>'POST',
+                                                                    'data'=>'js:$("#terminate-form").serialize()',
+                                                                    'success'=>'function(data){
+                                                                        $("#msg").html(data);
+                                                                        $("#confirm-box").dialog("close");
+                                                                        $("#success-box").dialog("open");
+                                                                    }'
+                                                                )));
+
+$this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'NO', 'htmlOptions'=>array('onclick'=>'$("#confirm-box").dialog("close")')));
+?>
+</div>
+      
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+<!-- confirmation dialog box -->
+
+<!-- success dialog box -->
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'success-box',
+        'options'=>array(
+            'title'=>'UPDATE MEMBER STATUS',
+            'modal'=>true,
+            'width'=>'350',
+            'height'=>'auto',
+            'resizable'=>false,
+            'autoOpen'=>false,
+            'buttons'=>array(
+                'OK'=>'js:function(){
+                    location.href = "'. Yii::app()->createUrl('members/index') . '";
+                }'
+            )
+        ),
+)); ?>
+
+<br />
+<div id="msg"></div>
+<br />
+
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+<!-- success dialog box -->

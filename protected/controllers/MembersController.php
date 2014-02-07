@@ -10,7 +10,6 @@ class MembersController extends Controller
     public $title = '';
     public $showDialog = false;
     public $showConfirm = false;
-    public $showRedirect = false;
     
     public $layout = 'column2';
     
@@ -52,28 +51,17 @@ class MembersController extends Controller
         $id = $_GET["id"];
         $rawData = $model->selectMemberById($id);
         $model->attributes = $rawData;
-        
+
         if (isset($_POST["MemberDetailsModel"])) 
         {
             $model->member_id = $id;
             $model->attributes = $_POST["MemberDetailsModel"];
-             
+
             if ($model->validate())
             {
-                $retval = $model->updateMemberDetails();
-                
-                if ($retval)
-                {
-                    $this->title = "SUCCESSFUL";
-                    $this->msg = "Member information successfully modified.";
-                    $this->showRedirect = true;
-                }
-                else
-                {
-                    $this->title = "NOTIFICATION";
-                    $this->msg = "No changes made on the member's info.";
-                    $this->showDialog = true;
-                }
+                $this->title = "CONFIRMATION";
+                $this->msg = "Are you sure you want to modify this information?";
+                $this->showConfirm = true;
             }
             else
             {
@@ -117,24 +105,50 @@ class MembersController extends Controller
             }
             else
             {
-                $retval = $model->updateMemberStatus();
-                
-                if ($retval)
-                {
-                    $this->title = "SUCCESSFUL";
-                    $this->msg = "Member status successfully modified.";
-                    $this->showRedirect = true;
-                }
-                else
-                {
-                    $this->title = "NOTIFICATION";
-                    $this->msg = "No changes made on the member's info.";
-                    $this->showDialog = true;
-                }
+                $this->title = "CONFIRMATION";
+                $this->msg = "Are you sure you want to change the status of this account?";
+                $this->showConfirm = true;
             }
         }
 
         $this->render('_terminate', array('model'=>$model, 'fullName'=>$fullName, 'status'=>$currentStatus, 'list'=>$status_list));
+    }
+    
+    public function actionUpdateSuccess()
+    {
+        $model = new MemberDetailsModel();
+        
+        $model->attributes = $_POST["MemberDetailsModel"];        
+        $retval = $model->updateMemberDetails();
+
+        if ($retval)
+        {
+            $msg = "Member information successfully modified.";
+        }
+        else
+        {
+            $msg = "No changes made on the member's info.";
+        }
+        
+        echo $msg;
+    }
+    
+    public function actionTerminateSuccess()
+    {
+        $model = new MembersModel();
+        
+        $model->attributes = $_POST["MembersModel"]; 
+        $retval = $model->updateMemberStatus();
+        if ($retval)
+        {
+            $msg = "Member status successfully modified.";
+        }
+        else
+        {
+            $msg = "No changes made on the member's info.";
+        }
+        
+        echo $msg;
     }
 }
 ?>
