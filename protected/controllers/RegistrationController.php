@@ -41,7 +41,7 @@ class RegistrationController extends Controller
                         $param['plain_password'] = $model->plain_password;
                         
                         $param2['upline_id'] = $model->upline_id;
-                        $param2['downline_id'] = $model->new_member_id;
+                        $param2['new_member_id'] = $model->new_member_id;
                         $param2['endorser_id'] = $model->member_id;
                         
                         Mailer::sendVerificationLink($param);

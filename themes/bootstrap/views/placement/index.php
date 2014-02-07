@@ -4,8 +4,10 @@
  * @author : owliber
  * @date : 2014-02-06
  * @var PlacementController
- * @var MembersModel
+ * @var PlacementModel
  */
+
+$this->breadcrumbs = array('Profile'=>array('member/index'),'Placement Approval');
 
 Yii::app()->user->setFlash('info', '<strong>Important!</strong> Please check here regularly to for new downline\'s approval. Unapproved downlines within (3) days will be considered approved.');
 
@@ -21,6 +23,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 <h3>Placement Approval</h3>
 
 <?php $this->widget('bootstrap.widgets.TbGridView', array(
+    'id'=>'placement-grid',
     'type'=>'striped bordered condensed',
     //'filter' => $model->search(),
     'dataProvider'=>$gridDataProvider,
@@ -28,7 +31,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
     'template'=>"{items}",
     'columns'=>array(
         array('name'=>'member_id', 
-                'header'=>'#',
+                'header'=>'ID',
                 'htmlOptions'=>array('style'=>'text-align:center'),
                 'headerHtmlOptions' => array('style' => 'text-align:center'),
             ),
@@ -58,12 +61,20 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                         'url'=>'Yii::app()->createUrl("/placement/approve", array("id" =>$data["member_id"]))',
                         'options' => array(
                             'class'=>"btn btn-small",
-                            'confirm'=>'Are you sure you want to approve?',
+                            'confirm'=>'Are you sure you want to APPROVE?',
                             'ajax' => array(
                                 'type' => 'GET',
                                 'dataType'=>'json',
                                 'url' => 'js:$(this).attr("href")',
-                                //'success' => 'function(data){}',
+                                'success' => 'function(data){
+                                    if(data.result_code == 0)
+                                    {
+                                        alert(data.result_msg);
+                                        $.fn.yiiGridView.update("placement-grid");
+                                    }
+                                    else
+                                        alert(data.result_msg);
+                                 }',
                             ),
 
                         ),
@@ -76,12 +87,20 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                         'url'=>'Yii::app()->createUrl("/placement/disapprove", array("id"=>$data["member_id"]))',
                         'options' => array(
                             'class'=>"btn btn-small",
-                            'confirm'=>'Are you sure you want to disapprove?',
+                            'confirm'=>'Are you sure you want to DISAPPROVE?',
                             'ajax' => array(
                                 'type' => 'GET',
                                 'dataType'=>'json',
                                 'url' => 'js:$(this).attr("href")',
-                                //'success' => 'function(data){}',
+                                'success' => 'function(data){
+                                    if(data.result_code == 0)
+                                    {
+                                        alert(data.result_msg);
+                                        $.fn.yiiGridView.update("placement-grid");
+                                    }
+                                    else
+                                        alert(data.result_msg);
+                                 }',
                             ),
 
                         ),
@@ -89,20 +108,8 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                     ),
                 ),
                 'header'=>'Options',
-                'htmlOptions'=>array('style'=>'width:120px'),
+                'htmlOptions'=>array('style'=>'width:120px;text-align:center'),
             ),
         
-        /*
-        
-        array(
-                            'class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{view} {update}{delete}', //{approve} {disapprove}',
-                            'htmlOptions'=>array('style'=>'width: 50px'),
-                                                 'viewButtonUrl'=>null,
-                                                 'updateButtonUrl'=>'Yii::app()->createUrl("members/update", array("id"=>$data["member_id"]))',
-                                                 'deleteButtonUrl'=>null,
-                        ),
-         * 
-         */
     ),
 )); ?>

@@ -8,6 +8,7 @@
 class Downlines extends CFormModel
 {
     public $_connection;
+    public $endorser_id;
     
     public function __construct() {
         $this->_connection = Yii::app()->db;
@@ -18,10 +19,7 @@ class Downlines extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT
-                   -- endorser_id as endorser,                    
-                   -- upline_id as upline,
                     member_id AS downline
-                    -- count(m.member_id) AS total
                   FROM members m
                   WHERE m.upline_id = :member_id;";
         
@@ -38,11 +36,8 @@ class Downlines extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT
-                    -- endorser_id AS endorser,
-                    -- m.upline_id AS upline,
                     m.member_id AS downline
-                    -- count(m.member_id) AS total
-                  FROM members m
+                 FROM members m
                   WHERE m.upline_id IN (SELECT
                     m1.member_id
                   FROM members m1
@@ -59,10 +54,7 @@ class Downlines extends CFormModel
     {
         $conn = $this->_connection;
         $query = "SELECT
-                    -- endorser_id AS endorser,
-                    -- m.upline_id AS upline,
                     m.member_id AS downline
-                    -- count(m.member_id) AS total
                   FROM members m
                   WHERE m.upline_id IN (SELECT
                     m1.member_id

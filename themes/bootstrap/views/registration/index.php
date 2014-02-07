@@ -7,11 +7,14 @@
  * @var $this RegistrationForm 
  */
 
+$this->breadcrumbs = array('Registration');
+
 ?>
 <?php Yii::app()->clientScript->registerScript('ui','
          
      $(\'input[rel="tooltip"]\').tooltip();     
-     var upline_id = $("#RegistrationForm_upline_id");
+     var upline_id = $("#RegistrationForm_upline_id"),
+         upline_name = $("#RegistrationForm[upline_name]");
     
  ', CClientScript::POS_END);
  ?>
@@ -104,11 +107,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <?php echo $form->textFieldRow($model,'email', array('class'=>'span3')); ?>
 <?php echo $form->textFieldRow($model,'tin_no', array('class'=>'span3')); ?>
 <?php echo $form->textFieldRow($model,'company', array('class'=>'span3')); ?>
-<?php echo $form->dropDownListRow($model,'occupation_id', array(''=>Yii::t('none','Select occupation')) + $model->listOccupations(), array('class'=>'span2')); ?>
+<?php echo $form->textFieldRow($model,'occupation', array('class'=>'span3')); ?>
 <?php echo $form->textFieldRow($model,'spouse_name', array('class'=>'span4')); ?>
 <?php echo $form->textFieldRow($model,'spouse_contact_no', array('class'=>'span2')); ?>
 <?php echo $form->textFieldRow($model,'beneficiary_name', array('class'=>'span4')); ?>
-<?php echo $form->dropDownListRow($model,'relationship_id', array(''=>Yii::t('none','Select relationship')) + $model->listRelationships(), array('class'=>'span2')); ?>
+<?php echo $form->textFieldRow($model,'relationship', array('class'=>'span4')); ?>
 
 <h5>Purchased Production Information</h5>
 <?php echo $form->textFieldRow($model,'product_code', array('class'=>'span2')); ?>
