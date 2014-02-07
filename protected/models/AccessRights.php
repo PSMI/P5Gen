@@ -49,7 +49,8 @@ class AccessRights extends CFormModel
                   FROM access_rights ar
                     INNER JOIN menus m ON ar.menu_id = m.menu_id
                     WHERE ar.account_type_id = :account_type_id 
-                        AND m.status = 1 ;";
+                        AND m.status = 1                         
+                    ORDER BY ar.sort_order;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(":account_type_id", $account_type_id);
@@ -75,7 +76,8 @@ class AccessRights extends CFormModel
                     ON ar.submenu_id = sm.submenu_id
                 WHERE ar.account_type_id = :account_type_id
                 AND ar.menu_id = :menu_id  
-                AND sm.status = 1;";
+                AND sm.status = 1
+                ORDER BY ar.sort_order;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(":account_type_id", $account_type_id);

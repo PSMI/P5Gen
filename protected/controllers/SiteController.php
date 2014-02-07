@@ -108,20 +108,20 @@ class SiteController extends Controller
 		$this->redirect(Yii::app()->homeUrl);
 	}
         
-//        public function filters()
-//        {
-//            return array(
-//                'https +login', // Force https, but only on login page
-//            );
-//        }
-        
         public function action404()
         {
             $this->render('404');
         }
-        
+                
         public function actionTest()
         {
-            $this->render('test');
+            $gridDataProvider = new CArrayDataProvider(array(
+                array('id'=>1, 'firstName'=>'Mark', 'lastName'=>'Otto', 'language'=>'CSS'),
+                array('id'=>2, 'firstName'=>'Jacob', 'lastName'=>'Thornton', 'language'=>'JavaScript'),
+                array('id'=>3, 'firstName'=>'Stu', 'lastName'=>'Dent', 'language'=>'HTML'),
+            ));
+            
+            
+            $this->render('test',array('gridDataProvider'=>$gridDataProvider));
         }
 }

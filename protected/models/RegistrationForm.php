@@ -38,12 +38,15 @@ class RegistrationForm extends CFormModel
     public $beneficiary_name;
     public $relationship_id;
     public $endorser_id;
-    public $placement_id;
+    public $upline_id;
+    public $upline_name;
     public $product_code;
     public $product_name;
     public $date_purchased;
     public $payment_mode_id;
     public $captcha_code;
+    
+    public $plain_password;
     
     public function __construct() {
         $this->_connection = Yii::app()->db;
@@ -57,7 +60,7 @@ class RegistrationForm extends CFormModel
             array('activation_code', 'required','message'=>'The activation code is required to complete the registration.'),
             array('activation_code', 'length', 'min'=>20, 'max'=>20),
                         
-            array('placement_id','required'),
+            array('upline_id,upline_name','required','message'=>'Upline is required for new registrations.'),
             array('last_name,first_name,middle_name,gender,civil_status,mobile_no,occupation_id', 'required'),
             
             array('email','email','message'=>'The email address is not valid.'),
@@ -74,7 +77,7 @@ class RegistrationForm extends CFormModel
     {
             return array(
                 'activation_code'=>'Activation Code',
-                'placement_id'=>'Place under',
+                'upline_id'=>'Place under',
                 'last_name'=>'Last Name',
                 'first_name'=>'First Name',
                 'middle_name'=>'Middle Name',
@@ -169,9 +172,7 @@ class RegistrationForm extends CFormModel
         $conn = $this->_connection;        
         $filter = "%".$filter."%";
         
-        $model = new Downlines();
-
-        $lists = $model->getDownlineLists(Yii::app()->user->getId());
+        $lists = Networks::getLessFiveDownlines(Yii::app()->user->getId());
 
         foreach($lists as $list)
         {
@@ -180,7 +181,7 @@ class RegistrationForm extends CFormModel
         }
 
         $downline_lists = implode(',', $downlines);
-        //echo CJSON::encode($downline_lists);
+
         $query = "SELECT
                     m.member_id,
                     CONCAT(COALESCE(md.last_name,' '), ', ', COALESCE(md.first_name,' '), ' ', COALESCE(md.middle_name,' ')) AS member_name
@@ -216,43 +217,12 @@ class RegistrationForm extends CFormModel
         return $result;
     }
     
-    public function checkActivationCode($attribute, $param)
-    {
-        
-        if(!ActivationCodeModel::isValidActivationCode($attribute))        
-           $this->addError('activation_code', 'The activation code is invalid.');
-      
-        
-    }
     
     public function listDownlines($member_id)
     {
         return CHtml::listData($this->downlines($member_id), 'member_id', 'member_name');
     }
     
-    public function generate($member_id, $firstname, $lastname)
-    {
-        $string = substr($firstname, 0, 1) . $lastname;
-        $username = strtolower($string);
-        
-        $retval = Members::checkUsername($username);
-       
-        //validate username if already in used, append member_id if true
-        if($retval) $username = $username . '_' . $member_id;
-        return $username;
-            
-    }
-    
-    public function randomPassword($length) {
-        $alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
-        $pass = array(); 
-        $alphaLength = strlen($alphabet) - 1; 
-        for ($i = 0; $i < $length; $i++) {
-            $n = rand(0, $alphaLength);
-            $pass[] = $alphabet[$n];
-        }
-        return implode($pass); //turn the array into a string
-    }
     
     public function register()
     {
@@ -262,18 +232,18 @@ class RegistrationForm extends CFormModel
         $account_type_id = $this->account_type_id;
         $activation_code = $this->activation_code;
         $endorser_id = $this->member_id;
-        $placement_id = $this->placement_id;
+        $upline_id = $this->upline_id;
                
         /* Insert member account info */
         
-        $query = "INSERT INTO members (account_type_id, activation_code, endorser_id, placement_id)
-                  VALUES (:account_type_id, :activation_code, :endorser_id, :placement_id)";
+        $query = "INSERT INTO members (account_type_id, activation_code, endorser_id, upline_id)
+                  VALUES (:account_type_id, :activation_code, :endorser_id, :upline_id)";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':account_type_id', $account_type_id);
         $command->bindParam(':activation_code', $activation_code);
         $command->bindParam(':endorser_id', $endorser_id);
-        $command->bindParam(':placement_id', $placement_id);
+        $command->bindParam(':upline_id', $upline_id);
         
         $result = $command->execute();
         //Get the new member_id
@@ -337,19 +307,22 @@ class RegistrationForm extends CFormModel
                         
                         if(count($result3) > 0)
                         {
-                            $username = $this->generate($this->new_member_id, $this->first_name, $this->last_name);
+                            $username = Helpers::generate($this->new_member_id, $this->first_name, $this->last_name);
         
                             $reference = new ReferenceModel();
                             //get reference variables for maximum random password
                             $max_rand_lenth = $reference->get_variable_value('MAX_RAND_PASSWORD');
-                            $password = $this->randomPassword($max_rand_lenth);
+                            $password = Helpers::randomPassword($max_rand_lenth);
+                            $this->plain_password = $password;
+                            
+                            $hashed_password = md5($password);
 
                             $query4 = "UPDATE members SET username = :username, `password` = :password
                                        WHERE member_id = :member_id";
 
                             $command4 = $conn->createCommand($query4);
                             $command4->bindParam(':username', $username);
-                            $command4->bindParam(':password', $password);
+                            $command4->bindParam(':password', $hashed_password);
                             $command4->bindParam(':member_id', $member_id);
 
                             $result4 = $command4->execute();
@@ -362,9 +335,29 @@ class RegistrationForm extends CFormModel
                                 
                                 if(count($result5) > 0)
                                 {
-                                    $trx->commit();
-                                    return array('result_code'=>0,
-                                                 'result_msg'=>'Registration successful');
+                                    $query5 = "INSERT INTO pending_placements (member_id, endorser_id, upline_id)
+                                                VALUES (:member_id, :endorser_id, :upline_id)";
+                                    
+                                    $command5 = $conn->createCommand($query5);
+                                    $command5->bindParam(':member_id', $this->new_member_id);
+                                    $command5->bindParam(':endorser_id', $this->member_id);
+                                    $command5->bindParam(':upline_id', $this->upline_id);
+                                    
+                                    $result5 = $command5->execute();
+                                    
+                                    if(count($result5) > 0)
+                                    {
+                                        $trx->commit();
+                                        return array('result_code'=>0,
+                                                     'result_msg'=>'Registration successful');
+                                    }
+                                    else
+                                    {
+                                        $trx->rollback();
+                                        return array('result_code'=>6,
+                                                     'result_msg'=>'Registration failed (Errcode:05)');
+                                    }
+                                    
                                 }
                                 else
                                 {
@@ -407,15 +400,6 @@ class RegistrationForm extends CFormModel
         }
     }
     
-    public function notify()
-    {
-        $retval = $this->setupAccount($this->new_member_id, $this->first_name, $this->last_name);
-        
-        if($retval)
-        {
-            
-        }
-    }
     
     public function setupAccount($member_id, $firstname, $lastname)
     {
@@ -457,6 +441,68 @@ class RegistrationForm extends CFormModel
             return false;
         }
         
+        
+    }
+    
+    public function validateAccount($email, $code)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    *
+                  FROM members m
+                    INNER JOIN member_details md
+                      ON m.member_id = md.member_id
+                  WHERE md.email = :email AND m.activation_code = :activation_code;";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':email', $email);
+        $command->bindParam(':activation_code', $code);
+        
+        $result = $command->queryAll();
+        
+        if(count($result)>0)
+            return true;
+        else
+            return false;
+    }
+    
+    public function activateAccount($email,$code)
+    {
+        $conn = $this->_connection;
+        
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE members m
+                INNER JOIN member_details md
+                  ON m.member_id = md.member_id
+                SET m.status = 1
+                WHERE md.email = :email AND m.activation_code = :activation_code
+                AND m.status = 0;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':email', $email);
+        $command->bindParam(':activation_code', $code);
+        
+        $result = $command->execute();
+        
+        try
+        {
+            if(count($result)>0)
+            {
+                $trx->commit();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            return false;
+        }
         
     }
     

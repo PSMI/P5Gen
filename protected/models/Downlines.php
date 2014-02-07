@@ -19,11 +19,11 @@ class Downlines extends CFormModel
         
         $query = "SELECT
                    -- endorser_id as endorser,                    
-                   -- placement_id as upline,
+                   -- upline_id as upline,
                     member_id AS downline
                     -- count(m.member_id) AS total
                   FROM members m
-                  WHERE m.placement_id = :member_id;";
+                  WHERE m.upline_id = :member_id;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
@@ -37,17 +37,37 @@ class Downlines extends CFormModel
     {
         $conn = $this->_connection;
         
-        //$member_ids = implode(',', $member_ids);
         $query = "SELECT
                     -- endorser_id AS endorser,
-                    -- m.placement_id AS upline,
+                    -- m.upline_id AS upline,
                     m.member_id AS downline
                     -- count(m.member_id) AS total
                   FROM members m
-                  WHERE m.placement_id IN (SELECT
+                  WHERE m.upline_id IN (SELECT
                     m1.member_id
                   FROM members m1
-                  WHERE m1.placement_id IN ($member_ids) )
+                  WHERE m1.upline_id IN ($member_ids) )";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_ids);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function nextLessFiveLevel($member_ids)
+    {
+        $conn = $this->_connection;
+        $query = "SELECT
+                    -- endorser_id AS endorser,
+                    -- m.upline_id AS upline,
+                    m.member_id AS downline
+                    -- count(m.member_id) AS total
+                  FROM members m
+                  WHERE m.upline_id IN (SELECT
+                    m1.member_id
+                  FROM members m1
+                  WHERE m1.upline_id IN ($member_ids) )
                   GROUP BY m.member_id
                   HAVING COUNT(m.member_id) < 5";
         
@@ -58,73 +78,5 @@ class Downlines extends CFormModel
         return $result;
     }
     
-    public function convertToList($arr)
-    {
-        foreach($arr as $item)
-        {
-            $items[] = $item['downline'];
-        }
-        
-        $listItems = implode(',', $items);
-        return array('arrayList'=>$items,
-                     'listItem'=>$listItems);
-    }
-    
-    public function getDownlineLists($member_id)
-    {
-        $downlines = $this->firstLevel($member_id);
-        $level = 1;
-
-        do
-        {
-            
-            foreach($downlines as $downline)
-            {
-                $result[] = array('level'=>$level,
-                                  'downlines'=>$downline['downline'],
-                                );
-            }
-            
-            
-            
-            $rows = $this->convertToList($downlines);        
-            $downlines = $this->nextLevel($rows['listItem']);
-            $max_per_level = pow(count($downlines),$level);
-
-            $level++;
-            $total_downlines = count($downlines);
-             
-
-        }while($total_downlines>0 && $total_downlines>=$max_per_level);
-        
-        return $result;
-    }
-    
-    public function getLevelCount($member_id)
-    {
-        $downlines = $this->firstLevel($member_id);
-        $level = 1;
-
-        do
-        {
-            $total = count($downlines);
-            
-            $result[] = array('level'=>$level,
-                              'total'=>$total,
-                        );
-            
-            $rows = $this->convertToList($downlines);        
-            $downlines = $this->nextLevel($rows['listItem']);
-            $max_per_level = pow(count($downlines),$level);
-
-            $level++;
-            $total_downlines = count($downlines);
-             
-
-        }while($total_downlines>0 && $total_downlines>=$max_per_level);
-        
-        return $result;
-        
-    }
 }
 ?>

@@ -150,5 +150,22 @@ class MembersModel extends CFormModel
             return false;
         }
     }
+    
+    public function selectMemberDetails($id)
+    {
+        $connection = $this->_connection;
+        
+        $sql = "SELECT *
+                FROM members a 
+                INNER JOIN member_details b ON a.member_id = b.member_id
+                WHERE a.member_id = :member_id";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":member_id", $id);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
+    
+
 }
 ?>

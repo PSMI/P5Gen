@@ -22,5 +22,15 @@ class ReferenceModel extends CFormModel
         $result = $command->queryRow();
         return $result['variable_value'];
     }
+    
+    public function get_message_template($template_id)
+    {
+        $conn = $this->_connection;
+        $query = "SELECT * FROM ref_message_template WHERE message_template_id = :template_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':template_id', $template_id);
+        $result = $command->queryRow();
+        return $result['message_template'];
+    }
 }
 ?>
