@@ -22,7 +22,7 @@ $this->widget('bootstrap.widgets.TbButton', array(
     'label'=>'Generate Activation Codes',
     'type'=>'primary',
     'size'=>'large',
-    'htmlOptions'=>array('onclick'=>'location.href="' . Yii::app()->createUrl("activationCode/create") . '";')
+    'htmlOptions'=>array('onclick'=>'location.href="' . Yii::app()->createUrl("codes/create") . '";')
 ));
 
 $this->widget('bootstrap.widgets.TbGridView', array(
@@ -82,7 +82,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         array('name'=>'Action',
                             'header'=>'Action',
                             'type'=>'raw',
-                            'value'=>'CHtml::link("View Codes", array("activationCode/codes", "id"=>$data["activation_code_batch_id"]))',
+                            'value'=>'CHtml::link("View Codes", array("codes/codes", "id"=>$data["activation_code_batch_id"]))',
                             'htmlOptions' => array('style' => 'text-align:center'),    
                         ),
         )

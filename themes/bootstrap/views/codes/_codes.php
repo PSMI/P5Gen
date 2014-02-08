@@ -46,7 +46,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         )
         ));
 
-$this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("activationCode/index") . '";')));
+$this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("codes/index") . '";')));
 
 ?>
 

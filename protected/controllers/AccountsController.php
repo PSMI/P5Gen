@@ -16,8 +16,8 @@ class AccountsController extends Controller
     
     public function actionIndex()
     {
-//        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
-//                $this->redirect(array('site/404'));
+        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
+                $this->redirect(array('site/404'));
         
         $model = new MemberDetailsModel();
         

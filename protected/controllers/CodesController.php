@@ -5,7 +5,7 @@
  * @date 01-27-2014
  */
 
-class ActivationCodeController extends Controller 
+class CodesController extends Controller 
 {
     public $msg = '';
     public $title = '';
