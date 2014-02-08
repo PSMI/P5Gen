@@ -115,7 +115,9 @@ class MemberDetailsModel extends CFormModel
         $connection = $this->_connection;
         
         $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
-                a.birth_date, a.mobile_no, a.email
+                a.birth_date, a.mobile_no, a.email,
+                CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
+                WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
                 WHERE b.account_type_id = 3";
@@ -196,7 +198,9 @@ class MemberDetailsModel extends CFormModel
         $connection = $this->_connection;
         
         $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
-                a.birth_date, a.mobile_no, a.email
+                a.birth_date, a.mobile_no, a.email,
+                CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
+                WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
                 WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField) AND b.account_type_id = 3";
@@ -204,6 +208,18 @@ class MemberDetailsModel extends CFormModel
         $keyword = "%" . $searchField . "%";
         $command->bindParam(":searchField", $keyword);
         $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function checkExistingEmail($email)
+    {
+        $connection = $this->_connection;
+        
+        $sql = "SELECT member_id, email FROM member_details WHERE email = :email";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":email", $email);
+        $result = $command->queryRow();
         
         return $result;
     }

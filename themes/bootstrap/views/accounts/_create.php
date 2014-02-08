@@ -7,6 +7,28 @@
 ?>
 <h1>Create Account Profile</h1>
 
+<script type="text/javascript">
+function generateUsername()
+{
+    $.ajax({
+        url: 'ajaxUser',
+        type: 'post',
+        dataType: 'json',
+        data: {
+            id: $("#MembersModel_member_id").val(),
+            first: $("#MemberDetailsModel_first_name").val(),
+            last: $("#MemberDetailsModel_last_name").val()
+        },
+        success: function(data){
+            $("#MembersModel_username").val(data);
+        },
+        error: function(e){
+            alert(e);
+        }
+    });
+}
+</script>
+
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'id' => 'update-form',
@@ -25,7 +47,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td><?php echo $form->hiddenField($membersModel, 'member_id', array('readonly'=>true, 'value'=>$maxId)); ?></td>
     </tr>
     <tr>
-        <td><?php echo $form->textFieldRow($membersModel, 'username'); ?></td>
+        <td><?php echo $form->textFieldRow($membersModel, 'username', array('readonly'=>true)); ?></td>
     </tr>
     <tr>
         <td><?php echo $form->passwordFieldRow($membersModel, 'password'); ?></td>
@@ -39,8 +61,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 
 <table style="width: 40%;">
     <tr>
-        <td><?php echo $form->textFieldRow($model, 'last_name'); ?></td>
-        <td><?php echo $form->textFieldRow($model, 'first_name'); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'last_name', array('onblur'=>'generateUsername()')); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'first_name', array('onblur'=>'generateUsername()')); ?></td>
         <td><?php echo $form->textFieldRow($model, 'middle_name'); ?></td>
     </tr>
     <tr>
@@ -100,15 +122,6 @@ if ($this->showDialog)
             );
     $trigger = $this->showDialog;
 }
-else if ($this->showRedirect)
-{
-    $buttons = array(
-                'OK'=>'js:function(){
-                    location.href = "'. Yii::app()->createUrl('accounts/index') . '";
-                }'
-            );
-    $trigger = $this->showRedirect;
-}
 
 $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
         'id'=>'dialog-box',
@@ -129,3 +142,66 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
 
 <?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
 <!-- dialog box -->
+
+<!-- confirmation dialog box -->
+<?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'confirm-box',
+        'options'=>array(
+            'title'=>$this->title,
+            'modal'=>true,
+            'width'=>'350',
+            'height'=>'auto',
+            'resizable'=>false,
+            'autoOpen'=>$this->showConfirm,
+        ),
+)); 
+?>
+
+<br />
+<?php echo $this->msg; ?>
+<br />
+
+<div align="right">
+<?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'ajaxSubmit', 'url'=>Yii::app()->createUrl("accounts/createSuccess"), 'label'=>'YES',
+                                                                'ajaxOptions'=>array(
+                                                                    'type'=>'POST',
+                                                                    'data'=>'js:$("#update-form").serialize()',
+                                                                    'success'=>'function(data){
+                                                                        $("#msg").html(data);
+                                                                        $("#confirm-box").dialog("close");
+                                                                        $("#success-box").dialog("open");
+                                                                    }'
+                                                                )));
+
+$this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'NO', 'htmlOptions'=>array('onclick'=>'$("#confirm-box").dialog("close")')));
+?>
+</div>
+      
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+<!-- confirmation dialog box -->
+
+<!-- success dialog box -->
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'success-box',
+        'options'=>array(
+            'title'=>'CREATE ADMIN ACCOUNT',
+            'modal'=>true,
+            'width'=>'350',
+            'height'=>'auto',
+            'resizable'=>false,
+            'autoOpen'=>false,
+            'buttons'=>array(
+                'OK'=>'js:function(){
+                    location.href = "'. Yii::app()->createUrl('accounts/index') . '";
+                }'
+            )
+        ),
+)); ?>
+
+<br />
+<div id="msg"></div>
+<br />
+
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+<!-- success dialog box -->
