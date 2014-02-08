@@ -18,10 +18,17 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 ));
 
-echo CHtml::link('GENERATE NEW CODES', Yii::app()->createUrl('activationCode/create'));
+$this->widget('bootstrap.widgets.TbButton', array(
+    'label'=>'Generate Activation Codes',
+    'type'=>'primary',
+    'size'=>'large',
+    'htmlOptions'=>array('onclick'=>'location.href="' . Yii::app()->createUrl("activationCode/create") . '";')
+));
 
-$this->widget('zii.widgets.grid.CGridView', array(
-        'dataProvider' => $dataProvider,
+$this->widget('bootstrap.widgets.TbGridView', array(
+        'id'=>'placement-grid',
+        'type'=>'striped bordered condensed',
+        'dataProvider'=>$dataProvider,
         'enablePagination' => true,
         'columns' => array(
                         array('name'=>'ActivationCodeBatchID',
@@ -54,7 +61,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
                             'value'=>'CHtml::encode($data["batch_quantity"])',
                             'htmlOptions' => array('style' => 'text-align:center'),    
                         ),
-                        array('name'=>'ActiveCodes',
+                        /*array('name'=>'ActiveCodes',
                             'header'=>'Active Codes',
                             'type'=>'raw',
                             'value'=>'CHtml::encode($data["batch_quantity"])',
@@ -71,7 +78,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
                             'type'=>'raw',
                             'value'=>'CHtml::encode($data["batch_quantity"])',
                             'htmlOptions' => array('style' => 'text-align:center'),    
-                        ),
+                        ),*/
                         array('name'=>'Action',
                             'header'=>'Action',
                             'type'=>'raw',

@@ -9,7 +9,7 @@ $this->breadcrumbs = array(
 );
 ?>
 <style type="text/css">
-    .grid-view { width: 50%; }
+    /*.grid-view { width: 50%; }*/
 </style>
 
 <h1>Activation Code Generation History</h1>
@@ -25,21 +25,23 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 ));
 
-$this->widget('zii.widgets.grid.CGridView', array(
-        'dataProvider' => $dataProvider,
+$this->widget('bootstrap.widgets.TbGridView', array(
+        'id'=>'placement-grid',
+        'type'=>'striped bordered condensed',
+        'dataProvider'=>$dataProvider,
         'enablePagination' => true,
         'columns' => array(
                         array('name'=>'ActivationCode',
                             'header'=>'Activation Code',
                             'type'=>'raw',
                             'value'=>'CHtml::encode($data["activation_code"])',
-                            'htmlOptions' => array('style' =>'text-align:center', 'width'=>'1%'),    
+                            'htmlOptions' => array('style' =>'text-align:center'),    
                         ), 
                         array('name'=>'Status',
                             'header'=>'Status',
                             'type'=>'raw',
                             'value'=>'CHtml::encode($data["status"])',
-                            'htmlOptions' => array('style' => 'text-align:center', 'width'=>'1%'),    
+                            'htmlOptions' => array('style' => 'text-align:center'),    
                         ),                        
         )
         ));

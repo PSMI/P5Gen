@@ -5,8 +5,10 @@
  * @date 01-28-2014
  */
 
-$this->widget('zii.widgets.grid.CGridView', array(
-        'dataProvider' => $dataProvider,
+$this->widget('bootstrap.widgets.TbGridView', array(
+        'id'=>'placement-grid',
+        'type'=>'striped bordered condensed',
+        'dataProvider'=>$dataProvider,
         'enablePagination' => true,
         'columns' => array(
                         array('name'=>'MemberID',
