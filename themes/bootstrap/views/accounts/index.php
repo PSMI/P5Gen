@@ -16,9 +16,14 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         ),        
     'htmlOptions'=>array('class'=>'well'),
     ));
-?>
 
-<?php echo CHtml::link('Add New Account', Yii::app()->createUrl("accounts/create")); ?>
+$this->widget('bootstrap.widgets.TbButton', array(
+    'label'=>'Add New Account',
+    'type'=>'primary',
+    'size'=>'large',
+    'htmlOptions'=>array('onclick'=>'location.href="' . Yii::app()->createUrl("accounts/create") . '";')
+));
+?>
 
 <?php echo $this->renderPartial('_search'); ?>
 
