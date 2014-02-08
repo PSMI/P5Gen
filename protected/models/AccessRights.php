@@ -22,10 +22,12 @@ class AccessRights extends CFormModel
         $query = "SELECT
                     *
                   FROM access_rights ar
-                    INNER JOIN menus m ON ar.menu_id = m.menu_id
-                    WHERE m.menu_link = :link
-                    AND ar.account_type_id = :account_type_id
-                    AND m.status = 1";
+                    INNER JOIN menus m
+                      ON ar.menu_id = m.menu_id
+                    LEFT JOIN submenus s ON ar.submenu_id = s.submenu_id
+                  WHERE (m.menu_link = :link OR s.submenu_link =:link)
+                  AND ar.account_type_id = :account_type_id
+                  AND m.status = 1";
         
         $command = $conn->createCommand($query);
         $command->bindParam(":account_type_id", $account_type_id);
