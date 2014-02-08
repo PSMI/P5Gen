@@ -58,13 +58,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td><?php echo $form->textFieldRow($model, 'company', array('value'=>$data["company"])); ?></td>
     </tr>
     <tr>
-        <td><?php echo $form->textFieldRow($model, 'occupation_id', array('value'=>$data["occupation_id"])); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'occupation', array('value'=>$data["occupation"])); ?></td>
         <td><?php echo $form->textFieldRow($model, 'spouse_name', array('value'=>$data["spouse_name"])); ?></td>
         <td><?php echo $form->textFieldRow($model, 'spouse_contact_no', array('value'=>$data["spouse_contact_no"])); ?></td>
     </tr>
     <tr>
         <td><?php echo $form->textFieldRow($model, 'beneficiary_name', array('value'=>$data["beneficiary_name"])); ?></td>
-        <td><?php echo $form->textFieldRow($model, 'relationship_id', array('value'=>$data["relationship_id"])); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'relationship', array('value'=>$data["relationship"])); ?></td>
     </tr>
     <tr>
         <td><?php   

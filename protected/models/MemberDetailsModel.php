@@ -23,11 +23,11 @@ class MemberDetailsModel extends CFormModel
     public $email;
     public $tin_no;
     public $company;
-    public $occupation_id;
+    public $occupation;
     public $spouse_name;
     public $spouse_contact_no;
     public $beneficiary_name;
-    public $relationship_id;
+    public $relationship;
     
     
     public function __construct() {
@@ -42,8 +42,8 @@ class MemberDetailsModel extends CFormModel
                         mobile_no, email, gender, birth_date', 'required'),
             
                 array('member_id, address2, address3, zip_code, telephone_no, tin_no
-                        company, occupation_id, 
-                        beneficiary_name, relationship_id, spouse_name, spouse_contact_no', 'safe'),
+                        company, occupation, 
+                        beneficiary_name, relationship, spouse_name, spouse_contact_no', 'safe'),
             
                 array('email', 'email'),
             
@@ -69,11 +69,11 @@ class MemberDetailsModel extends CFormModel
                 'email'=>'Email',
                 'tin_no'=>'TIN',
                 'company'=>'Company',
-                'occupation_id'=>'Occupation',
+                'occupation'=>'Occupation',
                 'spouse_name'=>'Spouse Name',
                 'spouse_contact_no'=>'Spouse Contact Number',
                 'beneficiary_name'=>'Beneficiary',
-                'relationship_id'=>'Relationship',
+                'relationship'=>'Relationship',
                 'status'=>'Status'
         );
     }
@@ -150,9 +150,9 @@ class MemberDetailsModel extends CFormModel
                         middle_name = :middle_name, address1 = :address1, address2 = :address2,
                         address3 = :address3, zip_code = :zip_code, gender = :gender, civil_status = :civil_status,
                         birth_date = :birth_date, mobile_no = :mobile_no, telephone_no = :telephone_no,
-                        email = :email, tin_no = :tin_no, company = :company, occupation_id = :occupation_id,
+                        email = :email, tin_no = :tin_no, company = :company, occupation = :occupation,
                         spouse_name = :spouse_name, spouse_contact_no = :spouse_contact_no, beneficiary_name = :beneficiary_name,
-                        relationship_id = :relationship_id
+                        relationship = :relationship
                     WHERE member_id = :member_id";
             $command = $connection->createCommand($sql);
             $command->bindValue(':member_id', $this->member_id);
@@ -171,11 +171,11 @@ class MemberDetailsModel extends CFormModel
             $command->bindValue(':email', $this->email);
             $command->bindValue(':tin_no', $this->tin_no);
             $command->bindValue(':company', $this->company);
-            $command->bindValue(':occupation_id', $this->occupation_id);
+            $command->bindValue(':occupation', $this->occupation);
             $command->bindValue(':spouse_name', $this->spouse_name);
             $command->bindValue(':spouse_contact_no', $this->spouse_contact_no);
             $command->bindValue(':beneficiary_name', $this->beneficiary_name);
-            $command->bindValue(':relationship_id', $this->relationship_id);
+            $command->bindValue(':relationship', $this->relationship);
             $rowCount = $command->execute();
             
             if ($rowCount > 0) {

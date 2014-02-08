@@ -21,12 +21,10 @@ class NetworksModel extends CFormModel
                 CASE b.civil_status WHEN 1 THEN 'Single' WHEN 2 THEN 'Married' WHEN 3 THEN 'Divorced'
                 WHEN 4 THEN 'Separated' WHEN 5 THEN 'Widow' END AS civil_status,
                 b.birth_date, b.spouse_name, b.spouse_contact_no, b.beneficiary_name,
-                b.company, b.tin_no, b.email, b.address1, b.telephone_no, b.mobile_no, c.occupation_name,
-                d.relationship_name, a.endorser_id, a.upline_id
+                b.company, b.tin_no, b.email, b.address1, b.telephone_no, b.mobile_no, b.occupation,
+                b.relationship, a.endorser_id, a.upline_id
                 FROM members a
                 INNER JOIN member_details b ON a.member_id = b.member_id
-                LEFT JOIN ref_occupations c ON b.occupation_id = c.occupation_id
-                LEFT JOIN ref_relationships d ON b.relationship_id = d.relationship_id
                 WHERE a.member_id = :member_id";
         
         $command = $connection->createCommand($sql);

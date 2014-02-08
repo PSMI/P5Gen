@@ -83,8 +83,8 @@ class MembersModel extends CFormModel
     public function insertNewMemberAccount($account_type_id, $username, $password,
                         $last_name, $first_name, $middle_name, $address1, $address2, $address3,
                         $zip_code, $gender, $civil_status, $birth_date, $mobile_no, $telephone_no,
-                        $email, $tin_no, $company, $occupation_id, $spouse_name, $spouse_contact_no,
-                        $beneficiary_name, $relationship_id)
+                        $email, $tin_no, $company, $occupation, $spouse_name, $spouse_contact_no,
+                        $beneficiary_name, $relationship)
     {
         $connection = $this->_connection;
         $beginTrans = $connection->beginTransaction();
@@ -105,12 +105,12 @@ class MembersModel extends CFormModel
                 
                 $sql2 = "INSERT INTO member_details (member_id, last_name, first_name, middle_name, address1, address2, address3,
                             zip_code, gender, civil_status, birth_date, mobile_no, telephone_no,
-                            email, tin_no, company, occupation_id, spouse_name, spouse_contact_no,
-                            beneficiary_name, relationship_id) 
+                            email, tin_no, company, occupation, spouse_name, spouse_contact_no,
+                            beneficiary_name, relationship) 
                     VALUES (:member_id, :last_name, :first_name, :middle_name, :address1, :address2, :address3,
                             :zip_code, :gender, :civil_status, :birth_date, :mobile_no, :telephone_no,
-                            :email, :tin_no, :company, :occupation_id, :spouse_name, :spouse_contact_no,
-                            :beneficiary_name, :relationship_id)";
+                            :email, :tin_no, :company, :occupation, :spouse_name, :spouse_contact_no,
+                            :beneficiary_name, :relationship)";
                 $command2 = $connection->createCommand($sql2);
                 $command2->bindValue(':member_id', $last_inserted_id);
                 $command2->bindValue(':last_name', $last_name);
@@ -128,11 +128,11 @@ class MembersModel extends CFormModel
                 $command2->bindValue(':email', $email);
                 $command2->bindValue(':tin_no', $tin_no);
                 $command2->bindValue(':company', $company);
-                $command2->bindValue(':occupation_id', $occupation_id);
+                $command2->bindValue(':occupation', $occupation);
                 $command2->bindValue(':spouse_name', $spouse_name);
                 $command2->bindValue(':spouse_contact_no', $spouse_contact_no);
                 $command2->bindValue(':beneficiary_name', $beneficiary_name);
-                $command2->bindValue(':relationship_id', $relationship_id);
+                $command2->bindValue(':relationship', $relationship);
                 $rowCount2 = $command2->execute();
                 
                 if ($rowCount2 > 0) {

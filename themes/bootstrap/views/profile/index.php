@@ -33,14 +33,14 @@
     </tr>
     <tr>
         <th>Beneficiary:</th><td><?php echo $data["beneficiary_name"]; ?></td>
-        <th>Relationship:</th><td><?php echo $data["relationship_name"]; ?></td>
+        <th>Relationship:</th><td><?php echo $data["relationship"]; ?></td>
     </tr>
     <tr>
         <th>TIN Number:</th><td><?php echo $data["tin_no"]; ?></td>
         <th>Company:</th><td><?php echo $data["company"]; ?></td>
     </tr>
     <tr>
-        <th>Occupation:</th><td><?php echo $data["occupation_name"]; ?></td>
+        <th>Occupation:</th><td><?php echo $data["occupation"]; ?></td>
     </tr>
 </table>
 <br/>

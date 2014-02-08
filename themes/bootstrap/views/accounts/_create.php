@@ -95,13 +95,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td><?php echo $form->textFieldRow($model, 'company'); ?></td>
     </tr>
     <tr>
-        <td><?php echo $form->textFieldRow($model, 'occupation_id'); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'occupation'); ?></td>
         <td><?php echo $form->textFieldRow($model, 'spouse_name'); ?></td>
         <td><?php echo $form->textFieldRow($model, 'spouse_contact_no'); ?></td>
     </tr>
     <tr>
         <td><?php echo $form->textFieldRow($model, 'beneficiary_name'); ?></td>
-        <td><?php echo $form->textFieldRow($model, 'relationship_id'); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'relationship'); ?></td>
     </tr>
     <tr>
         <td><?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Add Account')); $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("accounts/index") . '";'))); ?></td>

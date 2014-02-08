@@ -15,7 +15,6 @@ $this->breadcrumbs = array(
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'id' => 'index-form',
         'enableClientValidation' => true,
-        'enableAjaxValidation' => true,
         'clientOptions' => array(
             'validateOnSubmit' => true,
         ),
@@ -31,6 +30,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Generate'));
           $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("activationCode/index") . '";'))); ?>
 </div>
+
+
+<?php $this->endWidget(); ?>
 
 <!-- dialog box -->
 <?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
@@ -58,8 +60,6 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <!-- dialog box -->
 
 
-<?php $this->endWidget(); ?>
-
 <!-- confirmation dialog box -->
 <?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
         'id'=>'confirm-box',
@@ -81,7 +81,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 }'
             )
         ),
-)); ?>
+)); 
+?>
 
 <br />
 <?php echo $this->msg; ?>
