@@ -22,7 +22,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'htmlOptions' => array('style' => 'text-align:center'),
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
-                        array('name'=>'ibp_count',
+                        array('name'=>'ibo_count',
                             'header'=>'IBO Count',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
@@ -37,9 +37,14 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
-                        array('name'=>'date_released',
+                        array('name'=>'date_processed',
                             'header'=>'Date Released',
                             'htmlOptions' => array('style' => 'text-align:center'), 
+                            'headerHtmlOptions' => array('style' => 'text-align:center'),
+                        ),
+                        array('name'=>'processed_by',
+                            'header'=>'Processed By',
+                            'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('name'=>'status',
@@ -54,13 +59,13 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             (
                                 'approve'=>array
                                 (
-                                    'label'=>'Approve',
+                                    'label'=>'Claim',
                                     'icon'=>'ok-sign',
                                     'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["commission_id"], "status" => "1", "transtype" => "goc"))',
                                     'visible'=>'$data["status"] == 0 ? true : false',
                                     'options' => array(
                                         'class'=>"btn btn-small",
-                                        'confirm'=>'Are you sure you want to APPROVE?',
+                                        'confirm'=>'Are you sure you want to CLAIM?',
                                         'ajax' => array(
                                             'type' => 'GET',
                                             'dataType'=>'json',
@@ -81,7 +86,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 ),
                             ),
                             'header'=>'Action',
-                            'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
+                            'htmlOptions'=>array('style'=>'width:60px;text-align:center'),
                         ),
         )
         ));

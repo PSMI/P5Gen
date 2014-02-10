@@ -21,14 +21,16 @@ class GroupOverrideCommission extends CFormModel
                     c.commission_id,
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
                     c.level_no,
-                    c.ibp_count,
+                    c.ibo_count,
                     c.amount,
                     c.date_created,
-                    c.date_released,
+                    c.date_processed,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS processed_by,
                     c.status
                   FROM commissions c
                     INNER JOIN member_details m
                       ON c.member_id = m.member_id
+                    LEFT OUTER JOIN member_details md ON c.processed_by_id = md.member_id
                   WHERE date_created BETWEEN :dateFrom AND :dateTo;";
         
         $command =  $conn->createCommand($query);
@@ -39,21 +41,21 @@ class GroupOverrideCommission extends CFormModel
         return $result;
     }
     
-    public function updateLoanStatus($loan_id, $status, $userid)
+    public function updateCommisionStatus($comm_id, $status, $userid)
     {
         $conn = $this->_connection;
         
         $trx = $conn->beginTransaction();
         
         $query = "UPDATE commissions
-                    SET date_approved = NOW(),
+                    SET date_processed = NOW(),
                         status = :status,
-                        approved_by_id = :userid
-                    WHERE loan_id = :loan_id;";
+                        processed_by_id = :userid
+                    WHERE commission_id = :comm_id;";
         
         $command = $conn->createCommand($query);
         
-        $command->bindParam(':loan_id', $loan_id);
+        $command->bindParam(':comm_id', $comm_id);
         $command->bindParam(':status', $status);
         $command->bindParam(':userid', $userid);
 

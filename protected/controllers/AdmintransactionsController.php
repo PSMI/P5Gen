@@ -8,6 +8,7 @@ class AdmintransactionsController extends Controller
 {
     public $layout = 'column2';
     
+    //For Loan
     public function actionLoan()
     {
         $model = new Loan();
@@ -31,7 +32,7 @@ class AdmintransactionsController extends Controller
         else
         {
             $this->render('loan');
-        }        
+        }     
     }
     
     public function actionProcessTransaction()
@@ -43,40 +44,46 @@ class AdmintransactionsController extends Controller
         
         if(isset($_GET["id"]))
         {
-            $loan_id = $_GET["id"];
             $status = $_GET["status"];
             $transtype = $_GET["transtype"];
             $userid = Yii::app()->user->getId();
  
-            //update loan status
+            //update status
             if ($transtype == 'loan')
             {
+                $loan_id = $_GET["id"];
+                
                 $model = new Loan();
                 $result = $model->updateLoanStatus($loan_id, $status, $userid);
-            }
-            else if($transtype == 'goc')
-            {
-                $model = new GroupOverrideCommission();
-            }
-            
-            if (count($result) > 0)
-            {
-                //status approved
-                if ($status == 1)
+                
+                if (count($result) > 0)
                 {
                     $result_code = 0;
                     $result_msg = "Loan Approved.";
                 }
                 else
                 {
-                    $result_code = 0;
-                    $result_msg = "Loan Dispproved.";
+                    $result_code = 1;
+                    $result_msg = "An error occured. Please try again.";
                 }
             }
-            else
+            else if($transtype == 'goc')
             {
-                $result_code = 1;
-                $result_msg = "An error occured. Please try again.";
+                $comm_id = $_GET["id"];
+                
+                $model = new GroupOverrideCommission();
+                $result = $model->updateCommisionStatus($comm_id, $status, $userid);
+                
+                if (count($result) > 0)
+                {
+                    $result_code = 0;
+                    $result_msg = "GOC Claimed.";
+                }
+                else
+                {
+                    $result_code = 1;
+                    $result_msg = "An error occured. Please try again.";
+                }
             }
         }
         else
