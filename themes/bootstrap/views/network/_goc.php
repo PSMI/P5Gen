@@ -5,7 +5,7 @@
  * and open the template in the editor.
  */
 ?>
-<h1>Group Override Commission</h1>
+<h3>Group Override Commission</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -17,8 +17,10 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 ));
 
-$this->widget('zii.widgets.grid.CGridView', array(
-        'dataProvider' => $dataProvider,
+$this->widget('bootstrap.widgets.TbGridView', array(
+        'id'=>'goc-grid',
+        'type'=>'striped bordered condensed',
+        'dataProvider'=>$dataProvider,
         'enablePagination' => true,
         'columns' => array(
                 array('name'=>'LoanLevel',

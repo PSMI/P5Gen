@@ -6,7 +6,7 @@
  */
 
 ?>
-<h1><a href="" style="text-decoration: none; color: black">My Genealogy</a></h1>
+<h3><a href="" style="text-decoration: none; color: black">My Genealogy</a></h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(

@@ -5,7 +5,7 @@
  * and open the template in the editor.
  */
 ?>
-<h1>Loan</h1>
+<h3>Loan</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -18,8 +18,15 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 ));
 
 // infinite 5-member loan
-$this->widget('zii.widgets.grid.CGridView', array(
-        'dataProvider' => $dataProvider,
+$this->widget('bootstrap.widgets.TbLabel', array(
+    'type'=>'default',
+    'label'=>'Loan for (5) Direct Endorsements',
+));
+
+$this->widget('bootstrap.widgets.TbGridView', array(
+        'id'=>'loan-grid',
+        'type'=>'striped bordered condensed',
+        'dataProvider'=>$dataProvider,
         'enablePagination' => true,
         'columns' => array(
                 array('name'=>'DateCompleted',
@@ -56,8 +63,15 @@ $this->widget('zii.widgets.grid.CGridView', array(
 ));
 
 // level completion
-$this->widget('zii.widgets.grid.CGridView', array(
-        'dataProvider' => $dataProvider,
+$this->widget('bootstrap.widgets.TbLabel', array(
+    'type'=>'default',
+    'label'=>'Level Completion',
+));
+
+$this->widget('bootstrap.widgets.TbGridView', array(
+        'id'=>'loan-grid-two',
+        'type'=>'striped bordered condensed',
+        'dataProvider'=>$dataProvider,
         'enablePagination' => true,
         'columns' => array(
                 array('name'=>'Level',

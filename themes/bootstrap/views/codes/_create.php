@@ -9,7 +9,7 @@ $this->breadcrumbs = array(
 );
 ?>
 
-<h1>Activation Code Generator</h1>
+<h3>Activation Code Generator</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(

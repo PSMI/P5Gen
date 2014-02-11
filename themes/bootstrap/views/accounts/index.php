@@ -5,7 +5,7 @@
  * @date 01-28-2014
  */
 ?>
-<h1>Administration Accounts</h1>
+<h3>Administration Accounts</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(

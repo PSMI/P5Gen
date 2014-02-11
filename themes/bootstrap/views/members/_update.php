@@ -5,7 +5,7 @@
  * @date 01-30-2014
  */
 ?>
-<h1>Update Member Profile</h1>
+<h3>Update Member Profile</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(

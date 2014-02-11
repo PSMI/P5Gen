@@ -5,7 +5,7 @@
  * @date 01-30-2014
  */
 ?>
-<h1>Terminate Member Account</h1>
+<h3>Terminate Member Account</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(

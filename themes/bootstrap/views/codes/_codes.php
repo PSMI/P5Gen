@@ -12,7 +12,7 @@ $this->breadcrumbs = array(
     /*.grid-view { width: 50%; }*/
 </style>
 
-<h1>Activation Code Generation History</h1>
+<h3>Activation Code Generation History</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(

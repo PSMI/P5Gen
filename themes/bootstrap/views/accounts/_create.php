@@ -5,7 +5,7 @@
  * @date 01-30-2014
  */
 ?>
-<h1>Create Account Profile</h1>
+<h3>Create Account Profile</h3>
 
 <script type="text/javascript">
 function generateUsername()

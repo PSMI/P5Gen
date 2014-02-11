@@ -5,7 +5,7 @@
  * and open the template in the editor.
  */
 ?>
-<h1>Direct Endorsement</h1>
+<h3>Direct Endorsement</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(

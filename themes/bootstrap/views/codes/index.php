@@ -5,7 +5,7 @@
  * and open the template in the editor.
  */
 ?>
-<h1>Activation Code Management</h1>
+<h3>Activation Code Management</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(

@@ -5,7 +5,7 @@
  * and open the template in the editor.
  */
 ?>
-<h1>Member Management</h1>
+<h3>Member Management</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
