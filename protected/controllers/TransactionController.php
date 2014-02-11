@@ -88,4 +88,31 @@ class TransactionController extends Controller
             $this->render('bonus');
         }
     }
+    
+    //For Direct Endorsement
+    public function actionDirectendorse()
+    {
+        $model = new DirectEndorsementMember();
+        
+        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
+        {
+            $dateFrom = $_POST["calDateFrom"];
+            $dateTo = $_POST["calDateTo"];
+            
+            $rawData = $model->getDirectEndorsement($dateFrom, $dateTo);
+            
+            $dataProvider = new CArrayDataProvider($rawData, array(
+                                                    'keyField' => false,
+                                                    'pagination' => array(
+                                                    'pageSize' => 10,
+                                                ),
+                                    ));
+            
+            $this->render('directendorse', array('dataProvider' => $dataProvider));
+        }
+        else
+        {
+            $this->render('directendorse');
+        }
+    }
 }
