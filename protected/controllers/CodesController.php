@@ -11,6 +11,7 @@ class CodesController extends Controller
     public $title = '';
     public $showDialog = false;
     public $showConfirm = false;
+    public $showRedirect = false;
     
     public $layout = 'column2';
     
@@ -79,7 +80,7 @@ class CodesController extends Controller
                 $this->msg = $retval;
             }
             
-            $this->showDialog = true;
+            $this->showRedirect = true;
         }
 
         $this->render('_create', array('model'=>$model));

@@ -61,7 +61,7 @@ class AccountsController extends Controller
              
             if ($model->validate())
             {
-                $exist = $model->checkExistingEmail($model->email);
+                /*$exist = $model->checkExistingEmail($model->email);
                 if (count($exist) > 0 && $logged_in_id != $id)
                 {
                     $this->title = "NOTIFICATION";
@@ -69,11 +69,11 @@ class AccountsController extends Controller
                     $this->showDialog = "true";
                 }
                 else
-                {
+                {*/
                     $this->title = "CONFIRMATION";
                     $this->msg = "Are you sure you want to modify this information?";
                     $this->showConfirm = true;
-                }
+                //}
             }
             else
             {

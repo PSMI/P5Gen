@@ -28,14 +28,34 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 
 <div id="btns">
     <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Generate'));
-          $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("activationCode/index") . '";'))); ?>
+          $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("codes/index") . '";'))); ?>
 </div>
 
 
 <?php $this->endWidget(); ?>
 
 <!-- dialog box -->
-<?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+<?php 
+$trigger = false;
+if ($this->showDialog) 
+{
+    $buttons = array(
+                'OK'=>'js:function(){
+                    $(this).dialog("close");
+                }'
+            );
+    $trigger = $this->showDialog;
+}
+else if ($this->showRedirect) 
+{
+    $buttons = array(
+                'OK'=>'js:function(){
+                    location.href = "' . Yii::app()->createUrl("codes/index") . '";
+                }'
+            );
+    $trigger = $this->showRedirect;
+}
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
         'id'=>'dialog-box',
         'options'=>array(
             'title'=>$this->title,
@@ -43,12 +63,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'width'=>'350',
             'height'=>'auto',
             'resizable'=>false,
-            'autoOpen'=>$this->showDialog,
-            'buttons'=>array(
-                'OK'=>'js:function(){
-                    $(this).dialog("close");
-                }'
-            )
+            'autoOpen'=>$trigger,
+            'buttons'=>$buttons,
         ),
 )); ?>
 
@@ -88,7 +104,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <?php echo $this->msg; ?>
 <br />
 
-<?php echo CHtml::beginForm(array('activationCode/index'), 'POST', array(
+<?php echo CHtml::beginForm(array('codes/create'), 'POST', array(
         'id'=>'generate-form',
         'name'=>'generate-form')); 
       echo CHtml::hiddenField('hiddenQty');
