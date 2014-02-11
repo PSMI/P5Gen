@@ -85,6 +85,42 @@ class AdmintransactionsController extends Controller
                     $result_msg = "An error occured. Please try again.";
                 }
             }
+            else if($transtype == 'unilvl')
+            {
+                $unilevel_id = $_GET["id"];
+                
+                $model = new Unilevel();
+                $result = $model->updateUnilevelStatus($unilevel_id, $status, $userid);
+                
+                if (count($result) > 0)
+                {
+                    $result_code = 0;
+                    $result_msg = "Unilevel Claimed.";
+                }
+                else
+                {
+                    $result_code = 1;
+                    $result_msg = "An error occured. Please try again.";
+                }
+            }
+            else if($transtype == 'bonus')
+            {
+                $promo_redemption_id = $_GET["id"];
+                
+                $model = new Bonus();
+                $result = $model->updateBonusStatus($promo_redemption_id, $status, $userid);
+                
+                if (count($result) > 0)
+                {
+                    $result_code = 0;
+                    $result_msg = "Bonus Claimed.";
+                }
+                else
+                {
+                    $result_code = 1;
+                    $result_msg = "An error occured. Please try again.";
+                }
+            }
         }
         else
         {
@@ -119,6 +155,60 @@ class AdmintransactionsController extends Controller
         else
         {
             $this->render('goc');
+        }
+    }
+    
+    //For Unilevel
+    public function actionUnilevel()
+    {
+        $model = new Unilevel();
+        
+        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
+        {
+            $dateFrom = $_POST["calDateFrom"];
+            $dateTo = $_POST["calDateTo"];
+            
+            $rawData = $model->getUnilevel($dateFrom, $dateTo);
+            
+            $dataProvider = new CArrayDataProvider($rawData, array(
+                                                    'keyField' => false,
+                                                    'pagination' => array(
+                                                    'pageSize' => 10,
+                                                ),
+                                    ));
+            
+            $this->render('unilevel', array('dataProvider' => $dataProvider));
+        }
+        else
+        {
+            $this->render('unilevel');
+        }
+    }
+    
+    //For Unilevel
+    public function actionBonus()
+    {
+        $model = new Bonus();
+        
+        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
+        {
+            $dateFrom = $_POST["calDateFrom"];
+            $dateTo = $_POST["calDateTo"];
+            
+            $rawData = $model->getBonus($dateFrom, $dateTo);
+            
+            $dataProvider = new CArrayDataProvider($rawData, array(
+                                                    'keyField' => false,
+                                                    'pagination' => array(
+                                                    'pageSize' => 10,
+                                                ),
+                                    ));
+            
+            $this->render('bonus', array('dataProvider' => $dataProvider));
+        }
+        else
+        {
+            $this->render('bonus');
         }
     }
 }
