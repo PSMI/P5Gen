@@ -24,16 +24,19 @@ class Networks extends Controller
     {
         $model = new Downlines();
         
-        $downlines = $model->firstLevel($member_id);
-        
-        if(count($downlines) == 0)
-        {
-            $result[] = array('level'=>1,
-                              'downlines'=>$member_id,
-                            );
-        }
-        else
-        {
+        $downlines = $model->firstFive($member_id);
+                
+//        if(count($downlines) < 5)
+//        {
+//            $downlines = implode(',',$model->getDirectEndorsed($member_id));
+//            //$downlines = array_merge(array('downline'=>$member_id),$direct);
+//            
+//            $result[] = array('level'=>1,
+//                              'downlines'=>$downlines,
+//                            );
+//        }
+//        else
+//        {
             $level = 1;
 
             do
@@ -55,7 +58,7 @@ class Networks extends Controller
 
 
             }while($total_downlines>0 && $total_downlines>=$max_per_level);
-        }
+//        }
         
         return $result;
     }
@@ -64,39 +67,34 @@ class Networks extends Controller
     {
         $model = new Downlines();
         
-        $downlines = $model->firstLevel($member_id);
+//        $downlines = $model->firstLevel($member_id);
         
-        if(count($downlines) == 0)
-        {
-            $result[] = array('level'=>1,
-                              'total'=>0,
-                        );
-        }
-        else
-        {
             $level = 1;
-        
+            $downlines = $model->firstLevel($member_id);
             do
             {
+                
+                
                 $total = count($downlines);
 
-                $result[] = array('level'=>$level,
-                              'total'=>$total,
+                $result[] = array
+                        (
+                          'level'=>$level,
+                          'total'=>$total,
                         );
 
-                $rows = Networks::convertToList($downlines);        
-                $downlines = $model->nextLevel($rows['listItem']);
-                $max_per_level = pow(count($downlines),$level);
+                if($total>=1)
+                {
+                    $rows = Networks::convertToList($downlines);        
+                    $downlines = $model->nextLevel($rows['listItem']);
+                }
+                
+                //$max_per_level = pow(count($downlines),$level);
 
                 $level++;
                 $total_downlines = count($downlines);
 
-
-
-
-            }while(count($downlines)>0 && $total_downlines>0 && $total_downlines>=$max_per_level);
-
-        }
+            }while(!is_null($total) && $total_downlines > 0 ); //>= $max_per_level);
         
         return $result;
         
@@ -116,6 +114,15 @@ class Networks extends Controller
         return $uplines;
     }
     
+    public function getDownlines($ids)
+    {
+        $model = new Downlines();
+        
+        foreach($ids as $id)
+            $retval[] = array('downline'=>$model->levels($ids['downline']));
+        
+        return $retval;
+    }
     
 }
 ?>

@@ -81,7 +81,7 @@ class RegistrationController extends Controller
         {
             $model = new RegistrationForm();
 
-            $result = $model->filterDownlines($_GET['term']);
+            $result = $model->selectDownlines($_GET['term']);
 
             if(count($result)>0)
             {

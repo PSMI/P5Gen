@@ -50,10 +50,15 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                 'headerHtmlOptions' => array('style' => 'text-align:left'),
             ),
         array('name'=>'date_joined', 
-                'header'=>'Date Placed',
+                'header'=>'Date Joined',
                 'htmlOptions'=>array('style'=>'text-align:left'),
                 'headerHtmlOptions' => array('style' => 'text-align:left'),
-            ),        
+            ), 
+        array('name'=>'upline_name', 
+                'header'=>'Place under',
+                'htmlOptions'=>array('style'=>'text-align:left'),
+                'headerHtmlOptions' => array('style' => 'text-align:left'),
+            ),
         array('class'=>'bootstrap.widgets.TbButtonColumn',
                 'template'=>'{assign}',
                 'buttons'=>array
@@ -62,7 +67,8 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                     (
                         'label'=>'Assign ',
                         'icon'=>'share-alt', //share-alt
-                        'url'=>'Yii::app()->createUrl("/placement/assign", array("id" =>$data["member_id"],"name"=>CHtml::encode($data["member_name"])))',
+                        'url'=>'Yii::app()->createUrl("/placement/assignform", array("id" =>$data["member_id"],"name"=>CHtml::encode($data["member_name"])))',
+                        'visible'=>'(!empty($data["upline_name"])) ? false : true',
                         'options' => array(
                             'class'=>"btn btn-small",
                             'ajax' => array(
@@ -102,7 +108,8 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 
 <div class="modal-body">
     <?php /** @var BootActiveForm $form */
-    $form = $this->widget('bootstrap.widgets.TbActiveForm', array(
+    $form = $this->widget('bootstrap.widgets.TbActiveForm', array
+    (
         'id'=>'verticalForm',
         'inlineErrors'=>true,
         'enableClientValidation'=>true,
@@ -116,11 +123,26 @@ $this->widget('bootstrap.widgets.TbAlert', array(
     <?php echo CHtml::label('Place under '. '<span class="required">*</span>', 'PlacementModel_upline_id',array('class'=>'control-label required')) ?>
         <div class="controls">   
             <?php
-            $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
+            $this->widget('zii.widgets.jui.CJuiAutoComplete',array
+                (
                     'model'=>$model,
                     'attribute'=>'upline_name',
-                    'sourceUrl'=>  Yii::app()->createUrl('registration/downlines'),
-                    'options'=>array(
+                    //'sourceUrl'=>  Yii::app()->createUrl('placement/downlines',array('id'=>$model->downline_id)),
+                    'source'=>'js: function(request, response) {
+                       $.ajax({
+                           url: "'.Yii::app()->createUrl('placement/downlines').'",
+                           dataType: "json",
+                           data: {
+                               term: request.term,
+                               id: downline_id.val()
+                           },
+                           success: function (data) {
+                                   response(data);
+                           }
+                       })
+                    }',
+                    'options'=>array
+                    (
                         'minLength'=>'2',
                         'showAnim'=>'fold',
                         'focus' => 'js:function(event, ui){upline_name.val(ui.item["value"])}',
@@ -148,7 +170,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
         'buttonType'=>'ajaxButton', 
         'label'=>'Assign',
         'type'=>'primary',
-        'url'=>'#',
+        'url'=>array('placement/assign'),
         'ajaxOptions'=>array
          (
             'data'=>array(

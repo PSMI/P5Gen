@@ -46,7 +46,8 @@ class PlacementModel extends CFormModel
                   ON m.member_id = pp.member_id
                 INNER JOIN member_details md ON m.member_id = md.member_id
                 LEFT JOIN member_details md1 ON pp.endorser_id = md1.member_id
-              WHERE pp.upline_id = :upline_id";
+              WHERE pp.upline_id = :upline_id
+                AND m.placement_status = 0";
         
         $command = $conn->createCommand($sql);
         $command->bindParam(":upline_id", $this->upline_id);
@@ -55,7 +56,7 @@ class PlacementModel extends CFormModel
         return $result;
     }
     
-    public function pendingPlacement($member_id)
+    public function pendingPlacement()
     {
         $conn = $this->_connection;
         
@@ -63,12 +64,12 @@ class PlacementModel extends CFormModel
                   WHERE member_id = :member_id";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':member_id', $this->member_id);
         $result = $command->queryRow();
         return $result;
     }
     
-    public function placeUnder($member_id, $upline_id)
+    public function placeUnder()
     {
         $conn = $this->_connection;
         
@@ -84,8 +85,8 @@ class PlacementModel extends CFormModel
         $status = 1;
         
         $command = $conn->createCommand($query);
-        $command->bindParam('upline_id', $upline_id);
-        $command->bindParam(':member_id', $member_id);
+        $command->bindParam('upline_id', $this->upline_id);
+        $command->bindParam(':member_id', $this->member_id);
         $command->bindParam(':status', $status);
         $result = $command->execute();
         
@@ -95,7 +96,7 @@ class PlacementModel extends CFormModel
             {
                 //Delete member records on pending_placements via triggers
                 //Update all uplines running accounts
-                $uplines = Networks::getUplines($upline_id);
+                $uplines = Networks::getUplines($this->upline_id);
                 
                 $upline_list = implode(',',$uplines);
                 
@@ -128,7 +129,7 @@ class PlacementModel extends CFormModel
         
     }
     
-    public function removePlacement($member_id)
+    public function removePlacement()
     {
         $conn = $this->_connection;
         
@@ -138,7 +139,7 @@ class PlacementModel extends CFormModel
                   WHERE member_id = :member_id";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':member_id', $this->member_id);
         
         $result = $command->execute();
         
@@ -169,12 +170,17 @@ class PlacementModel extends CFormModel
         
         $sql = "SELECT
                 m.member_id,
-                CONCAT(md.last_name, ', ', COALESCE(md.first_name,''), ' ', COALESCE(md.middle_name,'')) AS member_name,
-                DATE_FORMAT(m.date_created, '%M %d, %Y') AS date_joined
+                CONCAT(md.last_name, ', ', COALESCE(md.first_name, ''), ' ', COALESCE(md.middle_name, '')) AS member_name,
+                DATE_FORMAT(m.date_created, '%M %d, %Y') AS date_joined,
+                (SELECT CONCAT(md1.last_name,' ',md1.first_name) FROM member_details md1 WHERE md1.member_id = pp.upline_id) AS upline_name,
+                m.upline_id
               FROM members m
                 INNER JOIN member_details md
                   ON m.member_id = md.member_id
-              WHERE m.endorser_id = :endorser_id";
+                LEFT JOIN pending_placements pp ON m.member_id = pp.member_id
+              WHERE m.endorser_id = :endorser_id
+              AND m.upline_id IS NULL
+              AND m.placement_status = 0";
         
         $command = $conn->createCommand($sql);
         $command->bindParam(":endorser_id", $this->endorser_id);
@@ -182,6 +188,71 @@ class PlacementModel extends CFormModel
 
         return $result;
     }
+    
+    public function addPlacement()
+    {
+        $conn = $this->_connection;
+        
+        $trx = $conn->beginTransaction();
+        
+        $query = "INSERT INTO pending_placements (member_id, endorser_id, upline_id)
+                    VALUES (:member_id, :endorser_id, :upline_id)";
+
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->downline_id);
+        $command->bindParam(':endorser_id', $this->endorser_id);
+        $command->bindParam(':upline_id', $this->upline_id);
+
+        $result = $command->execute();
+
+        if(count($result) > 0)
+        {
+            $trx->commit();
+            return true;
+        }
+        else
+        {
+            $trx->rollback();
+            return false;
+        }
+    }
+    
+    public function selectOnlyDownlines($filter)
+    {
+        $conn = $this->_connection;        
+        $filter = "%".$filter."%";
+        
+        $lists = Networks::getLessFiveDownlines(Yii::app()->user->getId());
+
+        foreach($lists as $list)
+        {
+            $downlines[] = $list['downlines'];
+
+        }
+
+        $downline_lists = implode(',', $downlines);
+
+        $query = "SELECT
+                    m.member_id,
+                    CONCAT(COALESCE(md.last_name,' '), ', ', COALESCE(md.first_name,' '), ' ', COALESCE(md.middle_name,' ')) AS member_name
+                  FROM members m
+                    INNER JOIN member_details md ON m.member_id = md.member_id
+                  WHERE (md.last_name LIKE :filter
+                    OR md.first_name LIKE :filter
+                    OR md.middle_name LIKE :filter)
+                    AND m.member_id IN ($downline_lists)
+                    AND m.member_id != :downline_id
+                  ORDER BY md.last_name";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':filter', $filter);
+        $command->bindParam(':downline_id', $this->downline_id);
+        $result = $command->queryAll();        
+        return $result;
+    }
+    
+    
+    
     
 }
 ?>

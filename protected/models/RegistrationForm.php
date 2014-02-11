@@ -70,6 +70,10 @@ class RegistrationForm extends CFormModel
             array('birth_date,date_purchased','required'),
             array('address1,address2,address3,country_id', 'required'),
             array('product_code,product_name,payment_mode_id', 'required'),
+            
+            //Not required but should be inserted
+            array('zip_code,telephone_no,tin_no,company,occupation,
+                  spouse_name,spouse_contact_no,beneficiary_name,relationship','safe'),
         );
     }
             
@@ -167,7 +171,7 @@ class RegistrationForm extends CFormModel
         return CHtml::listData($this->paymentTypes(), 'payment_type_id', 'payment_type_name');
     }
     
-    public function filterDownlines($filter)
+    public function selectDownlines($filter)
     {
         $conn = $this->_connection;        
         $filter = "%".$filter."%";
@@ -197,32 +201,7 @@ class RegistrationForm extends CFormModel
         $command->bindParam(':filter', $filter);
         $result = $command->queryAll();        
         return $result;
-    }
-    
-    public function downlines($member_id)
-    {
-        $conn = $this->_connection;
-                
-        $query = "SELECT
-                    m.member_id,
-                    CONCAT(COALESCE(md.last_name,' '), ', ', COALESCE(md.first_name,' '), ' ', COALESCE(md.middle_name,' ')) AS member_name
-                  FROM members m
-                    INNER JOIN member_details md ON m.member_id = md.member_id
-                  WHERE m.endorser_id = :member_id
-                  ORDER BY md.last_name";
-        
-        $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
-        $result = $command->queryAll();        
-        return $result;
-    }
-    
-    
-    public function listDownlines($member_id)
-    {
-        return CHtml::listData($this->downlines($member_id), 'member_id', 'member_name');
-    }
-    
+    }    
     
     public function register()
     {

@@ -34,7 +34,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
         ),
 )); ?>
 
-<h3>Independent Business Partner (IBP) Registration</h3>
+<h3>Independent Business Owners (IBO) Registration</h3>
 <p class="note">Please take note all fields with <span class="required">*</span> are required.</p>
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
