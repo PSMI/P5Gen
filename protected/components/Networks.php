@@ -186,24 +186,29 @@ class Networks extends Controller
      */
     public function arrangeLevel($array)
     {
-        foreach ($array as $key => $val) 
+        $genealogy = array();
+        
+        if (is_array($array) && count($array) > 0)
         {
-            foreach ($val as $level => $id) 
+            foreach ($array as $key => $val) 
             {
-                $final[$level][$id] = $id;
+                foreach ($val as $level => $id) 
+                {
+                    $final[$level][$id] = $id;
+                }
             }
+
+            foreach ($final as $levels => $ids)
+            {
+                $temp["Total"] = count($ids);
+                $temp["Members"] = implode(",", $ids);
+                $temp["Level"] = $levels;
+
+                $genealogy[] = $temp;
+            }
+
+            krsort($genealogy);
         }
-        
-        foreach ($final as $levels => $ids)
-        {
-            $temp["Total"] = count($ids);
-            $temp["Members"] = implode(",", $ids);
-            $temp["Level"] = $levels;
-            
-            $genealogy[] = $temp;
-        }
-        
-        krsort($genealogy);
         
         return $genealogy;
     }
