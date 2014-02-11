@@ -20,7 +20,6 @@ class GroupOverrideCommission extends CFormModel
         $query = "SELECT
                     c.commission_id,
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
-                    c.level_no,
                     c.ibo_count,
                     c.amount,
                     c.date_created,
