@@ -13,13 +13,12 @@ class GroupOverrideCommissionMember extends CFormModel
         $this->_connection = Yii::app()->db;
     }
     
-    public function getComissions($dateFrom, $dateTo)
+    public function getComissions($dateFrom, $dateTo, $member_id)
     {
         $conn = $this->_connection;
         
         $query = "SELECT
                     c.commission_id,
-                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
                     c.ibo_count,
                     c.amount,
                     c.date_created,
@@ -30,11 +29,12 @@ class GroupOverrideCommissionMember extends CFormModel
                     INNER JOIN member_details m
                       ON c.member_id = m.member_id
                     LEFT OUTER JOIN member_details md ON c.processed_by_id = md.member_id
-                  WHERE date_created BETWEEN :dateFrom AND :dateTo AND c.status = 1;";
+                  WHERE date_created BETWEEN :dateFrom AND :dateTo AND c.member_id = :member_id;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':dateFrom', $dateFrom);
         $command->bindParam(':dateTo', $dateTo);
+        $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
         return $result;

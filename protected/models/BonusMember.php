@@ -13,14 +13,13 @@ class BonusMember extends CFormModel
         $this->_connection = Yii::app()->db;
     }
     
-    public function getBonus($dateFrom, $dateTo)
+    public function getBonus($dateFrom, $dateTo, $member_id)
     {
         $conn = $this->_connection;
         
         $query = "SELECT
                     pr.promo_redemption_id,
                     p.promo_name,
-                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
                     pr.ibp_count,
                     pr.date_redeeemd,
                     pr.date_released,
@@ -33,11 +32,12 @@ class BonusMember extends CFormModel
                       ON pr.member_id = m.member_id
                     LEFT OUTER JOIN member_details md
                       ON pr.released_by_id = md.member_id
-                  WHERE date_redeeemd BETWEEN :dateFrom AND :dateTo AND pr.status = 2;";
+                  WHERE date_redeeemd BETWEEN :dateFrom AND :dateTo AND pr.member_id = :member_id;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':dateFrom', $dateFrom);
         $command->bindParam(':dateTo', $dateTo);
+        $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
         return $result;

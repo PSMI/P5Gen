@@ -12,13 +12,14 @@ class TransactionController extends Controller
     public function actionLoans()
     {
         $model = new LoanMember();
-        
+ 
         if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
         {
             $dateFrom = $_POST["calDateFrom"];
             $dateTo = $_POST["calDateTo"];
+            $member_id = Yii::app()->user->getId();
             
-            $rawData = $model->getLoanTransactions($dateFrom, $dateTo);
+            $rawData = $model->getLoanTransactions($dateFrom, $dateTo, $member_id);
             
             $dataProvider = new CArrayDataProvider($rawData, array(
                                                     'keyField' => false,
@@ -44,8 +45,9 @@ class TransactionController extends Controller
         {
             $dateFrom = $_POST["calDateFrom"];
             $dateTo = $_POST["calDateTo"];
+            $member_id = Yii::app()->user->getId();
             
-            $rawData = $model->getComissions($dateFrom, $dateTo);
+            $rawData = $model->getComissions($dateFrom, $dateTo, $member_id);
             
             $dataProvider = new CArrayDataProvider($rawData, array(
                                                     'keyField' => false,
@@ -71,8 +73,9 @@ class TransactionController extends Controller
         {
             $dateFrom = $_POST["calDateFrom"];
             $dateTo = $_POST["calDateTo"];
+            $member_id = Yii::app()->user->getId();
             
-            $rawData = $model->getBonus($dateFrom, $dateTo);
+            $rawData = $model->getBonus($dateFrom, $dateTo, $member_id);
             
             $dataProvider = new CArrayDataProvider($rawData, array(
                                                     'keyField' => false,
@@ -98,8 +101,9 @@ class TransactionController extends Controller
         {
             $dateFrom = $_POST["calDateFrom"];
             $dateTo = $_POST["calDateTo"];
+            $member_id = Yii::app()->user->getId();
             
-            $rawData = $model->getDirectEndorsement($dateFrom, $dateTo);
+            $rawData = $model->getDirectEndorsement($dateFrom, $dateTo, $member_id);
             
             $dataProvider = new CArrayDataProvider($rawData, array(
                                                     'keyField' => false,

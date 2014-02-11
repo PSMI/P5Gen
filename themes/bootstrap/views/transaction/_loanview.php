@@ -12,11 +12,6 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'enablePagination' => true,
         'template'=>"{items}",
         'columns' => array(
-                        array('name'=>'member_name',
-                              'header'=>'Member Name',
-                              'htmlOptions' => array('style' => 'text-align:center'),
-                              'headerHtmlOptions' => array('style' => 'text-align:center'),
-                        ), 
                         array('name'=>'level_no',
                             'header'=>'Level',
                             'htmlOptions' => array('style' => 'text-align:center'),
