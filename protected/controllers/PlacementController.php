@@ -87,6 +87,12 @@ class PlacementController extends Controller
             
             /* Process jobs  here */
             
+            /***** PROCESS GOC *****/
+            $goc = new GOCModel();
+            $goc->member_id = $member_id;
+            $goc->upline_id = $upline_id;
+            $goc->process();
+            
             if(count($result) > 0)
                 echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'Your new downline is successfully assigned and approved.'));
             else

@@ -37,5 +37,7 @@ class Helpers extends Controller
         }
         return implode($pass); //turn the array into a string
     }
+    
+   
 }
 ?>

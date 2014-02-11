@@ -32,5 +32,17 @@ class ReferenceModel extends CFormModel
         $result = $command->queryRow();
         return $result['message_template'];
     }
+    
+    public function getCutOffDate($trans_type)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM ref_cutoffs WHERE transaction_type_id = :trans_type_id ";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':trans_type_id', $trans_type);
+        $result = $command->queryRow();
+        return $result;
+    }
 }
 ?>
