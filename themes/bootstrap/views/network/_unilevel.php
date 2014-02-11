@@ -44,7 +44,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                     'header'=>'<center>IBO Count</center>',
                     'type'=>'raw',
                     'value'=>'CHtml::ajaxLink($data["Total"],
-                              Yii::app()->createUrl("network/downlines"), 
+                              Yii::app()->createUrl("network/unilevelDownlines"), 
                               array(
                                     "type"=>"post",
                                     "data" => array("postData"=>$data["Members"]),

@@ -170,6 +170,28 @@ class Downlines extends CFormModel
     }
     
     /**
+     * This model function is used to retrieve the total count of unilevel downlines.
+     * @author Noel Antonio
+     * @date 02/11/2014
+     * @param int $member_id
+     * @return int count of row
+     */
+    public function getUnilevelCount($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT count(member_id) as count FROM members
+            WHERE endorser_id = :member_id";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result["count"];
+    }
+    
+    
+    /**
      * This model function is used to retrieve all direct endorsements
      * entry of the member.
      * @author Noel Antonio

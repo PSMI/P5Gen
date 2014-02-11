@@ -141,7 +141,7 @@ class NetworkController extends Controller
         $this->render('_goc', array('dataProvider'=>$dataProvider));
     }
     
-    public function actionDownlines()
+    public function actionGenealogyDownlines()
     {
         if (isset($_POST["postData"])) 
         {
@@ -156,16 +156,34 @@ class NetworkController extends Controller
             $member_ids = Yii::app()->session['ids'];
         }
         
-        $model = new Downlines();
-        $rawData = $model->downlineInfo($member_ids);
-        foreach ($rawData as $key => $val)
+        $array = Networks::getGenealogyDownlines($member_ids);
+
+        $dataProvider = new CArrayDataProvider($array, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                        'pageSize' => 10,
+                    ),
+        ));
+
+        $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
+    }
+    
+    public function actionUnilevelDownlines()
+    {
+        if (isset($_POST["postData"])) 
         {
-            $count = $model->getDownlineCount($val["member_id"]);
-            $temp["ID"] = $val["member_id"];
-            $temp["Count"] = $count;
-            $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-            $array[] = $temp;
+            $member_ids = $_POST["postData"];
+            Yii::app()->session['ids'] = $member_ids;
+            /*$fp = fopen("selection.txt", "wb");
+            fwrite($fp, $member_ids);
+            fclose($fp);*/
         }
+        else if (Yii::app()->request->isAjaxRequest) {
+            //$member_ids = file_get_contents('selection.txt');
+            $member_ids = Yii::app()->session['ids'];
+        }
+        
+        $array = Networks::getUnilevelDownlines($member_ids);
 
         $dataProvider = new CArrayDataProvider($array, array(
                         'keyField' => false,
