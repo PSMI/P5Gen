@@ -121,6 +121,24 @@ class AdmintransactionsController extends Controller
                     $result_msg = "An error occured. Please try again.";
                 }
             }
+            else if($transtype == 'directendrse')
+            {
+                $direct_endorsement_id = $_GET["id"];
+                
+                $model = new DirectEndorsement();
+                $result = $model->updateDirectEndorsementStatus($direct_endorsement_id, $status, $userid);
+                
+                if (count($result) > 0)
+                {
+                    $result_code = 0;
+                    $result_msg = "Direct Endorsement Claimed.";
+                }
+                else
+                {
+                    $result_code = 1;
+                    $result_msg = "An error occured. Please try again.";
+                }
+            }
         }
         else
         {
@@ -185,7 +203,7 @@ class AdmintransactionsController extends Controller
         }
     }
     
-    //For Unilevel
+    //For Bonus
     public function actionBonus()
     {
         $model = new Bonus();
@@ -209,6 +227,33 @@ class AdmintransactionsController extends Controller
         else
         {
             $this->render('bonus');
+        }
+    }
+    
+    //For Direct Endorsement
+    public function actionDirectendorse()
+    {
+        $model = new DirectEndorsement();
+        
+        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
+        {
+            $dateFrom = $_POST["calDateFrom"];
+            $dateTo = $_POST["calDateTo"];
+            
+            $rawData = $model->getDirectEndorsement($dateFrom, $dateTo);
+            
+            $dataProvider = new CArrayDataProvider($rawData, array(
+                                                    'keyField' => false,
+                                                    'pagination' => array(
+                                                    'pageSize' => 10,
+                                                ),
+                                    ));
+            
+            $this->render('directendorse', array('dataProvider' => $dataProvider));
+        }
+        else
+        {
+            $this->render('directendorse');
         }
     }
 }
