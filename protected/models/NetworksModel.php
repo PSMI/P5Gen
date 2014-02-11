@@ -41,7 +41,7 @@ class NetworksModel extends CFormModel
         $sql = "SELECT a.member_id, b.last_name, b.first_name, b.middle_name, a.date_created
                 FROM members a
                 INNER JOIN member_details b ON a.member_id = b.member_id
-                WHERE a.upline_id = :member_id";
+                WHERE a.endorser_id = :member_id";
         $command = $connection->createCommand($sql);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
