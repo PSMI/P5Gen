@@ -19,8 +19,10 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 
 echo 'Total Direct Endorsements: <strong>' . $counter . '</strong>';
 
-$this->widget('zii.widgets.grid.CGridView', array(
-        'dataProvider' => $dataProvider,
+$this->widget('bootstrap.widgets.TbGridView', array(
+        'id'=>'direct-grid',
+        'type'=>'striped bordered condensed',
+        'dataProvider'=>$dataProvider,
         'enablePagination' => true,
         'columns' => array(
                 array('name'=>'Name',

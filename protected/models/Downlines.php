@@ -12,7 +12,7 @@ class Downlines extends CFormModel
     
     public function __construct() {
         $this->_connection = Yii::app()->db;
-    }   
+    }
     
     public function levels($member_id)
     {
@@ -31,7 +31,6 @@ class Downlines extends CFormModel
         
         return $result;
     }
-    
     public function firstLevel($member_id)
     {
         $conn = $this->_connection;
@@ -43,16 +42,15 @@ class Downlines extends CFormModel
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
-        $result = $command->queryAll();        
+        $result = $command->queryAll();
         
-        return $result;
+        return $result;  
     }
     
     public function firstFive($member_id)
     {
-        $conn = $this->_connection;
-        
-        $query = "SELECT
+    	$conn = $this->_connection;
+	$query = "SELECT
                     member_id AS downline
                   FROM members m
                   WHERE m.upline_id = :member_id
@@ -69,8 +67,7 @@ class Downlines extends CFormModel
         }
         
         return $result;
-    }
-    
+    }    
     public function getDirectEndorsed($member_id)
     {
         $conn = $this->_connection;
@@ -87,7 +84,6 @@ class Downlines extends CFormModel
         
         return $result;
     }
-    
     public function nextLevel($member_id)
     {
         $conn = $this->_connection;
@@ -127,5 +123,75 @@ class Downlines extends CFormModel
         return $result;
     }
     
+    /**
+     * This model function is used to retrieve the downline information.
+     * @author Noel Antonio
+     * @date 02/11/2014
+     * @param string $member_ids set of member id separated by comma
+     * @return array resultset
+     */
+    public function downlineInfo($member_ids)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT 
+                    m.member_id,
+                    md.last_name, md.first_name, md.middle_name,
+                    m.upline_id
+                  FROM members m
+                    INNER JOIN member_details md ON m.member_id = md.member_id
+                  WHERE m.member_id IN ($member_ids)";
+        
+        $command = $conn->createCommand($query);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    /**
+     * This model function is used to retrieve the total count of downlines.
+     * @author Noel Antonio
+     * @date 02/11/2014
+     * @param int $member_id
+     * @return int count of row
+     */
+    public function getDownlineCount($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT count(member_id) as count FROM members
+            WHERE upline_id = :member_id";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result["count"];
+    }
+    
+    /**
+     * This model function is used to retrieve all direct endorsements
+     * entry of the member.
+     * @author Noel Antonio
+     * @date 02/11/2014
+     * @param int $member_id
+     * @return array resultset
+     */
+    public function directEndorse($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    member_id AS downline
+                  FROM members m
+                  WHERE m.endorser_id = :member_id;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+        
+    }
 }
 ?>

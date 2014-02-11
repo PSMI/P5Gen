@@ -94,7 +94,7 @@ class MembersController extends Controller
         }
         
         $id = $_GET["id"];
-        $rawData = $model->selectMemberDetailsStatus($id);
+        $rawData = $model->selectMemberName($id);
         $model->attributes = $rawData;
         
         $fullName = $rawData["first_name"] . " " . $rawData["middle_name"] . " " . $rawData["last_name"];

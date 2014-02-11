@@ -1,8 +1,8 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @author Noel Antonio
+ * @date 02/11/2014
  */
 
 class NetworkController extends Controller
@@ -11,44 +11,86 @@ class NetworkController extends Controller
     
     public function actionIndex()
     {
-        $rawData = array();
+        if (isset($_POST["hidden_member_id"])) {
+            $member_id = $_POST["hidden_member_id"];
+            Yii::app()->session['hidden_member_id'] = $member_id;
+        }
+        else if (Yii::app()->request->isAjaxRequest) {
+            $member_id = Yii::app()->session['hidden_member_id'];
+        }
+        else {
+            $member_id = Yii::app()->user->getId();
+        }
         
-        $dataProvider = new CArrayDataProvider($rawData, array(
+        $member_name = $this->getMemberName($member_id);
+        
+        $rawData = Networks::getDownlines($member_id);
+        $final = Networks::arrangeLevel($rawData);
+        
+        $dataProvider = new CArrayDataProvider($final, array(
                         'keyField' => false,
                         'pagination' => array(
-                        'pageSize' => 10,
+                        'pageSize' => 20,
                     ),
         ));
         
-        $this->render('index', array('dataProvider'=>$dataProvider));
+        $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name));
     }
     
     public function actionGenealogy()
     {
-        $rawData = array();
+        if (isset($_POST["hidden_member_id"])) {
+            $member_id = $_POST["hidden_member_id"];
+            Yii::app()->session['hidden_member_id'] = $member_id;
+        }
+        else if (Yii::app()->request->isAjaxRequest) {
+            $member_id = Yii::app()->session['hidden_member_id'];
+        }
+        else {
+            $member_id = Yii::app()->user->getId();
+        }
         
-        $dataProvider = new CArrayDataProvider($rawData, array(
+        $member_name = $this->getMemberName($member_id);
+        
+        $rawData = Networks::getDownlines($member_id);
+        $final = Networks::arrangeLevel($rawData);
+        
+        $dataProvider = new CArrayDataProvider($final, array(
                         'keyField' => false,
                         'pagination' => array(
-                        'pageSize' => 10,
+                        'pageSize' => 20,
                     ),
         ));
         
-        $this->render('_genealogy', array('dataProvider'=>$dataProvider));
+        $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name));
     }
     
     public function actionUnilevel()
     {
-        $rawData = array();
+        if (isset($_POST["hidden_member_id"])) {
+            $member_id = $_POST["hidden_member_id"];
+            Yii::app()->session['hidden_member_id'] = $member_id;
+        }
+        else if (Yii::app()->request->isAjaxRequest) {
+            $member_id = Yii::app()->session['hidden_member_id'];
+        }
+        else {
+            $member_id = Yii::app()->user->getId();
+        }
         
-        $dataProvider = new CArrayDataProvider($rawData, array(
+        $member_name = $this->getMemberName($member_id);
+        
+        $rawData = Networks::getUnilevel($member_id);
+        $final = Networks::arrangeLevel($rawData);
+        
+        $dataProvider = new CArrayDataProvider($final, array(
                         'keyField' => false,
                         'pagination' => array(
                         'pageSize' => 10,
                     ),
         ));
         
-        $this->render('_unilevel', array('dataProvider'=>$dataProvider));
+        $this->render('_unilevel', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name));
     }
     
     public function actionDirectEndorse()
@@ -97,6 +139,52 @@ class NetworkController extends Controller
         ));
         
         $this->render('_goc', array('dataProvider'=>$dataProvider));
+    }
+    
+    public function actionDownlines()
+    {
+        if (isset($_POST["postData"])) 
+        {
+            $member_ids = $_POST["postData"];
+            Yii::app()->session['ids'] = $member_ids;
+            /*$fp = fopen("selection.txt", "wb");
+            fwrite($fp, $member_ids);
+            fclose($fp);*/
+        }
+        else if (Yii::app()->request->isAjaxRequest) {
+            //$member_ids = file_get_contents('selection.txt');
+            $member_ids = Yii::app()->session['ids'];
+        }
+        
+        $model = new Downlines();
+        $rawData = $model->downlineInfo($member_ids);
+        foreach ($rawData as $key => $val)
+        {
+            $count = $model->getDownlineCount($val["member_id"]);
+            $temp["ID"] = $val["member_id"];
+            $temp["Count"] = $count;
+            $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
+            $array[] = $temp;
+        }
+
+        $dataProvider = new CArrayDataProvider($array, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                        'pageSize' => 10,
+                    ),
+        ));
+
+        $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
+    }
+    
+    public function getMemberName($member_id)
+    {
+        $model = new MembersModel();
+        $info = $model->selectMemberName($member_id);
+        $member_name = $info["last_name"] . ", " . $info["first_name"] . " " . $info["middle_name"];
+        $member_name = strtoupper($member_name);
+        
+        return $member_name;
     }
 }
 ?>

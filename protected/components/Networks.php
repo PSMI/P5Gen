@@ -36,7 +36,7 @@ class Networks extends Controller
 //                            );
 //        }
 //        else
-//        {
+//	  {
             $level = 1;
 
             do
@@ -114,15 +114,98 @@ class Networks extends Controller
         return $uplines;
     }
     
-    public function getDownlines($ids)
+    /**
+     * This recursive function is used to retrieve the downlines
+     * of the logged-in member.
+     * @author Noel Antonio
+     * @date 02/7/2014
+     * @param int $member_id id of the logged-in member
+     * @param int $level level of genealogy; default is 0.
+     * @return array $finalTree
+     */
+    public function getDownlines($member_id, $level = 0)
     {
         $model = new Downlines();
+        $parent = array();
+        $children = array();
         
-        foreach($ids as $id)
-            $retval[] = array('downline'=>$model->levels($ids['downline']));
+        $i = 0;
+        $level++;
+        $downlines = $model->firstLevel($member_id);
+        foreach ($downlines as $key => $val)
+        {
+            $parent[$i][$level] = $downlines[$key]["downline"];
+            $children = array_merge($children, Networks::getDownlines($downlines[$key]["downline"], $level));
+            $i++;
+        }
         
-        return $retval;
+        $finalTree = array_merge($parent, $children);
+        
+        return $finalTree;
     }
     
+    
+    /**
+     * This function is used to retrieve the member's direct endorsements
+     * to be used for unilevel genealogy.
+     * @author Noel Antonio
+     * @date 02/7/2014
+     * @param int $member_id id of the logged-in member
+     * @param int $level level of genealogy; default is 0.
+     * @return array $finalTree
+     */
+    public function getUnilevel($member_id, $level = 0)
+    {
+        $model = new Downlines();
+        $parent = array();
+        $children = array();
+        
+        $i = 0;
+        $level++;
+        $downlines = $model->directEndorse($member_id);
+        foreach ($downlines as $key => $val)
+        {
+            $parent[$i][$level] = $downlines[$key]["downline"];
+            $children = array_merge($children, Networks::getDownlines($downlines[$key]["downline"], $level));
+            $i++;
+        }
+        
+        $finalTree = array_merge($parent, $children);
+        
+        return $finalTree;
+    }
+    
+    
+    /**
+     * This function is used to arrange the array by level and
+     * sort it reversibly.
+     * @author Noel Antonio
+     * @date 02/7/2014
+     * @param array $array the array to arrange
+     * @return array $genealogy
+     */
+    public function arrangeLevel($array)
+    {
+        foreach ($array as $key => $val) 
+        {
+            foreach ($val as $level => $id) 
+            {
+                $final[$level][$id] = $id;
+            }
+        }
+        
+        foreach ($final as $levels => $ids)
+        {
+            $temp["Total"] = count($ids);
+            $temp["Members"] = implode(",", $ids);
+            $temp["Level"] = $levels;
+            
+            $genealogy[] = $temp;
+        }
+        
+        krsort($genealogy);
+        
+        return $genealogy;
+    }
 }
 ?>

@@ -36,7 +36,7 @@ class MembersModel extends CFormModel
         return $result["member_id"] + 1;
     }
     
-    public function selectMemberDetailsStatus($id)
+    public function selectMemberName($id)
     {
         $connection = $this->_connection;
         

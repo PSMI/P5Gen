@@ -24,8 +24,8 @@ class ProfileController extends Controller
         
         $rawData = $model->getProfileInfo($member_id);
         
-        $uplineInfo = $members->selectMemberDetailsStatus($rawData["upline_id"]);
-        $endorserInfo = $members->selectMemberDetailsStatus($rawData["endorser_id"]);
+        $uplineInfo = $members->selectMemberName($rawData["upline_id"]);
+        $endorserInfo = $members->selectMemberName($rawData["endorser_id"]);
         
         if (isset($_POST["btnChange"]))
         {
