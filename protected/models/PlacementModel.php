@@ -226,7 +226,7 @@ class PlacementModel extends CFormModel
 
         foreach($lists as $list)
         {
-            $downlines[] = $list['downlines'];
+            $downlines[] = $list['downline'];
 
         }
 

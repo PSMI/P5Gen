@@ -13,16 +13,16 @@ class Uplines extends CFormModel
         $this->_connection = Yii::app()->db;
     }
     
-    public function getUplines($upline_id)
+    public function getUplines($member_id)
     {
         $conn = $this->_connection;
         
         $query = "SELECT                 
                       upline_id as upline
                   FROM members m
-                  WHERE m.member_id = :upline_id;";
+                  WHERE m.member_id = :member_id;";
         $command = $conn->createCommand($query);
-        $command->bindParam(':upline_id', $upline_id);
+        $command->bindParam(':member_id', $member_id);
         $result = $command->queryRow();
         
         return $result;

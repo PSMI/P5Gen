@@ -80,7 +80,7 @@ return array(
 		
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
-            'errorAction'=>'site/error',
+            'errorAction'=>'site/404',
         ),
 		'log'=>array(
 			'class'=>'CLogRouter',

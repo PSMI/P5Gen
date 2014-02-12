@@ -27,53 +27,83 @@ class GOCModel extends CFormModel
         $conn = $this->_connection;
         $trx = $conn->beginTransaction();
         
-        //If upline is not the same as logged user
-        if($this->upline_id != Yii::app()->user->getId())
+        //If upline is the same as logged user
+        if($this->upline_id == Yii::app()->user->getId())
         {
-            /** Get the 2nd parent upline id up to the root of the 
+            /** Get the parent upline id up to the root of the 
              *  member to be placed under the assigned upline.
              */
                         
             $uplines = Networks::getUplines($this->upline_id);
-            $upline_list = implode(',',$uplines);
-           
+              
+        }
+        else
+        {
+           /** Get the 2nd parent upline id up to the root of the 
+            *  downline to be placed under the assigned upline.
+            */
             
-            /** if current date is between cutoff dates,
-             *  UPDATE current transaction in commissions table
-             *  else add NEW transaction
-             */
+            $uplines = Networks::getUplines($this->member_id);
+
+        }
+        
+        if(count($uplines == 1))
+            $upline_list = array($this->upline_id);
+        else
+            $upline_list = array_diff($uplines, array($this->upline_id));
+        
+        //$upline_list = implode(',',$new_upline);
+        
+        /** if current date is between cutoff dates, get cutoff_id,
+         *  UPDATE current transaction in commissions table
+         *  else add NEW transaction
+         */   
+        $cutoff = GOCModel::cut_off_dates();
+        
+        if($cutoff !== false)
+        {
             
-                       
-            if(GOCModel::cut_off_dates())
+            $cutoff_id = $cutoff['cutoff_id'];            
+             
+            //Check if all uplines has existing records, add new otherwise
+            $retval = GOCModel::check_transactions($upline_list,$cutoff_id);
+            
+            //Check if uplines has current transactions
+            if(is_array($retval) && count($retval)> 0 )
             {
-                              
-                //Check if all uplines has existing records, add new otherwise
-                $retval = $this->check_transactions($upline_list);
+                
                 //Uplines with valid and existing transactions
                 $uplines_wt = implode(',',$retval);
                 //Update current transaction, +1 to current ibo_count. NOTE: MUST BE LOGGED TO AUDIT TRAIL FOR BACK TRACKING
                 
-                $update = GOCModel::update_transactions($uplines_wt);
+                $new_list = array_diff($upline_list,array($uplines_wt));
                 
+                //if(count($new_list)>0)
+                   // $uplines_wot = array_merge(array('cutoff_id'=>$cutoff_id,'upline_wot'=>$new_list));
+
+                $update = GOCModel::update_transactions($uplines_wt, $cutoff_id);
+                 
                 try 
                 {
-                    if(count($update) > 0)
+                    if(count($update) > 0 && count($new_list)>0)
                     {
                         //Add new commission to uplines without transactions
-                        $uplines_wot = array_diff($uplines, $uplines_wt);
-                        
-                            $insert = GOCModel::add_transactions($uplines_wot);
 
-                            if(count($insert) > 0)
-                            {
-                                $trx->commit();
-                                return true;
-                            }
-                            else
-                            {
-                                $trx->rollback();
-                                return false;
-                            }
+                        foreach($new_list as $upline)
+                        {
+                            $result[] = GOCModel::add_transactions($upline,$cutoff_id);
+                        }
+
+                        if(count($result) == count($new_list))
+                        {
+                            $trx->commit();
+                            return true;
+                        }
+                        else
+                        {
+                            $trx->rollback();
+                            return false;
+                        }
                     }
                 } 
                 catch (PDOException $e) 
@@ -81,18 +111,46 @@ class GOCModel extends CFormModel
                     $trx->rollback();
                     return false;
                 }
-                
-                
             }
-            else // Add new transactions
+            else
             {
                 
+                foreach($upline_list as $upline)
+                {
+                    $result[] = GOCModel::add_transactions($upline,$cutoff_id);
+                }
+
+                if(count($result) == count($new_list))
+                {
+                    $trx->commit();
+                    return true;
+                }
+                else
+                {
+                    $trx->rollback();
+                    return false;
+                }
             }
-            
+
+
         }
-        else
+        else // If not within cutoff, insert to transactions and process later by jobs
         {
-            return false;
+            foreach($upline_list as $upline)
+            {
+                $result[] = GOCModel::add_transactions($upline,$cutoff_id);
+            }
+
+            if(count($result) == count($new_list))
+            {
+                $trx->commit();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
         }
         
     }
@@ -106,36 +164,46 @@ class GOCModel extends CFormModel
         $this->last_cutoff_date = date('Y-m-d',strtotime($result['last_cutoff_date']));
         $this->next_cutoff_date = date('Y-m-d',strtotime($result['next_cutoff_date']));
         
-        if($this->current_date > $this->last_cutoff_date && $this->current_date < $this->next_cutoff_date)
-            return true;
+        if($this->current_date > $this->last_cutoff_date && $this->current_date <= $this->next_cutoff_date)
+            return $result;
         else
             return false;
         
     }
     
-    public function check_transactions($uplines)
+    public function check_transactions($uplines,$cutoff_id)
     {
         $conn = $this->_connection;
         
+        $uplines = implode(',',$uplines);
+        
         $query = "SELECT * FROM commissions 
-                  WHERE member_id IN ($uplines)
-                  AND date_created BETWEEN :last_cutoff AND :next_cutoff
-                  AND status = 0";
+                  WHERE member_id IN ($uplines) 
+                      AND cutoff_id = :cutoff_id 
+                      AND status = 0;";
+        
         $command = $conn->createCommand($query);
-        $command->bindParam(':next_cutoff', $this->next_cutoff_date);
-        $command->bindParam(':last_cutoff', $this->last_cutoff_date);
+        $command->bindParam(':cutoff_id', $cutoff_id);
         $result = $command->queryAll();
         
-        foreach($result as $val)
+        $retval = array();
+        
+        if(count($result)>0)
         {
-            $retval[] = $val['member_id'];
+            foreach($result as $val)
+            {
+                $retval[] = $val['member_id'];
+            }
+            
+            
         }
         
         return $retval;
         
+        
     }
     
-    public function update_transactions($uplines)
+    public function update_transactions($uplines, $cutoff_id)
     {
         $conn = $this->_connection;
         
@@ -144,32 +212,48 @@ class GOCModel extends CFormModel
                         amount = amount + :payout_rate,
                         date_last_updated = now()
                     WHERE member_id IN ($uplines)
-                    AND date_created BETWEEN :last_cutoff AND :next_cutoff
-                    AND status = 0";
+                 -- AND date_created BETWEEN :last_cutoff AND :next_cutoff
+                    AND cutoff_id = :cutoff_id AND status = 0";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':next_cutoff', $this->next_cutoff_date);
-        $command->bindParam(':last_cutoff', $this->last_cutoff_date);
+//        $command->bindParam(':next_cutoff', $this->next_cutoff_date);
+//        $command->bindParam(':last_cutoff', $this->last_cutoff_date);
         $command->bindParam(':payout_rate', $this->payout_rate);
+        $command->bindParam(':cutoff_id', $cutoff_id);
         $result = $command->execute();
         return $result;
     }
     
-    public function add_transactions($uplines)
+    public function add_transactions($upline_id, $cutoff_id)
     {
         $conn = $this->_connection;
-        
+             
+        /*
         $values = "";
         
-        foreach($uplines as $upline) $values .= '('.$upline . ',1,100'.'),';
+        foreach($uplines as $key => $upline) 
+            
+            $values .= '('.$upline . ',1,100'.'),';
          
         $values = rtrim($values,',');
         
         $query = "INSERT INTO commissions (member_id,ibo_count,amount)
                   VALUES $values";
-        
+         
         $command = $conn->createCommand($query);
         //$command->bindParam(':values', $values);
+        $result = $command->execute();
+        return $result;
+         * 
+         */
+        
+        $query = "INSERT INTO commissions (cutoff_id,member_id,ibo_count,amount)
+                  VALUES (:cutoff_id, :upline_id, 1, :payout_rate)";
+         
+        $command = $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $cutoff_id);
+        $command->bindParam(':upline_id', $upline_id);
+        $command->bindParam(':payout_rate', $this->payout_rate);
         $result = $command->execute();
         return $result;
     }

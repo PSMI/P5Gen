@@ -7,99 +7,67 @@
 
 class Networks extends Controller
 {
-        
-    public static function convertToList($arr)
-    {
-        foreach($arr as $item)
-        {
-            $items[] = $item['downline'];
-        }
-        
-        $listItems = implode(',', $items);
-        return array('arrayList'=>$items,
-                     'listItem'=>$listItems);
-    }
-        
+      
+    /**
+     * @author owliber
+     * @param type $member_id
+     * @return int
+     */
     public static function getLessFiveDownlines($member_id)
     {
         $model = new Downlines();
         
         $downlines = $model->firstFive($member_id);
                 
-//        if(count($downlines) < 5)
-//        {
-//            $downlines = implode(',',$model->getDirectEndorsed($member_id));
-//            //$downlines = array_merge(array('downline'=>$member_id),$direct);
-//            
-//            $result[] = array('level'=>1,
-//                              'downlines'=>$downlines,
-//                            );
-//        }
-//        else
-//	  {
-            $level = 1;
+        if(count($downlines)>0 && count($downlines) < 5)
+        {
+            
+            //include all direct endorse
+            $direct_endorsed = $model->getDirectEndorsed($member_id);
+            
+            if(count($direct_endorsed) < 0 || is_null($direct_endorsed) || empty($direct_endorsed))
+                $downlines = array('downline'=>$member_id);
+            else
+                $downlines = array_merge(array('downline'=>$member_id), $direct_endorsed);
+        }
+                
+        $level = 1;
 
-            do
+        do
+        {
+
+            foreach($downlines as $downline)
             {
+                $result[] = array(//'level'=>$level,
+                                  'downline'=>$downline['downline'],
+                                );
+            }
 
-                foreach($downlines as $downline)
-                {
-                    $result[] = array('level'=>$level,
-                                      'downlines'=>$downline['downline'],
-                                    );
-                }
+            $rows = Helpers::convertToList($downlines);        
+            $downlines = $model->nextLessFiveLevel($rows['listItem']);
+            
+            if(count($downlines) < 0)
+            {
+                $downlines = array('downline'=>$downlines['downline']);
+            }
+            
+            $max_per_level = pow(count($downlines),$level);
 
-                $rows = Networks::convertToList($downlines);        
-                $downlines = $model->nextLessFiveLevel($rows['listItem']);
-                $max_per_level = pow(count($downlines),$level);
-
-                $level++;
-                $total_downlines = count($downlines);
+            $level++;
+            $total_downlines = count($downlines);
 
 
-            }while($total_downlines>0 && $total_downlines>=$max_per_level);
-//        }
+        }while($total_downlines>0 && $total_downlines>=$max_per_level);
         
         return $result;
     }
     
-    public static function getLevelCount($member_id)
-    {
-        $model = new Downlines();
-        
-//        $downlines = $model->firstLevel($member_id);
-        
-            $level = 1;
-            $downlines = $model->firstLevel($member_id);
-            do
-            {
-                
-                
-                $total = count($downlines);
-
-                $result[] = array
-                        (
-                          'level'=>$level,
-                          'total'=>$total,
-                        );
-
-                if($total>=1)
-                {
-                    $rows = Networks::convertToList($downlines);        
-                    $downlines = $model->nextLevel($rows['listItem']);
-                }
-                
-                //$max_per_level = pow(count($downlines),$level);
-
-                $level++;
-                $total_downlines = count($downlines);
-
-            }while(!is_null($total) && $total_downlines > 0 ); //>= $max_per_level);
-        
-        return $result;
-        
-    }
     
+    /**
+     * @author owliber
+     * @param type $member_id
+     * @return type
+     */
     public function getUplines($member_id)
     {
         $model = new Uplines();

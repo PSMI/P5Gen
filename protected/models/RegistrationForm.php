@@ -176,14 +176,30 @@ class RegistrationForm extends CFormModel
         $conn = $this->_connection;        
         $filter = "%".$filter."%";
         
+        $model = new Downlines(); 
+        
+        //Get all downlines with less than 5 or no downlines yet
         $lists = Networks::getLessFiveDownlines(Yii::app()->user->getId());
-
+            
+        $arr1 = array();
+        $arr2 = array();
+        
         foreach($lists as $list)
         {
-            $downlines[] = $list['downlines'];
-
+            $arr1[] = $list['downline'];
+            
         }
-
+        
+        //Remove uplines with complete downlines               
+        $lists2 = $model->getDownlinesWCompleteDownlines($arr1);
+          
+        foreach($lists2 as $list2)
+        {
+            $arr2[] = $list2['downline'];
+        }
+        
+        $downlines = array_diff($arr1,$arr2); 
+        
         $downline_lists = implode(',', $downlines);
 
         $query = "SELECT

@@ -27,6 +27,11 @@ class Helpers extends Controller
             
     }
     
+    /**
+     * 
+     * @param type $length
+     * @return type
+     */
     public function randomPassword($length) {
         $alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
         $pass = array(); 
@@ -38,6 +43,23 @@ class Helpers extends Controller
         return implode($pass); //turn the array into a string
     }
     
+    /**
+     * Convert array into comma-separated list
+     * @author owliber
+     * @param type $arr
+     * @return type
+     */
+    public static function convertToList($arr)
+    {
+        foreach($arr as $item)
+        {
+            $items[] = $item['downline'];
+        }
+        
+        $listItems = implode(',', $items);
+        return array('arrayList'=>$items,
+                     'listItem'=>$listItems);
+    }
    
 }
 ?>

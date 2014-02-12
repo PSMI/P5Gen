@@ -60,14 +60,30 @@ class Downlines extends CFormModel
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();        
         
-        if(count($result) < 5)
-        {   //include all direct endorse
-            $direct_endorsed = Downlines::getDirectEndorsed($member_id);
-            $result = array_merge(array('downline'=>$member_id), $direct_endorsed);
-        }
+        return $result;
+
+    }    
+    
+    public function getDownlinesWCompleteDownlines($lists)
+    {
+        
+        $member_lists = implode(',',$lists);
+        $conn = $this->_connection;
+        $query = "SELECT
+                    m.member_id as downline
+                  FROM members m
+                    LEFT JOIN members m1
+                      ON m.member_id = m1.upline_id
+                  WHERE m.member_id IN ($member_lists)
+                  GROUP BY m.member_id
+                  HAVING COUNT(m.upline_id) = 5";        
+         
+        $command = $conn->createCommand($query);
+        $result = $command->queryAll();        
         
         return $result;
-    }    
+    }
+    
     public function getDirectEndorsed($member_id)
     {
         $conn = $this->_connection;
@@ -109,12 +125,15 @@ class Downlines extends CFormModel
         $query = "SELECT
                     m.member_id AS downline
                   FROM members m
-                  WHERE m.upline_id IN (SELECT
-                    m1.member_id
-                  FROM members m1
-                  WHERE m1.upline_id IN ($member_ids) )
+                    LEFT JOIN members m2 ON m.member_id = m2.upline_id
+                  WHERE m.member_id IN (
+                      SELECT
+                        m1.member_id
+                      FROM members m1
+                      WHERE m1.upline_id IN ($member_ids)
+                    )
                   GROUP BY m.member_id
-                  HAVING COUNT(m.member_id) < 5";
+                  HAVING COUNT(m.upline_id) < 5";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_ids);

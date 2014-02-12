@@ -91,12 +91,20 @@ class PlacementController extends Controller
             $goc = new GOCModel();
             $goc->member_id = $member_id;
             $goc->upline_id = $upline_id;
-            $goc->process();
+            $retval = $goc->process();
             
             if(count($result) > 0)
-                echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'Your new downline is successfully assigned and approved.'));
+            {
+                if($retval)
+                    echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'Your new downline is successfully assigned and approved.'));
+                else
+                    echo CJSON::encode(array('result_code'=>1, 'result_msg'=>'A problem encountered while processing your request.'));
+            }
             else
+            {
                 echo CJSON::encode(array('result_code'=>1, 'result_msg'=>'A problem encountered while processing your request.'));
+            }
+            
             
             Yii::app()->end();
         }
