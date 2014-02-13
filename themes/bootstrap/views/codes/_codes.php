@@ -25,6 +25,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 ));
 
+echo CHtml::hiddenField('batch_id', $batchId);
+
 $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'placement-grid',
         'type'=>'striped bordered condensed',
@@ -46,7 +48,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         )
         ));
 
-$this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("codes/index") . '";')));
+$this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 
+//                                                    'url'=>Yii::app()->createUrl('codes/pdf'),
+                                                    'htmlOptions'=>array('submit'=>Yii::app()->createUrl('codes/pdf')), 
+                                                    'label'=>'Export to PDF', 'type'=>'primary', 'size'=>'large'));
+
+$this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'type'=>'primary', 'size'=>'large', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("codes/index") . '";')));
 
 ?>
 

@@ -101,7 +101,34 @@ class CodesController extends Controller
                     ),
         ));
         
-        $this->render('_codes', array('model'=>$model, 'dataProvider'=>$dataProvider));
+        $this->render('_codes', array('model'=>$model, 'dataProvider'=>$dataProvider, 'batchId'=>$batchId));
+    }
+    
+    public function actionPdf()
+    {
+        $model = new ActivationCodeModel();
+        $batchId = $_POST['batch_id'];
+        $rawData = $model->selectAllCodesByBatchId($batchId);
+
+        $content .= '<table cellspacing="50"><tr>';
+        foreach($rawData as $key => $val) {
+            $content .= '<tr>';
+            $content .= '<td>' . $val["activation_code"] . '</td>';
+            $content .= '<td>' . $val["status"] . '</td>';
+            $content .= '</tr>';           
+        }
+        $content .= '</tr></table>';
+  
+        /*$pdf = CTCPDF::c_getInstance();
+        $pdf->c_commonReportFormat();
+        $pdf->c_setHeader('Activation Codes');
+        $pdf->SetFontSize(10);
+        $pdf->c_generatePDF('Activation_Codes_' . date('Y-m-d') . '.pdf'); */
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();
+        $html2pdf->WriteHTML($content);
+        $html2pdf->Output('Activation_Codes_' . date('Y-m-d') . '.pdf', 'D'); 
+
     }
 }
 ?>

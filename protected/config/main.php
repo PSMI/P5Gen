@@ -54,6 +54,14 @@ return array(
                     'pathViews' => 'application.views.email',
                     'pathLayouts' => 'application.views.email.layouts'
                  ),
+		 'ePdf' => array(
+                    'class'         => 'ext.yii-pdf.EYiiPdf',
+                    'params'        => array('HTML2PDF' => array(
+                                                        'librarySourcePath' => 'application.extensions.html2pdf.*',
+                                                        'classFile'         => 'html2pdf.class.php'
+                                        )
+                                    )
+                ),
 		// uncomment the following to enable URLs in path-format
 		
 		'urlManager'=>array(
