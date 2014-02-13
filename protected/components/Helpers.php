@@ -16,7 +16,7 @@ class Helpers extends Controller
      */
     public function generate($member_id, $firstname, $lastname)
     {
-        $string = substr($firstname, 0, 1) . $lastname;
+        $string = substr($firstname, 0, 1) . str_replace(" ", "", $lastname);
         $username = strtolower($string);
         
         $retval = Members::checkUsername($username);
