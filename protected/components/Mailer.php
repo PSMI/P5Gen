@@ -11,8 +11,13 @@ class Mailer
     CONST UPLINE_NOTIFY_TMPL = 2;
     CONST CHANGE_PASSWORD_TMPL = 3;
     
+    /**
+     * Send verification link to new member
+     * @param type $param
+     */
     public function sendVerificationLink($param)
     {
+        $model = new RegistrationForm();
         
         $member_id = $param['member_id'];
         
@@ -32,9 +37,10 @@ class Mailer
                         'code'=>$activation_code);
         
         $verification_link = 'https://'.$_SERVER['HTTP_HOST'].  Yii::app()->createUrl('activation/verify', $params);
+        $link = '<a href="'.$verification_link.'">'.$verification_link.'</a>';
         
         $placeholders = array('MEMBER_NAME'=>$member_name, 
-                              'VERIFICATION_LINK'=>$verification_link,
+                              'VERIFICATION_LINK'=>$link,
                               'USERNAME'=>$username,
                               'PASSWORD'=>$password);
         
@@ -44,21 +50,26 @@ class Mailer
         
         if(count($result) > 0)
         {
-            Yii::app()->mailer->Host = 'localhost';
-            Yii::app()->mailer->IsHTML(TRUE);
-            Yii::app()->mailer->IsMail();
-            Yii::app()->mailer->From = 'noreply@p5partners.com';
-            Yii::app()->mailer->FromName = 'P5 Marketing Incorporated';
-            Yii::app()->mailer->AddAddress($email);
-            Yii::app()->mailer->Subject = 'Important:P5 Membership Activation Required';
-            Yii::app()->mailer->Body = $message_template;
-            Yii::app()->mailer->Send();
+            $sender = 'noreply@p5partners.com';
+            $sender_name = 'P5 Marketing Incorporated';
+            $recipient = $email;
+            $subject = 'Important:P5 Membership Activation Required';
+                        
+            $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
+            
         }
+        
         
     }
     
+    /**
+     * Send notification message to the upline
+     * @param type $param
+     */
     public function sendUplineNotification($param)
     {
+        $model = new RegistrationForm();
+                    
         $downline_id = $param['new_member_id'];
         $upline_id = $param['upline_id'];
         $endorser_id = $param['endorser_id'];
@@ -71,7 +82,7 @@ class Mailer
         $downline_info = $members->selectMemberDetails($downline_id); 
         $upline_info = $members->selectMemberDetails($upline_id);
         $endorser_info = $members->selectMemberDetails($endorser_id);
-        
+                
         $upline_email = $upline_info['email'];
         $upline_name = $upline_info['first_name'] . ' ' . $upline_info['last_name'];
         $downline_name = $downline_info['first_name'] . ' ' . $downline_info['last_name'];
@@ -84,21 +95,25 @@ class Mailer
         foreach($placeholders as $key => $value){
             $message_template = str_replace('{'.$key.'}', $value, $message_template);
         }
- 
-        Yii::app()->mailer->Host = 'localhost';
-        Yii::app()->mailer->IsHTML(TRUE);
-        Yii::app()->mailer->IsMail();
-        Yii::app()->mailer->From = 'noreply@p5partners.com';
-        Yii::app()->mailer->FromName = 'P5 Marketing Incorporated';
-        Yii::app()->mailer->AddAddress($upline_email);
-        Yii::app()->mailer->Subject = 'Important:New Downline For Approval';
-        Yii::app()->mailer->Body = $message_template;
-        Yii::app()->mailer->Send();
         
+        $sender = 'noreply@p5partners.com';
+        $sender_name = 'P5 Marketing Incorporated';
+        $recipient = $upline_email;
+        $subject = 'Important: New downline for approval';
+ 
+        $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
+
+                
     }
     
+    /**
+     * Send change password notification
+     * @param type $param
+     */
     public function sendChangePassword($param)
     {
+        $model = new RegistrationForm();
+        
         $member_id = $param['member_id'];
         
         $reference = new ReferenceModel();
@@ -122,16 +137,37 @@ class Mailer
         
         if(count($result) > 0)
         {
-            Yii::app()->mailer->Host = 'localhost';
-            Yii::app()->mailer->IsHTML(TRUE);
-            Yii::app()->mailer->IsMail();
-            Yii::app()->mailer->From = 'noreply@p5partners.com';
-            Yii::app()->mailer->FromName = 'P5 Marketing Incorporated';
-            Yii::app()->mailer->AddAddress($email);
-            Yii::app()->mailer->Subject = 'Important:P5 Membership Activation Required';
-            Yii::app()->mailer->Body = $message_template;
-            Yii::app()->mailer->Send();
+            $sender = 'noreply@p5partners.com';
+            $sender_name = 'P5 Marketing Incorporated';
+            $recipient = $email;
+            $subject = 'Change Password Notification';
+            
+            $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
+
         }
+                
     }
+    
+    /**
+     * Send all queued emails
+     * @param type $sender
+     * @param type $sender_name
+     * @param type $recipient
+     * @param type $subject
+     * @param type $message_body
+     */
+    public function sendMails($sender, $sender_name, $recipient, $subject, $message_body)
+    {
+        Yii::app()->mailer->Host = 'localhost';
+        Yii::app()->mailer->IsHTML(TRUE);
+        Yii::app()->mailer->IsMail();
+        Yii::app()->mailer->From = $sender;
+        Yii::app()->mailer->FromName = $sender_name;
+        Yii::app()->mailer->AddAddress($recipient);
+        Yii::app()->mailer->Subject = $subject;
+        Yii::app()->mailer->Body = $message_body;
+        Yii::app()->mailer->Send();
+    }
+    
 }
 ?>

@@ -178,29 +178,40 @@ class RegistrationForm extends CFormModel
         
         $model = new Downlines(); 
         
-        //Get all downlines with less than 5 or no downlines yet
-        $lists = Networks::getLessFiveDownlines(Yii::app()->user->getId());
-            
-        $arr1 = array();
-        $arr2 = array();
+        $model->member_id = Yii::app()->user->getId();
         
-        foreach($lists as $list)
+        $downline = $model->firstLevel();
+               
+        if(count($downline) > 0)
         {
-            $arr1[] = $list['downline'];
-            
+            //Get all downlines with less than 5 or no downlines yet
+            $lists = Networks::getLessFiveDownlines(Yii::app()->user->getId());
+
+            $arr1 = array();
+            $arr2 = array();
+
+            foreach($lists as $list)
+            {
+                $arr1[] = $list['downline'];
+
+            }
+
+            //Remove uplines with complete downlines               
+            $lists2 = $model->getDownlinesWCompleteDownlines($arr1);
+
+            foreach($lists2 as $list2)
+            {
+                $arr2[] = $list2['downline'];
+            }
+
+            $downlines = array_diff($arr1,$arr2); 
+
+            $downline_lists = implode(',', $downlines);
         }
-        
-        //Remove uplines with complete downlines               
-        $lists2 = $model->getDownlinesWCompleteDownlines($arr1);
-          
-        foreach($lists2 as $list2)
+        else
         {
-            $arr2[] = $list2['downline'];
+            $downline_lists = Yii::app()->user->getId();
         }
-        
-        $downlines = array_diff($arr1,$arr2); 
-        
-        $downline_lists = implode(',', $downlines);
 
         $query = "SELECT
                     m.member_id,
@@ -499,6 +510,22 @@ class RegistrationForm extends CFormModel
             return false;
         }
         
+    }
+    
+    public function log_messages($sender, $sender_name, $recipient, $subject, $message_body)
+    {
+        $conn = $this->_connection;
+        
+        $query = "INSERT INTO email_messages (sender, sender_name, recipient, email_subject, message_body)
+                   VALUES (:sender, :sender_name, :recipient, :email_subject, :message_body)";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':sender', $sender);
+        $command->bindParam(':sender_name', $sender_name);
+        $command->bindParam(':recipient', $recipient);
+        $command->bindParam(':email_subject', $subject);
+        $command->bindParam(':message_body', $message_body);
+        $command->execute();
     }
     
 }

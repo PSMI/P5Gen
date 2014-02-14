@@ -16,21 +16,22 @@ class Networks extends Controller
     public static function getLessFiveDownlines($member_id)
     {
         $model = new Downlines();
+        $model->member_id = $member_id;
         
-        $downlines = $model->firstFive($member_id);
-                
+        $downlines = $model->firstFive();
+        
         if(count($downlines)>0 && count($downlines) < 5)
         {
-            
+
             //include all direct endorse
-            $direct_endorsed = $model->getDirectEndorsed($member_id);
-            
+            $direct_endorsed = $model->getDirectEndorsed();
+
             if(count($direct_endorsed) < 0 || is_null($direct_endorsed) || empty($direct_endorsed))
-                $downlines = array('downline'=>$member_id);
+                $downlines = array('downline'=>$model->member_id);
             else
-                $downlines = array_merge(array('downline'=>$member_id), $direct_endorsed);
+                $downlines = array_merge(array('downline'=>$model->member_id), $direct_endorsed);
         }
-                
+
         $level = 1;
 
         do
@@ -45,12 +46,12 @@ class Networks extends Controller
 
             $rows = Helpers::convertToList($downlines);        
             $downlines = $model->nextLessFiveLevel($rows['listItem']);
-            
+
             if(count($downlines) < 0)
             {
                 $downlines = array('downline'=>$downlines['downline']);
             }
-            
+
             $max_per_level = pow(count($downlines),$level);
 
             $level++;
@@ -58,6 +59,7 @@ class Networks extends Controller
 
 
         }while($total_downlines>0 && $total_downlines>=$max_per_level);
+        
         
         return $result;
     }
@@ -96,10 +98,11 @@ class Networks extends Controller
         $model = new Downlines();
         $parent = array();
         $children = array();
+        $model->member_id = $member_id;
         
         $i = 0;
         $level++;
-        $downlines = $model->firstLevel($member_id);
+        $downlines = $model->firstLevel();
         foreach ($downlines as $key => $val)
         {
             $parent[$i][$level] = $downlines[$key]["downline"];
@@ -220,5 +223,6 @@ class Networks extends Controller
         
         return $array;
     }
+    
 }
 ?>

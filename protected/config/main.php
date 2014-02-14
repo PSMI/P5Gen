@@ -21,7 +21,10 @@ return array(
 		'application.components.*',
 	),
         'behaviors'=>array(
-            'class'=>'application.components.ApplicationBehavior',
+            //'class'=>'application.components.ApplicationBehavior',
+            'onBeginRequest' => array(
+                'class' => 'application.components.RequireLogin'
+            )
         ),
         'theme'=>'bootstrap',
 	'modules'=>array(
@@ -62,6 +65,9 @@ return array(
                                         )
                                     )
                 ),
+                'file'=>array(
+                    'class'=>'application.extensions.file.CFile',
+                 ),
 		// uncomment the following to enable URLs in path-format
 		
 		'urlManager'=>array(

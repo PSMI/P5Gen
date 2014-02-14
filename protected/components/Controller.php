@@ -21,10 +21,16 @@ class Controller extends CController
 	 */
 	public $breadcrumbs=array();
         
+        public function filterHttps( $filterChain ) {
+            $filter = new HttpsFilter;
+            $filter->filter( $filterChain );
+        }
+          
         /*
         public function init(){
             Yii::app()->onEndRequest = array('Controller','end');
         }
+        
         
         public function end(){
             Yii::app()->db->setActive(false);

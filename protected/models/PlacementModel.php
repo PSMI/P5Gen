@@ -110,8 +110,19 @@ class PlacementModel extends CFormModel
                 
                 if(count($result2) >0 )
                 {
-                    $trx->commit();
-                    return true;
+                    $result3 = $this->addMemberToLogs();
+                    
+                    if(count($result3)>0)
+                    {
+                        $trx->commit();
+                        return true;
+                    }
+                    else
+                    {
+                        $trx->rollback();
+                        return false;
+                    }
+                    
                 }
                 else
                 {
@@ -251,7 +262,21 @@ class PlacementModel extends CFormModel
         return $result;
     }
     
-    
+    public function addMemberToLogs()
+    {
+        $conn = $this->_connection;      
+        
+        $query = "INSERT INTO unprocessed_members (member_id,upline_id,endorser_id)
+                  VALUES (:member_id, :upline_id, :endorser_id)";
+        
+        $command = $conn->createCommand($query);        
+        $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':upline_id', $this->upline_id);
+        $command->bindParam(':endorser_id', $this->endorser_id);
+        $result = $command->execute();   
+        return $result;
+        
+    }
     
     
 }

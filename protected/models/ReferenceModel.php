@@ -37,7 +37,11 @@ class ReferenceModel extends CFormModel
     {
         $conn = $this->_connection;
         
-        $query = "SELECT * FROM ref_cutoffs WHERE transaction_type_id = :trans_type_id AND status = 1";
+        $query = "SELECT * FROM ref_cutoffs 
+                    WHERE transaction_type_id = :trans_type_id 
+                    AND status = 1
+                  ORDER BY cutoff_id DESC
+                  LIMIT 1";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':trans_type_id', $trans_type);

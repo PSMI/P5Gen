@@ -40,11 +40,12 @@ class RegistrationController extends Controller
                         $param['member_id'] = $model->new_member_id;
                         $param['plain_password'] = $model->plain_password;
                         
+                        Mailer::sendVerificationLink($param);
+                        
                         $param2['upline_id'] = $model->upline_id;
                         $param2['new_member_id'] = $model->new_member_id;
-                        $param2['endorser_id'] = $model->member_id;
+                        $param2['endorser_id'] = $model->member_id;                      
                         
-                        Mailer::sendVerificationLink($param);
                         Mailer::sendUplineNotification($param2);
                         
                         $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business partner.';

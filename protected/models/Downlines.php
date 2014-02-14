@@ -9,6 +9,7 @@ class Downlines extends CFormModel
 {
     public $_connection;
     public $endorser_id;
+    public $member_id;
     
     public function __construct() {
         $this->_connection = Yii::app()->db;
@@ -31,7 +32,8 @@ class Downlines extends CFormModel
         
         return $result;
     }
-    public function firstLevel($member_id)
+    
+    public function firstLevel()
     {
         $conn = $this->_connection;
         
@@ -41,13 +43,13 @@ class Downlines extends CFormModel
                   WHERE m.upline_id = :member_id;";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':member_id', $this->member_id);
         $result = $command->queryAll();
         
         return $result;  
     }
     
-    public function firstFive($member_id)
+    public function firstFive()
     {
     	$conn = $this->_connection;
 	$query = "SELECT
@@ -57,7 +59,7 @@ class Downlines extends CFormModel
                     LIMIT 5;";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':member_id', $this->member_id);
         $result = $command->queryAll();        
         
         return $result;
@@ -84,7 +86,7 @@ class Downlines extends CFormModel
         return $result;
     }
     
-    public function getDirectEndorsed($member_id)
+    public function getDirectEndorsed()
     {
         $conn = $this->_connection;
         
@@ -95,7 +97,7 @@ class Downlines extends CFormModel
                     OR m.endorser_id = :member_id;";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':member_id', $this->member_id);
         $result = $command->queryAll();
         
         return $result;

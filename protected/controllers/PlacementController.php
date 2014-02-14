@@ -81,24 +81,15 @@ class PlacementController extends Controller
             $placement = $model->pendingPlacement();
             
             $upline_id = $placement['upline_id'];            
+            $endorser_id = $placement['endorser_id'];
             $model->upline_id = $upline_id;
+            $model->endorser_id = $endorser_id;
             
             $result = $model->placeUnder();
             
-            /* Process jobs  here */
-            
-            /***** PROCESS GOC *****/
-            $goc = new GOCModel();
-            $goc->member_id = $member_id;
-            $goc->upline_id = $upline_id;
-            $retval = $goc->process();
-            
             if(count($result) > 0)
             {
-                if($retval)
-                    echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'Your new downline is successfully assigned and approved.'));
-                else
-                    echo CJSON::encode(array('result_code'=>1, 'result_msg'=>'A problem encountered while processing your request.'));
+                echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'Your new downline is successfully assigned and approved.'));
             }
             else
             {
