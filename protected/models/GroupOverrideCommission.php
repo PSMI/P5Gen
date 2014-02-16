@@ -7,6 +7,7 @@
 class GroupOverrideCommission extends CFormModel
 {
     public $_connection;
+    public $payout_rate = 100;
     
     public function __construct() 
     {
@@ -78,6 +79,98 @@ class GroupOverrideCommission extends CFormModel
             $trx->rollback();
             return false;
         }
+    }
+    
+    /**
+     * Check current member GOC transactions
+     * @param type $uplines
+     * @param type $cutoff_id
+     * @return type
+     * @author owliber
+     */
+    public function check_transactions($uplines,$cutoff_id)
+    {
+        $conn = $this->_connection;
+        
+        $uplines = implode(',',$uplines);
+        
+        $query = "SELECT * FROM commissions 
+                  WHERE member_id IN ($uplines) 
+                      AND cutoff_id = :cutoff_id 
+                      AND status = 0;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $cutoff_id);
+        $result = $command->queryAll();
+        
+        $retval = array();
+        
+        if(count($result)>0)
+        {
+            foreach($result as $val)
+            {
+                $retval[] = $val['member_id'];
+            }
+            
+            
+        }
+        
+        return $retval;
+        
+    }
+    
+    /**
+     * UPDATE existing GOC transactions
+     * @param type $uplines
+     * @param type $cutoff_id
+     * @return type
+     * @author owliber
+     */
+    public function update_transactions($uplines, $cutoff_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "UPDATE commissions 
+                    SET ibo_count = ibo_count + 1,
+                        amount = amount + :payout_rate,
+                        date_last_updated = now()
+                    WHERE member_id IN ($uplines)
+                    AND cutoff_id = :cutoff_id AND status = 0";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':payout_rate', $this->payout_rate);
+        $command->bindParam(':cutoff_id', $cutoff_id);
+        $result = $command->execute();
+        return $result;
+    }
+    
+    /**
+     * Add new GOC transactions
+     * @param type $uplines
+     * @param type $cutoff_id
+     * @return type
+     * @author owliber
+     */
+    public function add_transactions($uplines, $cutoff_id)
+    {
+        $conn = $this->_connection;
+        
+        $values = array();
+        
+        $query = "INSERT INTO commissions (cutoff_id,member_id,ibo_count,amount) VALUES ";
+        
+        foreach ($uplines as $upline) {
+            $values[] = '('.$cutoff_id.','.$upline.',1,'.$this->payout_rate.')';
+        }
+        
+        if (!empty($values)) {
+            $query .= implode(', ', $values);
+        }
+         
+        $command = $conn->createCommand($query);
+        $result = $command->execute();        
+        return $result;
+        
     }
 }
 ?>

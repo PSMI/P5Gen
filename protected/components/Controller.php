@@ -37,10 +37,6 @@ class Controller extends CController
             gc_collect_cycles(); //Free up memory resources
         }
         
-        public function filterHttps( $filterChain ) {
-            $filter = new HttpsFilter;
-            $filter->filter( $filterChain );
-        }
          * 
          */
 }

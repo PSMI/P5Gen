@@ -167,6 +167,7 @@ class Mailer
         Yii::app()->mailer->Subject = $subject;
         Yii::app()->mailer->Body = $message_body;
         Yii::app()->mailer->Send();
+        Yii::app()->mailer->ClearAddresses();
     }
     
 }

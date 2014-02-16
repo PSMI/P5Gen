@@ -21,6 +21,7 @@ class RequireLogin extends CBehavior
             'activation/success',
             'activation/error',
             'cron/goc',
+            'cron/sendmail',
         );
         if (Yii::app()->user->isGuest && !in_array($controller, $allowed))
         {

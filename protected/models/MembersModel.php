@@ -197,5 +197,18 @@ class MembersModel extends CFormModel
             return false;
         }
     }
+    
+    /**
+     * 
+     * @return type
+     * @author owliber
+     */
+    public function getUnprocessedMembers()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT * FROM unprocessed_members LIMIT 1";
+        $command = $conn->createCommand($query);
+        return $command->queryAll();
+    }
 }
 ?>

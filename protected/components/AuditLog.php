@@ -9,49 +9,54 @@
 
 class AuditLog extends CFormModel
 {
+    public $member_id;
+    public $log_message;
+    public $status;
+    public $job_id;
+    public $audit_func_id;
+    public $remote_ip;
+    public $_connection;
         
-    /**
-     * 
-     * @param int $AID
-     * @param int $auditFunctionID
-     * @param string $transDetails
-     */
-    public static function logTransactions($auditFunctionID,$details=NULL)
+    public function __construct() {
+        $this->_connection = Yii::app()->db;
+    }
+    
+    public static function log_event()
     {
         $conn = Yii::app()->db;
             
-        $remoteIP = $_SERVER['REMOTE_ADDR'];
+        $this->remote_ip = $_SERVER['REMOTE_ADDR'];
                 
-        $UserID = Yii::app()->session['UserID'];
+        $this->member_id = Yii::app()->user->getId();
         
-        $message = AuditLog::logMessage($auditFunctionID) . " " . $details;
-        $query = "INSERT INTO auditlogs (UserID,AuditFunctionID,Details,DateCreated,RemoteIP)
-                  VALUE (:UserID,:auditFunctionID,:details,now(),:remoteIP)";
+        $query = "INSERT INTO audit_logs (member_id,audit_function_id,details,remote_ip)
+                  VALUE (:member_id,:audit_function_id,:details,:remote_ip)";
 
         $sql = $conn->createCommand($query);  
         $sql->bindValues(array(
-                    ":UserID"=>$UserID,
-                    ":auditFunctionID"=>$auditFunctionID,
-                    ":details"=>$message,
-                    ":remoteIP"=>$remoteIP,
+                    ":member_id"=>$this->member_id,
+                    ":audit_function_id"=>$this->audit_func_id,
+                    ":details"=>$this->log_message,
+                    ":remote_ip"=>$this->remote_ip,
         ));
         $sql->execute();
        
     }
-    
-    public static function logMessage($auditFunctionID)
+        
+    public function log_cron()
     {
-        
         $conn = Yii::app()->db;
+        $query = "INSERT INTO cronlogs (job_id, log_message, status) 
+                    VALUES (:job_id, :log_message, :status)";
         
-        $query = "SELECT Name FROM ref_auditfunctions
-                  WHERE AuditFunctionID =:auditFunctionID";
+        if(isset($this->status)) $this->status = 1;
         
         $sql = $conn->createCommand($query);
-        $sql->bindParam(":auditFunctionID", $auditFunctionID);
-        $result = $sql->queryRow();
+        $sql->bindValue(":job_id", $this->job_id);
+        $sql->bindValue(":log_message", $this->log_message);
+        $sql->bindValue(":status", $this->status);
+        $sql->execute();
         
-        return $result["Name"];
     }
     
 }

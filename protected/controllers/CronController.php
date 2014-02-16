@@ -10,9 +10,10 @@
 class CronController extends Controller
 {
     const JOB_GOC = 1;
-    const JOB_LOAN = 2;
-    const JOB_DIRECT = 3;
-    const JOB_UNILEVEL = 4;
+    const JOB_LOAN_COMPLETION = 2;
+    const JOB_LOAN_DIRECT = 3;
+    const JOB_DIRECT_ENDORSEMENT = 4;
+    const JOB_UNILEVEL = 5;
     
     public $PID;
     public $PIDFile;
@@ -47,67 +48,113 @@ class CronController extends Controller
         $pid->create();
         $pid->setContents('1', true);  
     }
+    
+    public function job_enabled()
+    {
+        $model = new ReferenceModel();
+        $retval = $model->get_variable_value('JOB_SCHEDULER');
+        
+        if($retval == 1)
+            return true;
+        else
+            return false;
+    }
         
     /**
      * Run GOC job
      */
     public function actionGOC()
     {
-        //Instantiate models
-        $model = new UnprocessedMemberModel();
-        $goc = new GOCModel();
-         
-        $this->PIDFile = 'GOCJOB.pid';
-        $model->job_id = self::JOB_GOC;
-        
-        if(!$this->PID_exists())
+        if($this->job_enabled())
         {
-            //add to auditlogs
-            $model->log_message = 'Started processing GOC job.';
-            $model->log();
+            //Instantiate models
+            $model = new MembersModel();
+            $audit = new AuditLog();
             
-            //Create pid file      
-            $this->createPID();
-            $model->log_message = 'Created '.$this->PIDFile.' file';
-            $model->log();
-                        
-            $lists = $model->getList();
+            $this->PIDFile = 'GOC.pid';
+            $audit->job_id = self::JOB_GOC;
 
-            foreach($lists as $list)
+            if(!$this->PID_exists())
             {
-                $goc->member_id = $list['member_id'];
-                $goc->endorser_id = $list['endorser_id'];
-                $goc->upline_id = $list['upline_id'];
+                
+                //add to auditlogs
+                $audit->log_message = 'Started processing GOC job.';
+                $audit->log_cron();
 
-                $retval = $goc->process();
+                //Create pid file      
+                $this->createPID();
+                $audit->log_message = 'Created '.$this->PIDFile.' file';
+                $audit->log_cron();
 
-                if(!$retval)
+                $lists = $model->getUnprocessedMembers();
+                
+                if(count($lists)>0)
                 {
-                    //add to auditlogs
-                    $model->log_message = 'GOC processing successful.';
-                    $model->log();
+                    foreach($lists as $list)
+                    {
+                        $member_id = $list['member_id'];
+                        $endorser_id = $list['endorser_id'];
+                        $upline_id = $list['upline_id'];
+        
+                        $retval = Transactions::process_goc($member_id, $endorser_id, $upline_id);
+                        
+                        if(!$retval)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'GOC processing successful.';
+                            $audit->log_cron();
 
+                        }
+                        else
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'GOC processing failed.';
+                            $audit->status = 2;
+                            $audit->log_cron();
+                            echo $audit->log_message;
+                        }
+
+                    }
+
+                    //Delete process id
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                    $audit->log_cron();
+                    
                 }
                 else
                 {
-                    //add to auditlogs
-                    $model->log_message = 'GOC processing failed.';
-                    $model->status = 2;
-                    $model->log();
+                    
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                    $audit->log_cron();
+                    
+                    echo 'No new record to process.';
+                    Yii::app()->end();
                 }
 
             }
+            else
+            {
+                
+                $audit->log_message = 'GOC PID file still exist. Please wait current process to finish. ';
+                $audit->log_cron();                
+                echo $audit->log_message;
+                Yii::app()->end();
+            }
             
-            //Delete process id
-            $this->PID->delete();
-            $model->log_message = 'Deleted '.$this->PIDFile.' file';
-            $model->log();
-            
+            $audit->log_message = 'Processing job has ended.';
+            $audit->log_cron();
+            echo $audit->log_message;
+            Yii::app()->end();
+
         }
-        $model->log_message = 'Processing job has ended.';
-        $model->log();
+        else
+        {
+            echo 'Job scheduler is disabled.';
+            Yii::app()->end();
+        }
         
-        echo 'GOC job has finished processing members : '. CJSON::encode($lists);
     }
     
     public function actionSendmail()
@@ -135,6 +182,185 @@ class CronController extends Controller
         
         echo 'All queued mails were sent.';
         
+    }
+    
+    public function actionLoanCompletion()
+    {
+        
+        if($this->job_enabled())
+        {
+            $model = new MembersModel();
+            $audit = new AuditLog();
+            
+            $this->PIDFile = 'LoanCompletion.pid';
+            $audit->job_id = self::JOB_LOAN_COMPLETION;
+
+            if(!$this->PID_exists())
+            {
+                               
+                //add to auditlogs
+                $audit->log_message = 'Started processing Loan completion job.';
+                $audit->log_cron();
+
+                //Create pid file      
+                $this->createPID();
+                $audit->log_message = 'Created '.$this->PIDFile.' file';
+                $audit->log_cron();
+                
+                $lists = $model->getUnprocessedMembers();
+                
+                if(count($lists)>0)
+                {
+                    foreach($lists as $list)
+                    {
+                        $member_id = $list['member_id'];         
+                        $endorser_id = $list['endorser_id'];
+                        $upline_id = $list['upline_id'];
+                        
+                        $retval = Transactions::process_loan_completion($member_id,$endorser_id,$upline_id);
+
+                        if(!$retval)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'Loan completion processing successful.';
+                            $audit->log_cron();
+
+                        }
+                        else
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'Loan completion processing failed.';
+                            $audit->status = 2;
+                            $audit->log_cron();
+                            echo $audit->log_message;
+                        }
+                    }
+                    
+                    //Delete process id
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                    $audit->log_cron();
+                }
+                else
+                {
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                    $audit->log_cron();
+                    
+                    echo 'No new record to process.';
+                    Yii::app()->end();
+                }
+           
+            }
+            else
+            {
+                
+                $audit->log_message = 'Loan process PID file still exist. Please wait current process to finish. ';
+                $audit->log_cron();                
+                echo $audit->log_message;
+                Yii::app()->end();
+            }
+            
+            $audit->log_message = 'Processing job has ended.';
+            $audit->log_cron();
+            echo $audit->log_message;
+            Yii::app()->end();
+        }
+        else
+        {
+            echo 'Job scheduler is disabled.';
+            Yii::app()->end();
+        }
+        
+        
+    }
+    
+    public function actionLoanDirect()
+    {
+        if($this->job_enabled())
+        {
+            $model = new MembersModel();
+            $audit = new AuditLog();
+            
+            $this->PIDFile = 'LoanDirect.pid';
+            $audit->job_id = self::JOB_LOAN_DIRECT;
+
+            if(!$this->PID_exists())
+            {
+                               
+                //add to auditlogs
+                $audit->log_message = 'Started processing Loan direct job.';
+                $audit->log_cron();
+
+                //Create pid file      
+                $this->createPID();
+                $audit->log_message = 'Created '.$this->PIDFile.' file';
+                $audit->log_cron();
+                
+                $lists = $model->getUnprocessedMembers();
+                
+                if(count($lists)>0)
+                {
+                    foreach($lists as $list)
+                    {
+                        $member_id = $list['member_id'];         
+                        $endorser_id = $list['endorser_id'];
+                        $upline_id = $list['upline_id'];
+                        
+                        $retval = Transactions::process_loan_direct($member_id,$endorser_id,$upline_id);
+
+                        if(!$retval)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'Loan direct processing successful.';
+                            $audit->log_cron();
+
+                        }
+                        else
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'Loan direct processing failed.';
+                            $audit->status = 2;
+                            $audit->log_cron();
+                            echo $audit->log_message;
+                        }
+                    }
+                    
+                    //Delete process id
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                    $audit->log_cron();
+                }
+                else
+                {
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                    $audit->log_cron();
+                    
+                    echo 'No new record to process.';
+                    Yii::app()->end();
+                }
+           
+            }
+            else
+            {
+                
+                $audit->log_message = 'Loan process PID file still exist. Please wait current process to finish. ';
+                $audit->log_cron();                
+                echo $audit->log_message;
+                Yii::app()->end();
+            }
+            
+            $audit->log_message = 'Processing job has ended.';
+            $audit->log_cron();
+            echo $audit->log_message;
+            Yii::app()->end();
+        }
+        else
+        {
+            echo 'Job scheduler is disabled.';
+            Yii::app()->end();
+        }
     }
     
 }
