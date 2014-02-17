@@ -12,27 +12,17 @@ class AdmintransactionsController extends Controller
     public function actionLoan()
     {
         $model = new Loan();
-        
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
-        {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
             
-            $rawData = $model->getLoanApplications($dateFrom, $dateTo);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
-                                    ));
-            
-            $this->render('loan', array('dataProvider' => $dataProvider));
-        }
-        else
-        {
-            $this->render('loan');
-        }     
+        $rawData = $model->getLoanApplications();
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                'pageSize' => 10,
+                                            ),
+                                ));
+
+        $this->render('loan', array('dataProvider' => $dataProvider));  
     }
     
     public function actionProcessTransaction()
@@ -254,6 +244,66 @@ class AdmintransactionsController extends Controller
         else
         {
             $this->render('directendorse');
+        }
+    }
+    
+    public function getStatus($status_id)
+    {
+        if ($status_id == 0)
+        {
+            return "Pending";
+        }
+        else if($status_id == 1)
+        {
+            return "Completed";
+        }
+        else if($status_id == 2)
+        {
+            return "Approved";
+        }
+        else
+        {
+            return "Claimed";
+        }
+    }
+    
+    public function getStatusLoan($status_id, $status_type)
+    {
+        if ($status_type == 1)
+        {
+            //Approve button
+            if ($status_id == 1)
+            {
+                return "true";
+            }
+            else if($status_id == 3)
+            {
+                return "false";
+            }
+            else
+            {
+                return "false";
+            }
+        }
+        else if ($status_type == 2)
+        {
+            //Claim button
+            if ($status_id == 1)
+            {
+                return "false";
+            }
+            else if($status_id == 2)
+            {
+                return "true";
+            }
+            else
+            {
+                return "false";
+            }
+        }
+        else
+        {
+            return "true";
         }
     }
 }

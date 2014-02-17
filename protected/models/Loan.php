@@ -13,16 +13,19 @@ class Loan extends CFormModel
         $this->_connection = Yii::app()->db;
     }
     
-    public function getLoanApplications($dateFrom, $dateTo)
+    public function getLoanApplications()
     {
         $conn = $this->_connection;
         
         $query = "SELECT
                     l.loan_id,
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
+                    l.loan_type_id,
                     l.level_no,
                     l.loan_amount,
+                    l.ibo_count,
                     l.date_created,
+                    l.date_completed,
                     l.date_approved,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
                     l.status
@@ -30,11 +33,9 @@ class Loan extends CFormModel
                     INNER JOIN member_details m
                       ON l.member_id = m.member_id
                     LEFT OUTER JOIN member_details md ON l.approved_by_id = md.member_id
-                  WHERE date_created BETWEEN :dateFrom AND :dateTo;";
+                  WHERE status IN (1, 2, 3);";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':dateFrom', $dateFrom);
-        $command->bindParam(':dateTo', $dateTo);
         $result = $command->queryAll();
         
         return $result;

@@ -16,7 +16,13 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                               'header'=>'Member Name',
                               'htmlOptions' => array('style' => 'text-align:center'),
                               'headerHtmlOptions' => array('style' => 'text-align:center'),
-                        ), 
+                        ),
+                        array('name'=>'loan_type_id',
+                              'header'=>'Loan Type',
+                              'value' => '$data["status"] == 1 ? "5 Direct Endorse" : "Level Completed"',
+                              'htmlOptions' => array('style' => 'text-align:center'),
+                              'headerHtmlOptions' => array('style' => 'text-align:center'),
+                        ),
                         array('name'=>'level_no',
                             'header'=>'Level',
                             'htmlOptions' => array('style' => 'text-align:center'),
@@ -44,7 +50,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'status',
                             'header'=>'Status',
-                            'value' => '$data["status"] == 0 ? "Pending" : "Approved"',
+                            'value' => 'AdmintransactionsController::getStatus($data["status"])',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -56,8 +62,8 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Approve',
                                     'icon'=>'ok-sign',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["loan_id"], "status" => "1", "transtype" => "loan"))',
-                                    'visible'=>'$data["status"] == 0 ? true : false',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["loan_id"], "status" => "2", "transtype" => "loan"))',
+                                    'visible'=>'AdmintransactionsController::getStatusLoan($data["status"], 1)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                         'confirm'=>'Are you sure you want to APPROVE?',
@@ -80,6 +86,36 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     array('id' => 'send-link-'.uniqid())
                                 ),
                             ),
+//                            'buttons'=>array
+//                            (
+//                                'approve'=>array
+//                                (
+//                                    'label'=>'Claim',
+//                                    'icon'=>'ok-sign',
+//                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["loan_id"], "status" => "3", "transtype" => "loan"))',
+//                                    //'visible'=>'AdmintransactionsController::getStatusLoan($data["status"], 2)',
+//                                    'options' => array(
+//                                        'class'=>"btn btn-small",
+//                                        'confirm'=>'Are you sure you want to CLAIM?',
+//                                        'ajax' => array(
+//                                            'type' => 'GET',
+//                                            'dataType'=>'json',
+//                                            'url' => 'js:$(this).attr("href")',
+//                                            'success' => 'function(data){
+//                                                if(data.result_code == 0)
+//                                                {
+//                                                    alert(data.result_msg);
+//                                                    $.fn.yiiGridView.update("loans-grid");
+//                                                }
+//                                                else
+//                                                    alert(data.result_msg);
+//                                             }',
+//                                        ),
+//
+//                                    ),
+//                                    array('id' => 'send-link-'.uniqid())
+//                                ),
+//                            ),
                             'header'=>'Action',
                             'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
                         ),
