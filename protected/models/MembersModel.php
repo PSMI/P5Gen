@@ -206,9 +206,27 @@ class MembersModel extends CFormModel
     public function getUnprocessedMembers()
     {
         $conn = $this->_connection;
-        $query = "SELECT * FROM unprocessed_members LIMIT 1";
+        $query = "SELECT * 
+                  FROM unprocessed_members 
+                  WHERE status = :status
+                  LIMIT 5";
         $command = $conn->createCommand($query);
+        $command->bindParam(':status', $this->status);
         return $command->queryAll();
+    }
+    
+    public function updateUnprocessedMembers()
+    {
+
+        $conn = $this->_connection;
+        $query = "UPDATE unprocessed_members
+                    SET status = :status
+                  WHERE member_id = :member_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':status', $this->status);
+        $result = $command->execute();
+        return $result;
     }
 }
 ?>

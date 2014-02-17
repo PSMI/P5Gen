@@ -12,5 +12,6 @@ class TransactionTypes
     CONST LOAN = 3;
     CONST PROFIT_SHARING = 4;
     CONST PROMO_BONUS = 5;
+    const DIRECT_ENDORSE = 6;
 }
 ?>

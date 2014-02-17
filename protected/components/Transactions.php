@@ -17,14 +17,16 @@ class Transactions extends Controller
      */
     public function process_goc($member_id, $endorser_id, $upline_id)
     {
+        $conn = $model->_connection;
+        $trx = $conn->beginTransaction();
+        
         $model = new GroupOverrideCommission();
         $audit = new AuditLog();
         $reference = new ReferenceModel();
+        $member = new MembersModel();
         
-        $conn = $model->_connection;
-        $trx = $conn->beginTransaction();
-               
-        
+        $member->member_id = $member_id;
+                       
         //If upline is the same as logged user
         if($upline_id == $endorser_id)                        
             $uplines = Networks::getUplines($upline_id);
@@ -36,12 +38,12 @@ class Transactions extends Controller
         else
             $upline_list = array_diff($uplines, array($upline_id));
    
-        $cutoff_id = $reference->get_cutoff();
+        $cutoff_id = $reference->get_cutoff(TransactionTypes::GOC);
         
         try
         {
             //Check if all uplines has existing records, add new otherwise
-            $retval = $model->check_transactions($upline_list,$cutoff_id);
+            $retval = $model->check_transactions($uplines,$cutoff_id);
             
             //Check if uplines has current transactions
             if(is_array($retval) && count($retval)> 0 )
@@ -66,30 +68,38 @@ class Transactions extends Controller
 
                     if(count($result)>0)
                     {
-
-                        $audit->log_message = "New transaction for members ".implode(',',$new_list)." is added.";
-                        $audit->log_cron();
-
-                        $trx->commit();
-                        return true;
+                        $member->status = 1;
+                        $result2 = $member->updateUnprocessedMembers($member);
+                        
+                        if(count($result2)>0)
+                        {
+                            $audit->log_message = "New transaction for members ".implode(',',$new_list)." is added.";
+                            $audit->log_cron();
+                            $trx->commit();
+                            return true;
+                        }
+                        else
+                        {
+                           $trx->rollback();
+                            $audit->log_message = "Failed updating unprocessed member ".$member_id." status.";
+                            $audit->log_cron();
+                            return false; 
+                        }
+                        
                     }
                     else
                     {
                         $trx->rollback();
-
                         $audit->log_message = "Failed adding new transactions for members ".implode(',',$new_list);
                         $audit->log_cron();
-
                         return false;
                     }
                 }
                 else
                 {
                     $trx->rollback();
-
                     $audit->log_message = "Failed updating transactions of members ".implode(',',$new_list);
                     $audit->log_cron();
-
                     return false;
                 }
             }
@@ -127,6 +137,34 @@ class Transactions extends Controller
             return false;
         }
         
+    }
+    
+    public function process_direct_endorsement($member_id, $endorser_id)
+    {
+        $model = new DirectEndorsement();
+        $reference = new ReferenceModel();
+        $member = new MembersModel();
+        
+        $member->member_id = $member_id;
+        $cutoff_id = $reference->get_cutoff(TransactionTypes::DIRECT_ENDORSE);
+        
+        $retval = $model->add_transactions($member_id,$endorser_id, $cutoff_id);
+        
+        if($retval)
+        {
+            $member->status = 2; //Processed by direct endorsement
+            $result = $member->updateUnprocessedMembers();
+            
+            if(count($result)>0)
+                return true;
+            else
+                return false;
+        }
+        else
+        {
+            return false;
+        }
+     
     }
     
     public function process_loan_completion($member_id, $endorser_id, $upline_id)

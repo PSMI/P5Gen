@@ -7,6 +7,7 @@
 class DirectEndorsement extends CFormModel
 {
     public $_connection;
+    public $member_id;
     
     public function __construct()
     {
@@ -81,5 +82,66 @@ class DirectEndorsement extends CFormModel
             return false;
         }
     }
+    
+    public function getDirectEndorser($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT                 
+                      endorser_id as endorser
+                  FROM members m
+                  WHERE m.member_id = :member_id;";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
+    
+    public function check_transactions($endorsers,$cutoff_id)
+    {
+        $conn = $this->_connection;
+        
+        $member_ids = implode(',',$endorsers);
+        
+        $query = "SELECT * FROM direct_endorsements 
+                    WHERE member_id IN ($member_ids)
+                        AND cutoff_id = :cutoff_id
+                        AND status = 0
+                    ";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $cutoff_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function add_transactions($member_id,$endorsers, $cutoff_id)
+    {
+        $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+                
+        $query = "INSERT INTO direct_endorsements (cutoff_id,endorser_id,member_id) 
+                        VALUES (:cutoff_id, :endorser_id, :member_id)";
+                 
+        $command = $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $cutoff_id);
+        $command->bindParam(':endorser_id', $endorsers);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->execute();        
+        
+        if(count($result)>0)
+        {
+            $trx->commit();
+            return true;
+        }
+        else
+        {
+            $trx->rollback();
+            return false;
+        }
+        
+    }
+    
 }
 ?>

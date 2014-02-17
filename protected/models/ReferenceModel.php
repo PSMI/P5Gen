@@ -37,7 +37,7 @@ class ReferenceModel extends CFormModel
         return $result['message_template'];
     }
     
-    public function get_cutoff_dates($trans_type)
+    public function get_cutoff_dates($trans_type_id)
     {
         $conn = $this->_connection;
         
@@ -48,24 +48,39 @@ class ReferenceModel extends CFormModel
                   LIMIT 1";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':trans_type_id', $trans_type);
+        $command->bindParam(':trans_type_id', $trans_type_id);
         $result = $command->queryRow();
         return $result;
     }
     
-    public function get_cutoff()
+    public function get_cutoff($trans_type_id)
     {
         $conn = $this->_connection;
         
-        $result = ReferenceModel::check_valid_cutoff();
+        $result = ReferenceModel::check_valid_cutoff($trans_type_id);
+        
+        switch($trans_type_id)
+        {
+            case 1: //GOC
+                $interval = " 3 MONTH";
+                break;
+            case 2: //Unilevel
+                $interval = " 1 MONTH";
+                break;
+            case 6: //Direct Endorsement
+                $interval = " 1 WEEK";
+                break;
+            
+        }
         
         if($result === false)
         {
             //Update last valid cutoff
             $query = "UPDATE ref_cutoffs SET status = 2
-                      WHERE transaction_type_id = 1
+                      WHERE transaction_type_id = :trans_type_id
                         AND status = 1";
             $command = $conn->createCommand($query);
+            $command->bindParam(':trans_type_id', $trans_type_id);
             $result = $command->execute();
             
             if(count($result)>0)
@@ -74,12 +89,13 @@ class ReferenceModel extends CFormModel
                             SELECT
                               rc.transaction_type_id,
                               rc.next_cutoff_date AS last_cutoff_date,
-                              DATE_ADD(rc.next_cutoff_date, INTERVAL 3 MONTH) AS next_cutoff_date
+                              DATE_ADD(rc.next_cutoff_date, INTERVAL ".$interval.") AS next_cutoff_date
                             FROM ref_cutoffs rc
-                            WHERE rc.transaction_type_id = 1 AND rc.status = 2
+                            WHERE rc.transaction_type_id = :trans_type_id AND rc.status = 2
                             ORDER BY rc.cutoff_id DESC LIMIT 1;";
 
                 $command2 = $conn->createCommand($query2);
+                $command2->bindParam(':trans_type_id', $trans_type_id);
                 $result2 = $command2->execute();
                 
                 if(count($result2)>0)
@@ -97,9 +113,9 @@ class ReferenceModel extends CFormModel
         
     }
     
-    public function check_valid_cutoff()
+    public function check_valid_cutoff($trans_type_id)
     {
-        $result = ReferenceModel::get_cutoff_dates(TransactionTypes::GOC);
+        $result = ReferenceModel::get_cutoff_dates($trans_type_id);
         
         if(count($result)> 0)
         {

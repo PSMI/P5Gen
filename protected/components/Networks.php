@@ -75,10 +75,12 @@ class Networks extends Controller
         $model = new Uplines();
         do
         {
-            if(!is_null($member_id)) $uplines[] = $member_id;
              
              $result = $model->getUplines($member_id);    
              $member_id = $result['upline'];
+             
+             if(!is_null($member_id)) $uplines[] = $member_id;
+             
         }while(!empty($result) && !is_null($result));
             
         return $uplines;
@@ -222,6 +224,23 @@ class Networks extends Controller
         }
         
         return $array;
+    }
+    
+    public function getDirectEndorser($member_id)
+    {
+        $model = new DirectEndorsement();
+        
+        do
+        {            
+             
+             $result = $model->getDirectEndorser($member_id);    
+             $member_id = $result['endorser'];
+             
+             if(!is_null($member_id)) $endorsers[] = $member_id;
+             
+        }while(!empty($result) && !is_null($result));
+            
+        return $endorsers;
     }
     
 }
