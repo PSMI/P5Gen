@@ -228,5 +228,30 @@ class MembersModel extends CFormModel
         $result = $command->execute();
         return $result;
     }
+    
+    public function getMemberNetworkCount($interval,$min_count)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    m.member_id,
+                    CONCAT(COALESCE(md.last_name, ''), ' ', COALESCE(md.first_name, ''), ' ', COALESCE(md.middle_name, '')) AS member_name,
+                    ra.total_member,
+                    m.date_created AS date_joined,
+                    DATE_ADD(m.date_created, INTERVAL ".$interval." MONTH) AS promo_end_date,
+                    ra.date_last_updated AS date_completed
+                  FROM members m
+                    INNER JOIN member_details md
+                      ON m.member_id = md.member_id
+                    INNER JOIN running_accounts ra
+                      ON m.member_id = ra.member_id
+                  WHERE ra.total_member >= :min_member_count
+                  AND ra.date_last_updated <= DATE_ADD(m.date_created, INTERVAL ".$interval." MONTH);";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':min_member_count', $min_count);
+        $result = $command->queryAll();
+        return $result;
+    }
 }
 ?>

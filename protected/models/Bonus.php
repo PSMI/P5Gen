@@ -7,6 +7,8 @@
 class Bonus extends CFormModel
 {
     public $_connection;
+    public $member_id;
+    public $promo_id;
     
     public function __construct()
     {
@@ -21,7 +23,7 @@ class Bonus extends CFormModel
                     pr.promo_redemption_id,
                     p.promo_name,
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
-                    pr.ibp_count,
+                    pr.ibo_count,
                     pr.date_redeeemd,
                     pr.date_released,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS released_by,
@@ -81,6 +83,62 @@ class Bonus extends CFormModel
             $trx->rollback();
             return false;
         }
+    }
+    
+    public function getActivePromo()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM promos WHERE status = 1";
+        $command = $conn->createCommand($query);
+        $result = $command->queryAll();
+        return $result;
+    }
+    
+    public function redeemPromo($details)
+    {
+        $conn = $this->_connection;        
+        $trx = $conn->beginTransaction();
+        
+        $promo_id = $this->promo_id;
+        $member_id = $details['member_id'];
+        $member_count = $details['total_member'];
+        $date_joined = $details['date_joined'];
+        $date_completed = $details['date_completed'];
+        $promo_end_date = $details['promo_end_date'];
+                
+        $query = "INSERT IGNORE INTO promo_redemption (promo_id, member_id, ibo_count, date_joined, date_completed, promo_end_date)
+                  VALUES (:promo_id, :member_id, :ibo_count, :date_joined, :date_completed, :promo_end_date)";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':promo_id', $promo_id);
+        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':ibo_count', $member_count);
+        $command->bindParam(':date_joined', $date_joined);
+        $command->bindParam(':date_completed', $date_completed);
+        $command->bindParam(':promo_end_date', $promo_end_date);
+        $result = $command->execute();
+        
+        try
+        {
+            if(count($result)>0)
+            {
+                $trx->commit ();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            return false;
+        }
+        
+            
     }
 }
 ?>
