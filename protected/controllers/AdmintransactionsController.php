@@ -271,40 +271,57 @@ class AdmintransactionsController extends Controller
     {
         if ($status_type == 1)
         {
-            //Approve button
             if ($status_id == 1)
             {
-                return "true";
+                return true;
             }
             else if($status_id == 3)
             {
-                return "false";
+                return false;
             }
             else
             {
-                return "false";
+                return false;
             }
         }
         else if ($status_type == 2)
         {
-            //Claim button
             if ($status_id == 1)
             {
-                return "false";
+                return false;
             }
             else if($status_id == 2)
             {
-                return "true";
+                return true;
             }
             else
             {
-                return "false";
+                return false;
             }
         }
         else
         {
-            return "true";
+            return false;
         }
+    }
+    
+    public function dateFormat($date)
+    {
+        if ($date == '')
+        {
+            return false;
+        }
+        else
+        {
+            $new_date = new DateTime($date);
+
+            return date_format($new_date, 'F j, Y, g:i a');
+        } 
+    }
+    
+    public function numberFormat($amount)
+    {
+        return number_format($amount, 2);
     }
 }
 ?>
