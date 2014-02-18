@@ -27,7 +27,7 @@ class CodeGenerator extends Controller
         
         while ($num_created < $num)
         {
-            $code = CodeGenerator::generate_codes($length, $code_sets, $num_length);
+            $code = 'P' . CodeGenerator::generate_codes($length, $code_sets, $num_length);
             if (isset($codes[$code]))
                 continue;
             $codes[$code] = true;
@@ -48,6 +48,5 @@ class CodeGenerator extends Controller
     {
         return substr($code_sets, mt_rand(0, $num_length - 1), 1);
     }
-
 }
 ?>

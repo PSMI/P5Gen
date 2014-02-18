@@ -53,7 +53,7 @@ class ActivationCodeModel extends CFormModel
                 $last_inserted_id = $connection->getLastInsertId();
 
                 // generate the codes
-                $activationCodes = CodeGenerator::generateCode(18, $quantity);
+                $activationCodes = CodeGenerator::generateCode(19, $quantity);
                 for($i = 0; $i < $quantity; $i++)
                 {
                     $codes[] = "('".$activationCodes[$i]."'," . $last_inserted_id . ")";
