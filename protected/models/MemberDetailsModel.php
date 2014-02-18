@@ -83,7 +83,7 @@ class MemberDetailsModel extends CFormModel
         $connection = $this->_connection;
         
         $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
-                a.birth_date, a.mobile_no, a.email
+                a.birth_date, a.mobile_no, a.email, b.username
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
                 WHERE b.account_type_id IN (1, 2)";
@@ -98,7 +98,7 @@ class MemberDetailsModel extends CFormModel
         $connection = $this->_connection;
         
         $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
-                a.birth_date, a.mobile_no, a.email
+                a.birth_date, a.mobile_no, a.email, b.username
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
                 WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField) AND b.account_type_id IN (1, 2)";

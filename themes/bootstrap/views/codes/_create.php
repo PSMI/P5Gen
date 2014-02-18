@@ -37,6 +37,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <!-- dialog box -->
 <?php 
 $trigger = false;
+$buttons = array();
 if ($this->showDialog) 
 {
     $buttons = array(

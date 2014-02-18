@@ -11,6 +11,7 @@ class AccountsController extends Controller
     public $title = '';
     public $showDialog = false;
     public $showConfirm = false;
+    public $showRedirect = false;
     
     public $layout = 'column2';
     
@@ -84,6 +85,75 @@ class AccountsController extends Controller
         }
         
         $this->render('_update', array('model'=>$model));
+    }
+    
+    public function actionChangePassword()
+    {
+        if (!isset($_GET["id"])) {
+            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        }
+        
+        $member_id = $_GET["id"];
+        
+        if (isset($_POST['btnChange']))
+        {        
+            $model = new NetworksModel();
+            $rawData = $model->getProfileInfo($member_id);
+            
+            $db_pass = $rawData["password"];
+            $curr_pass = $_POST["txtCurrentPass"];
+            $new_pass = $_POST["txtNewPass"];
+            $confirm_pass = $_POST["txtConfirmPass"];
+
+            if ($curr_pass != "" && $new_pass != "" && $confirm_pass != "")
+            {
+                if ($new_pass == $confirm_pass)
+                {
+                    if ($db_pass == md5($curr_pass))
+                    {
+                        $members = new MembersModel();
+                        $retval = $members->changePassword($member_id, $new_pass);
+                        
+                        if ($retval)
+                        {
+                            $param['member_id'] = $member_id;
+                            $param['plain_password'] = $new_pass;
+                            Mailer::sendChangePassword($param);
+                            
+                            $this->title = "SUCCESSFUL";
+                            $this->msg = "Administrator's password successfully modified.";
+                            $this->showRedirect = true;
+                        }
+                        else
+                        {
+                            $this->title = "NOTIFICATION";
+                            $this->msg = "Change password failed.";
+                            $this->showDialog = true;
+                        }
+                    }
+                    else
+                    {
+                        $this->title = "NOTIFICATION";
+                        $this->msg = "Invalid current password. Please try again.";
+                        $this->showDialog = true;
+                    }
+                }
+                else
+                {
+                    $this->title = "NOTIFICATION";
+                    $this->msg = "Your new password and confim password did not match.";
+                    $this->showDialog = true;
+                }
+            }
+            else
+            {
+                $this->title = "NOTIFICATION";
+                $this->msg = "Please fill-up the required fields.";
+                $this->showDialog = true;
+            }
+        }
+        
+        $this->render('_changepassword');
     }
     
     public function actionCreate()
