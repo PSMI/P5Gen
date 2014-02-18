@@ -23,16 +23,18 @@ class Loan extends CFormModel
                     l.loan_type_id,
                     l.level_no,
                     l.loan_amount,
-                    l.ibo_count,
                     l.date_created,
                     l.date_completed,
                     l.date_approved,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
+                    l.date_claimed,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     l.status
                   FROM loans l
                     INNER JOIN member_details m
                       ON l.member_id = m.member_id
                     LEFT OUTER JOIN member_details md ON l.approved_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md2 ON l.claimed_by_id = md2.member_id
                   WHERE status IN (1, 2, 3);";
         
         $command =  $conn->createCommand($query);
@@ -47,11 +49,23 @@ class Loan extends CFormModel
         
         $trx = $conn->beginTransaction();
         
-        $query = "UPDATE loans
-                    SET date_approved = NOW(),
-                        status = :status,
-                        approved_by_id = :userid
-                    WHERE loan_id = :loan_id;";
+        if ($status == 2)
+        {
+            $query = "UPDATE loans
+                        SET date_approved = NOW(),
+                            status = :status,
+                            approved_by_id = :userid
+                        WHERE loan_id = :loan_id;";
+        }
+        else if ($status == 3)
+        {
+            $query = "UPDATE loans
+                        SET date_claimed = NOW(),
+                            status = :status,
+                            claimed_by_id = :userid
+                        WHERE loan_id = :loan_id;";
+        }
+            
         
         $command = $conn->createCommand($query);
         
