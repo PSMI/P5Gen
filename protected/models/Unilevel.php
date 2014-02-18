@@ -7,6 +7,11 @@
 class Unilevel extends CFormModel
 {
     public $_connection;
+    public $member_id;
+    public $endorser_id;
+    public $upline_id;
+    public $cutoff_id;
+    public $total_direct_endorse;
     
     public function __construct()
     {
@@ -19,7 +24,6 @@ class Unilevel extends CFormModel
         
         $query = "SELECT
                     u.unilevel_id,
-                    u.level_no,
                     u.amount,
                     u.date_created,
                     u.date_released,
@@ -77,5 +81,153 @@ class Unilevel extends CFormModel
             return false;
         }
     }
+    
+    public function get_running_account()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    ra.member_id,
+                    ra.direct_endorse,
+                    ra.date_first_five_completed,
+                    ra.with_unilevel_trx,
+                    TIMESTAMPDIFF(MONTH,m.date_created,date_first_five_completed) AS num_of_months
+                  FROM running_accounts ra
+                    INNER JOIN members m
+                      ON ra.member_id = m.member_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->upline_id);
+        return $command->queryRow();
+    }
+    
+    public function update_transaction()
+    {
+        $conn = $this->_connection;
+        
+        $payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
+        
+        $query = "UPDATE unilevel 
+                    SET ibo_count = ibo_count + 1, 
+                        amount = amount + :payout_rate,
+                        date_last_updated = now()
+                  WHERE cutoff_id = :cutoff_id
+                    AND member_id = :member_id
+                    AND status = 0";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->upline_id);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':payout_rate', $payout_rate);
+        $result = $command->execute();        
+        return $result;
+    }
+    
+    public function insert_first_transaction()
+    {
+        $conn = $this->_connection;
+        
+        $payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
+        
+        $query = "INSERT INTO unilevel (member_id, cutoff_id, ibo_count, amount)
+                   VALUES (:member_id, :cutoff_id, :total_direct_endorse, :payout_rate)";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->upline_id);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':total_direct_endorse', $this->total_direct_endorse);
+        $command->bindParam(':payout_rate', $payout_rate);
+        $result = $command->execute();        
+        
+        if(count($result)>0)
+        {
+            //Update running account
+            $query2 = "UPDATE running_accounts
+                        SET with_unilevel_trx = 1
+                        WHERE member_id = :member_id";
+            $command2 = $conn->createCommand($query2);
+            $command2->bindParam(':member_id', $this->upline_id);
+            $result2 = $command2->execute();
+            
+            if(count($result2)>0)
+                return true;
+            else
+                return false;
+        }
+        else
+        {
+            return false;
+        }
+        
+    }
+    
+    public function insert_first_transaction_with_flushout()
+    {
+        $conn = $this->_connection;
+        
+        $payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
+        
+        $query = "INSERT INTO unilevel (member_id, cutoff_id, ibo_count, amount)
+                   VALUES (:member_id, :cutoff_id, :total_direct_endorse, :payout_rate)";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->upline_id);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':total_direct_endorse', $this->total_direct_endorse);
+        $command->bindParam(':payout_rate', $payout_rate);
+        $result = $command->execute();        
+        
+        if(count($result)>0)
+        {
+            //Update running account
+            $query2 = "UPDATE running_accounts
+                        SET with_unilevel_trx = 1
+                        WHERE member_id = :member_id";
+            $command2 = $conn->createCommand($query2);
+            $command2->bindParam(':member_id', $this->upline_id);
+            $result2 = $command2->execute();
+            
+            if(count($result2)>0)
+                return true;
+            else
+                return false;
+        }
+        else
+        {
+            return false;
+        }
+        
+    }
+    
+    public function new_transaction()
+    {
+        $conn = $this->_connection;
+        
+        $payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
+        
+        $query = "INSERT INTO unilevel (member_id, cutoff_id, ibo_count, amount)
+                   VALUES (:member_id, :cutoff_id, 1, :payout_rate)";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->upline_id);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+                $command->bindParam(':payout_rate', $payout_rate);
+        $result = $command->execute();        
+        return $result;
+        
+    }
+    
+    public function check_transaction()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM unilevel
+                   WHERE cutoff_id = :cutoff_id
+                        AND member_id = :member_id
+                        AND status = 0";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':member_id', $this->upline_id);
+        $result = $command->queryAll();
+        return $result;
+    }
+    
+    
 }
 ?>

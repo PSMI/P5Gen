@@ -17,17 +17,16 @@ class Transactions extends Controller
      */
     public function process_goc($member_id, $endorser_id, $upline_id)
     {
-        $conn = $model->_connection;
-        $trx = $conn->beginTransaction();
-        
         $model = new GroupOverrideCommission();
         $audit = new AuditLog();
         $reference = new ReferenceModel();
         $member = new MembersModel();
         
+        $conn = $model->_connection;
+        $trx = $conn->beginTransaction();
+                
         $member->member_id = $member_id;
                        
-        //If upline is the same as logged user
         if($upline_id == $endorser_id)                        
             $uplines = Networks::getUplines($upline_id);
         else
@@ -167,21 +166,15 @@ class Transactions extends Controller
      
     }
     
-    public function process_loan_completion($member_id, $endorser_id, $upline_id)
+    public function process_loan_completion($member_id) //, $endorser_id, $upline_id)
     {
-        $model = new CronLoanCompletion();
-                
-        //get member uplines
-        //If upline is the same as logged user
-        if($upline_id == $endorser_id)                        
-            $uplines = Networks::getUplines($upline_id);
-        else
-            $uplines = Networks::getUplines($member_id);
-                    
-        if(count($uplines == 1))
-            $upline_list = array($upline_id);
+        $model = new CronLoanCompletion();                
+                            
+        $uplines = Networks::getUplines($member_id);
+        if(is_null($uplines))
+            $uplines = array($member_id);
        
-        foreach($upline_list as $upline)
+        foreach($uplines as $upline)
         {
             $model->member_id = $upline;
             
@@ -277,21 +270,16 @@ class Transactions extends Controller
         
     }
     
-    public function process_loan_direct($member_id, $endorser_id, $upline_id)
+    public function process_loan_direct($member_id)//, $endorser_id, $upline_id)
     {
         $model = new CronLoanDirect();
         
-        //get member uplines
-        //If upline is the same as logged user
-        if($upline_id == $endorser_id)                        
-            $uplines = Networks::getUplines($upline_id);
-        else
-            $uplines = Networks::getUplines($member_id);
+        $uplines = Networks::getUplines($member_id);
                     
-        if(count($uplines == 1))
-            $upline_list = array($upline_id);
+        if(is_null($uplines))//root record
+            $uplines = array($member_id);
         
-        foreach($upline_list as $upline)
+        foreach($uplines as $upline)
         {
             $model->member_id = $upline;
             
@@ -366,6 +354,129 @@ class Transactions extends Controller
             }
         }
         
+    }
+    
+    public function process_unilevel($member_id)
+    {
+        $model = new Unilevel();
+        $reference = new ReferenceModel();
+        $member = new MembersModel();
+        
+        $conn = $model->_connection;
+                                
+        $uplines = Networks::getUplines($member_id);
+        
+        if(is_null($uplines))//root record
+            $uplines = array($member_id);
+            
+        $cutoff_id = $reference->get_cutoff(TransactionTypes::UNILEVEL); 
+        $model->cutoff_id = $cutoff_id;        
+            
+        $trx = $conn->beginTransaction();
+        
+        try
+        {
+            foreach($uplines as $upline)
+            {
+                //Check each upline running account
+                $model->upline_id = $upline;
+                $account = $model->get_running_account();
+
+                // If member has already unilevel transaction
+                if($account['with_unilevel_trx'] == 1)
+                {
+                    //Check existing active transaction for current cutoff
+                    $trans = $model->check_transaction();
+
+                    if(count($trans) > 0)
+                    {
+                        //Update ibo count for current cutoff transaction
+                        $retval = $model->update_transaction();
+
+                        if(count($retval) >0 )
+                        {
+                            $trx->commit();
+                            return array('result_code'=>0, 'result_msg'=>'Trx update for cufoff '.$cutoff_id.' of member '.$member_id.' was successful.');
+                        }
+                        else
+                        {
+                            $trx->rollback();
+                            return array('result_code'=>1, 'result_msg'=>'Trx update for cufoff '.$cutoff_id.' of member '.$member_id.' has failed.');
+                        }
+                    }
+                    else
+                    {
+                        //Insert new transaction for current cutoff
+                        $retval = $model->new_transaction();
+
+                        if(count($retval) >0 )
+                        {
+                            $trx->commit();
+                            return array('result_code'=>0, 'result_msg'=>'New trx for cufoff '.$cutoff_id.' of member '.$member_id.' was successful.');
+                        }
+                        else
+                        {
+                            $trx->rollback();
+                            return array('result_code'=>1, 'result_msg'=>'New trx for cufoff '.$cutoff_id.' of member '.$member_id.' has failed.');
+                        }
+                    }
+                }
+                else //First payout
+                {
+                    if($account['direct_endorse'] >= 5)
+                    {
+                        $model->total_direct_endorse = $account['direct_endorse'];
+                        //Check direct endorse count if >= 5 date and if no. of month < 3 months
+                        if($account['num_of_month'] < 3)
+                        {
+                            //Insert first payout
+                            $retval = $model->insert_first_transaction();
+
+                            if($retval)
+                            {
+                                $trx->commit();
+                                return array('result_code'=>0, 'result_msg'=>'First trx for cufoff '.$cutoff_id.' of member '.$member_id.' was successful.');
+                            }
+                            else
+                            {
+                                $trx->rollback();
+                                return array('result_code'=>1, 'result_msg'=>'First trx for cufoff '.$cutoff_id.' of member '.$member_id.' has failed.');
+                            }
+                        }
+                        else
+                        {
+                            //If first 5 direct endorse completed in > 3 months, 
+                            //get only all new members joined after 3 months?
+
+                            $member->member_id = $upline;
+                            $row = $member->get_count_with_flush_out();
+                            $model->total_direct_endorse = $row['total_direct_endorse'];
+                            $retval = $model->insert_first_transaction_with_flushout();
+
+                            if($retval)
+                            {
+                                $trx->commit();
+                                return array('result_code'=>0, 'result_msg'=>'First trx with flushout for cufoff '.$cutoff_id.' of member '.$member_id.' was successful.');
+                            }
+                            else
+                            {
+                                $trx->rollback();
+                                return array('result_code'=>1, 'result_msg'=>'First trx with flushout for cufoff '.$cutoff_id.' of member '.$member_id.' has failed.');
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return array('result_code'=>2, 'result_msg'=>'Direct endorse count is not valid for '.$cutoff_id.' of member '.$member_id);
+                    }//direct_endorse
+                }//with_unilevel_trx
+            }//foreach
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            return array('result_code'=>3, 'result_msg'=>$e->getMessage());
+        }
     }
     
     public function getLevel($total_members)

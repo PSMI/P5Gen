@@ -87,16 +87,19 @@ class PlacementController extends Controller
             
             $result = $model->placeUnder();
             
-            if(count($result) > 0)
+            if($result)
             {
-                echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'Your new downline is successfully assigned and approved.'));
+                $retval = $model->updateRunningAccount();
+                if($retval)
+                    echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'Your new downline is successfully assigned and approved.'));
+                else
+                    echo CJSON::encode(array('result_code'=>1, 'result_msg'=>$model->getErrors()));
             }
             else
             {
-                echo CJSON::encode(array('result_code'=>1, 'result_msg'=>'A problem encountered while processing your request.'));
+                echo CJSON::encode(array('result_code'=>2, 'result_msg'=>'A problem encountered while processing your request.'));
             }
-            
-            
+                        
             Yii::app()->end();
         }
     }

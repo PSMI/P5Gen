@@ -253,5 +253,20 @@ class MembersModel extends CFormModel
         $result = $command->queryAll();
         return $result;
     }
+    
+    public function get_count_with_flush_out()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    count(*) as total_direct_endorse
+                  FROM members m
+                  WHERE m.member_id = :member_id
+                  AND m.date_created > DATE_ADD(m.date_created, INTERVAL 3 MONTH);";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $result = $command->queryRow();
+        return $result;
+    }
 }
 ?>

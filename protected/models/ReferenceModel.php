@@ -75,6 +75,8 @@ class ReferenceModel extends CFormModel
         
         if($result === false)
         {
+            $trx = $conn->beginTransaction();
+            
             //Update last valid cutoff
             $query = "UPDATE ref_cutoffs SET status = 2
                       WHERE transaction_type_id = :trans_type_id
@@ -83,27 +85,41 @@ class ReferenceModel extends CFormModel
             $command->bindParam(':trans_type_id', $trans_type_id);
             $result = $command->execute();
             
-            if(count($result)>0)
+            try
             {
-                $query2 = "INSERT INTO ref_cutoffs (transaction_type_id, last_cutoff_date, next_cutoff_date)
-                            SELECT
-                              rc.transaction_type_id,
-                              rc.next_cutoff_date AS last_cutoff_date,
-                              DATE_ADD(rc.next_cutoff_date, INTERVAL ".$interval.") AS next_cutoff_date
-                            FROM ref_cutoffs rc
-                            WHERE rc.transaction_type_id = :trans_type_id AND rc.status = 2
-                            ORDER BY rc.cutoff_id DESC LIMIT 1;";
-
-                $command2 = $conn->createCommand($query2);
-                $command2->bindParam(':trans_type_id', $trans_type_id);
-                $result2 = $command2->execute();
-                
-                if(count($result2)>0)
+                if(count($result)>0)
                 {
-                    
-                    return $conn->getLastInsertID();
+                    $query2 = "INSERT INTO ref_cutoffs (transaction_type_id, last_cutoff_date, next_cutoff_date)
+                                SELECT
+                                  rc.transaction_type_id,
+                                  rc.next_cutoff_date AS last_cutoff_date,
+                                  DATE_ADD(rc.next_cutoff_date, INTERVAL ".$interval.") AS next_cutoff_date
+                                FROM ref_cutoffs rc
+                                WHERE rc.transaction_type_id = :trans_type_id AND rc.status = 2
+                                ORDER BY rc.cutoff_id DESC LIMIT 1;";
+
+                    $command2 = $conn->createCommand($query2);
+                    $command2->bindParam(':trans_type_id', $trans_type_id);
+                    $result2 = $command2->execute();
+
+                    if(count($result2)>0)
+                    {
+                        $trx->commit();
+                        return $conn->getLastInsertID();
+                    }
+                    else
+                    {
+                        $trx->rollback();
+                        return false;
+                    }
                 }
             }
+            catch(PDOException $e)
+            {
+                $trx->rollback();
+                return false;
+            }
+            
         }
         else
         {
@@ -127,6 +143,22 @@ class ReferenceModel extends CFormModel
             else
                 return false;
         }
+    }
+    
+    public function get_payout_rate($trans_type_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM ref_payout_rate 
+                    WHERE transaction_type_id = :trans_type_id 
+                    AND status = 1
+                    ORDER BY payout_rate_id DESC 
+                    LIMIT 1";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':trans_type_id', $trans_type_id);
+        $result = $command->queryRow();
+        return $result;
     }
 }
 ?>

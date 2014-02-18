@@ -94,35 +94,12 @@ class PlacementModel extends CFormModel
         {
             if(count($result)>0)
             {
-                //Delete member records on pending_placements via triggers
-                //Update all uplines running accounts
-                $uplines = Networks::getUplines($this->upline_id);
-                
-                $upline_list = implode(',',$uplines);
-                
-                $query2 = "UPDATE running_accounts
-                           SET total_member = total_member + 1
-                           WHERE member_id IN ($upline_list)";
-                
-                
-                $command2 = $conn->createCommand($query2);
-                $result2 = $command2->execute();
-                
-                if(count($result2) >0 )
+                $result2 = $this->addUnprocessedMembers();
+
+                if(count($result2)>0)
                 {
-                    $result3 = $this->addMemberToLogs();
-                    
-                    if(count($result3)>0)
-                    {
-                        $trx->commit();
-                        return true;
-                    }
-                    else
-                    {
-                        $trx->rollback();
-                        return false;
-                    }
-                    
+                    $trx->commit();
+                    return true;
                 }
                 else
                 {
@@ -130,6 +107,11 @@ class PlacementModel extends CFormModel
                     return false;
                 }
                 
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
             }
         }
         catch(PDOException $e)
@@ -262,7 +244,7 @@ class PlacementModel extends CFormModel
         return $result;
     }
     
-    public function addMemberToLogs()
+    public function addUnprocessedMembers()
     {
         $conn = $this->_connection;      
         
@@ -276,6 +258,41 @@ class PlacementModel extends CFormModel
         $result = $command->execute();   
         return $result;
         
+    }
+    
+    public function updateRunningAccount()
+    {
+        $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+        
+        //Delete member records on pending_placements via triggers
+        //Update all uplines running accounts
+        $uplines = Networks::getUplines($this->member_id);
+        
+        if(!is_null($uplines) && count($uplines)>0)
+        {
+            $upline_list = implode(',',$uplines);
+
+            $query = "UPDATE running_accounts
+                       SET total_member = total_member + 1
+                       WHERE member_id IN ($upline_list)";
+
+
+            $command = $conn->createCommand($query);
+            $result = $command->execute();
+            
+            if(count($result)>0)
+            {
+                $trx->commit();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
+
+        }
     }
     
     

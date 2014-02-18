@@ -27,9 +27,13 @@ class Networks extends Controller
             $direct_endorsed = $model->getDirectEndorsed();
 
             if(count($direct_endorsed) < 0 || is_null($direct_endorsed) || empty($direct_endorsed))
-                $downlines = array('downline'=>$model->member_id);
+                $downlines = array('downline'=>$member_id);
             else
                 $downlines = array_merge(array('downline'=>$model->member_id), $direct_endorsed);
+        }
+        else
+        {
+            $downlines = array('downline'=>$member_id);
         }
 
         $level = 1;
@@ -72,6 +76,7 @@ class Networks extends Controller
      */
     public function getUplines($member_id)
     {
+        $uplines = array();
         $model = new Uplines();
         do
         {
@@ -81,7 +86,7 @@ class Networks extends Controller
              
              if(!is_null($member_id)) $uplines[] = $member_id;
              
-        }while(!empty($result) && !is_null($result));
+        }while(!empty($member_id) && !is_null($member_id));
             
         return $uplines;
     }
