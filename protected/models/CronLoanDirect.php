@@ -17,7 +17,7 @@ class CronLoanDirect extends CFormModel
         $this->_connection = Yii::app()->db;
     }
     
-    public function getDirectEndorse($member_id)
+    public function getDirectEndorse()
     {
         $conn = $this->_connection;
         
@@ -121,7 +121,8 @@ class CronLoanDirect extends CFormModel
         }
     }
     
-    public function updateLoanDirectIbo($ibo_count, $status, $loan_id)
+    //public function updateLoanDirectIbo($ibo_count, $status, $loan_id)
+    public function updateLoanDirectIbo()
     {
         $conn = $this->_connection;
         
@@ -133,10 +134,10 @@ class CronLoanDirect extends CFormModel
                 WHERE loan_id = :loan_id;";
 
         $command = $conn->createCommand($query);
-        
-        $command->bindParam(':ibo_count', $ibo_count);
-        $command->bindParam(':status', $status);
-        $command->bindParam(':loan_id', $loan_id);
+
+        $command->bindParam(':ibo_count', $this->ibo_count);
+        $command->bindParam(':status', $this->status);
+        $command->bindParam(':loan_id', $this->loan_id);
 
         $result = $command->execute();
         

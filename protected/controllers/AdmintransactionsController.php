@@ -49,7 +49,15 @@ class AdmintransactionsController extends Controller
                 if (count($result) > 0)
                 {
                     $result_code = 0;
-                    $result_msg = "Loan Approved.";
+                    
+                    if ($status == 2)
+                    {
+                        $result_msg = "Loan Approved.";
+                    }
+                    else
+                    {
+                        $result_msg = "Loan Claimed.";
+                    }
                 }
                 else
                 {
@@ -316,7 +324,7 @@ class AdmintransactionsController extends Controller
             $new_date = new DateTime($date);
 
             return date_format($new_date, 'F j, Y, g:i a');
-        } 
+        }
     }
     
     public function numberFormat($amount)
