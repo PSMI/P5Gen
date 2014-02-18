@@ -19,6 +19,7 @@ class MembersController extends Controller
                 $this->redirect(array('site/404'));
         
         $model = new MemberDetailsModel();
+        $members = new MembersModel();
         
         if (isset($_POST["txtSearch"]) && $_POST["txtSearch"] != "")
         {
@@ -27,7 +28,29 @@ class MembersController extends Controller
         }
         else
         {
-            $rawData = $model->selectAllMemberDetails();
+            $rawData = $model->selectAllMemberDetails(); // In future, this will no longer be used if the data is too many.
+        }
+        
+        // get upline and endorser
+        foreach ($rawData as $key => $value) {
+            $uplineInfo = $members->selectMemberName($value["upline_id"]);
+            $endorserInfo = $members->selectMemberName($value["endorser_id"]);
+            
+            if (is_array($endorserInfo) && count($endorserInfo) > 0) {
+                $endorser = $endorserInfo["last_name"] . ", " . $endorserInfo["first_name"] . " " . $endorserInfo["middle_name"];
+            }
+            else {
+                $endorser = '';
+            }
+            $rawData[$key]["endorser"] = $endorser;
+            
+            if (is_array($uplineInfo) && count($uplineInfo) > 0) {
+                $upline = $uplineInfo["last_name"] . ", " . $uplineInfo["first_name"] . " " . $uplineInfo["middle_name"];
+            }
+            else {
+                $upline = '';
+            }
+            $rawData[$key]["upline"] = $upline;
         }
         
         $dataProvider = new CArrayDataProvider($rawData, array(
