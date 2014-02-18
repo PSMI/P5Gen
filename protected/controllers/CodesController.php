@@ -45,9 +45,9 @@ class CodesController extends Controller
 
             if ($model->validate())
             {
-                if ($quantity == 0) {
+                if ($quantity <= 0) {
                     $this->title = "NOTIFICATION";
-                    $this->msg = "Zero value not accepted. Please try again.";
+                    $this->msg = "Zero value and below are not accepted. Please try again.";
                     $this->showDialog = true;
                 }
                 else if ($quantity > 1000)
