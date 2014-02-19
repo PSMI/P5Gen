@@ -15,7 +15,7 @@ class Bonus extends CFormModel
         $this->_connection = Yii::app()->db;
     }
     
-    public function getBonus($dateFrom, $dateTo)
+    public function getBonus()
     {
         $conn = $this->_connection;
         
@@ -24,9 +24,11 @@ class Bonus extends CFormModel
                     p.promo_name,
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
                     pr.ibo_count,
-                    pr.date_redeeemd,
-                    pr.date_released,
-                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS released_by,
+                    pr.date_approved,
+                    pr.date_claimed,
+                    pr.date_completed,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     pr.status
                   FROM promo_redemption pr
                     INNER JOIN promos p
@@ -34,12 +36,12 @@ class Bonus extends CFormModel
                     LEFT OUTER JOIN member_details m
                       ON pr.member_id = m.member_id
                     LEFT OUTER JOIN member_details md
-                      ON pr.released_by_id = md.member_id
-                  WHERE date_redeeemd BETWEEN :dateFrom AND :dateTo;";
+                      ON pr.approved_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md2
+                      ON pr.claimed_by_id = md2.member_id ORDER BY pr.date_claimed DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':dateFrom', $dateFrom);
-        $command->bindParam(':dateTo', $dateTo);
+        
         $result = $command->queryAll();
         
         return $result;
@@ -51,11 +53,22 @@ class Bonus extends CFormModel
         
         $trx = $conn->beginTransaction();
         
-        $query = "UPDATE promo_redemption
-                    SET date_released = NOW(),
-                        status = :status,
-                        released_by_id = :userid
-                    WHERE promo_redemption_id = :promo_redemption_id;";
+        if ($status == 2)
+        {
+            $query = "UPDATE promo_redemption
+                        SET date_approved = NOW(),
+                            status = :status,
+                            approved_by_id = :userid
+                        WHERE promo_redemption_id = :promo_redemption_id;";
+        }
+        else if ($status == 3)
+        {
+            $query = "UPDATE promo_redemption
+                        SET date_claimed = NOW(),
+                            status = :status,
+                            claimed_by_id = :userid
+                        WHERE promo_redemption_id = :promo_redemption_id;";
+        }
         
         $command = $conn->createCommand($query);
         

@@ -35,7 +35,7 @@ class Loan extends CFormModel
                       ON l.member_id = m.member_id
                     LEFT OUTER JOIN member_details md ON l.approved_by_id = md.member_id
                     LEFT OUTER JOIN member_details md2 ON l.claimed_by_id = md2.member_id
-                  WHERE status IN (1, 2, 3);";
+                  WHERE l.status IN (1, 2, 3) ORDER BY l.date_completed DESC;";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryAll();

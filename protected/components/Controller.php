@@ -44,7 +44,7 @@ class Controller extends CController
         {
             if ($trans_type == 1)
             {
-                //loan transaction
+                //loan & bonus transaction
                 if ($status_id == 0)
                 {
                     return "Pending";
@@ -68,6 +68,22 @@ class Controller extends CController
                 if ($status_id == 0)
                 {
                     return "Pending";
+                }
+                else if($status_id == 1)
+                {
+                    return "Approved";
+                }
+                else
+                {
+                    return "Claimed";
+                }
+            }
+            else if ($trans_type == 3)
+            {
+                //direct endorsement transaction
+                if ($status_id == 0)
+                {
+                    return "Unclaimed";
                 }
                 else if($status_id == 1)
                 {

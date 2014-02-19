@@ -12,11 +12,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'enablePagination' => true,
         'template'=>"{items}",
         'columns' => array(
-                        array('name'=>'endorser_name',
-                              'header'=>'Endorser Name',
-                              'htmlOptions' => array('style' => 'text-align:center'),
-                              'headerHtmlOptions' => array('style' => 'text-align:center'),
-                        ), 
+//                        array('name'=>'endorser_name',
+//                              'header'=>'Endorser Name',
+//                              'htmlOptions' => array('style' => 'text-align:center'),
+//                              'headerHtmlOptions' => array('style' => 'text-align:center'),
+//                        ), 
                         array('name'=>'member_name',
                             'header'=>'Member Name',
                             'htmlOptions' => array('style' => 'text-align:center'),  
@@ -46,23 +46,23 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'status',
                             'header'=>'Status',
-                            'value' => 'AdmintransactionsController::getStatus($data["status"], 2)',
+                            'value' => 'AdmintransactionsController::getStatus($data["status"], 3)',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}',
+                            'template'=>'{approve}{claim}',
                             'buttons'=>array
                             (
                                 'approve'=>array
                                 (
-                                    'label'=>'Claim',
+                                    'label'=>'Approve',
                                     'icon'=>'ok-sign',
                                     'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["direct_endorsement_id"], "status" => "1", "transtype" => "directendrse"))',
                                     'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 1)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
-                                        'confirm'=>'Are you sure you want to CLAIM?',
+                                        'confirm'=>'Are you sure you want to APPROVE?',
                                         'ajax' => array(
                                             'type' => 'GET',
                                             'dataType'=>'json',

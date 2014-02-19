@@ -19,19 +19,21 @@ class DirectEndorsementMember extends CFormModel
         
         $query = "SELECT
                     d.direct_endorsement_id,
-                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS endorser_name,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
                     d.date_created,
-                    d.date_released,
-                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS released_by,
+                    d.date_approved,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS approved_by,
+                    d.date_claimed,
+                    CONCAT(md3.last_name, ', ', md3.first_name, ' ', md3.middle_name) AS claimed_by,
                     d.status
                   FROM direct_endorsements d
-                    INNER JOIN member_details m
-                      ON d.endorser_id = m.member_id
                     LEFT OUTER JOIN member_details md
-                      ON d.endorser_id = md.member_id
+                      ON d.member_id = md.member_id
                     LEFT OUTER JOIN member_details md2
-                      ON d.released_by_id = md2.member_id
-                  WHERE date_created BETWEEN :dateFrom AND :dateTo AND d.member_id = :member_id;";
+                      ON d.approved_by_id = md2.member_id
+                    LEFT OUTER JOIN member_details md3
+                      ON d.claimed_by_id = md3.member_id
+                  WHERE d.date_created BETWEEN :dateFrom AND :dateTo AND d.member_id = :member_id ORDER BY d.date_created DESC;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':dateFrom', $dateFrom);

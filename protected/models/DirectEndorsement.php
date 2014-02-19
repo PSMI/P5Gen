@@ -20,7 +20,6 @@ class DirectEndorsement extends CFormModel
         
         $query = "SELECT
                     d.direct_endorsement_id,
-                    CONCAT(COALESCE(m.last_name, ''), ', ', COALESCE(m.first_name, ''), ' ', COALESCE(m.middle_name, '')) AS endorser_name,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
                     d.date_created,
                     d.date_approved,
@@ -29,15 +28,13 @@ class DirectEndorsement extends CFormModel
                     CONCAT(md3.last_name, ', ', md3.first_name, ' ', md3.middle_name) AS claimed_by,
                     d.status
                   FROM direct_endorsements d
-                    INNER JOIN member_details m
-                      ON d.endorser_id = m.member_id
                     LEFT OUTER JOIN member_details md
                       ON d.member_id = md.member_id
                     LEFT OUTER JOIN member_details md2
                       ON d.approved_by_id = md2.member_id
                     LEFT OUTER JOIN member_details md3
                       ON d.claimed_by_id = md3.member_id
-                  WHERE date_created BETWEEN :dateFrom AND :dateTo;";
+                  WHERE d.date_created BETWEEN :dateFrom AND :dateTo ORDER BY d.date_created DESC;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':dateFrom', $dateFrom);

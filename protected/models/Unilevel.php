@@ -40,7 +40,7 @@ class Unilevel extends CFormModel
                       ON u.approved_by_id = md.member_id
                     LEFT OUTER JOIN member_details md2
                       ON u.claimed_by_id = md2.member_id
-                  WHERE date_created BETWEEN :dateFrom AND :dateTo;";
+                  WHERE u.date_created BETWEEN :dateFrom AND :dateTo ORDER BY u.date_created DESC;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':dateFrom', $dateFrom);

@@ -1,37 +1,25 @@
 <?php
 /*------------------------
  * Author: J.O. Pormento
- * Date Created: 02-12-2014
+ * Date Created: 02-20-2014
 ------------------------*/
 
 $this->widget('bootstrap.widgets.TbGridView', array(
-        'id'=>'loans-grid',
+        'id'=>'unilvl-grid',
         'type'=>'striped bordered condensed',
         //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
         'enablePagination' => true,
         'template'=>"{items}",
-        'columns' => array(
-                        array('name'=>'loan_type_id',
-                              'header'=>'Loan Type',
-                              'value' => '$data["status"] == 1 ? "5 Direct Endorse" : "Level Completed"',
-                              'htmlOptions' => array('style' => 'text-align:center'),
-                              'headerHtmlOptions' => array('style' => 'text-align:center'),
-                        ),
-                        array('name'=>'level_no',
-                            'header'=>'Level',
-                            'htmlOptions' => array('style' => 'text-align:center'),
+        'columns' => array( 
+                        array('name'=>'ibo_count',
+                            'header'=>'IBO Count',
+                            'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
-                        array('name'=>'loan_amount',
-                            'header'=>'Loan Amount',
-                            'value'=>'TransactionController::numberFormat($data["loan_amount"])',
-                            'htmlOptions' => array('style' => 'text-align:center'),
-                            'headerHtmlOptions' => array('style' => 'text-align:center'),
-                        ),
-                        array('name'=>'date_completed',
-                            'header'=>'Date Completed',
-                            'value'=>'TransactionController::dateFormat($data["date_completed"])',
+                        array('name'=>'amount',
+                            'header'=>'Amount',
+                            'value'=>'TransactionController::numberFormat($data["amount"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -43,7 +31,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'approved_by',
                             'header'=>'Approved By',
-                            'htmlOptions' => array('style' => 'text-align:center'),  
+                            'htmlOptions' => array('style' => 'text-align:center'),
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('name'=>'date_claimed',
@@ -59,7 +47,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'status',
                             'header'=>'Status',
-                            'value' => 'TransactionController::getStatus($data["status"], 1)',
+                            'value' => 'TransactionController::getStatus($data["status"], 2)',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),

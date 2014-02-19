@@ -34,7 +34,7 @@ class GroupOverrideCommission extends CFormModel
                       ON c.member_id = m.member_id
                     LEFT OUTER JOIN member_details md ON c.approved_by_id = md.member_id
                     LEFT OUTER JOIN member_details md2 ON c.claimed_by_id = md2.member_id
-                  WHERE date_created BETWEEN :dateFrom AND :dateTo;";
+                  WHERE c.date_created BETWEEN :dateFrom AND :dateTo ORDER BY c.date_created DESC;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':dateFrom', $dateFrom);

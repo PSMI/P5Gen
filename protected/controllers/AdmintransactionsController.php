@@ -128,7 +128,15 @@ class AdmintransactionsController extends Controller
                 if (count($result) > 0)
                 {
                     $result_code = 0;
-                    $result_msg = "Bonus Claimed.";
+                    
+                    if ($status == 2)
+                    {
+                        $result_msg = "Bonus Approved.";
+                    }
+                    else
+                    {
+                        $result_msg = "Bonus Claimed.";
+                    }
                 }
                 else
                 {
@@ -230,27 +238,17 @@ class AdmintransactionsController extends Controller
     public function actionBonus()
     {
         $model = new Bonus();
-        
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
-        {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
-            
-            $rawData = $model->getBonus($dateFrom, $dateTo);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
-                                    ));
-            
-            $this->render('bonus', array('dataProvider' => $dataProvider));
-        }
-        else
-        {
-            $this->render('bonus');
-        }
+
+        $rawData = $model->getBonus();
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                'pageSize' => 10,
+                                            ),
+                                ));
+
+        $this->render('bonus', array('dataProvider' => $dataProvider));
     }
     
     //For Direct Endorsement

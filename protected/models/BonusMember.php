@@ -13,17 +13,20 @@ class BonusMember extends CFormModel
         $this->_connection = Yii::app()->db;
     }
     
-    public function getBonus($dateFrom, $dateTo, $member_id)
+    public function getBonus($member_id)
     {
         $conn = $this->_connection;
         
         $query = "SELECT
                     pr.promo_redemption_id,
                     p.promo_name,
-                    pr.ibp_count,
-                    pr.date_redeeemd,
-                    pr.date_released,
-                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS released_by,
+                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
+                    pr.ibo_count,
+                    pr.date_approved,
+                    pr.date_claimed,
+                    pr.date_completed,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     pr.status
                   FROM promo_redemption pr
                     INNER JOIN promos p
@@ -31,12 +34,11 @@ class BonusMember extends CFormModel
                     LEFT OUTER JOIN member_details m
                       ON pr.member_id = m.member_id
                     LEFT OUTER JOIN member_details md
-                      ON pr.released_by_id = md.member_id
-                  WHERE date_redeeemd BETWEEN :dateFrom AND :dateTo AND pr.member_id = :member_id;";
+                      ON pr.approved_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md2
+                      ON pr.claimed_by_id = md2.member_id WHERE pr.member_id = :member_id ORDER BY pr.date_claimed DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':dateFrom', $dateFrom);
-        $command->bindParam(':dateTo', $dateTo);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         

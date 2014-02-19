@@ -12,28 +12,19 @@ class TransactionController extends Controller
     public function actionLoans()
     {
         $model = new LoanMember();
- 
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
-        {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
-            $member_id = Yii::app()->user->getId();
-            
-            $rawData = $model->getLoanTransactions($dateFrom, $dateTo, $member_id);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
-                                    ));
-            
-            $this->render('loans', array('dataProvider' => $dataProvider));
-        }
-        else
-        {
-            $this->render('loans');
-        }
+
+        $member_id = Yii::app()->user->getId();
+
+        $rawData = $model->getLoanTransactions($member_id);
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                'pageSize' => 10,
+                                            ),
+                                ));
+
+        $this->render('loans', array('dataProvider' => $dataProvider));
     }
     
     //For GOC
@@ -68,28 +59,19 @@ class TransactionController extends Controller
     public function actionBonus()
     {
         $model = new BonusMember();
-        
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
-        {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
-            $member_id = Yii::app()->user->getId();
-            
-            $rawData = $model->getBonus($dateFrom, $dateTo, $member_id);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
-                                    ));
-            
-            $this->render('bonus', array('dataProvider' => $dataProvider));
-        }
-        else
-        {
-            $this->render('bonus');
-        }
+
+        $member_id = Yii::app()->user->getId();
+
+        $rawData = $model->getBonus($member_id);
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                'pageSize' => 10,
+                                            ),
+                                ));
+
+        $this->render('bonus', array('dataProvider' => $dataProvider));
     }
     
     //For Direct Endorsement
@@ -117,6 +99,115 @@ class TransactionController extends Controller
         else
         {
             $this->render('directendorse');
+        }
+    }
+    
+    //For Unilevel
+    public function actionUnilevel()
+    {
+        $model = new UnilevelMember();
+        
+        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
+        {
+            $dateFrom = $_POST["calDateFrom"];
+            $dateTo = $_POST["calDateTo"];
+            $member_id = Yii::app()->user->getId();
+            
+            $rawData = $model->getUnilevel($dateFrom, $dateTo, $member_id);
+            
+            $dataProvider = new CArrayDataProvider($rawData, array(
+                                                    'keyField' => false,
+                                                    'pagination' => array(
+                                                    'pageSize' => 10,
+                                                ),
+                                    ));
+            
+            $this->render('unilevel', array('dataProvider' => $dataProvider));
+        }
+        else
+        {
+            $this->render('unilevel');
+        }
+    }
+    
+    
+    public function getStatusForButtonDisplayLoan($status_id, $status_type)
+    {
+        if ($status_type == 1)
+        {
+            //approve button
+            if ($status_id == 1)
+            {
+                return true;
+            }
+            else if($status_id == 3)
+            {
+                return false;
+            }
+            else if($status_id == 2)
+            {
+                return false;
+            }
+        }
+        else if ($status_type == 2)
+        {
+            //claim button
+            if ($status_id == 1)
+            {
+                return false;
+            }
+            else if($status_id == 2)
+            {
+                return true;
+            }
+            else if($status_id == 3)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    public function getStatusForButtonDisplayGoc($status_id, $status_type)
+    {
+        if ($status_type == 1)
+        {
+            //approve button
+            if ($status_id == 0)
+            {
+                return true;
+            }
+            else if($status_id == 1)
+            {
+                return false;
+            }
+            else if($status_id == 2)
+            {
+                return false;
+            }
+        }
+        else if ($status_type == 2)
+        {
+            //claim button
+            if ($status_id == 0)
+            {
+                return false;
+            }
+            else if($status_id == 1)
+            {
+                return true;
+            }
+            else if($status_id == 2)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
         }
     }
 }
