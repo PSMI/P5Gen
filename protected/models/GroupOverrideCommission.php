@@ -24,13 +24,16 @@ class GroupOverrideCommission extends CFormModel
                     c.ibo_count,
                     c.amount,
                     c.date_created,
-                    c.date_processed,
-                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS processed_by,
+                    c.date_approved,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
+                    c.date_claimed,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     c.status
                   FROM commissions c
                     INNER JOIN member_details m
                       ON c.member_id = m.member_id
-                    LEFT OUTER JOIN member_details md ON c.processed_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md ON c.approved_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md2 ON c.claimed_by_id = md2.member_id
                   WHERE date_created BETWEEN :dateFrom AND :dateTo;";
         
         $command =  $conn->createCommand($query);
@@ -47,11 +50,23 @@ class GroupOverrideCommission extends CFormModel
         
         $trx = $conn->beginTransaction();
         
-        $query = "UPDATE commissions
-                    SET date_processed = NOW(),
-                        status = :status,
-                        processed_by_id = :userid
-                    WHERE commission_id = :comm_id;";
+        if ($status == 1)
+        {
+            $query = "UPDATE commissions
+                        SET date_approved = NOW(),
+                            status = :status,
+                            approved_by_id = :userid
+                        WHERE commission_id = :comm_id;";
+        }
+        else if ($status == 2)
+        {
+            $query = "UPDATE commissions
+                        SET date_claimed = NOW(),
+                            status = :status,
+                            claimed_by_id = :userid
+                        WHERE commission_id = :comm_id;";
+        }
+            
         
         $command = $conn->createCommand($query);
         

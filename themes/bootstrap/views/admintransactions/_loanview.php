@@ -64,7 +64,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'status',
                             'header'=>'Status',
-                            'value' => 'AdmintransactionsController::getStatus($data["status"])',
+                            'value' => 'AdmintransactionsController::getStatus($data["status"], 1)',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -77,7 +77,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     'label'=>'Approve',
                                     'icon'=>'ok-sign',
                                     'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["loan_id"], "status" => "2", "transtype" => "loan"))',
-                                    'visible'=>'AdmintransactionsController::getStatusLoan($data["status"], 1)',
+                                    'visible'=>'AdmintransactionsController::getStatusForButtonDisplayLoan($data["status"], 1)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                         'confirm'=>'Are you sure you want to APPROVE?',
@@ -104,7 +104,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     'label'=>'Claim',
                                     'icon'=>'ok-sign',
                                     'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["loan_id"], "status" => "3", "transtype" => "loan"))',
-                                    'visible'=>'AdmintransactionsController::getStatusLoan($data["status"], 2)',
+                                    'visible'=>'AdmintransactionsController::getStatusForButtonDisplayLoan($data["status"], 2)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                         'confirm'=>'Are you sure you want to CLAIM?',

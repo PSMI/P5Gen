@@ -24,40 +24,75 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'amount',
                             'header'=>'Amount',
+                            'value'=>'AdmintransactionsController::numberFormat($data["amount"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
-                        array('name'=>'date_created',
-                            'header'=>'Date Created',
+                        array('name'=>'date_approved',
+                            'header'=>'Date Approved',
+                            'value'=>'AdmintransactionsController::dateFormat($data["date_approved"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
-                        array('name'=>'date_processed',
-                            'header'=>'Date Processed',
+                        array('name'=>'approved_by',
+                            'header'=>'Approved By',
+                            'htmlOptions' => array('style' => 'text-align:center'),  
+                            'headerHtmlOptions' => array('style' => 'text-align:center'),
+                        ),
+                        array('name'=>'date_claimed',
+                            'header'=>'Date Claimed',
+                            'value'=>'AdmintransactionsController::dateFormat($data["date_claimed"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
-                        array('name'=>'processed_by',
-                            'header'=>'Processed By',
+                        array('name'=>'claimed_by',
+                            'header'=>'Claimed By',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('name'=>'status',
                             'header'=>'Status',
-                            'value' => '$data["status"] == 0 ? " Unclaimed" : " Claimed"',
+                            'value' => 'AdmintransactionsController::getStatus($data["status"], 2)',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}',
+                            'template'=>'{approve}{claim}',
                             'buttons'=>array
                             (
                                 'approve'=>array
                                 (
-                                    'label'=>'Claim',
+                                    'label'=>'Approve',
                                     'icon'=>'ok-sign',
                                     'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["commission_id"], "status" => "1", "transtype" => "goc"))',
-                                    'visible'=>'$data["status"] == 0 ? true : false',
+                                    'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 1)',
+                                    'options' => array(
+                                        'class'=>"btn btn-small",
+                                        'confirm'=>'Are you sure you want to APPROVE?',
+                                        'ajax' => array(
+                                            'type' => 'GET',
+                                            'dataType'=>'json',
+                                            'url' => 'js:$(this).attr("href")',
+                                            'success' => 'function(data){
+                                                if(data.result_code == 0)
+                                                {
+                                                    alert(data.result_msg);
+                                                    $.fn.yiiGridView.update("goc-grid");
+                                                }
+                                                else
+                                                    alert(data.result_msg);
+                                             }',
+                                        ),
+
+                                    ),
+                                    array('id' => 'send-link-'.uniqid())
+                                ),
+                                'claim'=>array
+                                (
+                                    'label'=>'Claim',
+                                    'icon'=>'ok-sign',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["commission_id"], "status" => "2", "transtype" => "goc"))',
+                                    'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 2)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                         'confirm'=>'Are you sure you want to CLAIM?',

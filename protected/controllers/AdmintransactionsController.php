@@ -75,7 +75,15 @@ class AdmintransactionsController extends Controller
                 if (count($result) > 0)
                 {
                     $result_code = 0;
-                    $result_msg = "GOC Claimed.";
+                    
+                    if ($status == 1)
+                    {
+                        $result_msg = "GOC Approved.";
+                    }
+                    else
+                    {
+                        $result_msg = "GOC Claimed.";
+                    }
                 }
                 else
                 {
@@ -93,7 +101,16 @@ class AdmintransactionsController extends Controller
                 if (count($result) > 0)
                 {
                     $result_code = 0;
-                    $result_msg = "Unilevel Claimed.";
+                    
+                    if ($status == 1)
+                    {
+                        $result_msg = "Unilevel Approved.";
+                    }
+                    else
+                    {
+                        $result_msg = "Unilevel Claimed.";
+                    }
+                    
                 }
                 else
                 {
@@ -129,7 +146,15 @@ class AdmintransactionsController extends Controller
                 if (count($result) > 0)
                 {
                     $result_code = 0;
-                    $result_msg = "Direct Endorsement Claimed.";
+                    
+                    if ($status == 1)
+                    {
+                        $result_msg = "Direct Endorsement Approved.";
+                    }
+                    else
+                    {
+                        $result_msg = "Direct Endorsement Claimed.";
+                    }
                 }
                 else
                 {
@@ -255,30 +280,11 @@ class AdmintransactionsController extends Controller
         }
     }
     
-    public function getStatus($status_id)
-    {
-        if ($status_id == 0)
-        {
-            return "Pending";
-        }
-        else if($status_id == 1)
-        {
-            return "Completed";
-        }
-        else if($status_id == 2)
-        {
-            return "Approved";
-        }
-        else
-        {
-            return "Claimed";
-        }
-    }
-    
-    public function getStatusLoan($status_id, $status_type)
+    public function getStatusForButtonDisplayLoan($status_id, $status_type)
     {
         if ($status_type == 1)
         {
+            //approve button
             if ($status_id == 1)
             {
                 return true;
@@ -287,13 +293,14 @@ class AdmintransactionsController extends Controller
             {
                 return false;
             }
-            else
+            else if($status_id == 2)
             {
                 return false;
             }
         }
         else if ($status_type == 2)
         {
+            //claim button
             if ($status_id == 1)
             {
                 return false;
@@ -302,7 +309,7 @@ class AdmintransactionsController extends Controller
             {
                 return true;
             }
-            else
+            else if($status_id == 3)
             {
                 return false;
             }
@@ -313,23 +320,44 @@ class AdmintransactionsController extends Controller
         }
     }
     
-    public function dateFormat($date)
+    public function getStatusForButtonDisplayGoc($status_id, $status_type)
     {
-        if ($date == '')
+        if ($status_type == 1)
         {
-            return false;
+            //approve button
+            if ($status_id == 0)
+            {
+                return true;
+            }
+            else if($status_id == 1)
+            {
+                return false;
+            }
+            else if($status_id == 2)
+            {
+                return false;
+            }
+        }
+        else if ($status_type == 2)
+        {
+            //claim button
+            if ($status_id == 0)
+            {
+                return false;
+            }
+            else if($status_id == 1)
+            {
+                return true;
+            }
+            else if($status_id == 2)
+            {
+                return false;
+            }
         }
         else
         {
-            $new_date = new DateTime($date);
-
-            return date_format($new_date, 'F j, Y, g:i a');
+            return false;
         }
-    }
-    
-    public function numberFormat($amount)
-    {
-        return number_format($amount, 2);
     }
 }
 ?>

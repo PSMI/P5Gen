@@ -22,24 +22,31 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
-                        array('name'=>'date_created',
-                            'header'=>'Date Created',
+                        array('name'=>'date_approved',
+                            'header'=>'Date Approved',
+                            'value'=>'AdmintransactionsController::dateFormat($data["date_approved"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
-                        array('name'=>'date_released',
-                            'header'=>'Date Released',
+                        array('name'=>'approved_by',
+                            'header'=>'Approved By',
+                            'htmlOptions' => array('style' => 'text-align:center'),
+                            'headerHtmlOptions' => array('style' => 'text-align:center'),
+                        ),
+                        array('name'=>'date_claimed',
+                            'header'=>'Date Claimed',
+                            'value'=>'AdmintransactionsController::dateFormat($data["date_claimed"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
-                        array('name'=>'released_by',
-                            'header'=>'Released By',
+                        array('name'=>'claimed_by',
+                            'header'=>'Claimed By',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('name'=>'status',
                             'header'=>'Status',
-                            'value' => '$data["status"] == 0 ? "Unclaimed" : "Claimed"',
+                            'value' => 'AdmintransactionsController::getStatus($data["status"], 2)',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -52,7 +59,34 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     'label'=>'Claim',
                                     'icon'=>'ok-sign',
                                     'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["direct_endorsement_id"], "status" => "1", "transtype" => "directendrse"))',
-                                    'visible'=>'$data["status"] == 0 ? true : false',
+                                    'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 1)',
+                                    'options' => array(
+                                        'class'=>"btn btn-small",
+                                        'confirm'=>'Are you sure you want to CLAIM?',
+                                        'ajax' => array(
+                                            'type' => 'GET',
+                                            'dataType'=>'json',
+                                            'url' => 'js:$(this).attr("href")',
+                                            'success' => 'function(data){
+                                                if(data.result_code == 0)
+                                                {
+                                                    alert(data.result_msg);
+                                                    $.fn.yiiGridView.update("directendrse-grid");
+                                                }
+                                                else
+                                                    alert(data.result_msg);
+                                             }',
+                                        ),
+
+                                    ),
+                                    array('id' => 'send-link-'.uniqid())
+                                ),
+                                'claim'=>array
+                                (
+                                    'label'=>'Claim',
+                                    'icon'=>'ok-sign',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["direct_endorsement_id"], "status" => "2", "transtype" => "directendrse"))',
+                                    'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 2)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                         'confirm'=>'Are you sure you want to CLAIM?',

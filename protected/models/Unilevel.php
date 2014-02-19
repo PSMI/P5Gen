@@ -24,14 +24,22 @@ class Unilevel extends CFormModel
         
         $query = "SELECT
                     u.unilevel_id,
+                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
+                    u.ibo_count,
                     u.amount,
                     u.date_created,
-                    u.date_released,
-                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS released_by,
+                    u.date_approved,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
+                    u.date_claimed,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     u.status
                   FROM unilevel u
-                    LEFT OUTER JOIN member_details m
-                      ON u.released_by_id = m.member_id
+                    INNER JOIN member_details m
+                      ON u.member_id = m.member_id
+                    LEFT OUTER JOIN member_details md
+                      ON u.approved_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md2
+                      ON u.claimed_by_id = md2.member_id
                   WHERE date_created BETWEEN :dateFrom AND :dateTo;";
         
         $command =  $conn->createCommand($query);
@@ -48,11 +56,22 @@ class Unilevel extends CFormModel
         
         $trx = $conn->beginTransaction();
         
-        $query = "UPDATE unilevel
-                    SET date_released = NOW(),
-                        status = :status,
-                        released_by_id = :userid
-                    WHERE unilevel_id = :unilevel_id;";
+        if ($status == 1)
+        {
+            $query = "UPDATE unilevel
+                        SET date_approved = NOW(),
+                            status = :status,
+                            approved_by_id = :userid
+                        WHERE unilevel_id = :unilevel_id;";
+        }
+        else if ($status == 2)
+        {
+            $query = "UPDATE unilevel
+                        SET date_claimed = NOW(),
+                            status = :status,
+                            claimed_by_id = :userid
+                        WHERE unilevel_id = :unilevel_id;";
+        }   
         
         $command = $conn->createCommand($query);
         

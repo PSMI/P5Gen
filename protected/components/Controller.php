@@ -39,4 +39,63 @@ class Controller extends CController
         
          * 
          */
+        
+        public function getStatus($status_id, $trans_type)
+        {
+            if ($trans_type == 1)
+            {
+                //loan transaction
+                if ($status_id == 0)
+                {
+                    return "Pending";
+                }
+                else if($status_id == 1)
+                {
+                    return "Completed";
+                }
+                else if($status_id == 2)
+                {
+                    return "Approved";
+                }
+                else
+                {
+                    return "Claimed";
+                }
+            }
+            else if ($trans_type == 2)
+            {
+                //goc transaction
+                if ($status_id == 0)
+                {
+                    return "Pending";
+                }
+                else if($status_id == 1)
+                {
+                    return "Approved";
+                }
+                else
+                {
+                    return "Claimed";
+                }
+            }
+        }
+        
+        public function dateFormat($date)
+        {
+            if ($date == '')
+            {
+                return false;
+            }
+            else
+            {
+                $new_date = new DateTime($date);
+
+                return date_format($new_date, 'F j, Y, g:i a');
+            }
+        }
+
+        public function numberFormat($amount)
+        {
+            return number_format($amount, 2);
+        }
 }
