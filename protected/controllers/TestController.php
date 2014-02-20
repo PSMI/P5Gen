@@ -8,7 +8,7 @@ class TestController extends Controller
 {
     public function actionIndex()
     {
-        $member_id = 3;
+        //$member_id = 3;
         $model = new TestModel();
         
         $rawData = Networks::getDownlines($member_id);
@@ -71,17 +71,6 @@ class TestController extends Controller
         {
             echo "No Downline(s)";
         }
-        
-//        if (is_array($final) && count($final) > 0)
-//        {
-            
-//        }
-//        else
-//        {
-//            echo "Not Array";
-//        }
-//        
-//        exit;
     }
 }
 
