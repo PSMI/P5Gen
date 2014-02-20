@@ -268,5 +268,33 @@ class MembersModel extends CFormModel
         $result = $command->queryRow();
         return $result;
     }
+    
+    public function remove_processed()
+    {
+        $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+        $query = "DELETE FROM unprocessed_members WHERE status = :status";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':status', $this->status);
+        $result = $command->execute();
+        try
+        {
+            if(count($result)>0)
+            {
+                $trx->commit();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            throw $e;
+        }
+    }
 }
 ?>

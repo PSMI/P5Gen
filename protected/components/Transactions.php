@@ -21,21 +21,10 @@ class Transactions extends Controller
         $audit = new AuditLog();
         $reference = new ReferenceModel();
         $member = new MembersModel();
+      
+        $member->member_id = $member_id;                
+        $uplines = Networks::getUplines($upline_id);             
         
-//        $conn = $model->_connection;
-//        $trx = $conn->beginTransaction();
-//                
-        $member->member_id = $member_id;
-                
-//        if($upline_id == $endorser_id)                        
-//            $uplines = Networks::getUplines($upline_id);
-//        else
-       $uplines = Networks::getUplines($upline_id);             
-        
-//        if(count($uplines == 1))
-//            $upline_list = array($upline_id);
-//        else
-//            $upline_list = array_diff($uplines, array($upline_id));
         $conn = $model->_connection;
         $trx = $conn->beginTransaction();
 
@@ -60,6 +49,7 @@ class Transactions extends Controller
 
                     $new_list = array_diff($uplines,$retval);
                     $model->uplines = $uplines_wt;
+                    
                     //Update current transaction, +1 to current ibo_count. NOTE: MUST BE LOGGED TO AUDIT TRAIL FOR BACK TRACKING
                     $update = $model->update_transactions();
                               
@@ -73,129 +63,59 @@ class Transactions extends Controller
                             //Add new commission to uplines without transactions
                             $model->uplines = array();
                             $model->uplines = $new_list;
-                            $result = $model->add_transactions();
+                            $model->add_transactions();
                             
-                            if(count($result)>0)
-                            {
-                                $member->updateUnprocessedMembers();
-                                if(!$member->hasErrors())
-                                {
-                                    $audit->log_message = "New transaction for members ".implode(',',$new_list)." is added.";
-                                    $audit->log_cron();
-                                    $trx->commit();
-                                    return array('result_code'=>0, 'result_msg'=>$audit->log_message);
-                                }
-                                else
-                                {
-                                    $trx->rollback();
-                                    return array('result_code'=>0, 'result_msg'=>$audit->log_message);
-                                }
-
-                            }
-                            else
-                            {
-                                $trx->rollback();
-                                $audit->log_message = "Failed adding new transactions for members ".implode(',',$new_list);
-                                $audit->log_cron();
-                                return array('result_code'=>2, 'result_msg'=>$audit->log_message);
-                            }
-                        }
-                        else
-                        {
-
-                            $member->updateUnprocessedMembers();
-                            if(!$member->hasErrors())
-                            {
-                                $trx->commit();
-                                return array('result_code'=>0, 'result_msg'=>$audit->log_message);
-                            }
-                            else
-                            {
-                                $trx->rollback();
-                                return array('result_code'=>0, 'result_msg'=>$audit->log_message);
-                            }
                         }
                         
-                        
-                    }
-                    else
-                    {
-                        $trx->rollback();
-                        $audit->log_message = "Failed updating transactions of members ".implode(',',$new_list);
-                        $audit->log_cron();
-                        return array('result_code'=>1, 'result_msg'=>$audit->log_message);
                     }
                 }
                 else
                 {                
 
                     $model->uplines = $uplines;
-                    $result = $model->add_transactions();                
+                    $model->add_transactions();                
                     
-                    if(count($result)>0)
-                    {
-                        $member->status = 1;
-                        $member->updateUnprocessedMembers();
-                        $audit->log_message = "New transaction for members ".implode(',',$uplines)." is added.";
-                        $audit->log_cron();
-                        if(!$member->hasErrors())
-                        {
-                            $trx->commit();
-                            return array('result_code'=>0, 'result_msg'=>$audit->log_message);
-                        }
-                        else
-                        {
-                            $trx->rollback();
-                            return array('result_code'=>1, 'result_msg'=>$audit->log_message);
-                        }
-                        
-                    }
-                    else
-                    {
-
-                        $trx->rollback();
-                        $audit->log_message = "Failed adding new transactions for members ".implode(',',$uplines).".";
-                        $audit->log_cron();
-                        return array('result_code'=>1, 'result_msg'=>$audit->log_message);
-                    }
                 }
 
             }
+            
+            $member->status = 1;
+            $member->updateUnprocessedMembers();
+            
+            if(!$model->hasErrors() && !$member->hasErrors())
+            {
+                $trx->commit();
+                $audit->log_message = "GOC job completed";
+                $audit->log_cron();
+                return array('result_code'=>0, 'result_msg'=>$audit->log_message); 
+            }
             else
             {
-                
-                $member->status = 1;
-                $member->updateUnprocessedMembers();
-                
-                if(!$member->hasErrors())
-                {
-                    $trx->commit();
-                }
-                else
-                {
-                    $trx->rollback();
-                }
-
-                $audit->log_message = "Member has no upline yet.";
+                $trx->rollback();
+                $audit->log_message = "GOC job has failed";
                 $audit->log_cron();
-                return array('result_code'=>4, 'result_msg'=>$audit->log_message);
+                return array('result_code'=>1, 'result_msg'=>$audit->log_message); 
             }
             
         }
         catch (PDOException $e) 
         {
             $trx->rollback();
-
-            $audit->log_message = "Failed processing cutoffs.";
+            $audit->log_message = $e->getMessage();
             $audit->log_cron();
-
-            return array('result_code'=>3, 'result_msg'=>$e->getMessage());
+            return array('result_code'=>2, 'result_msg'=>$e->getMessage());
         } 
    
         
         
     }
     
+    /**
+     * 
+     * @param type $member_id
+     * @param type $endorser_id
+     * @return boolean
+     */
     public function process_direct_endorsement($member_id, $endorser_id)
     {
         $model = new DirectEndorsement();
@@ -228,196 +148,11 @@ class Transactions extends Controller
      
     }
     
-    public function process_loan_completion($member_id) //, $endorser_id, $upline_id)
-    {
-        $model = new CronLoanCompletion();                
-                            
-        $uplines = Networks::getUplines($member_id);
-        if(is_null($uplines))
-            $uplines = array($member_id);
-       
-        foreach($uplines as $upline)
-        {
-            $model->member_id = $upline;
-            
-            //get total members
-            $result = $model->getTotalMembers();
-
-            if (count($result) > 0)
-            {
-                $total_members = $result[0]['total_member'];
-                $model->total_members = $total_members;
-
-                if ($total_members > 0)
-                {
-                    //get current level
-                    $level = Transactions::getLevel($total_members);
-                    $model->level_no = $level;
-
-                    //check if member_id exist in loans table
-                    $doexist = $model->checkIfLoanExistWithLevel();
-
-                    if (count($doexist) > 0)
-                    {
-                        $loan_id = $doexist[0]['loan_id'];
-
-                        if ($total_members > 5 && $level == 1)
-                        {
-                            $target_level = $level + 1;
-                        }
-                        else if ($total_members > 5)
-                        {
-                            $target_level = $level + 1;
-                        }
-                        else
-                        {
-                            $target_level = $level;
-                        }
-
-                        $model->target_level = $target_level;
-
-                        $result = $model->getTotalEntries();
-                        $complete_count_entries = $result[0]['total_entries'];
-                        $loan_amount = $result[0]['loan'];
-
-                        $model->loan_id = $loan_id;
-                        $model->loan_amount = $loan_amount;
-
-                        if ($total_members == $complete_count_entries)
-                        {
-                            //update loans table, set ibo_count to $total_members and status to 1(Completed)
-                            $model->status = 1;                        
-
-                            $result = $model->updateLoanCompleted();
-
-                            echo $result;
-                            echo "</br>";
-                            echo "Successfully updated loans table (Level Completed)"; 
-                        }
-                        else
-                        {
-                            //update loans table, set ibo_count + 1
-                            $model->status = 0;
-
-                            $result = $model->updateLoanIbo();
-
-                            echo $result; 
-                            echo "</br>";
-                            echo "Successfully updated loans table (Update IBO Count)";
-                        }
-                    }
-                    else
-                    {
-                        //insert new record to loans table
-                        $result = $model->getTotalEntries();
-                        $model->loan_amount = $result[0]['loan'];
-
-                        $insertresult = $model->insertLoan();
-
-                        echo $insertresult; 
-                        echo "</br>";
-                        echo "Successfully inserted new record to loans table"; 
-                    }
-                }
-                else
-                {
-                    echo "No downline"; 
-                }
-            }
-            else
-            {
-                echo "Does not exist in running_accounts table. Not Registered!"; 
-            }
-        }
-        
-    }
-    
-    public function process_loan_direct($member_id)//, $endorser_id, $upline_id)
-    {
-        $model = new CronLoanDirect();
-        
-        $uplines = Networks::getUplines($member_id);
-                    
-        if(is_null($uplines))//root record
-            $uplines = array($member_id);
-        
-        foreach($uplines as $upline)
-        {
-            $model->member_id = $upline;
-            
-            //get total members
-            $result = $model->getDirectEndorse();
-
-            if (count($result) > 0)
-            {
-                $direct_endorse = $result[0]['direct_endorse'];
-
-                if ($direct_endorse > 0)
-                {
-                    //check if member_id exist in loans table
-                    $doexist = $model->checkIfLoanExist();
-
-                    if (count($doexist) > 0)
-                    {
-                        //update loans table, add 
-                        $ibo_count = $doexist[0]['ibo_count'];
-                        $loan_id = $doexist[0]['loan_id'];
-                        $model->loan_id = $loan_id;
-
-                        //get overall total ibo_count
-                        $result = $model->getOverallIboCount();
-                        $total_ibo = $result[0]['total_ibo'];
-
-                        //get difference
-                        $difference = $direct_endorse - $total_ibo;
-
-                        $ibo_count = $ibo_count + $difference;      
-
-                        $model->ibo_count = $ibo_count;
-                        
-                        if ($ibo_count == 5)
-                        {
-                            //update loans table, set ibo_count to $ibo_count and status to 1(Completed)
-                            $model->status = 1;
-
-                            $result = $model->updateLoanDirectCompleted();
-
-                            echo $result;
-                            echo "</br>";
-                            echo "Successfully updated loans table (Direct 5 Completed)"; 
-                        }
-                        else
-                        {
-                            //update loans table, set ibo_count to $ibo_count
-                            $model->status = 0;
-
-                            $result = $model->updateLoanDirectIbo();
-
-                            echo $result; 
-                            echo "</br>";
-                            echo "Successfully updated loans table (Update IBO Count)";
-                        }
-                    }
-                    else
-                    {
-                        //insert new record to loans table
-                        $result = $model->insertLoan();
-                        echo "insert new record to loans table"; exit;
-                    }
-                }
-                else
-                {
-                    echo "No direct endorse";
-                }
-            }
-            else
-            {
-                echo "Does not exist in running_accounts table. Not Registered!"; 
-            }
-        }
-        
-    }
-    
+    /**
+     * 
+     * @param type $member_id
+     * @return type
+     */
     public function process_unilevel($member_id)
     {
         $model = new Unilevel();
@@ -441,11 +176,10 @@ class Transactions extends Controller
         {
             foreach($uplines as $upline)
             {
-                
                 //Check each upline running account
                 $model->upline_id = $upline;
                 $account = $model->get_running_account();
-   
+                
                 // If member has already unilevel transaction
                 if($account['with_unilevel_trx'] == 1)
                 {
@@ -453,64 +187,23 @@ class Transactions extends Controller
                     $trans = $model->check_transaction();
                     
                     if(count($trans) > 0)
-                    {
-                        //Update ibo count for current cutoff transaction
-                        $retval = $model->update_transaction();
-
-                        if(count($retval) >0 )
-                        {
-                            $trx->commit();
-                            return array('result_code'=>0, 'result_msg'=>'Trx update for cufoff '.$cutoff_id.' of member '.$member_id.' was successful.');
-                        }
-                        else
-                        {
-                            $trx->rollback();
-                            return array('result_code'=>1, 'result_msg'=>'Trx update for cufoff '.$cutoff_id.' of member '.$member_id.' has failed.');
-                        }
-                    }
+                        $model->update_transaction();
                     else
-                    {
-                        //Insert new transaction for current cutoff
-                        $retval = $model->new_transaction();
-
-                        if(count($retval) >0 )
-                        {
-                            $trx->commit();
-                            return array('result_code'=>0, 'result_msg'=>'New trx for cufoff '.$cutoff_id.' of member '.$member_id.' was successful.');
-                        }
-                        else
-                        {
-                            $trx->rollback();
-                            return array('result_code'=>1, 'result_msg'=>'New trx for cufoff '.$cutoff_id.' of member '.$member_id.' has failed.');
-                        }
-                    }
+                        $model->new_transaction();
                 }
-                else //First payout
+                else //First transaction
                 {
+                    
                     if($account['direct_endorse'] >= 5)
                     {
                         $model->total_direct_endorse = $account['direct_endorse'];
+                        
                         //Check direct endorse count if >= 5 date and if no. of month < 3 months
                         if($account['num_of_months'] < 3)
-                        {
+                        {                            
                             //Insert first payout
                             $retval = $model->insert_first_transaction();
-
-                            if($retval)
-                            {
-                                $member->status = 3; //Processed by unilevel endorsement
-                                $member->updateUnprocessedMembers();
-                                if(!$member->hasErrors())
-                                {
-                                    $trx->commit();
-                                    return array('result_code'=>0, 'result_msg'=>'First trx for cufoff '.$cutoff_id.' of member '.$member_id.' was successful.');
-                                }
-                                else
-                                {
-                                    $trx->rollback();
-                                    return array('result_code'=>1, 'result_msg'=>'First trx for cufoff '.$cutoff_id.' of member '.$member_id.' has failed.');
-                                }
-                            }
+                            
                         }
                         else
                         {
@@ -522,44 +215,213 @@ class Transactions extends Controller
                             $model->total_direct_endorse = $row['total_direct_endorse'];
                             $retval = $model->insert_first_transaction_with_flushout();
 
-                            if($retval)
-                            {
-                                $trx->commit();
-                                return array('result_code'=>0, 'result_msg'=>'First trx with flushout for cufoff '.$cutoff_id.' of member '.$member_id.' was successful.');
-                            }
-                            else
-                            {
-                                $trx->rollback();
-                                return array('result_code'=>1, 'result_msg'=>'First trx with flushout for cufoff '.$cutoff_id.' of member '.$member_id.' has failed.');
-                            }
                         }
                     }
-                    else
-                    {
-                        $member->status = 3; //Processed by unilevel endorsement
-                        $member->updateUnprocessedMembers();
-                        if(!$member->hasErrors())
-                        {
-                            $trx->commit();
-                            return array('result_code'=>2, 'result_msg'=>'Direct endorse count is not valid for '.$cutoff_id.' of member '.$member_id).'<br />';
-                        }
-                        else
-                        {
-                            $trx->rollback();
-                            return array('result_code'=>3, 'result_msg'=>'Unable to update members.');
-                        }
-                                
-                    }//direct_endorse
-                }//with_unilevel_trx            
+                }//with_unilevel_trx     
             }//foreach
+            
+            $member->status = 3; //Processed by unilevel endorsement
+            $member->updateUnprocessedMembers();
+                        
+            if(!$model->hasErrors() && !$member->hasErrors())
+            {
+                
+                $trx->commit();
+                return array('result_code'=>0, 'result_msg'=>'Successfully process unilevel transactions');
+            }
+            else
+            {
+                $trx->rollback();
+                return array('result_code'=>1, 'result_msg'=>$model->getErrors() . ' /' . $member->getErrors());
+            }
         }
         catch(PDOException $e)
         {
             $trx->rollback();
             return array('result_code'=>3, 'result_msg'=>$e->getMessage());
         }
+        
+        
     }
     
+    public function process_loan_direct($member_id)//, $endorser_id, $upline_id)
+    {
+        $model = new CronLoanDirect();
+        $member = new MembersModel();
+        $uplines = Networks::getUplines($member_id);
+        
+        $member->member_id = $member_id;
+        
+        if(is_null($uplines))//root record
+            $uplines = array($member_id);        
+        
+        $conn = $model->_connection;
+        $trx = $conn->beginTransaction();
+        
+        try
+        {
+            foreach($uplines as $upline)
+            {
+                $model->member_id = $upline;
+
+                //get total members
+                $result = $model->getDirectEndorse();
+
+                if ($result['direct_endorse'] > 0)
+                {
+                    $doexist = $model->checkIfLoanExist();
+
+                    if (count($doexist) > 0)
+                    {
+                        //update loans table, add 
+                        $ibo_count = $doexist[0]['ibo_count'];
+                        $loan_id = $doexist[0]['loan_id'];
+                        $model->loan_id = $loan_id;
+
+                        if ($ibo_count == 5)
+                        {
+                            //update loans table, set ibo_count to $ibo_count and status to 1(Completed)
+                            $model->status = 1;
+                            $model->updateLoanDirectCompleted();
+
+                        }
+                        else
+                        {
+                            //update loans table, set ibo_count to $ibo_count
+                            $model->status = 0;
+                            $model->updateLoanDirectIbo();
+
+                        }
+                    }
+                    else
+                    {
+                        //insert new record to loans table
+                        $model->insertLoan();
+                    }
+                }
+            }
+            
+            $member->status = 4; //Processed by unilevel endorsement
+            $member->updateUnprocessedMembers();
+
+            if(!$model->hasErrors() && !$member->hasErrors())
+            {
+                $trx->commit();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            return false;
+        }
+        
+    }
+    
+    public function process_loan_completion($member_id) //, $endorser_id, $upline_id)
+    {
+        $model = new CronLoanCompletion();   
+        $member = new MembersModel();
+                            
+        $uplines = Networks::getUplines($member_id);
+        if(is_null($uplines))
+            $uplines = array($member_id);
+       
+        $member->member_id = $member_id;
+        
+        $conn = $model->_connection;
+        $trx = $conn->beginTransaction();
+        
+        try
+        {
+            foreach($uplines as $upline)
+            {
+                $model->member_id = $upline;
+
+                $rawData = Networks::getDownlines($model->member_id);
+                
+                if (count($rawData) > 0)
+                {
+                    $final = Networks::arrangeLevel($rawData);
+//                    echo CJSON::encode($final); exit;
+                    foreach ($final as $val)
+                    {
+                        $model->level_no = $val['Level'];
+                        $model->total_members = $val['Total'];                    
+                        $model->target_level = $val['Level'];
+                        
+                        //check if member_id exist in loans table
+                        $doexist = $model->checkIfLoanExistWithLevel();
+
+                        if (count($doexist) > 0)
+                        {
+                            $loan_id = $doexist[0]['loan_id'];
+
+                            //update loans table
+                            $result = $model->getTotalEntries($val['Level']);
+                            $complete_count_entries = $result[0]['total_entries'];
+                            $amount = $result[0]['loan'];
+
+                            $model->loan_id = $loan_id;
+                            $model->loan_amount = $amount;
+
+                            if ($val['Total'] == $complete_count_entries)
+                            {
+                                //update loans table, set ibo_count to $total_members and status to 1(Completed)                
+                                $model->status = 1;
+                                $model->updateLoanCompleted();
+                            }
+                            else
+                            {
+                                //update loans table, set ibo_count + 1
+                                $model->status = 0;
+                                $model->updateLoanIbo();
+                            }
+                        }
+                        else
+                        {
+                            //insert new record to loans table
+                            
+                            $result = $model->getTotalEntries();
+                            
+                            $amount = $result[0]['loan'];                        
+                            $model->loan_amount = $amount;
+                            $model->insertLoan();
+                            
+                        }
+                    }//foreach final
+                }//ifcount($rawData)
+            }//foreach uplines
+            
+            $member->status = 5; //Processed by unilevel endorsement
+            $member->updateUnprocessedMembers();
+
+            if(!$model->hasErrors() && !$member->hasErrors())
+            {
+                $trx->commit();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
+            
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            return false;
+        }
+        
+        
+    }
+        
     public function getLevel($total_members)
     {   
         if (($total_members > 0) && ($total_members < 26))

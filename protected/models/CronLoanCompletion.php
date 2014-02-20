@@ -45,6 +45,7 @@ class CronLoanCompletion extends CFormModel
                     loan_id
                   FROM loans
                   WHERE member_id = :member_id
+                  AND level_no > 1
                   AND level_no = :level
                   AND loan_type_id = 2
                   AND status = 0;";
@@ -61,9 +62,7 @@ class CronLoanCompletion extends CFormModel
     public function insertLoan()
     {
         $conn = $this->_connection;
-        
-        $trans = $conn->beginTransaction();
-        
+                
         $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count) 
                     VALUES (:member_id, 2, :level, :amount, :total_members)";
             
@@ -73,20 +72,8 @@ class CronLoanCompletion extends CFormModel
         $command->bindValue(':amount', $this->loan_amount);
         $command->bindValue(':total_members', $this->total_members);
 
-        $command->execute();
+        $result = $command->execute();
         
-        try
-        {
-            $trans->commit();
-            
-            return true;
-        }
-        catch (CDbException $e)
-        {
-            $trans->rollback();
-            
-            return false;
-        }
     }
     
     public function getTotalEntries()
@@ -109,9 +96,7 @@ class CronLoanCompletion extends CFormModel
     public function updateLoanCompleted()
     {
         $conn = $this->_connection;
-        
-        $trx = $conn->beginTransaction();
-        
+       
         $query = "UPDATE loans
                  SET ibo_count = :total_members,
                     status = :status,
@@ -129,33 +114,13 @@ class CronLoanCompletion extends CFormModel
         $command->bindParam(':loan_amount', $this->loan_amount);
 
         $result = $command->execute();
-        
-        try
-        {
-            if(count($result)>0)
-            {
-                $trx->commit();
-                return true;
-            }
-            else
-            {
-                $trx->rollback();
-                return false;
-            }
-        }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-            return false;
-        }
+        return $result;
     }
     
     public function updateLoanIbo()
     {
         $conn = $this->_connection;
         
-        $trx = $conn->beginTransaction();
-
         $query = "UPDATE loans
                 SET ibo_count = ibo_count + 1,
                     status = :status
@@ -168,25 +133,7 @@ class CronLoanCompletion extends CFormModel
         $command->bindParam(':loan_id', $this->loan_id);
 
         $result = $command->execute();
-        
-        try
-        {
-            if(count($result)>0)
-            {
-                $trx->commit();
-                return true;
-            }
-            else
-            {
-                $trx->rollback();
-                return false;
-            }
-        }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-            return false;
-        }
+        return $result;
     }
 }
 ?>

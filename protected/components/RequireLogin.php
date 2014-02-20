@@ -27,6 +27,7 @@ class RequireLogin extends CBehavior
             'cron/loancompletion',
             'cron/unilevel',
             'cron/promocheck',
+            'cron/run',
         );
         if (Yii::app()->user->isGuest && !in_array($controller, $allowed))
         {

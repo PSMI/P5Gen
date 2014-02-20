@@ -29,7 +29,7 @@ class CronLoanDirect extends CFormModel
         $command =  $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
         
-        $result = $command->queryAll();
+        $result = $command->queryRow();
         
         return $result;
     }
@@ -56,109 +56,57 @@ class CronLoanDirect extends CFormModel
     public function insertLoan()
     {
         $conn = $this->_connection;
-        
-        $trans = $conn->beginTransaction();
-        
+                
         $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count) 
                     VALUES (:member_id, 1, 1, 5000.00, 1)";
             
         $command = $conn->createCommand($query);
         $command->bindValue(':member_id', $this->member_id);
 
-        $command->execute();
+        $result = $command->execute();
+        return $result;
         
-        try
-        {
-            $trans->commit();
-            
-            return true;
-        }
-        catch (CDbException $e)
-        {
-            $trans->rollback();
-            
-            return false;
-        }
+       
     }
     
-    public function updateLoanDirectCompleted($ibo_count, $status, $loan_id)
+    public function updateLoanDirectCompleted()
     {
         $conn = $this->_connection;
         
-        $trx = $conn->beginTransaction();
-
         $query = "UPDATE loans
-                SET ibo_count = :ibo_count,
-                    status = :status,
+                SET status = :status,
                     date_completed = NOW()
                 WHERE loan_id = :loan_id;";
 
         $command = $conn->createCommand($query);
         
-        $command->bindParam(':ibo_count', $ibo_count);
-        $command->bindParam(':status', $status);
-        $command->bindParam(':loan_id', $loan_id);
+        $command->bindParam(':status', $this->status);
+        $command->bindParam(':loan_id', $this->loan_id);
 
         $result = $command->execute();
         
-        try
-        {
-            if(count($result)>0)
-            {
-                $trx->commit();
-                return true;
-            }
-            else
-            {
-                $trx->rollback();
-                return false;
-            }
-        }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-            return false;
-        }
+        return $result;
     }
     
     //public function updateLoanDirectIbo($ibo_count, $status, $loan_id)
     public function updateLoanDirectIbo()
     {
         $conn = $this->_connection;
-        
-        $trx = $conn->beginTransaction();
 
         $query = "UPDATE loans
-                SET ibo_count = :ibo_count,
+                SET ibo_count = ibo_count + 1,
                     status = :status
                 WHERE loan_id = :loan_id;";
 
         $command = $conn->createCommand($query);
 
-        $command->bindParam(':ibo_count', $this->ibo_count);
+        //$command->bindParam(':ibo_count', $this->ibo_count);
         $command->bindParam(':status', $this->status);
         $command->bindParam(':loan_id', $this->loan_id);
 
         $result = $command->execute();
         
-        try
-        {
-            if(count($result)>0)
-            {
-                $trx->commit();
-                return true;
-            }
-            else
-            {
-                $trx->rollback();
-                return false;
-            }
-        }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-            return false;
-        }
+        return $result;
     }
     
     public function getOverallIboCount()

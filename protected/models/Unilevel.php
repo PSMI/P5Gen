@@ -137,7 +137,7 @@ class Unilevel extends CFormModel
         $command->bindParam(':member_id', $this->upline_id);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->bindParam(':payout_rate', $payout_rate);
-        $result = $command->execute();        
+        $result = $command->execute();     
         return $result;
     }
     
@@ -146,14 +146,16 @@ class Unilevel extends CFormModel
         $conn = $this->_connection;
         
         $payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
+        $payout = $this->total_direct_endorse * $payout_rate;
         
         $query = "INSERT INTO unilevel (member_id, cutoff_id, ibo_count, amount)
-                   VALUES (:member_id, :cutoff_id, :total_direct_endorse, :payout_rate)";
+                   VALUES (:member_id, :cutoff_id, :total_direct_endorse, :payout)";        
+        
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->upline_id);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->bindParam(':total_direct_endorse', $this->total_direct_endorse);
-        $command->bindParam(':payout_rate', $payout_rate);
+        $command->bindParam(':payout', $payout);
         $result = $command->execute();        
         
         if(count($result)>0)
@@ -184,13 +186,16 @@ class Unilevel extends CFormModel
         
         $payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
         
+        $payout = $this->total_direct_endorse * $payout_rate;
+        
         $query = "INSERT INTO unilevel (member_id, cutoff_id, ibo_count, amount)
                    VALUES (:member_id, :cutoff_id, :total_direct_endorse, :payout_rate)";
+        
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->upline_id);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->bindParam(':total_direct_endorse', $this->total_direct_endorse);
-        $command->bindParam(':payout_rate', $payout_rate);
+        $command->bindParam(':payout', $payout);
         $result = $command->execute();        
         
         if(count($result)>0)

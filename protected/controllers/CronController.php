@@ -35,10 +35,17 @@ class CronController extends Controller
     const JOB_DIRECT_ENDORSEMENT = 4;
     const JOB_UNILEVEL = 5;
     const JOB_PROMO = 6;
+    const JOB_CLEAN_UP = 7;
     
     public $PID;
     public $PIDFile;
     public $PIDLog;
+    
+    public $_curdate;
+    
+    public function __construct() {
+        $this->_curdate = date('Y-m-d H:i:s');
+    }
     
     /**
      * Check if PID file exist
@@ -92,6 +99,56 @@ class CronController extends Controller
             return false;
     }
         
+    public function actionRun()
+    {
+        //$audit = new AuditLog();
+        echo $this->_curdate . ' : Cron job started.<br />';
+        $this->PIDFile = 'CLEANUP.pid';
+        if(!$this->PID_exists())
+        {
+            $this->actionGOC();
+            $this->PIDFile = 'GOC.pid';
+            if(!$this->PID_exists())
+            {
+                $this->actionDirectEndorse ();
+                $this->PIDFile = 'DirectEndorse.pid';
+                if(!$this->PID_exists())
+                {
+                    $this->actionUnilevel();
+                    /*
+                    $this->PIDFile = 'Unilevel.pid';
+                    if(!$this->PID_exists())
+                    {
+                        $this->PIDFile = 'CLEANUP.pid';
+                        $audit->job_id = self::JOB_CLEAN_UP;
+                        $this->createPID();
+
+                        $retval = $this->cleanUp();
+                        if($retval)
+                        {
+                            $this->PID->delete();
+                            $audit->log_message = 'Cron job finished running';
+                            $audit->log_cron();
+//                            echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+                        }
+                        else
+                        {
+                            $audit->log_message = 'Clean up process halted. Pending PID file is created.';
+                            $audit->log_cron();
+//                            echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+                        }
+                        
+                        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+
+                    }
+                     * 
+                     */
+                }
+            }
+        }
+        
+    }
+    
     public function actionGOC()
     {
         if($this->job_enabled())
@@ -131,7 +188,6 @@ class CronController extends Controller
                         {
                             //add to auditlogs
                             $audit->log_message = $retval['result_msg'];
-                            $audit->log_cron();
 
                         }
                         elseif($retval['result_code'] == 3)
@@ -139,16 +195,6 @@ class CronController extends Controller
                             //add to auditlogs
                             $audit->log_message = $retval['result_msg'];
                             $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
-                            Yii::app()->end();
-                        }
-                        elseif($retval['result_code'] == 4)
-                        {
-                            //add to auditlogs
-                            $audit->log_message = $retval['result_msg'];
-                            $audit->log_cron();
-                            echo $audit->log_message;
                         }
 
                     }
@@ -156,7 +202,6 @@ class CronController extends Controller
                     //Delete process id
                     $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
                     
                 }
                 else
@@ -164,10 +209,7 @@ class CronController extends Controller
                     
                     $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
                     
-                    echo 'No new record to process.';
-                    Yii::app()->end();
                 }
 
             }
@@ -175,24 +217,18 @@ class CronController extends Controller
             {
                 
                 $audit->log_message = 'GOC PID file still exist. Please wait current process to finish. ';
-                $audit->log_cron();                
-                echo $audit->log_message;
-                Yii::app()->end();
             }
             
-            $audit->log_message = ' Processing job has ended.';
-            $audit->log_cron();
-            echo $audit->log_message;
-            Yii::app()->end();
+            $audit->log_message = ' GOC job process has ended.';
 
         }
         else
         {
             $audit->log_message = 'Job scheduler is disabled.';
-            $audit->log_cron();
-            echo $audit->log_message;
-            Yii::app()->end();
+            
         }
+        $audit->log_cron();
+        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
         
     }
     
@@ -234,7 +270,6 @@ class CronController extends Controller
                         {
                             //add to auditlogs
                             $audit->log_message = 'Direct endorsement processing  successful for MID '.$member_id.' EID '.$endorser_id;
-                            $audit->log_cron();
 
                         }
                         else
@@ -242,24 +277,17 @@ class CronController extends Controller
                             //add to auditlogs
                             $audit->log_message = 'Direct endorsement processing failed for MID '.$member_id.' EID '.$endorser_id;
                             $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
                         }
                     }
                     
                     //Delete process id
                     $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
                 }
                 else
                 {
                     $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
-                    
-                    echo 'No new record to process.';
-                    Yii::app()->end();
                 }
            
             }
@@ -267,26 +295,21 @@ class CronController extends Controller
             {
                 
                 $audit->log_message = 'Direct endorsement process PID file still exist. Please wait current process to finish. ';
-                $audit->log_cron();                
-                echo $audit->log_message;
-                Yii::app()->end();
             }
             
-            $audit->log_message = 'Processing job has ended.';
-            $audit->log_cron();
-            echo $audit->log_message;
-            Yii::app()->end();
+            $audit->log_message = 'Direct endorse job process has ended.';
         }
         else
         {
             $audit->log_message = 'Job scheduler is disabled.';
-            $audit->log_cron();
-            echo $audit->log_message;
-            Yii::app()->end();
         }
+        
+        $audit->log_cron();
+        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+        
     }
     
-     public function actionUnilevel()
+    public function actionUnilevel()
     {
         if($this->job_enabled())
         {
@@ -304,7 +327,7 @@ class CronController extends Controller
                 $audit->log_cron();
 
                 //Create pid file      
-                //$this->createPID();
+                $this->createPID();
                 $audit->log_message = 'Created '.$this->PIDFile.' file';
                 $audit->log_cron();
                 
@@ -323,7 +346,6 @@ class CronController extends Controller
                         {
                             //add to auditlogs
                             $audit->log_message = 'Unilevel processing  successful for member '.$member_id.' uplines.';
-                            $audit->log_cron();
 
                         }
                         elseif($retval['result_code'] == 1)
@@ -331,68 +353,47 @@ class CronController extends Controller
                             //add to auditlogs
                             $audit->log_message = 'Unilevel processing failed for member '.$member_id.' uplines.';
                             $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
-                            Yii::app()->end();
                         }
                         elseif($retval['result_code'] == 2)
                         {
                             $audit->log_message = 'Direct endorse count for member '.$member_id. ' is not valid for unilevel entry.';
                             $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
                         }
                         elseif($retval['result_code'] == 3)
                         {
                             
                             $audit->log_message = $retval['result_msg'];
                             $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
-                            Yii::app()->end();
                         }
                     }
                     
                     //Delete process id
-                    //$this->PID->delete();
+                    $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
                 }
                 else
                 {
-                    //$this->PID->delete();
+                    $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
-                    
-                    echo 'No new record to process.';
-                    Yii::app()->end();
                 }
            
             }
             else
             {
-                
                 $audit->log_message = 'Unilevel process PID file still exist. Please wait current process to finish. ';
-                $audit->log_cron();                
-                echo $audit->log_message;
-                Yii::app()->end();
             }
             
-            $audit->log_message = 'Processing job has ended.';
-            $audit->log_cron();
-            echo $audit->log_message;
-            Yii::app()->end();
+            $audit->log_message = 'Unilevel job process has ended.';
         }
         else
         {
             $audit->log_message = 'Job scheduler is disabled.';
-            $audit->log_cron();
-            echo $audit->log_message;
-            Yii::app()->end();
+            
         }
+        $audit->log_cron();
+        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
     }
         
-    
     public function actionLoanDirect()
     {
         if($this->job_enabled())
@@ -431,7 +432,6 @@ class CronController extends Controller
                         {
                             //add to auditlogs
                             $audit->log_message = 'Loan direct processing successful.';
-                            $audit->log_cron();
 
                         }
                         else
@@ -439,24 +439,18 @@ class CronController extends Controller
                             //add to auditlogs
                             $audit->log_message = 'Loan direct processing failed.';
                             $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
                         }
                     }
                     
                     //Delete process id
                     $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
                 }
                 else
                 {
                     $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
                     
-                    echo 'No new record to process.';
-                    Yii::app()->end();
                 }
            
             }
@@ -464,21 +458,19 @@ class CronController extends Controller
             {
                 
                 $audit->log_message = 'Loan process PID file still exist. Please wait current process to finish. ';
-                $audit->log_cron();                
                 echo $audit->log_message;
-                Yii::app()->end();
             }
             
             $audit->log_message = 'Processing job has ended.';
-            $audit->log_cron();
-            echo $audit->log_message;
-            Yii::app()->end();
+            
         }
         else
         {
             echo 'Job scheduler is disabled.';
-            Yii::app()->end();
         }
+        
+        $audit->log_cron();
+        echo $audit->log_message;
     }
     
     public function actionLoanCompletion()
@@ -512,16 +504,13 @@ class CronController extends Controller
                     foreach($lists as $list)
                     {
                         $member_id = $list['member_id'];         
-                        $endorser_id = $list['endorser_id'];
-                        $upline_id = $list['upline_id'];
                         
-                        $retval = Transactions::process_loan_completion($member_id,$endorser_id,$upline_id);
+                        $retval = Transactions::process_loan_completion($member_id);
 
                         if(!$retval)
                         {
                             //add to auditlogs
                             $audit->log_message = 'Loan completion processing successful.';
-                            $audit->log_cron();
 
                         }
                         else
@@ -529,24 +518,18 @@ class CronController extends Controller
                             //add to auditlogs
                             $audit->log_message = 'Loan completion processing failed.';
                             $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
                         }
                     }
                     
                     //Delete process id
                     $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
                 }
                 else
                 {
                     $this->PID->delete();
                     $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
                     
-                    echo 'No new record to process.';
-                    Yii::app()->end();
                 }
            
             }
@@ -554,23 +537,20 @@ class CronController extends Controller
             {
                 
                 $audit->log_message = 'Loan process PID file still exist. Please wait current process to finish. ';
-                $audit->log_cron();                
                 echo $audit->log_message;
-                Yii::app()->end();
             }
             
             $audit->log_message = 'Processing job has ended.';
-            $audit->log_cron();
-            echo $audit->log_message;
-            Yii::app()->end();
+
         }
         else
         {
             echo 'Job scheduler is disabled.';
-            Yii::app()->end();
         }
         
-        
+        $audit->log_cron();
+        echo $audit->log_message;
+
     }
     
     public function actionPromoCheck()
@@ -709,6 +689,20 @@ class CronController extends Controller
         {
             echo 'Mailer is currently disabled.';
         }
+        
+    }
+    
+    public function cleanUp()
+    {
+        $model = new MembersModel();
+        $model->status = 3;
+        
+        $model->remove_processed();
+        
+        if(!$model->hasErrors())
+            return true;
+        else
+            return false;
         
     }
     
