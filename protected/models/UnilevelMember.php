@@ -18,7 +18,7 @@ class UnilevelMember extends CFormModel
         $this->_connection = Yii::app()->db;
     }
     
-    public function getUnilevel($dateFrom, $dateTo, $member_id)
+    public function getUnilevel($member_id)
     {
         $conn = $this->_connection;
         
@@ -40,11 +40,9 @@ class UnilevelMember extends CFormModel
                       ON u.approved_by_id = md.member_id
                     LEFT OUTER JOIN member_details md2
                       ON u.claimed_by_id = md2.member_id
-                  WHERE u.date_created BETWEEN :dateFrom AND :dateTo AND u.member_id = :member_id; ORDER BY u.date_created DESC;";
+                  WHERE u.member_id = :member_id; ORDER BY u.date_created DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':dateFrom', $dateFrom);
-        $command->bindParam(':dateTo', $dateTo);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         

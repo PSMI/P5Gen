@@ -31,28 +31,19 @@ class TransactionController extends Controller
     public function actionGoc()
     {
         $model = new GroupOverrideCommissionMember();
-        
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
-        {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
-            $member_id = Yii::app()->user->getId();
-            
-            $rawData = $model->getComissions($dateFrom, $dateTo, $member_id);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
-                                    ));
-            
-            $this->render('goc', array('dataProvider' => $dataProvider));
-        }
-        else
-        {
-            $this->render('goc');
-        }
+
+        $member_id = Yii::app()->user->getId();
+
+        $rawData = $model->getComissions($member_id);
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                'pageSize' => 10,
+                                            ),
+                                ));
+
+        $this->render('goc', array('dataProvider' => $dataProvider));
     }
     
     //For Bonus
@@ -78,56 +69,38 @@ class TransactionController extends Controller
     public function actionDirectendorse()
     {
         $model = new DirectEndorsementMember();
-        
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
-        {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
-            $member_id = Yii::app()->user->getId();
-            
-            $rawData = $model->getDirectEndorsement($dateFrom, $dateTo, $member_id);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
-                                    ));
-            
-            $this->render('directendorse', array('dataProvider' => $dataProvider));
-        }
-        else
-        {
-            $this->render('directendorse');
-        }
+
+        $member_id = Yii::app()->user->getId();
+
+        $rawData = $model->getDirectEndorsement($member_id);
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                'pageSize' => 10,
+                                            ),
+                                ));
+
+        $this->render('directendorse', array('dataProvider' => $dataProvider));
     }
     
     //For Unilevel
     public function actionUnilevel()
     {
         $model = new UnilevelMember();
-        
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
-        {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
-            $member_id = Yii::app()->user->getId();
-            
-            $rawData = $model->getUnilevel($dateFrom, $dateTo, $member_id);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
-                                    ));
-            
-            $this->render('unilevel', array('dataProvider' => $dataProvider));
-        }
-        else
-        {
-            $this->render('unilevel');
-        }
+
+        $member_id = Yii::app()->user->getId();
+
+        $rawData = $model->getUnilevel($member_id);
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                'pageSize' => 10,
+                                            ),
+                                ));
+
+        $this->render('unilevel', array('dataProvider' => $dataProvider));
     }
     
     

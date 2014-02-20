@@ -13,7 +13,7 @@ class DirectEndorsementMember extends CFormModel
         $this->_connection = Yii::app()->db;
     }
     
-    public function getDirectEndorsement($dateFrom, $dateTo, $member_id)
+    public function getDirectEndorsement($member_id)
     {
         $conn = $this->_connection;
         
@@ -33,11 +33,9 @@ class DirectEndorsementMember extends CFormModel
                       ON d.approved_by_id = md2.member_id
                     LEFT OUTER JOIN member_details md3
                       ON d.claimed_by_id = md3.member_id
-                  WHERE d.date_created BETWEEN :dateFrom AND :dateTo AND d.member_id = :member_id ORDER BY d.date_created DESC;";
+                  WHERE d.member_id = :member_id ORDER BY d.date_created DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':dateFrom', $dateFrom);
-        $command->bindParam(':dateTo', $dateTo);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
