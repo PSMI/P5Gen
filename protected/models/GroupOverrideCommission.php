@@ -8,6 +8,8 @@ class GroupOverrideCommission extends CFormModel
 {
     public $_connection;
     public $payout_rate = 100;
+    public $cutoff_id;
+    public $uplines;
     
     public function __construct() 
     {
@@ -103,11 +105,11 @@ class GroupOverrideCommission extends CFormModel
      * @return type
      * @author owliber
      */
-    public function check_transactions($uplines,$cutoff_id)
+    public function check_transactions()
     {
         $conn = $this->_connection;
         
-        $uplines = implode(',',$uplines);
+        $uplines = implode(',',$this->uplines);
         
         $query = "SELECT * FROM commissions 
                   WHERE member_id IN ($uplines) 
@@ -115,8 +117,9 @@ class GroupOverrideCommission extends CFormModel
                       AND status = 0;";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':cutoff_id', $cutoff_id);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
         $result = $command->queryAll();
+        
         
         $retval = array();
         
@@ -141,9 +144,10 @@ class GroupOverrideCommission extends CFormModel
      * @return type
      * @author owliber
      */
-    public function update_transactions($uplines, $cutoff_id)
+    public function update_transactions()
     {
-        $conn = $this->_connection;
+        $conn = $this->_connection;        
+        $uplines = $this->uplines;
         
         $query = "UPDATE commissions 
                     SET ibo_count = ibo_count + 1,
@@ -154,7 +158,7 @@ class GroupOverrideCommission extends CFormModel
         
         $command = $conn->createCommand($query);
         $command->bindParam(':payout_rate', $this->payout_rate);
-        $command->bindParam(':cutoff_id', $cutoff_id);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
         $result = $command->execute();
         return $result;
     }
@@ -166,16 +170,17 @@ class GroupOverrideCommission extends CFormModel
      * @return type
      * @author owliber
      */
-    public function add_transactions($uplines, $cutoff_id)
+    public function add_transactions()
     {
         $conn = $this->_connection;
         
         $values = array();
+        $uplines = $this->uplines;
         
         $query = "INSERT INTO commissions (cutoff_id,member_id,ibo_count,amount) VALUES ";
         
         foreach ($uplines as $upline) {
-            $values[] = '('.$cutoff_id.','.$upline.',1,'.$this->payout_rate.')';
+            $values[] = '('.$this->cutoff_id.','.$upline.',1,'.$this->payout_rate.')';
         }
         
         if (!empty($values)) {

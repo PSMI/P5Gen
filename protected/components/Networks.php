@@ -20,7 +20,7 @@ class Networks extends Controller
         
         $downlines = $model->firstFive();
         
-        if(count($downlines)>0 && count($downlines) < 5)
+        if(count($downlines)>0 && count($downlines) <= 5)
         {
 
             //include all direct endorse

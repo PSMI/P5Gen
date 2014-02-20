@@ -8,6 +8,8 @@ class DirectEndorsement extends CFormModel
 {
     public $_connection;
     public $member_id;
+    public $endorser_id;
+    public $cutoff_id;
     
     public function __construct()
     {
@@ -128,7 +130,7 @@ class DirectEndorsement extends CFormModel
         return $result;
     }
     
-    public function add_transactions($member_id,$endorsers, $cutoff_id)
+    public function add_transactions()
     {
         $conn = $this->_connection;
         $trx = $conn->beginTransaction();
@@ -137,9 +139,9 @@ class DirectEndorsement extends CFormModel
                         VALUES (:cutoff_id, :endorser_id, :member_id)";
                  
         $command = $conn->createCommand($query);
-        $command->bindParam(':cutoff_id', $cutoff_id);
-        $command->bindParam(':endorser_id', $endorsers);
-        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':endorser_id', $this->endorser_id);
+        $command->bindParam(':member_id', $this->member_id);
         $result = $command->execute();        
         
         if(count($result)>0)

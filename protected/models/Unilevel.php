@@ -113,7 +113,8 @@ class Unilevel extends CFormModel
                     TIMESTAMPDIFF(MONTH,m.date_created,date_first_five_completed) AS num_of_months
                   FROM running_accounts ra
                     INNER JOIN members m
-                      ON ra.member_id = m.member_id";
+                      ON ra.member_id = m.member_id
+                  WHERE m.member_id = :member_id";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->upline_id);
         return $command->queryRow();

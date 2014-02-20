@@ -19,9 +19,9 @@
  * CRON PATH:
  * /cron/goc
  * /cron/directendorse
+ * /cron/unilevel
  * /cron/loandirect
  * /cron/loancompletion
- * /cron/unilevel
  * /cron/promocheck
  * /cron/sendmail
  * 
@@ -47,7 +47,7 @@ class CronController extends Controller
     public function PID_exists()
     {
         $file = Yii::app()->file;
-        $path = Yii::app()->basePath . '\runtime\\';
+        $path = Yii::app()->basePath . '/runtime/';
         $this->PIDLog = $path . $this->PIDFile;
         
         if($file->set($this->PIDLog)->exists)
@@ -119,27 +119,34 @@ class CronController extends Controller
                 $lists = $model->getUnprocessedMembers();
                 
                 if(count($lists)>0)
-                {
+                {                    
                     foreach($lists as $list)
                     {
                         $member_id = $list['member_id'];
-                        $endorser_id = $list['endorser_id'];
                         $upline_id = $list['upline_id'];
         
-                        $retval = Transactions::process_goc($member_id, $endorser_id, $upline_id);
+                        $retval = Transactions::process_goc($member_id, $upline_id);
                         
-                        if(!$retval)
+                        if($retval['result_code'] >= 0 && $retval['result_code'] < 3)
                         {
                             //add to auditlogs
-                            $audit->log_message = 'GOC processing successful.';
+                            $audit->log_message = $retval['result_msg'];
                             $audit->log_cron();
 
                         }
-                        else
+                        elseif($retval['result_code'] == 3)
                         {
                             //add to auditlogs
-                            $audit->log_message = 'GOC processing failed.';
+                            $audit->log_message = $retval['result_msg'];
                             $audit->status = 2;
+                            $audit->log_cron();
+                            echo $audit->log_message;
+                            Yii::app()->end();
+                        }
+                        elseif($retval['result_code'] == 4)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = $retval['result_msg'];
                             $audit->log_cron();
                             echo $audit->log_message;
                         }
@@ -173,7 +180,7 @@ class CronController extends Controller
                 Yii::app()->end();
             }
             
-            $audit->log_message = 'Processing job has ended.';
+            $audit->log_message = ' Processing job has ended.';
             $audit->log_cron();
             echo $audit->log_message;
             Yii::app()->end();
@@ -181,7 +188,9 @@ class CronController extends Controller
         }
         else
         {
-            echo 'Job scheduler is disabled.';
+            $audit->log_message = 'Job scheduler is disabled.';
+            $audit->log_cron();
+            echo $audit->log_message;
             Yii::app()->end();
         }
         
@@ -270,10 +279,119 @@ class CronController extends Controller
         }
         else
         {
-            echo 'Job scheduler is disabled.';
+            $audit->log_message = 'Job scheduler is disabled.';
+            $audit->log_cron();
+            echo $audit->log_message;
             Yii::app()->end();
         }
     }
+    
+     public function actionUnilevel()
+    {
+        if($this->job_enabled())
+        {
+            $model = new MembersModel();
+            $audit = new AuditLog();
+            
+            $this->PIDFile = 'Unilevel.pid';
+            $audit->job_id = self::JOB_UNILEVEL;
+
+            if(!$this->PID_exists())
+            {
+                               
+                //add to auditlogs
+                $audit->log_message = 'Started processing Unilevel job.';
+                $audit->log_cron();
+
+                //Create pid file      
+                //$this->createPID();
+                $audit->log_message = 'Created '.$this->PIDFile.' file';
+                $audit->log_cron();
+                
+                $model->status = 2; //Processed by Direct Endorse
+                $lists = $model->getUnprocessedMembers();
+                
+                if(count($lists)>0)
+                {
+                    foreach($lists as $list)
+                    {
+                        $member_id = $list['member_id'];   
+                        
+                        $retval = Transactions::process_unilevel($member_id);
+
+                        if($retval['result_code'] == 0)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'Unilevel processing  successful for member '.$member_id.' uplines.';
+                            $audit->log_cron();
+
+                        }
+                        elseif($retval['result_code'] == 1)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'Unilevel processing failed for member '.$member_id.' uplines.';
+                            $audit->status = 2;
+                            $audit->log_cron();
+                            echo $audit->log_message;
+                            Yii::app()->end();
+                        }
+                        elseif($retval['result_code'] == 2)
+                        {
+                            $audit->log_message = 'Direct endorse count for member '.$member_id. ' is not valid for unilevel entry.';
+                            $audit->status = 2;
+                            $audit->log_cron();
+                            echo $audit->log_message;
+                        }
+                        elseif($retval['result_code'] == 3)
+                        {
+                            
+                            $audit->log_message = $retval['result_msg'];
+                            $audit->status = 2;
+                            $audit->log_cron();
+                            echo $audit->log_message;
+                            Yii::app()->end();
+                        }
+                    }
+                    
+                    //Delete process id
+                    //$this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                    $audit->log_cron();
+                }
+                else
+                {
+                    //$this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                    $audit->log_cron();
+                    
+                    echo 'No new record to process.';
+                    Yii::app()->end();
+                }
+           
+            }
+            else
+            {
+                
+                $audit->log_message = 'Unilevel process PID file still exist. Please wait current process to finish. ';
+                $audit->log_cron();                
+                echo $audit->log_message;
+                Yii::app()->end();
+            }
+            
+            $audit->log_message = 'Processing job has ended.';
+            $audit->log_cron();
+            echo $audit->log_message;
+            Yii::app()->end();
+        }
+        else
+        {
+            $audit->log_message = 'Job scheduler is disabled.';
+            $audit->log_cron();
+            echo $audit->log_message;
+            Yii::app()->end();
+        }
+    }
+        
     
     public function actionLoanDirect()
     {
@@ -296,7 +414,7 @@ class CronController extends Controller
                 $audit->log_message = 'Created '.$this->PIDFile.' file';
                 $audit->log_cron();
                 
-                $model->status = 2; //Already processed by Direct endorsement job
+                $model->status = 3; //Already processed by Unilevel job
                 $lists = $model->getUnprocessedMembers();
                 
                 if(count($lists)>0)
@@ -386,6 +504,7 @@ class CronController extends Controller
                 $audit->log_message = 'Created '.$this->PIDFile.' file';
                 $audit->log_cron();
                 
+                $model->status = 4;//Already processed by loan direct job
                 $lists = $model->getUnprocessedMembers();
                 
                 if(count($lists)>0)
@@ -454,110 +573,6 @@ class CronController extends Controller
         
     }
     
-    public function actionUnilevel()
-    {
-        if($this->job_enabled())
-        {
-            $model = new MembersModel();
-            $audit = new AuditLog();
-            
-            $this->PIDFile = 'Unilevel.pid';
-            $audit->job_id = self::JOB_UNILEVEL;
-
-            if(!$this->PID_exists())
-            {
-                               
-                //add to auditlogs
-                $audit->log_message = 'Started processing Unilevel job.';
-                $audit->log_cron();
-
-                //Create pid file      
-                $this->createPID();
-                $audit->log_message = 'Created '.$this->PIDFile.' file';
-                $audit->log_cron();
-                
-                $model->status = 4; //Processed by Loan Completion
-                $lists = $model->getUnprocessedMembers();
-                
-                if(count($lists)>0)
-                {
-                    foreach($lists as $list)
-                    {
-                        $member_id = $list['member_id'];   
-                        
-                        $retval = Transactions::process_unilevel($member_id);
-
-                        if($retval['result_code'] == 0)
-                        {
-                            //add to auditlogs
-                            $audit->log_message = 'Unilevel processing  successful for member '.$member_id.' uplines.';
-                            $audit->log_cron();
-
-                        }
-                        elseif($retval['result_code'] == 1)
-                        {
-                            //add to auditlogs
-                            $audit->log_message = 'Unilevel processing failed for member '.$member_id.' uplines.';
-                            $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
-                            Yii::app()->end();
-                        }
-                        elseif($retval['result_code'] == 2)
-                        {
-                            $audit->log_message = 'Direct endorse count for member '.$member_id. ' is not valid for unilevel entry.';
-                            $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
-                        }
-                        elseif($retval['result_code'] == 3)
-                        {
-                            
-                            $audit->log_message = $retval['result_msg'];
-                            $audit->status = 2;
-                            $audit->log_cron();
-                            echo $audit->log_message;
-                            Yii::app()->end();
-                        }
-                    }
-                    
-                    //Delete process id
-                    $this->PID->delete();
-                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
-                }
-                else
-                {
-                    $this->PID->delete();
-                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
-                    $audit->log_cron();
-                    
-                    echo 'No new record to process.';
-                    Yii::app()->end();
-                }
-           
-            }
-            else
-            {
-                
-                $audit->log_message = 'Unilevel process PID file still exist. Please wait current process to finish. ';
-                $audit->log_cron();                
-                echo $audit->log_message;
-                Yii::app()->end();
-            }
-            
-            $audit->log_message = 'Processing job has ended.';
-            $audit->log_cron();
-            echo $audit->log_message;
-            Yii::app()->end();
-        }
-        else
-        {
-            echo 'Job scheduler is disabled.';
-            Yii::app()->end();
-        }
-    }
-        
     public function actionPromoCheck()
     {
         if($this->job_enabled())
