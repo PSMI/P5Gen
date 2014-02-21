@@ -115,7 +115,7 @@ class MemberDetailsModel extends CFormModel
         $connection = $this->_connection;
         
         $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
-                a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id,
+                a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id, b.username,
                 CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a
@@ -198,7 +198,7 @@ class MemberDetailsModel extends CFormModel
         $connection = $this->_connection;
         
         $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
-                a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id,
+                a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id, b.username,
                 CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a

@@ -58,7 +58,7 @@ return array(
                     'pathLayouts' => 'application.views.email.layouts'
                  ),
 		 'ePdf' => array(
-                    'class'         => 'ext.yii-pdf.EYiiPdf',
+                    'class'         => 'ext.html2pdf.EYiiPdf',
                     'params'        => array('HTML2PDF' => array(
                                                         'librarySourcePath' => 'application.extensions.html2pdf.*',
                                                         'classFile'         => 'html2pdf.class.php'
