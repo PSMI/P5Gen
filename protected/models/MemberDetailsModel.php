@@ -86,7 +86,7 @@ class MemberDetailsModel extends CFormModel
                 a.birth_date, a.mobile_no, a.email, b.username
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
-                WHERE b.account_type_id IN (1, 2)";
+                WHERE b.account_type_id = 2";
         $command = $connection->createCommand($sql);
         $result = $command->queryAll();
         

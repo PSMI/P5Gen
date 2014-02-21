@@ -58,17 +58,20 @@ class ReferenceModel extends CFormModel
         $conn = $this->_connection;
         
         $result = ReferenceModel::check_valid_cutoff($trans_type_id);
+        $goc_cutoff = ReferenceModel::get_variable_value('GOC_CUTOFF_INTERVAL');
+        $unilevel_cutoff = ReferenceModel::get_variable_value('UNILEVEL_CUTOFF_INTERVAL');
+        $direct_cutoff = ReferenceModel::get_variable_value('DIRECT_CUTOFF_INTERVAL');
         
         switch($trans_type_id)
         {
             case 1: //GOC
-                $interval = " 3 MONTH";
+                $interval = " ".$goc_cutoff;
                 break;
             case 2: //Unilevel
-                $interval = " 1 MONTH";
+                $interval = " ".$unilevel_cutoff;
                 break;
             case 6: //Direct Endorsement
-                $interval = " 1 WEEK";
+                $interval = " ".$direct_cutoff;
                 break;
             
         }
@@ -150,5 +153,6 @@ class ReferenceModel extends CFormModel
         $result = $command->queryRow();
         return $result['amount'];
     }
+    
 }
 ?>
