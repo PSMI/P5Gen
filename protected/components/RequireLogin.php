@@ -17,6 +17,7 @@ class RequireLogin extends CBehavior
         $controller = Yii::app()->request->getPathInfo();
         $allowed = array(
             'site/login',
+            'site/forgot',
             'activation/verify',
             'activation/success',
             'activation/error',

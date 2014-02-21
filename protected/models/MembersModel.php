@@ -297,5 +297,20 @@ class MembersModel extends CFormModel
             throw $e;
         }
     }
+    
+    public function checkExistingEmailAndUsername($email, $username)
+    {
+        $connection = $this->_connection;
+        
+        $sql = "SELECT a.member_id, a.username, b.email FROM members a
+            INNER JOIN member_details b ON a.member_id = b.member_id
+            WHERE b.email = :email AND a.username = :username";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":email", $email);
+        $command->bindParam(":username", $username);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
 }
 ?>

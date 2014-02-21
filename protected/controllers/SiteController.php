@@ -3,6 +3,10 @@
 class SiteController extends Controller
 {
         public $layout = "column2";
+        public $msg = '';
+        public $title = '';
+        public $showDialog = false;
+        public $showRedirect = false;
                 
     	/**
 	 * Declares class-based actions.
@@ -112,6 +116,63 @@ class SiteController extends Controller
         {
             $this->render('404');
         }
-                
-       
+            
+       public function actionForgot()
+       {
+           $model = new LoginForm();
+           
+           if (isset($_POST['LoginForm']))
+           {
+               $username = $_POST['LoginForm']['reset_username'];
+               $email = $_POST['LoginForm']['email'];
+               
+               if ($username == "" || $email == "")
+               {
+                    $this->title = "NOTIFICATION";
+                    $this->msg = "Please fill up the required fields!";
+                    $this->showDialog = true;
+               }
+               else
+               {
+                    $membersModel = new MembersModel();
+                    $record = $membersModel->checkExistingEmailAndUsername($email, $username);
+                    if (count($record) > 0 && is_array($record)) 
+                    {
+                         $member_id = $record['member_id'];
+
+                         $reference = new ReferenceModel();
+                         $max_rand_lenth = $reference->get_variable_value('MAX_RAND_PASSWORD');
+                         $password = Helpers::randomPassword($max_rand_lenth);
+
+                         
+                         $retval = $membersModel->changePassword($member_id, $password);
+                         if ($retval) 
+                         {
+                             $param['member_id'] = $member_id;
+                             $param['plain_password'] = $password;
+                             Mailer::sendChangePassword($param);
+
+                             $this->title = "SUCCESSFUL!";
+                             $this->msg = "Your account password successfully changed. An email
+                                         notification was sent on your email address. Thank you!";
+                             $this->showRedirect = true;
+                         }
+                         else
+                         {
+                             $this->title = "NOTIFICATION";
+                             $this->msg = "Reset Password Failed!";
+                             $this->showDialog = true;
+                         }
+                    }
+                    else
+                    {
+                         $this->title = "NOTIFICATION";
+                         $this->msg = "Account does not exists. Please try again.";
+                         $this->showDialog = true;
+                    }
+               }
+           }
+           
+           $this->render('_forgot', array('model'=>$model));
+       }
 }

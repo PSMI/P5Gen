@@ -26,6 +26,8 @@ $this->breadcrumbs=array(
 	<?php echo $form->passwordFieldRow($model,'password'); ?>
 
 	<?php echo $form->checkBoxRow($model,'rememberMe'); ?>
+    
+        <center><?php echo CHtml::link('Reset Password', Yii::app()->createUrl('site/forgot'), array('style'=>'cursor: pointer')); ?></center>
 
 	<div class="form-actions">
             <?php $this->widget('bootstrap.widgets.TbButton', array(

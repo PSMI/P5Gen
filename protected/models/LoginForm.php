@@ -10,6 +10,8 @@ class LoginForm extends CFormModel
         public $username;
 	public $password;
 	public $rememberMe;
+        public $email;
+        public $reset_username;
 
 	private $_identity;
 
@@ -27,6 +29,10 @@ class LoginForm extends CFormModel
 			array('rememberMe', 'boolean'),
 			// password needs to be authenticated
 			array('password', 'authenticate'),
+                    
+                        array('email, reset_username', 'safe'),
+                
+                        array('email', 'email')
 		);
 	}
 
@@ -37,6 +43,7 @@ class LoginForm extends CFormModel
 	{
 		return array(
 			'rememberMe'=>'Remember me next time.',
+                        'reset_username'=>'Username'
 		);
 	}
 
