@@ -44,9 +44,18 @@ class PlacementController extends Controller
                 $retval = $model->addPlacement();
                 
                 if(count($retval)>0)
+                {
+                    $param['upline_id'] = $model->upline_id;
+                    $param['new_member_id'] = $model->downline_id;
+                    $param['endorser_id'] = $model->endorser_id;
+                    Mailer::sendUplineNotification($param);
+                    
                     $result = array('result_code'=>0,'result_msg'=>'You have successfully assigned the new member.');
+                }
                 else
+                {
                     $result = array('result_code'=>1,'result_msg'=>'Problem encountered while assigning the new member.');
+                }
             }
             else
             {
@@ -109,12 +118,17 @@ class PlacementController extends Controller
         if(Yii::app()->request->isAjaxRequest)
         {
             $model = new PlacementModel();
-            
             $member_id = $_GET['id'];
             $model->member_id = $member_id;
+            $row = $model->pendingPlacement();
+            
+            $param['upline_id'] = $row['upline_id'];
+            $param['new_member_id'] = $model->member_id;
+            $param['endorser_id'] = $row['endorser_id'];            
             
             //empty upline_id in members table then delete record from pending_placements
-            $retval = $model->removePlacement();
+            $retval = $model->removePlacement();    
+            Mailer::sendDisapproveNotification($param);
             
             if($retval)
                 echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'You successfuly DISAPPROVED your downline request.'));

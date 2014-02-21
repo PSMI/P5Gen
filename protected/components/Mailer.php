@@ -10,6 +10,7 @@ class Mailer
     CONST VERIFY_ACCOUNT_TMPL = 1;
     CONST UPLINE_NOTIFY_TMPL = 2;
     CONST CHANGE_PASSWORD_TMPL = 3;
+    CONST DISAPPROVE_NOTIFY_TMPL = 4;
     
     /**
      * Send verification link to new member
@@ -145,6 +146,48 @@ class Mailer
             $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
 
         }
+                
+    }
+    
+    public function sendDisapproveNotification($param)
+    {
+        $model = new RegistrationForm();
+                    
+        $downline_id = $param['new_member_id'];
+        $upline_id = $param['upline_id'];
+        $endorser_id = $param['endorser_id'];
+        
+        $reference = new ReferenceModel();
+        $message_template = $reference->get_message_template(self::DISAPPROVE_NOTIFY_TMPL);
+                
+        $members = new MembersModel();
+        
+        $downline_info = $members->selectMemberDetails($downline_id); 
+        $upline_info = $members->selectMemberDetails($upline_id);
+        $endorser_info = $members->selectMemberDetails($endorser_id);
+                
+        $upline_name = $upline_info['first_name'] . ' ' . $upline_info['last_name'];
+        $downline_name = $downline_info['first_name'] . ' ' . $downline_info['last_name'];
+        $endorser_name = $endorser_info['first_name'] . ' ' . $endorser_info['last_name'];
+        $endorser_email = $endorser_info['email'];
+        $curdate = date('Y-m-d H:i:s');
+        
+        $placeholders = array('UPLINE_NAME'=>$upline_name, 
+                              'ENDORSER_NAME'=>$endorser_name,
+                              'DOWNLINE_NAME'=>$downline_name,
+                              'DISAPPROVED_DATE'=>$curdate);
+        
+        foreach($placeholders as $key => $value){
+            $message_template = str_replace('{'.$key.'}', $value, $message_template);
+        }
+        
+        $sender = 'noreply@p5partners.com';
+        $sender_name = 'P5 Marketing Incorporated';
+        $recipient = $endorser_email;
+        $subject = 'Notice: New downline disapproved.';
+ 
+        $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
+
                 
     }
     
