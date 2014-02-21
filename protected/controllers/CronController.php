@@ -10,9 +10,9 @@
  * JOBS RUN SEQUENCE:
  * 1st Job: GOC - Get all unprocessed members with status = 0, update status to 1 after processing.
  * 2nd Job: Direct Endorsement - Get all unprocessed members with status = 1, update status to 2 after processing
- * 3rd Job: Loan Direct - Get all unprocessed members with status = 2, update status to 3 after processing
- * 4th Job: Loan Completion - Get all unprocessed members with status = 3, update status to 4 after processing
- * 5th Job: Unilevel - Get all unprocessed members with status = 4, update status to 5 after processing.
+ * 3th Job: Unilevel - Get all unprocessed members with status = 4, update status to 5 after processing.
+ * 4rd Job: Loan Direct - Get all unprocessed members with status = 2, update status to 3 after processing
+ * 5th Job: Loan Completion - Get all unprocessed members with status = 3, update status to 4 after processing
  * 6th Job: Delete all processed members with status = 5;
  * 7th Job: Promo Checking. Insert a record into promo_redemptions once a member has meet all promo mechanics
  * ----------------------------------------------------------------------------------------------------------------
@@ -103,7 +103,8 @@ class CronController extends Controller
     {
         //$audit = new AuditLog();
         echo $this->_curdate . ' : Cron job started.<br />';
-        $this->PIDFile = 'CLEANUP.pid';
+        //$this->PIDFile = 'CLEANUP.pid';
+        $this->PIDFile = 'LoanCompletion.pid';
         if(!$this->PID_exists())
         {
             $this->actionGOC();
@@ -114,39 +115,54 @@ class CronController extends Controller
                 $this->PIDFile = 'DirectEndorse.pid';
                 if(!$this->PID_exists())
                 {
-                    $this->actionUnilevel();
-                    /*
+                    $this->actionUnilevel();                    
                     $this->PIDFile = 'Unilevel.pid';
                     if(!$this->PID_exists())
                     {
-                        $this->PIDFile = 'CLEANUP.pid';
-                        $audit->job_id = self::JOB_CLEAN_UP;
-                        $this->createPID();
+                        $this->actionLoanDirect();
+                        $this->PIDFile = 'LoanDirect.pid';
+                        
+                        if(!$this->PID_exists())
+                        {
+                            
+                            $this->actionLoanCompletion();
+                            
+                            /*
+                            $this->PIDFile = 'LoanCompletion.pid';
+                            
+                            if(!$this->PID_exists())
+                            {
+                                $this->PIDFile = 'CLEANUP.pid';
+                                $audit->job_id = self::JOB_CLEAN_UP;
+                                $this->createPID();
 
-                        $retval = $this->cleanUp();
-                        if($retval)
-                        {
-                            $this->PID->delete();
-                            $audit->log_message = 'Cron job finished running';
-                            $audit->log_cron();
-//                            echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
-                        }
-                        else
-                        {
-                            $audit->log_message = 'Clean up process halted. Pending PID file is created.';
-                            $audit->log_cron();
-//                            echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+                                $retval = $this->cleanUp();
+                                if($retval)
+                                {
+                                    $this->PID->delete();
+                                    $audit->log_message = 'Cron job finished running';
+                                    $audit->log_cron();
+                                    echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+                                }
+                                else
+                                {
+                                    $audit->log_message = 'Clean up process halted. Pending PID file is created.';
+                                    $audit->log_cron();
+                                    echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+                                }
+                            }
+                             * 
+                             */
+                            
                         }
                         
-                        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+                        
 
                     }
-                     * 
-                     */
                 }
             }
         }
-        
+        echo $this->_curdate . ' : Cron job has ended.<br />';
     }
     
     public function actionGOC()

@@ -98,7 +98,15 @@ class PlacementController extends Controller
             
             if($result)
             {
+                $param['upline_id'] = $model->upline_id;
+                $param['new_member_id'] = $model->member_id;
+                $param['endorser_id'] = $model->endorser_id;
+            
+                Mailer::sendApproveNotification($param); 
+                Mailer::sendMemberNotification($param);
+                
                 $retval = $model->updateRunningAccount();
+                
                 if($retval)
                     echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'Your new downline is successfully assigned and approved.'));
                 else
@@ -156,7 +164,7 @@ class PlacementController extends Controller
             $model->downline_id = $_GET['id'];
 
             $result = $model->selectOnlyDownlines($_GET['term']);
-
+            
             if(count($result)>0)
             {
                 foreach($result as $row)

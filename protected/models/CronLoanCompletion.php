@@ -73,7 +73,32 @@ class CronLoanCompletion extends CFormModel
         $command->bindValue(':total_members', $this->total_members);
 
         $result = $command->execute();
+        return $result;
+    }
+    
+    public function checkIfLoanExistWithLevelCompletion()
+    {
+        $conn = $this->_connection;
         
+        $query = "SELECT
+                    loan_id
+                  FROM loans
+                  WHERE member_id = :member_id
+                  AND level_no > 1
+                  AND level_no = :level
+                  AND loan_type_id = 2
+                  AND status IN (1, 2, 3);";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':level', $this->level_no);
+        
+        $result = $command->queryAll();
+        
+        if(count($result)>0)
+            return true;
+        else
+            return false;
     }
     
     public function getTotalEntries()

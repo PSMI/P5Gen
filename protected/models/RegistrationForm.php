@@ -185,8 +185,8 @@ class RegistrationForm extends CFormModel
         if(count($downline) > 0)
         {
             //Get all downlines with less than 5 or no downlines yet
-            $lists = Networks::getLessFiveDownlines(Yii::app()->user->getId());
-            
+            $lists = Networks::getLessFiveDownlines($model->member_id);
+              
             $arr1 = array();
             $arr2 = array();
 

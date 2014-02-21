@@ -80,6 +80,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                     'class'=>'span3',
                     'rel'=>'tooltip',
                     'title'=>'Please type your downline\'s name.',
+                    'autocomplete'=>'off',
                     //'test'=>  Yii::app()->createUrl(array('members/update'),'$data["member_id"]'),
                 ),        
             ));

@@ -20,21 +20,25 @@ class Networks extends Controller
         
         $downlines = $model->firstFive();
         
-        if(count($downlines)>0 && count($downlines) <= 5)
+        //if(count($downlines)>0 && count($downlines) <= 5)
+        if(count($downlines) <= 5)
         {
-
+            
             //include all direct endorse
             $direct_endorsed = $model->getDirectEndorsed();
-
-            if(count($direct_endorsed) < 0 || is_null($direct_endorsed) || empty($direct_endorsed))
+            
+            if(count($direct_endorsed) < 0 && is_null($direct_endorsed) && empty($direct_endorsed))
                 $downlines = array('downline'=>$member_id);
             else
-                $downlines = array_merge(array('downline'=>$model->member_id), $direct_endorsed);
+                $downlines = array_merge(array('0'=>array('downline'=>$model->member_id)), $direct_endorsed);
+            
         }
-        else
-        {
-            $downlines = array('downline'=>$member_id);
-        }
+//        else
+//        {
+//            $downlines = array('downline'=>$member_id);
+//        }
+        
+       
 
         $level = 1;
 

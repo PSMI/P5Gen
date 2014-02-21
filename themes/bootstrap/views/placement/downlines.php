@@ -153,6 +153,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                         'class'=>'span4',
                         'rel'=>'tooltip',
                         'title'=>'Please type your downline\'s name.',
+                        'autocomplete'=>'off',
                     ),        
                 ));
 
