@@ -103,6 +103,37 @@ class TestModel extends CFormModel
         }
     }
     
+    public function insertLoanWithCompletion($member_id, $level, $amount, $total_members)
+    {
+        $conn = $this->_connection;
+        
+        $trans = $conn->beginTransaction();
+        
+        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count, date_completed) 
+                    VALUES (:member_id, 2, :level, :amount, :total_members, NOW())";
+            
+        $command = $conn->createCommand($query);
+        $command->bindValue(':member_id', $member_id);
+        $command->bindValue(':level', $level);
+        $command->bindValue(':amount', $amount);
+        $command->bindValue(':total_members', $total_members);
+
+        $command->execute();
+        
+        try
+        {
+            $trans->commit();
+            
+            return true;
+        }
+        catch (CDbException $e)
+        {
+            $trans->rollback();
+            
+            return false;
+        }
+    }
+    
     public function updateLoanCompleted($total_members, $status, $loan_id, $level, $amount)
     {
         $conn = $this->_connection;
@@ -184,6 +215,23 @@ class TestModel extends CFormModel
             $trx->rollback();
             return false;
         }
+    }
+    
+    public function checkIfDirectEndorse($downline_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    endorser_id
+                  FROM members
+                  WHERE member_id = $downline_id;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $downline_id);
+        
+        $result = $command->queryAll();
+        
+        return $result;
     }
 }
 

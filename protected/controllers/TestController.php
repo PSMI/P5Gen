@@ -21,26 +21,45 @@ class TestController extends Controller
             {
                 //check if member_id exist in loans table
                 $doexist = $model->checkIfLoanExistWithLevel($member_id, $val['Level']);
-
+                
+                $result = $model->getTotalEntries($val['Level']);
+                $complete_count_entries = $result[0]['total_entries'];
+                $amount = $result[0]['loan'];
+                
                 if (count($doexist) > 0)
                 {
+                    //update loans table
                     $loan_id = $doexist[0]['loan_id'];
                     
-                    //update loans table
-                    $result = $model->getTotalEntries($val['Level']);
-                    $complete_count_entries = $result[0]['total_entries'];
-                    $amount = $result[0]['loan'];
-
                     if ($complete_count_entries == $val['Total'])
                     {
-                        //update loans table, set ibo_count to $total_members and status to 1(Completed)
-                        $status = 1;                        
+                        if ($val['Level'] == 1 && $val['Total'] == 5)
+                        {
+                            $downlines_array = explode(',', $val['Members']);
 
-                        $result = $model->updateLoanCompleted($val['Total'], $status, $loan_id, $val['Level'], $amount);
+                            foreach ($downlines_array as $downline_id)
+                            {
+                                $result = $model->checkIfDirectEndorse($downline_id);
+                                $endorser_id = $result[0]['endorser_id'];
 
-                        echo $result;
-                        echo "</br>";
-                        echo "Successfully updated loans table (Level Completed)"; 
+                                if ($member_id != $endorser_id)
+                                {
+                                    //update loans table, set ibo_count to $total_members and status to 1(Completed)
+                                    $status = 1;                        
+
+                                    $result = $model->updateLoanCompleted($val['Total'], $status, $loan_id, $val['Level'], $amount);
+
+                                    echo $result;
+                                    echo "</br>";
+                                    echo "Successfully updated loans table (Level Completed)"; 
+                                }
+                                else
+                                {
+                                    echo "Did not update Level 1 completion because level 1 is direct 5";
+                                    echo "</br>";
+                                }
+                            }
+                        }
                     }
                     else
                     {
@@ -64,15 +83,46 @@ class TestController extends Controller
                     }
                     else
                     {
-                        //insert new record to loans table
                         $result = $model->getTotalEntries($val['Level']);
                         $amount = $result[0]['loan'];
+                            
+                        if ($complete_count_entries == $val['Total'])
+                        {
+                            if ($val['Level'] == 1 && $val['Total'] == 5)
+                            {
+                                $downlines_array = explode(',', $val['Members']);
 
-                        $insertresult = $model->insertLoan($member_id, $val['Level'], $amount, $val['Total']);
+                                foreach ($downlines_array as $downline_id)
+                                {
+                                    $result = $model->checkIfDirectEndorse($downline_id);
+                                    $endorser_id = $result[0]['endorser_id'];
 
-                        echo $insertresult;
-                        echo "</br>";
-                        echo "Successfully inserted new record to loans table";
+                                    if ($member_id != $endorser_id)
+                                    {
+                                        //insert new record to loans table with level completion
+                                        $insertresult = $model->insertLoanWithCompletion($member_id, $val['Level'], $amount, $val['Total']);
+                                        
+                                        echo $insertresult;
+                                        echo "</br>";
+                                        echo "Successfully inserted new record to loans table";
+                                    }
+                                    else
+                                    {
+                                        echo "Did not insert Level 1 completion because level 1 is direct 5";
+                                        echo "</br>";
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //insert new record to loans table
+                            $insertresult = $model->insertLoan($member_id, $val['Level'], $amount, $val['Total']);
+                            
+                            echo $insertresult;
+                            echo "</br>";
+                            echo "Successfully inserted new record to loans table";
+                        }
                     }
                 }
             }

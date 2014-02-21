@@ -137,8 +137,8 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 'print'=>array
                                 (
                                     'label'=>'Print',
-                                    'icon'=>'ok-sign',
-                                    //'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array())',
+                                    'icon'=>'icon-print',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array("id" =>$data["loan_id"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),

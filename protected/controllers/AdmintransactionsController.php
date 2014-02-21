@@ -380,7 +380,18 @@ class AdmintransactionsController extends Controller
 //        $pdf->c_setHeader('Activation Codes');
 //        $pdf->SetFontSize(10);
 //        $pdf->c_generatePDF('Activation_Codes_' . date('Y-m-d') . '.pdf'); */
-        $content = "pAmEnTz";
+        
+        if(isset($_GET["id"]))
+        {
+            $content = $_GET["id"];
+            echo $content;
+        }
+        else
+        {
+            echo "id not set";
+        }
+        exit;
+        
         $html2pdf = Yii::app()->ePdf->HTML2PDF();
         $html2pdf->WriteHTML($content);
         $html2pdf->Output('Loan_' . date('Y-m-d') . '.pdf', 'D'); 
