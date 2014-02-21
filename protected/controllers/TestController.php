@@ -8,10 +8,11 @@ class TestController extends Controller
 {
     public function actionIndex()
     {
-        //$member_id = 3;
+        $member_id = 6;
         $model = new TestModel();
         
         $rawData = Networks::getDownlines($member_id);
+        
         if (count($rawData) > 0)
         {
             $final = Networks::arrangeLevel($rawData);
@@ -29,8 +30,8 @@ class TestController extends Controller
                     $result = $model->getTotalEntries($val['Level']);
                     $complete_count_entries = $result[0]['total_entries'];
                     $amount = $result[0]['loan'];
-                    
-                    if ($val['Total'] == $complete_count_entries)
+
+                    if ($complete_count_entries == $val['Total'])
                     {
                         //update loans table, set ibo_count to $total_members and status to 1(Completed)
                         $status = 1;                        
@@ -48,22 +49,31 @@ class TestController extends Controller
 
                         $result = $model->updateLoanIbo($status, $loan_id, $val['Total']);
 
-                        echo $result; 
+                        echo $result;
                         echo "</br>";
                         echo "Successfully updated loans table (Update IBO Count)";
                     }
                 }
                 else
                 {
-                    //insert new record to loans table
-                    $result = $model->getTotalEntries($val['Level']);
-                    $amount = $result[0]['loan'];
+                    $doexistcompletion = $model->checkIfLoanExistWithLevelCompletion($member_id, $val['Level']);
                     
-                    $insertresult = $model->insertLoan($member_id, $val['Level'], $amount, $val['Total']);
-                    
-                    echo $insertresult;
-                    echo "</br>";
-                    echo "Successfully inserted new record to loans table";
+                    if (count($doexistcompletion) > 0)
+                    {
+                        echo "Did not insert due to level completion.";
+                    }
+                    else
+                    {
+                        //insert new record to loans table
+                        $result = $model->getTotalEntries($val['Level']);
+                        $amount = $result[0]['loan'];
+
+                        $insertresult = $model->insertLoan($member_id, $val['Level'], $amount, $val['Total']);
+
+                        echo $insertresult;
+                        echo "</br>";
+                        echo "Successfully inserted new record to loans table";
+                    }
                 }
             }
         }

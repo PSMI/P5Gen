@@ -34,6 +34,27 @@ class TestModel extends CFormModel
         return $result;
     }
     
+    public function checkIfLoanExistWithLevelCompletion($member_id, $level_no)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    loan_id
+                  FROM loans
+                  WHERE member_id = :member_id
+                  AND level_no = :level
+                  AND loan_type_id = 2
+                  AND status IN (1, 2, 3);";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':level', $level_no);
+        
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
     public function getTotalEntries($level_no)
     {
         $conn = $this->_connection;
