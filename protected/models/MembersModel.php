@@ -84,19 +84,20 @@ class MembersModel extends CFormModel
                         $last_name, $first_name, $middle_name, $address1, $address2, $address3,
                         $zip_code, $gender, $civil_status, $birth_date, $mobile_no, $telephone_no,
                         $email, $tin_no, $company, $occupation, $spouse_name, $spouse_contact_no,
-                        $beneficiary_name, $relationship)
+                        $beneficiary_name, $relationship, $status)
     {
         $connection = $this->_connection;
         $beginTrans = $connection->beginTransaction();
         
         try
         {
-            $sql = "INSERT INTO members (account_type_id, username, password) 
-                    VALUES (:account_type_id, :username, :password)";
+            $sql = "INSERT INTO members (account_type_id, username, password, status) 
+                    VALUES (:account_type_id, :username, :password, :status)";
             $command = $connection->createCommand($sql);
             $command->bindValue(':account_type_id', $account_type_id);
             $command->bindValue(':username', $username);
             $command->bindValue(':password', md5($password));
+            $command->bindValue(':status', $status);
             $rowCount = $command->execute();
             
             if ($rowCount > 0)

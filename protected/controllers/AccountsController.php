@@ -250,12 +250,13 @@ class AccountsController extends Controller
         $spouse_contact_no = $model->spouse_contact_no;
         $beneficiary_name = $model->beneficiary_name;
         $relationship = $model->relationship;
+        $status = $membersModel->status;
         
         $retval = $membersModel->insertNewMemberAccount($account_type_id, $username, $password,
             $last_name, $first_name, $middle_name, $address1, $address2, $address3,
             $zip_code, $gender, $civil_status, $birth_date, $mobile_no, $telephone_no,
             $email, $tin_no, $company, $occupation, $spouse_name, $spouse_contact_no,
-            $beneficiary_name, $relationship);
+            $beneficiary_name, $relationship, $status);
 
         if ($retval)
         {
