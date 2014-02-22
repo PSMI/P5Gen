@@ -15,6 +15,7 @@
  * 5th Job: Loan Completion - Get all unprocessed members with status = 3, update status to 4 after processing
  * 6th Job: Delete all processed members with status = 5;
  * 7th Job: Promo Checking. Insert a record into promo_redemptions once a member has meet all promo mechanics
+ * 8th Job: Auto-approve placements under N interval
  * ----------------------------------------------------------------------------------------------------------------
  * CRON PATH:
  * /cron/goc
@@ -24,6 +25,7 @@
  * /cron/loancompletion
  * /cron/promocheck
  * /cron/sendmail
+ * /cron/autoapprove
  * 
  */
 
@@ -704,6 +706,42 @@ class CronController extends Controller
             echo 'Mailer is currently disabled.';
         }
         
+    }
+    
+    /**
+     * Automatically approve new placement not approved within N days of placements
+     */
+    public function actionAutoApprove()
+    {
+        if($this->job_enabled())
+        {
+            $model = new PlacementModel();
+            $audit = new AuditLog();
+            
+            $unapproved_members = $model->getFloatingPlacements();
+            
+            if(count($unapproved_members)>0)
+            {
+                foreach($unapproved_members as $row)
+                {
+                    $model->member_id = $row['member_id'];
+                    $model->upline_id = $row['upline_id'];                    
+                    $model->placeUnder();
+                    if(!$model->hasErrors())
+                    {
+                        $audit->log_message = "Member ".$row['member_id']." was auto-approved on ".$this->_curdate." under upline ".$row['upline_id'].".";
+                    }
+                    else
+                    {
+                        $audit->log_message = $model->getErrors();
+                    }
+                        
+                }
+                
+                $audit->log_cron();
+                echo $audit->log_message;
+            }
+        }
     }
     
     public function cleanUp()

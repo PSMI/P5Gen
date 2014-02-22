@@ -288,6 +288,23 @@ class PlacementModel extends CFormModel
         }
     }
     
+    public function getFloatingPlacements()
+    {
+        $model = new ReferenceModel();
+        $auto_approved_interval = $model->get_variable_value('AUTO_APPROVE_INTERVAL');
+        
+        $conn = $this->_connection;        
+        $query = "SELECT
+                    *
+                  FROM pending_placements pp
+                    WHERE CURDATE() > DATE_ADD(pp.date_endorsed, INTERVAL ".$auto_approved_interval.")";
+        
+        $command = $conn->createCommand($query);
+        $result = $command->queryAll();
+        return $result;
+        
+        
+    }
     
 }
 ?>
