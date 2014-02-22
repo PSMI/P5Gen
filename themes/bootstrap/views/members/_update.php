@@ -16,9 +16,28 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     ),
     'htmlOptions'=>array('class'=>'well'),
 ));
+
+Yii::app()->user->setFlash('info', '<strong>Important!</strong> Please make sure to fill-up all required information specially the email address.');
+
+$this->widget('bootstrap.widgets.TbAlert', array(
+        'block'=>true, // display a larger alert block?
+        'fade'=>true, // use transitions?
+        'closeText'=>'X', // close link text - if set to false, no close link is displayed
+        'alerts'=>array( // configurations per alert type
+            'info'=>array('block'=>true, 'fade'=>true, 'closeText'=>'X'), // success, info, warning, error or danger
+        ),
+));
 ?>
 
 <p class="note">Fields with <span style="color: red">*</span> are required.</p>
+
+<br/>
+<p>Activation Code: <?php $this->widget('bootstrap.widgets.TbLabel', array(
+    'type'=>'important', // 'success', 'warning', 'important', 'info' or 'inverse'
+    'label'=>$activationCode,
+)); ?>
+</p>
+<br/>
 
 <?php echo $form->hiddenField($model, 'member_id', array('value'=>$data["member_id"])); ?>
 

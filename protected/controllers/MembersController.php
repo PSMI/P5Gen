@@ -66,6 +66,7 @@ class MembersController extends Controller
     public function actionUpdate()
     {
         $model = new MemberDetailsModel();
+        $membersModel = new MembersModel();
         
         if (!isset($_GET["id"])) {
             throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
@@ -73,6 +74,7 @@ class MembersController extends Controller
         
         $id = $_GET["id"];
         $rawData = $model->selectMemberById($id);
+        $activationCode = $membersModel->getActivationCode($id);
         $model->attributes = $rawData;
 
         if (isset($_POST["MemberDetailsModel"])) 
@@ -106,7 +108,7 @@ class MembersController extends Controller
             }
         }
                 
-        $this->render('_update', array('model'=>$model));
+        $this->render('_update', array('model'=>$model, 'activationCode'=>$activationCode));
     }
     
     public function actionTerminate()

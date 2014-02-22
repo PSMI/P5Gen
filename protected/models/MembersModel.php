@@ -319,5 +319,17 @@ class MembersModel extends CFormModel
         
         return $result;
     }
+    
+    public function getActivationCode($member_id)
+    {
+        $connection = $this->_connection;
+        
+        $sql = "SELECT activation_code FROM members WHERE member_id = :member_id";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":member_id", $member_id);
+        $result = $command->queryRow();
+        
+        return $result["activation_code"];
+    }
 }
 ?>
