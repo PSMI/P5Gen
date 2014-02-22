@@ -260,7 +260,7 @@ class AccountsController extends Controller
 
         if ($retval)
         {
-            $msg = "Member information successfully created.";
+            $msg = "Administrator information successfully created.";
         }
         else
         {

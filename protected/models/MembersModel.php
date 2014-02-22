@@ -91,12 +91,13 @@ class MembersModel extends CFormModel
         
         try
         {
+            $hashedPassword = md5($password);
             $sql = "INSERT INTO members (account_type_id, username, password, status) 
                     VALUES (:account_type_id, :username, :password, :status)";
             $command = $connection->createCommand($sql);
             $command->bindValue(':account_type_id', $account_type_id);
             $command->bindValue(':username', $username);
-            $command->bindValue(':password', md5($password));
+            $command->bindValue(':password', $hashedPassword);
             $command->bindValue(':status', $status);
             $rowCount = $command->execute();
             
@@ -138,6 +139,12 @@ class MembersModel extends CFormModel
                 
                 if ($rowCount2 > 0) {
                         $beginTrans->commit();
+                        
+                        $member_id = $connection->getLastInsertID();
+                        $param['member_id'] = $member_id;
+                        $param['plain_password'] = $password;
+                        Mailer::accountCreation($param);
+                        
                         return true;
                 } else {
                     $beginTrans->rollback();  

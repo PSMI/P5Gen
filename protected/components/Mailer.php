@@ -13,6 +13,7 @@ class Mailer
     CONST DISAPPROVE_NOTIFY_TMPL = 4;
     const APPROVE_NOTIFY_TMPL = 5;
     const MEMBER_NOTIFY_TMPL = 6;
+    CONST ACCOUNT_CREATION = 7;
     
     /**
      * Send verification link to new member
@@ -276,6 +277,48 @@ class Mailer
         $subject = 'Notice: Your placement was approved.';
  
         $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
+                
+    }
+    
+    /**
+     * Send account creation notification
+     * @param type $param
+     */
+    public function accountCreation($param)
+    {
+        $model = new RegistrationForm();
+        
+        $member_id = $param['member_id'];
+        
+        $reference = new ReferenceModel();
+        $message_template = $reference->get_message_template(self::ACCOUNT_CREATION);
+                
+        $members = new MembersModel();
+        $result = $members->selectMemberDetails($member_id);        
+
+        $email = $result['email'];
+        $member_name = $result['first_name'] . ' ' . $result['last_name'];
+        $username = $result['username'];
+        $password = $param['plain_password'];
+        
+        $placeholders = array('MEMBER_NAME'=>$member_name, 
+                              'USERNAME'=>$username,
+                              'PASSWORD'=>$password);
+        
+        foreach($placeholders as $key => $value){
+            $message_template = str_replace('{'.$key.'}', $value, $message_template);
+        }
+        
+        if(count($result) > 0)
+        {
+            $sender = 'noreply@p5partners.com';
+            $sender_name = 'P5 Marketing Incorporated';
+            $recipient = $email;
+            $subject = 'Account Creation';
+            
+            $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
+
+        }
                 
     }
     
