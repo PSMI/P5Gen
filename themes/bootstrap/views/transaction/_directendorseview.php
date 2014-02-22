@@ -10,7 +10,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
         'enablePagination' => true,
-        'template'=>"{items}",
+        //'template'=>"{items}",
         'columns' => array(
                         array('name'=>'date_created',
                             'header'=>'Date Endorsed',

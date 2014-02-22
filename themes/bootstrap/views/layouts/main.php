@@ -20,7 +20,7 @@
         array(
             'class'=>'bootstrap.widgets.TbMenu',
             'items'=>array(
-                array('label'=>'Welcome '.Yii::app()->user->getMemberName().'!','url'=>''),
+                array('label'=>'Welcome '.Yii::app()->user->getMemberName().'!','url'=>'','visible'=>!Yii::app()->user->isGuest),
                 array('label'=>'www.p5partners.com', 'url'=>'http://www.p5partners.com'),
                 array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
                 array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest,'icon'=>'icon-off'),

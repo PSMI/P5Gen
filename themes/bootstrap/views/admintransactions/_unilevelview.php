@@ -10,7 +10,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
         'enablePagination' => true,
-        'template'=>"{items}",
+        //'template'=>"{items}",
         'columns' => array(
                         array('name'=>'member_name',
                               'header'=>'Member Name',

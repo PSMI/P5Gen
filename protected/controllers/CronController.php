@@ -741,6 +741,10 @@ class CronController extends Controller
                 $audit->log_cron();
                 echo $audit->log_message;
             }
+            else
+            {
+                echo 'No members found to auto-approve.';
+            }
         }
     }
     
