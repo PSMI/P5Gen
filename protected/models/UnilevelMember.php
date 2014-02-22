@@ -40,7 +40,7 @@ class UnilevelMember extends CFormModel
                       ON u.approved_by_id = md.member_id
                     LEFT OUTER JOIN member_details md2
                       ON u.claimed_by_id = md2.member_id
-                  WHERE u.member_id = :member_id; ORDER BY u.date_created DESC;";
+                  WHERE u.member_id = :member_id ORDER BY u.date_created DESC;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);

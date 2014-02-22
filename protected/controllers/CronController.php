@@ -103,7 +103,7 @@ class CronController extends Controller
     {
         //$audit = new AuditLog();
         echo $this->_curdate . ' : Cron job started.<br />';
-        //$this->PIDFile = 'CLEANUP.pid';
+        
         $this->PIDFile = 'LoanCompletion.pid';
         if(!$this->PID_exists())
         {
@@ -126,7 +126,7 @@ class CronController extends Controller
                         {
                             
                             $this->actionLoanCompletion();
-                            
+                            echo $this->_curdate . ' : Cron job has ended.<br />';
                             /*
                             $this->PIDFile = 'LoanCompletion.pid';
                             
@@ -157,12 +157,11 @@ class CronController extends Controller
                         }
                         
                         
-
                     }
                 }
             }
         }
-        echo $this->_curdate . ' : Cron job has ended.<br />';
+        
     }
     
     public function actionGOC()
@@ -477,7 +476,7 @@ class CronController extends Controller
                 echo $audit->log_message;
             }
             
-            $audit->log_message = 'Processing job has ended.';
+            $audit->log_message = 'Loan direct processing job has ended.';
             
         }
         else
@@ -486,7 +485,7 @@ class CronController extends Controller
         }
         
         $audit->log_cron();
-        echo $audit->log_message;
+        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
     }
     
     public function actionLoanCompletion()
@@ -556,7 +555,7 @@ class CronController extends Controller
                 echo $audit->log_message;
             }
             
-            $audit->log_message = 'Processing job has ended.';
+            $audit->log_message = 'Loan completion processing job has ended.';
 
         }
         else
@@ -565,7 +564,7 @@ class CronController extends Controller
         }
         
         $audit->log_cron();
-        echo $audit->log_message;
+        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
 
     }
     
@@ -692,14 +691,13 @@ class CronController extends Controller
                 
                 echo 'All queued mails were sent.<br />';
                 echo 'Email lists:<br />';
-                echo '<pre>'.$emails.'</pre>';
+                echo '<pre>'.print_r($emails).'</pre>';
             }
             else
             {
                 echo 'No mails to send.';
             }
 
-            Yii::app()->end();
         }
         else
         {
@@ -710,6 +708,7 @@ class CronController extends Controller
     
     public function cleanUp()
     {
+        /*
         $model = new MembersModel();
         $model->status = 3;
         
@@ -719,7 +718,7 @@ class CronController extends Controller
             return true;
         else
             return false;
-        
+        */
     }
     
 }
