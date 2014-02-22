@@ -66,7 +66,7 @@ class Networks extends Controller
             $total_downlines = count($downlines);
 
 
-        }while($total_downlines>0 && $total_downlines>=$max_per_level);
+        }while($total_downlines>0 && $total_downlines<=$max_per_level);
         
         
         return $result;

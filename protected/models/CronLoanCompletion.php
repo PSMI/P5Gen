@@ -7,37 +7,13 @@
 class CronLoanCompletion extends CFormModel
 {  
     public $_connection;
-    public $member_id;
-    public $level_no;
-    public $target_level;
-    public $loan_amount;
-    public $loan_id;
-    public $status;
-    public $total_members;
     
     public function __construct() 
     {
         $this->_connection = Yii::app()->db;
     }
     
-    public function getTotalMembers()
-    {
-        $conn = $this->_connection;
-        
-        $query = "SELECT
-                    total_member
-                  FROM running_accounts
-                  WHERE member_id = :member_id;";
-        
-        $command =  $conn->createCommand($query);
-        $command->bindParam(':member_id', $this->member_id);
-        
-        $result = $command->queryAll();
-        
-        return $result;
-    }
-    
-    public function checkIfLoanExistWithLevel()
+     public function checkIfLoanExistWithLevel($member_id, $level_no)
     {
         $conn = $this->_connection;
         
@@ -45,38 +21,20 @@ class CronLoanCompletion extends CFormModel
                     loan_id
                   FROM loans
                   WHERE member_id = :member_id
-                  AND level_no > 1
                   AND level_no = :level
                   AND loan_type_id = 2
                   AND status = 0;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_id', $this->member_id);
-        $command->bindParam(':level', $this->level_no);
+        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':level', $level_no);
         
         $result = $command->queryAll();
         
         return $result;
     }
     
-    public function insertLoan()
-    {
-        $conn = $this->_connection;
-                
-        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count) 
-                    VALUES (:member_id, 2, :level, :amount, :total_members)";
-            
-        $command = $conn->createCommand($query);
-        $command->bindValue(':member_id', $this->member_id);
-        $command->bindValue(':level', $this->level_no);
-        $command->bindValue(':amount', $this->loan_amount);
-        $command->bindValue(':total_members', $this->total_members);
-
-        $result = $command->execute();
-        return $result;
-    }
-    
-    public function checkIfLoanExistWithLevelCompletion()
+    public function checkIfLoanExistWithLevelCompletion($member_id, $level_no)
     {
         $conn = $this->_connection;
         
@@ -84,24 +42,20 @@ class CronLoanCompletion extends CFormModel
                     loan_id
                   FROM loans
                   WHERE member_id = :member_id
-                  AND level_no > 1
                   AND level_no = :level
                   AND loan_type_id = 2
                   AND status IN (1, 2, 3);";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_id', $this->member_id);
-        $command->bindParam(':level', $this->level_no);
+        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':level', $level_no);
         
         $result = $command->queryAll();
         
-        if(count($result)>0)
-            return true;
-        else
-            return false;
+        return $result;
     }
     
-    public function getTotalEntries()
+    public function getTotalEntries($level_no)
     {
         $conn = $this->_connection;
         
@@ -111,54 +65,110 @@ class CronLoanCompletion extends CFormModel
                   WHERE level_no = :level;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':level', $this->level_no);
+        $command->bindParam(':level', $level_no);
         
         $result = $command->queryAll();
         
         return $result;
     }
     
-    public function updateLoanCompleted()
+    public function insertLoan($member_id, $level, $amount, $total_members)
     {
         $conn = $this->_connection;
-       
+        
+        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count) 
+                    VALUES (:member_id, 2, :level, :amount, :total_members)";
+            
+        $command = $conn->createCommand($query);
+        $command->bindValue(':member_id', $member_id);
+        $command->bindValue(':level', $level);
+        $command->bindValue(':amount', $amount);
+        $command->bindValue(':total_members', $total_members);
+
+        $result = $command->execute();
+        return $result;
+        
+    }
+    
+    public function insertLoanWithCompletion($member_id, $level, $amount, $total_members)
+    {
+        $conn = $this->_connection;
+                
+        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count, date_completed) 
+                    VALUES (:member_id, 2, :level, :amount, :total_members, NOW())";
+            
+        $command = $conn->createCommand($query);
+        $command->bindValue(':member_id', $member_id);
+        $command->bindValue(':level', $level);
+        $command->bindValue(':amount', $amount);
+        $command->bindValue(':total_members', $total_members);
+
+        $result = $command->execute();
+        return $result;
+        
+    }
+    
+    public function updateLoanCompleted($total_members, $status, $loan_id, $level, $amount)
+    {
+        $conn = $this->_connection;
+                
         $query = "UPDATE loans
                  SET ibo_count = :total_members,
                     status = :status,
                     date_completed = NOW(),
-                    level_no = :target_level,
-                    loan_amount = :loan_amount
+                    level_no = :level,
+                    loan_amount = :amount
                 WHERE loan_id = :loan_id;";
         
         $command = $conn->createCommand($query);
         
-        $command->bindParam(':total_members', $this->total_members);
-        $command->bindParam(':status', $this->status);
-        $command->bindParam(':loan_id', $this->loan_id);
-        $command->bindParam(':target_level', $this->target_level);
-        $command->bindParam(':loan_amount', $this->loan_amount);
+        $command->bindParam(':total_members', $total_members);
+        $command->bindParam(':status', $status);
+        $command->bindParam(':loan_id', $loan_id);
+        $command->bindParam(':level', $level);
+        $command->bindParam(':amount', $amount);
 
         $result = $command->execute();
+        
         return $result;
     }
     
-    public function updateLoanIbo()
+    public function updateLoanIbo($status, $loan_id, $total_members)
     {
         $conn = $this->_connection;
         
         $query = "UPDATE loans
-                SET ibo_count = ibo_count + 1,
+                SET ibo_count = :total_members,
                     status = :status
                 WHERE loan_id = :loan_id;";
-
+        
         $command = $conn->createCommand($query);
         
-        //$command->bindParam(':total_members', $this->total_members);
-        $command->bindParam(':status', $this->status);
-        $command->bindParam(':loan_id', $this->loan_id);
+        $command->bindParam(':total_members', $total_members);
+        $command->bindParam(':status', $status);
+        $command->bindParam(':loan_id', $loan_id);
 
         $result = $command->execute();
+        
         return $result;
     }
+    
+    public function checkIfDirectEndorse($downline_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    endorser_id
+                  FROM members
+                  WHERE member_id = $downline_id;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $downline_id);
+        
+        $result = $command->queryAll();
+        
+        return $result;
+    } 
+        
 }
 ?>

@@ -30,10 +30,10 @@
 class CronController extends Controller
 {
     const JOB_GOC = 1;
-    const JOB_LOAN_COMPLETION = 2;
-    const JOB_LOAN_DIRECT = 3;
-    const JOB_DIRECT_ENDORSEMENT = 4;
-    const JOB_UNILEVEL = 5;
+    const JOB_DIRECT_ENDORSEMENT = 2;
+    const JOB_UNILEVEL = 3;    
+    const JOB_LOAN_DIRECT = 4;
+    const JOB_LOAN_COMPLETION = 5;
     const JOB_PROMO = 6;
     const JOB_CLEAN_UP = 7;
     
@@ -522,7 +522,7 @@ class CronController extends Controller
                         $member_id = $list['member_id'];         
                         
                         $retval = Transactions::process_loan_completion($member_id);
-
+                        
                         if(!$retval)
                         {
                             //add to auditlogs

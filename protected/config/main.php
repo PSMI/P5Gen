@@ -117,7 +117,7 @@ return array(
 	// using Yii::app()->params['paramName']
 	'params'=>array(
 		// this is used in contact page
-		'adminEmail'=>'webmaster@example.com',
-                'companyName'=>'P5 Marketing Incorporated',
+		'adminEmail'=>'admin@p5partners.com',
+                'companyName'=>'PSMI',
 	),
 );

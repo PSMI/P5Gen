@@ -14,6 +14,7 @@ class Transactions extends Controller
      * @param type $endorser_id
      * @param type $upline_id
      * @return boolean
+     * @author owliber
      */
     public function process_goc($member_id, $upline_id)
     {
@@ -111,10 +112,11 @@ class Transactions extends Controller
     }
     
     /**
-     * 
+     * Process Direct Endorsement transactions
      * @param type $member_id
      * @param type $endorser_id
      * @return boolean
+     * @author owliber
      */
     public function process_direct_endorsement($member_id, $endorser_id)
     {
@@ -149,9 +151,10 @@ class Transactions extends Controller
     }
     
     /**
-     * 
+     * Process unilevel transactions
      * @param type $member_id
      * @return type
+     * @author owliber
      */
     public function process_unilevel($member_id)
     {
@@ -244,11 +247,18 @@ class Transactions extends Controller
         
     }
     
-    public function process_loan_direct($member_id)//, $endorser_id, $upline_id)
+    /**
+     * Process loan from direct endorsements
+     * @param type $member_id
+     * @return boolean
+     * @author jopormento
+     */
+    public function process_loan_direct($member_id)
     {
         $model = new CronLoanDirect();
         $member = new MembersModel();
         $uplines = Networks::getUplines($member_id);
+        $audit = new AuditLog();
         
         $member->member_id = $member_id;
         
@@ -262,42 +272,53 @@ class Transactions extends Controller
         {
             foreach($uplines as $upline)
             {
+        
+                $model = new CronLoanDirect();
                 $model->member_id = $upline;
 
-                //get total members
                 $result = $model->getDirectEndorse();
 
                 if ($result['direct_endorse'] > 0)
                 {
-                    $doexist = $model->checkIfLoanExist();
+                    $result_overallibo = $model->getOverallIboCount();
+                    $overall_ibo_count = $result_overallibo[0]['total_ibo'];
 
-                    if (count($doexist) > 0)
+                    $difference = $result['direct_endorse'] - $overall_ibo_count;
+
+                    for ($i = 0; $i < $difference; $i++)
                     {
-                        //update loans table, add 
-                        $ibo_count = $doexist[0]['ibo_count'];
-                        $loan_id = $doexist[0]['loan_id'];
-                        $model->loan_id = $loan_id;
+                        $doexist = $model->checkIfLoanExist();
 
-                        if ($ibo_count == 5)
+                        if (count($doexist) > 0)
                         {
-                            //update loans table, set ibo_count to $ibo_count and status to 1(Completed)
-                            $model->status = 1;
-                            $model->updateLoanDirectCompleted();
+                            $ibo_count = $doexist[0]['ibo_count'];
+                            $loan_id = $doexist[0]['loan_id'];
+                            $model->loan_id = $loan_id;
 
+                            if ($ibo_count == 4)
+                            {
+                                $model->status = 1;
+                                $model->updateLoanDirectCompleted();
+                                $audit->log_message = "update loans table (Complete Direct 5)";
+                            }
+                            else
+                            {
+                                $model->status = 0;
+                                $model->updateLoanDirectIbo();
+                                $audit->log_message = "update loans table (Plus 1 to ibo_count)";
+                                
+                            }
                         }
                         else
                         {
-                            //update loans table, set ibo_count to $ibo_count
-                            $model->status = 0;
-                            $model->updateLoanDirectIbo();
-
+                            $model->insertLoan();
+                            $audit->log_message = "Insert successful in loans table (New Record)";
                         }
                     }
-                    else
-                    {
-                        //insert new record to loans table
-                        $model->insertLoan();
-                    }
+                }
+                else
+                {
+                    $audit->log_message = "No Downline(s)";
                 }
             }
             
@@ -306,6 +327,7 @@ class Transactions extends Controller
 
             if(!$model->hasErrors() && !$member->hasErrors())
             {
+                $audit->log_cron();
                 $trx->commit();
                 return true;
             }
@@ -323,16 +345,24 @@ class Transactions extends Controller
         
     }
     
-    public function process_loan_completion($member_id) //, $endorser_id, $upline_id)
+    /**
+     * Process loans from level completions
+     * @param type $member_id
+     * @return boolean
+     * @author jopormento
+     */
+    public function process_loan_completion($member_id)
     {
         $model = new CronLoanCompletion();   
         $member = new MembersModel();
-                            
+        $audit = new AuditLog();
+                         
+        $audit->job_id = 5;
+        $member->member_id = $member_id;
+        
         $uplines = Networks::getUplines($member_id);
         if(is_null($uplines))
             $uplines = array($member_id);
-       
-        $member->member_id = $member_id;
         
         $conn = $model->_connection;
         $trx = $conn->beginTransaction();
@@ -341,61 +371,111 @@ class Transactions extends Controller
         {
             foreach($uplines as $upline)
             {
-                $model->member_id = $upline;
+                $member_id = $upline;
 
-                $rawData = Networks::getDownlines($model->member_id);
-                
+                $rawData = Networks::getDownlines($member_id);
+
                 if (count($rawData) > 0)
                 {
                     $final = Networks::arrangeLevel($rawData);
-//                    echo CJSON::encode($final); exit;
+
                     foreach ($final as $val)
                     {
-                        $model->level_no = $val['Level'];
-                        $model->total_members = $val['Total'];                    
-                        $model->target_level = $val['Level'];
-                        
                         //check if member_id exist in loans table
-                        $doexist = $model->checkIfLoanExistWithLevel();
+                        $doexist = $model->checkIfLoanExistWithLevel($member_id, $val['Level']);
+                        $result = $model->getTotalEntries($val['Level']);
+                        $complete_count_entries = $result[0]['total_entries'];
+                        $amount = $result[0]['loan'];
 
                         if (count($doexist) > 0)
                         {
+                            //update loans table
                             $loan_id = $doexist[0]['loan_id'];
 
-                            //update loans table
-                            $result = $model->getTotalEntries($val['Level']);
-                            $complete_count_entries = $result[0]['total_entries'];
-                            $amount = $result[0]['loan'];
-
-                            $model->loan_id = $loan_id;
-                            $model->loan_amount = $amount;
-
-                            if ($val['Total'] == $complete_count_entries)
+                            if ($complete_count_entries == $val['Total'])
                             {
-                                //update loans table, set ibo_count to $total_members and status to 1(Completed)                
-                                $model->status = 1;
-                                $model->updateLoanCompleted();
+                                if ($val['Level'] == 1 && $val['Total'] == 5)
+                                {
+                                    $downlines_array = explode(',', $val['Members']);
+
+                                    foreach ($downlines_array as $downline_id)
+                                    {
+                                        $result = $model->checkIfDirectEndorse($downline_id);
+                                        $endorser_id = $result[0]['endorser_id'];
+
+                                        if ($member_id != $endorser_id)
+                                        {
+                                            //update loans table, set ibo_count to $total_members and status to 1(Completed)
+                                            $status = 1;                        
+                                            $result = $model->updateLoanCompleted($val['Total'], $status, $loan_id, $val['Level'], $amount);
+                                            $audit->log_message = "Successfully updated loans table (Level Completed)"; 
+                                        }
+                                        else
+                                        {
+                                            $audit->log_message = "Did not update Level 1 completion because level 1 is direct 5";
+                                        }
+                                    }
+                                }
                             }
                             else
                             {
                                 //update loans table, set ibo_count + 1
-                                $model->status = 0;
-                                $model->updateLoanIbo();
+                                $status = 0;
+                                $result = $model->updateLoanIbo($status, $loan_id, $val['Total']);
+                                $audit->log_message = "Successfully updated loans table (Update IBO Count)";
                             }
                         }
                         else
                         {
-                            //insert new record to loans table
-                            
-                            $result = $model->getTotalEntries();
-                            
-                            $amount = $result[0]['loan'];                        
-                            $model->loan_amount = $amount;
-                            $model->insertLoan();
-                            
+                            $doexistcompletion = $model->checkIfLoanExistWithLevelCompletion($member_id, $val['Level']);
+
+                            if (count($doexistcompletion) > 0)
+                            {
+                                $audit->log_message = "Did not insert due to level completion.";
+                            }
+                            else
+                            {
+                                $result = $model->getTotalEntries($val['Level']);
+                                $amount = $result[0]['loan'];
+
+                                if ($complete_count_entries == $val['Total'])
+                                {
+                                    if ($val['Level'] == 1 && $val['Total'] == 5)
+                                    {
+                                        $downlines_array = explode(',', $val['Members']);
+
+                                        foreach ($downlines_array as $downline_id)
+                                        {
+                                            $result = $model->checkIfDirectEndorse($downline_id);
+                                            $endorser_id = $result[0]['endorser_id'];
+
+                                            if ($member_id != $endorser_id)
+                                            {
+                                                //insert new record to loans table with level completion
+                                                $insertresult = $model->insertLoanWithCompletion($member_id, $val['Level'], $amount, $val['Total']);
+                                                $audit->log_message = "Successfully inserted new record to loans table";
+                                            }
+                                            else
+                                            {
+                                                $audit->log_message = "Did not insert Level 1 completion because level 1 is direct 5";
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    //insert new record to loans table
+                                    $insertresult = $model->insertLoan($member_id, $val['Level'], $amount, $val['Total']);
+                                    $audit->log_message = "Successfully inserted new record to loans table";
+                                }
+                            }
                         }
-                    }//foreach final
-                }//ifcount($rawData)
+                    }
+                }
+                else
+                {
+                    $audit->log_message = "No Downline(s)";
+                }
             }//foreach uplines
             
             $member->status = 5; //Processed by unilevel endorsement
@@ -403,6 +483,7 @@ class Transactions extends Controller
 
             if(!$model->hasErrors() && !$member->hasErrors())
             {
+                $audit->log_cron();
                 $trx->commit();
                 return true;
             }
@@ -416,12 +497,17 @@ class Transactions extends Controller
         catch(PDOException $e)
         {
             $trx->rollback();
+            $audit->log_message = $e->getMessage();
             return false;
         }
-        
-        
     }
         
+    /**
+     * Get genealogy level
+     * @param type $total_members
+     * @return int
+     * @author jopormento
+     */
     public function getLevel($total_members)
     {   
         if (($total_members > 0) && ($total_members < 26))
