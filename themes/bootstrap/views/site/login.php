@@ -9,7 +9,7 @@ $this->breadcrumbs=array(
 );
 ?>
 
-<div class="login-title">Portal Login</div>
+<div class="login-title">Partner Login</div>
 <div class="form">
 
 <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm', array(

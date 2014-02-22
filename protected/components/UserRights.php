@@ -36,5 +36,12 @@ class UserRights extends CWebUser
     public function getId() {
         return Yii::app()->session['member_id'];
     }
+    
+    public function getMemberName()
+    {
+        $model = new Members();
+        $member_name = $model->getMemberName($this->getId());
+        return $member_name;
+    }
 }
 ?>

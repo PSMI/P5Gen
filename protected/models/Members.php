@@ -62,5 +62,16 @@ class Members extends CActiveRecord
             return false;
     }
     
+    public function getMemberName($id)
+    {
+        $query = "SELECT CONCAT(last_name, ' ', first_name) as member_name 
+                    FROM member_details
+                    WHERE member_id = :member_id";
+        $command = Yii::app()->db->createCommand($query);
+        $command->bindParam(':member_id', $id);
+        $result = $command->queryRow();
+        return $result['member_name'];
+    }
+    
 }
 ?>
