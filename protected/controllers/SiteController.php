@@ -35,9 +35,21 @@ class SiteController extends Controller
 	{
                 if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
                     $this->redirect(array('site/login'));
+                
+                $model = new Alerts();
+                $model->member_id = Yii::app()->user->getId();
+                $new_placement = $model->check_new_placements();
+                $unassigned_downlines = $model->check_floating_downline();
+                                
+                $alerts = array
+                (
+                    'new-placement'=>$new_placement,
+                    'unassigned-downline'=>$unassigned_downlines,
+                );
+                
 		// renders the view file 'protected/views/site/index.php'
 		// using the default layout 'protected/views/layouts/main.php'
-		$this->render('index');
+		$this->render('index',array('alert'=>$alerts));
 	}
 
 	/**
