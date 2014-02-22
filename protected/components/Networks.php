@@ -252,5 +252,53 @@ class Networks extends Controller
         return $endorsers;
     }
     
+    /**
+     * This function is used to get the placed under of the member
+     * @param type $member_id
+     * @return type
+     */
+    public function getPlaceUnder($member_id)
+    {
+        $model = new Downlines();
+        $model->member_id = $member_id;
+        $member_array = array();
+        
+        $downlines = $model->firstLevel();
+        if (count($downlines) < 5) {
+            $member_array[] = $member_id;
+        }
+        
+        for ($i = 0; $i < count($downlines); $i++)
+        {
+            $downline_id = $downlines[$i]["downline"];
+            $member_array = array_merge($member_array, Networks::getPlaceUnder($downline_id));
+        }
+        
+        return $member_array;
+    }
+    /**
+     * This function is used to arrange the array 
+     * and prepare it for autocomplete
+     * @param type $array
+     * @return type
+     */
+    public function autoComplete($array)
+    {
+        $downlines = '';
+        $final = array();
+        
+        if (is_array($array) && count($array) > 0)
+        {
+            for ($i = 0; $i < count($array); $i++) 
+            {
+                $id = $array[$i];
+                $final[$id] = $id;
+            }
+            
+            $downlines = implode(",", $final);
+        }
+        
+        return $downlines;
+    }
 }
 ?>
