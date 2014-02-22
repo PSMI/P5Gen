@@ -135,10 +135,10 @@ class PlacementController extends Controller
             $param['endorser_id'] = $row['endorser_id'];            
             
             //empty upline_id in members table then delete record from pending_placements
-            $retval = $model->removePlacement();    
+            $model->removePlacement();    
             Mailer::sendDisapproveNotification($param);
             
-            if($retval)
+            if(!$model->hasErrors())
                 echo CJSON::encode(array('result_code'=>0, 'result_msg'=>'You successfuly DISAPPROVED your downline request.'));
             else
                 echo CJSON::encode(array('result_code'=>1, 'result_msg'=>'A problem encountered while processing your request.'));

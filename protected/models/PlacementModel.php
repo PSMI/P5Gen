@@ -215,15 +215,8 @@ class PlacementModel extends CFormModel
         $conn = $this->_connection;        
         $filter = "%".$filter."%";
         
-        $lists = Networks::getLessFiveDownlines(Yii::app()->user->getId());
-
-        foreach($lists as $list)
-        {
-            $downlines[] = $list['downline'];
-
-        }
-
-        $downline_lists = implode(',', $downlines);
+        $placeUnder = Networks::getPlaceUnder(Yii::app()->user->getId());
+        $downline_lists = Networks::autoComplete($placeUnder);
 
         $query = "SELECT
                     m.member_id,
