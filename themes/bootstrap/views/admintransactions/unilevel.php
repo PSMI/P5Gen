@@ -18,7 +18,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 ?>
 
-<h3>Member Transactions - Unilevel</h3>
+<h3>Unilevel Payout</h3>
 
 <?php
 Yii::import('application.extensions.CJuiDateTimePicker.CJuiDateTimePicker');

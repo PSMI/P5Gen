@@ -12,6 +12,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'enablePagination' => true,
         'template'=>"{items}",
         'columns' => array( 
+                        array('name'=>'date_created',
+                            'header'=>'Transaction Date',
+                            //'value'=>'TransactionController::dateFormat($data["date_approved"])',
+                            'htmlOptions' => array('style' => 'text-align:center'), 
+                            'headerHtmlOptions' => array('style' => 'text-align:center'),
+                        ),
                         array('name'=>'ibo_count',
                             'header'=>'IBO Count',
                             'htmlOptions' => array('style' => 'text-align:center'),  

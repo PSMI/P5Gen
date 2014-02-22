@@ -22,8 +22,9 @@ class LoanMember extends CFormModel
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
                     l.loan_type_id,
                     l.level_no,
+                    l.ibo_count,
                     l.loan_amount,
-                    l.date_created,
+                    DATE_FORMAT(l.date_created,'%d %b %Y') AS date_created,
                     l.date_completed,
                     l.date_approved,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
@@ -33,9 +34,13 @@ class LoanMember extends CFormModel
                   FROM loans l
                     INNER JOIN member_details m
                       ON l.member_id = m.member_id
-                    LEFT OUTER JOIN member_details md ON l.approved_by_id = md.member_id
-                    LEFT OUTER JOIN member_details md2 ON l.claimed_by_id = md2.member_id
-                  WHERE l.status IN (1, 2, 3) AND l.member_id = :member_id ORDER BY l.date_completed DESC;";
+                    LEFT OUTER JOIN member_details md
+                      ON l.approved_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md2
+                      ON l.claimed_by_id = md2.member_id
+                  WHERE l.member_id = :member_id
+                  ORDER BY l.date_completed DESC, l.level_no;
+                  ;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);

@@ -18,7 +18,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 ?>
 
-<h3>Member Transactions - Loan</h3>
+<h3>Loan Payout</h3>
 
 <?php
 //display table

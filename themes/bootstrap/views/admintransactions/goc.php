@@ -18,7 +18,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 ?>
 
-<h3>Member Transactions - Group Override Commission</h3>
+<h3>GOC Payout</h3>
 
 <?php
 Yii::import('application.extensions.CJuiDateTimePicker.CJuiDateTimePicker');

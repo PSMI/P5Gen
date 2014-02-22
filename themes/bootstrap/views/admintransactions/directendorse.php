@@ -18,7 +18,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 ?>
 
-<h3>Member Transactions - Direct Endorsement</h3>
+<h3>Direct Endorsement Payout</h3>
 
 <?php
 Yii::import('application.extensions.CJuiDateTimePicker.CJuiDateTimePicker');

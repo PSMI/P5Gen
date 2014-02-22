@@ -14,8 +14,8 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'columns' => array(
                         array('name'=>'member_name',
                               'header'=>'Member Name',
-                              'htmlOptions' => array('style' => 'text-align:center'),
-                              'headerHtmlOptions' => array('style' => 'text-align:center'),
+                              'htmlOptions' => array('style' => 'text-align:left'),
+                              'headerHtmlOptions' => array('style' => 'text-align:left'),
                         ), 
                         array('name'=>'ibo_count',
                             'header'=>'IBO Count',
@@ -57,7 +57,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}{claim}',
+                            'template'=>'{approve}{claim}{print}',
                             'buttons'=>array
                             (
                                 'approve'=>array
@@ -114,18 +114,10 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     ),
                                     array('id' => 'send-link-'.uniqid())
                                 ),
-                            ),
-                            'header'=>'Action',
-                            'htmlOptions'=>array('style'=>'width:60px;text-align:center'),
-                        ),
-                        array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{print}',
-                            'buttons'=>array
-                            (
                                 'print'=>array
                                 (
                                     'label'=>'Print',
-                                    'icon'=>'ok-sign',
+                                    'icon'=>'icon-print',
                                     //'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array())',
                                     'options' => array(
                                         'class'=>"btn btn-small",
@@ -133,9 +125,27 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     array('id' => 'send-link-'.uniqid())
                                 ),
                             ),
-                            'header'=>'Print',
+                            'header'=>'Action',
                             'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
                         ),
+//                        array('class'=>'bootstrap.widgets.TbButtonColumn',
+//                            'template'=>'{print}',
+//                            'buttons'=>array
+//                            (
+//                                'print'=>array
+//                                (
+//                                    'label'=>'Print',
+//                                    'icon'=>'icon-print',
+//                                    //'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array())',
+//                                    'options' => array(
+//                                        'class'=>"btn btn-small",
+//                                    ),
+//                                    array('id' => 'send-link-'.uniqid())
+//                                ),
+//                            ),
+//                            'header'=>'Print',
+//                            'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
+//                        ),
         )
         ));
 ?>

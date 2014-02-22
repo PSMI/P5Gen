@@ -12,6 +12,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'enablePagination' => true,
         'template'=>"{items}",
         'columns' => array(
+                        array('name'=>'date_created',
+                            'header'=>'Transaction Date',
+                            //'value'=>'AdmintransactionsController::dateFormat($data["date_completed"])',
+                            'htmlOptions' => array('style' => 'text-align:center'), 
+                            'headerHtmlOptions' => array('style' => 'text-align:center'),
+                        ),
                         array('name'=>'member_name',
                               'header'=>'Member Name',
                               'htmlOptions' => array('style' => 'text-align:center'),
@@ -19,7 +25,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'loan_type_id',
                               'header'=>'Loan Type',
-                              'value' => '$data["status"] == 1 ? "5 Direct Endorse" : "Level Completed"',
+                              'value' => '$data["loan_type_id"] == 1 ? "Direct" : "Completion"',
                               'htmlOptions' => array('style' => 'text-align:center'),
                               'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -36,13 +42,13 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'date_completed',
                             'header'=>'Date Completed',
-                            'value'=>'AdmintransactionsController::dateFormat($data["date_completed"])',
+                            //'value'=>'AdmintransactionsController::dateFormat($data["date_completed"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('name'=>'date_approved',
                             'header'=>'Date Approved',
-                            'value'=>'AdmintransactionsController::dateFormat($data["date_approved"])',
+                            //'value'=>'AdmintransactionsController::dateFormat($data["date_approved"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -53,7 +59,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'date_claimed',
                             'header'=>'Date Claimed',
-                            'value'=>'AdmintransactionsController::dateFormat($data["date_claimed"])',
+                            //'value'=>'AdmintransactionsController::dateFormat($data["date_claimed"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -69,7 +75,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}{claim}',
+                            'template'=>'{approve}{claim}{print}',
                             'buttons'=>array
                             (
                                 'approve'=>array
@@ -123,6 +129,16 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                              }',
                                         ),
 
+                                    ),
+                                    array('id' => 'send-link-'.uniqid())
+                                ),
+                                'print'=>array
+                                (
+                                    'label'=>'Print',
+                                    'icon'=>'icon-print',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array("id" =>$data["loan_id"]))',
+                                    'options' => array(
+                                        'class'=>"btn btn-small",
                                     ),
                                     array('id' => 'send-link-'.uniqid())
                                 ),

@@ -18,7 +18,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 ?>
 
-<h3>Member Transactions - Bonus</h3>
+<h3>Bonus Payout</h3>
 
 <?php    
 //display table
