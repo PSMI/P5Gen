@@ -75,6 +75,7 @@ class CronLoanDirect extends CFormModel
         
         $query = "UPDATE loans
                 SET status = :status,
+                    ibo_count = 5,
                     date_completed = NOW()
                 WHERE loan_id = :loan_id;";
 
@@ -97,7 +98,7 @@ class CronLoanDirect extends CFormModel
                 SET ibo_count = ibo_count + 1,
                     status = :status
                 WHERE loan_id = :loan_id;";
-
+        
         $command = $conn->createCommand($query);
 
         //$command->bindParam(':ibo_count', $this->ibo_count);
