@@ -358,39 +358,71 @@ class AdmintransactionsController extends Controller
         }
     }
     
-    
-    
     public function actionPdf()
     {
-//        $model = new ActivationCodeModel();
-//        $batchId = $_POST['batch_id'];
-//        $rawData = $model->selectAllCodesByBatchId($batchId);
-//
-//        $content .= '<table cellspacing="50"><tr>';
-//        foreach($rawData as $key => $val) {
-//            $content .= '<tr>';
-//            $content .= '<td>' . $val["activation_code"] . '</td>';
-//            $content .= '<td>' . $val["status"] . '</td>';
-//            $content .= '</tr>';           
-//        }
-//        $content .= '</tr></table>';
-//  
-//        /*$pdf = CTCPDF::c_getInstance();
-//        $pdf->c_commonReportFormat();
-//        $pdf->c_setHeader('Activation Codes');
-//        $pdf->SetFontSize(10);
-//        $pdf->c_generatePDF('Activation_Codes_' . date('Y-m-d') . '.pdf'); */
+        /*$pdf = CTCPDF::c_getInstance();
+        $pdf->c_commonReportFormat();
+        $pdf->c_setHeader('Activation Codes');
+        $pdf->SetFontSize(10);
+        $pdf->c_generatePDF('Activation_Codes_' . date('Y-m-d') . '.pdf'); */
         
         if(isset($_GET["id"]))
         {
-            $content = $_GET["id"];
-            echo $content;
+            $loan_id = $_GET["id"];
+            $member_id = $_GET["member_id"];
+            $loan_type_id = $_GET["loan_type_id"];
+            $level_no = $_GET["level_no"];
+            $member_name = $_GET["member_name"];
+            
+            $model = new Loan();
+            
+            if ($loan_type_id == 1)
+            {
+                //direct 5
+                $content = "Direct 5. ".$loan_type_id;
+            }
+            else
+            {
+                $rawData = Networks::getDownlines($member_id);
+
+                if (count($rawData) > 0)
+                {
+                    $final = Networks::arrangeLevel($rawData);
+
+                    //Get level 1 downline ids
+                    foreach ($final as $val)
+                    {
+                        if ($val['Level'] == $level_no)
+                        {
+                            $downline_ids = $val['Members'];
+
+                            $downline_details = $model->getLoanCompletionDownlines($downline_ids);
+                        }
+                    }
+
+                    //Get downline names
+                    $content = "Loan Completion - Level Number ".$level_no;
+                    $content .= "Member Name: ".$member_name;
+                    $content .= '<table cellspacing="50">';
+                    $content .= '<tr>';
+                    $content .= '<td>Downline Name</td>';
+                    $content .= '<td>Date Joined</td>';
+                    $content .= '</tr>';
+                    foreach ($downline_details as $dd)
+                    {
+                        $content .= '<tr>';
+                        $content .= '<td>' . $dd["member_name"] . '</td>';
+                        $content .= '<td>' . $dd["date_created"] . '</td>';
+                        $content .= '</tr>';
+                    }
+                    $content .= '</table>';
+                }
+            }    
         }
         else
         {
             echo "id not set";
         }
-        exit;
         
         $html2pdf = Yii::app()->ePdf->HTML2PDF();
         $html2pdf->WriteHTML($content);

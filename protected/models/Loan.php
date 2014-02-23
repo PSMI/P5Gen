@@ -29,7 +29,8 @@ class Loan extends CFormModel
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
                     l.date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
-                    l.status
+                    l.status,
+                    l.member_id
                   FROM loans l
                     INNER JOIN member_details m
                       ON l.member_id = m.member_id
@@ -93,6 +94,24 @@ class Loan extends CFormModel
             $trx->rollback();
             return false;
         }
+    }
+    
+    public function getLoanCompletionDownlines($downline_ids)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                        DATE_FORMAT(m.date_created,'%d %b %Y') AS date_created
+                    FROM members m
+                        INNER JOIN member_details md
+                        ON m.member_id = md.member_id
+                    WHERE m.member_id IN ($downline_ids);";
+        
+        $command =  $conn->createCommand($query);
+        $result = $command->queryAll();
+        
+        return $result;
     }
 }
 ?>
