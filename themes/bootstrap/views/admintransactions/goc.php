@@ -23,6 +23,18 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 <?php
 Yii::import('application.extensions.CJuiDateTimePicker.CJuiDateTimePicker');
 
+//if (isset(Yii::app()->session['dateFromGoc']))
+//{
+//    $calDateFrom = Yii::app()->session['dateFromGoc'];
+//    $calDateTo = Yii::app()->session['dateToGoc'];
+//}
+//else
+//{
+//    $calDateFrom = date('Y-m-d H:i');
+//    $calDateTo = date('Y-m-d H:i');
+//}
+
+
 /** @var BootActiveForm $form */
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'id'=>'searchForm',
@@ -37,6 +49,7 @@ $this->widget('CJuiDateTimePicker',array(
                 'name'=>'calDateFrom',
                 'id'=>'calDateFrom',
                 'value'=>date('Y-m-d H:i'),
+                //'value'=>$calDateFrom,
                 'mode'=>'datetime', //use "time","date" or "datetime" (default)
                 'options'=>array(
                     'dateFormat'=>'yy-mm-dd',

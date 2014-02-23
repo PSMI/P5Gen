@@ -189,14 +189,16 @@ class AdmintransactionsController extends Controller
         {
             $dateFrom = $_POST["calDateFrom"];
             $dateTo = $_POST["calDateTo"];
+//            Yii::app()->session['dateFromGoc'] = $dateFrom;
+//            Yii::app()->session['dateToGoc'] = $dateTo;
             
             $rawData = $model->getComissions($dateFrom, $dateTo);
             
             $dataProvider = new CArrayDataProvider($rawData, array(
                                                     'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
+                                                    'pagination' => false,
+                                                    //'pageSize' => 10,
+                                                //),
                                     ));
             
             $this->render('goc', array('dataProvider' => $dataProvider));
@@ -221,9 +223,9 @@ class AdmintransactionsController extends Controller
             
             $dataProvider = new CArrayDataProvider($rawData, array(
                                                     'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
+                                                    'pagination' => false,
+//                                                    'pageSize' => 10,
+//                                                ),
                                     ));
             
             $this->render('unilevel', array('dataProvider' => $dataProvider));
@@ -265,9 +267,9 @@ class AdmintransactionsController extends Controller
             
             $dataProvider = new CArrayDataProvider($rawData, array(
                                                     'keyField' => false,
-                                                    'pagination' => array(
-                                                    'pageSize' => 10,
-                                                ),
+                                                    'pagination' => false,
+//                                                    'pageSize' => 10,
+//                                                ),
                                     ));
             
             $this->render('directendorse', array('dataProvider' => $dataProvider));

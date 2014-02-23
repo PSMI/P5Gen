@@ -9,8 +9,8 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'type'=>'striped bordered condensed',
         //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
-        'enablePagination' => true,
-        //'template'=>"{items}",
+        'enablePagination' => false,
+        'template'=>"{items}",
         'columns' => array(
                         array('name'=>'member_name',
                               'header'=>'Member Name',
