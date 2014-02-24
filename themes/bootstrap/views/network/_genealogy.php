@@ -65,7 +65,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'genealogy-grid',
         'type'=>'striped bordered condensed',
         'dataProvider'=>$dataProvider,
-        'enablePagination' => true,
+        'enablePagination' => false,
         'columns' => array(
                 array('name'=>'Level',
                     'header'=>'<center>Level</center>',

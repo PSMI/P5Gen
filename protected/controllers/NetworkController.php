@@ -40,9 +40,7 @@ class NetworkController extends Controller
         
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
-                        'pagination' => array(
-                        'pageSize' => 20,
-                    ),
+                        'pagination' => false,
         ));
         
         return $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));
@@ -69,9 +67,7 @@ class NetworkController extends Controller
         
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
-                        'pagination' => array(
-                        'pageSize' => 10,
-                    ),
+                        'pagination' => false,
         ));
         
         $this->render('_unilevel', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));
@@ -97,46 +93,14 @@ class NetworkController extends Controller
         $this->render('_directEndorse', array('dataProvider'=>$dataProvider, 'counter'=>$count));
     }
     
-    public function actionLoan()
-    {
-        $rawData = array();
-        
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                        'keyField' => false,
-                        'pagination' => array(
-                        'pageSize' => 10,
-                    ),
-        ));
-        
-        $this->render('_loan', array('dataProvider'=>$dataProvider));
-    }
-    
-    public function actionGOC()
-    {
-        $rawData = array();
-        
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                        'keyField' => false,
-                        'pagination' => array(
-                        'pageSize' => 10,
-                    ),
-        ));
-        
-        $this->render('_goc', array('dataProvider'=>$dataProvider));
-    }
-    
     public function actionGenealogyDownlines()
     {
         if (isset($_POST["postData"])) 
         {
             $member_ids = $_POST["postData"];
             Yii::app()->session['ids'] = $member_ids;
-            /*$fp = fopen("selection.txt", "wb");
-            fwrite($fp, $member_ids);
-            fclose($fp);*/
         }
         else if (Yii::app()->request->isAjaxRequest) {
-            //$member_ids = file_get_contents('selection.txt');
             $member_ids = Yii::app()->session['ids'];
         }
         
@@ -158,12 +122,8 @@ class NetworkController extends Controller
         {
             $member_ids = $_POST["postData"];
             Yii::app()->session['ids'] = $member_ids;
-            /*$fp = fopen("selection.txt", "wb");
-            fwrite($fp, $member_ids);
-            fclose($fp);*/
         }
         else if (Yii::app()->request->isAjaxRequest) {
-            //$member_ids = file_get_contents('selection.txt');
             $member_ids = Yii::app()->session['ids'];
         }
         

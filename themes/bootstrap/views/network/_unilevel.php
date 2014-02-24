@@ -53,7 +53,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'unilevel-grid',
         'type'=>'striped bordered condensed',
         'dataProvider'=>$dataProvider,
-        'enablePagination' => true,
+        'enablePagination' => false,
         'columns' => array(
                 array('name'=>'Level',
                     'header'=>'<center>Level</center>',
