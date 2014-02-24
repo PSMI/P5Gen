@@ -40,7 +40,8 @@ class Downlines extends CFormModel
         $query = "SELECT
                     member_id AS downline
                   FROM members m
-                  WHERE m.upline_id = :member_id;";
+                  WHERE m.upline_id = :member_id
+                  AND placement_status = 1;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
@@ -158,7 +159,9 @@ class Downlines extends CFormModel
         $query = "SELECT 
                     m.member_id,
                     md.last_name, md.first_name, md.middle_name,
-                    m.upline_id
+                    m.date_created as date_enrolled,
+                    m.upline_id,
+                    m.endorser_id
                   FROM members m
                     INNER JOIN member_details md ON m.member_id = md.member_id
                   WHERE m.member_id IN ($member_ids)";
@@ -181,7 +184,7 @@ class Downlines extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT count(member_id) as count FROM members
-            WHERE upline_id = :member_id";
+            WHERE upline_id = :member_id AND placement_status = 1";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
@@ -202,7 +205,7 @@ class Downlines extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT count(member_id) as count FROM members
-            WHERE endorser_id = :member_id";
+            WHERE endorser_id = :member_id AND placement_status = 1";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
@@ -227,7 +230,7 @@ class Downlines extends CFormModel
         $query = "SELECT
                     member_id AS downline
                   FROM members m
-                  WHERE m.endorser_id = :member_id;";
+                  WHERE m.endorser_id = :member_id AND placement_status = 1;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);

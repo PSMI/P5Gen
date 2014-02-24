@@ -169,6 +169,7 @@ class Networks extends Controller
     public function arrangeLevel($array)
     {
         $genealogy = array();
+        $total_downlines = 0;
         
         if (is_array($array) && count($array) > 0)
         {
@@ -182,6 +183,7 @@ class Networks extends Controller
 
             foreach ($final as $levels => $ids)
             {
+                $total_downlines += count($ids);
                 $temp["Total"] = count($ids);
                 $temp["Members"] = implode(",", $ids);
                 $temp["Level"] = $levels;
@@ -192,7 +194,7 @@ class Networks extends Controller
             krsort($genealogy);
         }
         
-        return $genealogy;
+        return array('network'=>$genealogy, 'total'=>$total_downlines);
     }
     
     /**
@@ -209,6 +211,9 @@ class Networks extends Controller
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
+            $temp["DateEnrolled"] = date("Y M d h:i:s A", strtotime($val["date_enrolled"]));
+            $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
+            $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
         }
         
@@ -229,6 +234,9 @@ class Networks extends Controller
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
+            $temp["DateEnrolled"] = date("Y M d h:i:s A", strtotime($val["date_enrolled"]));
+            $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
+            $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
         }
         
@@ -299,6 +307,22 @@ class Networks extends Controller
         }
         
         return $downlines;
+    }
+    
+    /**
+     * This function is used to get the member name of a particular
+     * member id param.
+     * @param type $member_id
+     * @return string member name
+     */
+    public function getMemberName($member_id)
+    {
+        $model = new MembersModel();
+        $info = $model->selectMemberName($member_id);
+        $member_name = $info["last_name"] . ", " . $info["first_name"] . " " . $info["middle_name"];
+        $member_name = strtoupper($member_name);
+        
+        return $member_name;
     }
 }
 ?>

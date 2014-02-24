@@ -18,15 +18,36 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 ));
 
+echo '<table>';
+echo '<tr>';
+echo '<td>';
 $this->widget('bootstrap.widgets.TbLabel', array(
     'type'=>'default',
     'label'=>'Genealogy of',
 ));
-
+echo '</td>';
+echo '<td>';
 $this->widget('bootstrap.widgets.TbLabel', array(
     'type'=>'info',
     'label'=>$member_name,
 ));
+echo '</td>';
+echo '</tr>';
+echo '<tr>';
+echo '<td>';
+$this->widget('bootstrap.widgets.TbLabel', array(
+    'type'=>'default',
+    'label'=>'Total Network:',
+));
+echo '</td>';
+echo '<td>';
+$this->widget('bootstrap.widgets.TbLabel', array(
+    'type'=>'info',
+    'label'=>$counter,
+));
+echo '</td>';
+echo '</tr>';
+echo '</table>';
 
 $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'unilevel-grid',

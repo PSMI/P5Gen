@@ -17,7 +17,22 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 ));
 
-echo 'Total Direct Endorsements: <strong>' . $counter . '</strong>';
+echo '<table>';
+echo '<tr>';
+echo '<td>';
+$this->widget('bootstrap.widgets.TbLabel', array(
+    'type'=>'default',
+    'label'=>'Total Direct Endorsements:',
+));
+echo '</td>';
+echo '<td>';
+$this->widget('bootstrap.widgets.TbLabel', array(
+    'type'=>'info',
+    'label'=>$counter,
+));
+echo '</td>';
+echo '</tr>';
+echo '</table>';
 
 $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'direct-grid',
@@ -34,7 +49,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                 array('name'=>'DateEnrolled',
                     'header'=>'Date Enrolled',
                     'type'=>'raw',
-                    'value'=>'CHtml::encode(date("Y-M-d h:i:s A", strtotime($data["date_created"])))',
+                    'value'=>'CHtml::encode(date("Y M d h:i:s A", strtotime($data["date_created"])))',
                     'htmlOptions' => array('style' => 'text-align:center'),    
                 ),
         ),

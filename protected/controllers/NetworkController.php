@@ -11,33 +11,15 @@ class NetworkController extends Controller
     
     public function actionIndex()
     {
-        if (isset($_POST["hidden_member_id"])) {
-            $member_id = $_POST["hidden_member_id"];
-            Yii::app()->session['hidden_member_id'] = $member_id;
-        }
-        else if (Yii::app()->request->isAjaxRequest) {
-            $member_id = Yii::app()->session['hidden_member_id'];
-        }
-        else {
-            $member_id = Yii::app()->user->getId();
-        }
-        
-        $member_name = $this->getMemberName($member_id);
-        
-        $rawData = Networks::getDownlines($member_id);
-        $final = Networks::arrangeLevel($rawData);
-        
-        $dataProvider = new CArrayDataProvider($final, array(
-                        'keyField' => false,
-                        'pagination' => array(
-                        'pageSize' => 20,
-                    ),
-        ));
-        
-        $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name));
+        $this->showGenealogy();
     }
     
     public function actionGenealogy()
+    {
+        $this->showGenealogy();
+    }
+    
+    public function showGenealogy()
     {
         if (isset($_POST["hidden_member_id"])) {
             $member_id = $_POST["hidden_member_id"];
@@ -50,19 +32,20 @@ class NetworkController extends Controller
             $member_id = Yii::app()->user->getId();
         }
         
-        $member_name = $this->getMemberName($member_id);
+        $member_name = Networks::getMemberName($member_id);
         
         $rawData = Networks::getDownlines($member_id);
         $final = Networks::arrangeLevel($rawData);
+        $count = $final['total'];
         
-        $dataProvider = new CArrayDataProvider($final, array(
+        $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
                         'pagination' => array(
                         'pageSize' => 20,
                     ),
         ));
         
-        $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name));
+        return $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));
     }
     
     public function actionUnilevel()
@@ -78,19 +61,20 @@ class NetworkController extends Controller
             $member_id = Yii::app()->user->getId();
         }
         
-        $member_name = $this->getMemberName($member_id);
+        $member_name = Networks::getMemberName($member_id);
         
         $rawData = Networks::getUnilevel($member_id);
         $final = Networks::arrangeLevel($rawData);
+        $count = $final['total'];
         
-        $dataProvider = new CArrayDataProvider($final, array(
+        $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
                         'pagination' => array(
                         'pageSize' => 10,
                     ),
         ));
         
-        $this->render('_unilevel', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name));
+        $this->render('_unilevel', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));
     }
     
     public function actionDirectEndorse()
@@ -193,16 +177,6 @@ class NetworkController extends Controller
         ));
 
         $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
-    }
-    
-    public function getMemberName($member_id)
-    {
-        $model = new MembersModel();
-        $info = $model->selectMemberName($member_id);
-        $member_name = $info["last_name"] . ", " . $info["first_name"] . " " . $info["middle_name"];
-        $member_name = strtoupper($member_name);
-        
-        return $member_name;
     }
 }
 ?>

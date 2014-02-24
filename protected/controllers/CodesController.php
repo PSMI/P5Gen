@@ -66,7 +66,7 @@ class CodesController extends Controller
         else if (isset($_POST["hiddenQty"]))
         {
             $quantity = $_POST["hiddenQty"];
-            $aid = 1; // Yii::app()->session['AID'];
+            $aid = Yii::app()->user->getId();;
             $ipaddr = $_SERVER['REMOTE_ADDR'];
 
             $retval = $model->generateActivationCodes($quantity, $aid, $ipaddr);
