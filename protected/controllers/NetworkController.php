@@ -41,6 +41,11 @@ class NetworkController extends Controller
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
                         'pagination' => false,
+                        'sort' => array(
+                            'attributes' => array('level'),
+                            'defaultOrder' => array('level' => true)
+                        ),
+
         ));
         
         return $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));
@@ -68,6 +73,10 @@ class NetworkController extends Controller
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
                         'pagination' => false,
+                        'sort' => array(
+                            'attributes' => array('level'),
+                            'defaultOrder' => array('level' => true)
+                        ),
         ));
         
         $this->render('_unilevel', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));

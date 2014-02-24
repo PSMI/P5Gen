@@ -191,7 +191,7 @@ class Networks extends Controller
                 $genealogy[] = $temp;
             }
 
-            krsort($genealogy);
+//            krsort($genealogy);
         }
         
         return array('network'=>$genealogy, 'total'=>$total_downlines);
