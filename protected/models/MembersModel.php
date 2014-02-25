@@ -217,7 +217,7 @@ class MembersModel extends CFormModel
         $query = "SELECT * 
                   FROM unprocessed_members 
                   WHERE status = :status
-                  LIMIT 10";
+                  LIMIT 25";
         $command = $conn->createCommand($query);
         $command->bindParam(':status', $this->status);
         return $command->queryAll();
