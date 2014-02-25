@@ -27,7 +27,7 @@ $this->breadcrumbs=array(
 
 	<?php echo $form->checkBoxRow($model,'rememberMe'); ?>
     
-        <center><?php echo CHtml::link('Reset Password', Yii::app()->createUrl('site/forgot'), array('style'=>'cursor: pointer')); ?></center>
+    <center><?php echo CHtml::link('Forgot password?', Yii::app()->createUrl('site/forgot'), array('style'=>'cursor: pointer')); ?> | <?php echo CHtml::link('Go to P5 Website','http://www.p5partners.com') ?></center>
 
 	<div class="form-actions">
             <?php $this->widget('bootstrap.widgets.TbButton', array(
