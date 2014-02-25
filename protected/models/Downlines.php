@@ -40,6 +40,22 @@ class Downlines extends CFormModel
         $query = "SELECT
                     member_id AS downline
                   FROM members m
+                  WHERE m.upline_id = :member_id;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $result = $command->queryAll();
+        
+        return $result;  
+    }
+    
+    public function officialFirstLevel()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    member_id AS downline
+                  FROM members m
                   WHERE m.upline_id = :member_id
                   AND placement_status = 1;";
         

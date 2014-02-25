@@ -113,7 +113,7 @@ class Networks extends Controller
         
         $i = 0;
         $level++;
-        $downlines = $model->firstLevel();
+        $downlines = $model->officialFirstLevel();
         foreach ($downlines as $key => $val)
         {
             $parent[$i][$level] = $downlines[$key]["downline"];
