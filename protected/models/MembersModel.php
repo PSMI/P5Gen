@@ -331,5 +331,35 @@ class MembersModel extends CFormModel
         
         return $result["activation_code"];
     }
+    
+    public function getAllMembersByID()
+    {
+        $connection = $this->_connection;
+        
+        $query = "SELECT m.member_id 
+                FROM members m
+                    INNER JOIN running_accounts ra ON m.member_id = ra.member_id
+                WHERE m.account_type_id = 3";
+        $command = $connection->createCommand($query);
+        $command->bindParam(":member_id", $this->member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function updateRunningAccount($direct,$downlines)
+    {
+        $connection = $this->_connection;
+        
+        $query = "UPDATE running_accounts ra
+                    SET direct_endorse = :direct,
+                        total_member = :total
+                    WHERE member_id = :member_id";
+        $command = $connection->createCommand($query);
+        $command->bindParam(":direct", $direct);
+        $command->bindParam(":total", $downlines);
+        $command->bindParam(":member_id", $this->member_id);
+        $command->execute();
+    }
 }
 ?>

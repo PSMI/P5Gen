@@ -99,6 +99,21 @@ class DirectEndorsement extends CFormModel
             return false;
         }
     }
+    public function getDirectEndoserCountByID($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    COUNT(*) AS total
+                  FROM members m
+                  WHERE m.endorser_id = :member_id
+                  GROUP BY m.endorser_id;;";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
     
     public function getDirectEndorser($member_id)
     {

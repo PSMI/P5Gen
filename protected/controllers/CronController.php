@@ -748,19 +748,31 @@ class CronController extends Controller
         }
     }
     
-    public function cleanUp()
+    public function actionUpdateRunningAccounts()
     {
-        /*
-        $model = new MembersModel();
-        $model->status = 3;
-        
-        $model->remove_processed();
-        
-        if(!$model->hasErrors())
-            return true;
-        else
-            return false;
-        */
+       $member_model = new MembersModel();
+       $model = new DirectEndorsement();
+       
+       $members = $member_model->getAllMembersByID();
+       
+       foreach($members as $member)
+       {
+            $member_id = $member['member_id'];
+            $member_model->member_id = $member_id;
+            
+            $direct = $model->getDirectEndoserCountByID($member_id);
+            $downlines = Networks::getDownlines($member_id);
+            
+            $direct_count = $direct['total'];
+            if(empty($direct_count)) $direct_count = 0;
+            $downline_count = count($downlines);
+            if(empty($downline_count)) $downline_count = 0;
+            $member_model->updateRunningAccount($direct_count, $downline_count);
+
+       }
+       
+       echo 'Update done';       
+       
     }
     
 }
