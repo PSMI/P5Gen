@@ -381,18 +381,20 @@ class AdmintransactionsController extends Controller
             if ($loan_type_id == 1)
             {
                 //direct 5
-                $content = "Direct 5. ".$loan_type_id;
+                $content = "Direct Endorsement Loan Completion";
+                $content .= "<br>";
+                $content .= "Member Name: ".$member_name;
             }
             else
             {
                 $rawData = Networks::getDownlines($member_id);
-
+                
                 if (count($rawData) > 0)
                 {
                     $final = Networks::arrangeLevel($rawData);
-
+                    
                     //Get level 1 downline ids
-                    foreach ($final as $val)
+                    foreach ($final['network'] as $val)
                     {
                         if ($val['Level'] == $level_no)
                         {
@@ -403,9 +405,10 @@ class AdmintransactionsController extends Controller
                     }
 
                     //Get downline names
-                    $content = "Loan Completion - Level Number ".$level_no;
+                    $content = "Loan Completion for Level #: ".$level_no;
+                    $content .= "<br>";
                     $content .= "Member Name: ".$member_name;
-                    $content .= '<table cellspacing="50">';
+                    $content .= '<table cellspacing="20">';
                     $content .= '<tr>';
                     $content .= '<td>Downline Name</td>';
                     $content .= '<td>Date Joined</td>';
@@ -419,7 +422,7 @@ class AdmintransactionsController extends Controller
                     }
                     $content .= '</table>';
                 }
-            }    
+            }
         }
         else
         {
