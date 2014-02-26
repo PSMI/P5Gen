@@ -123,7 +123,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Print',
                                     'icon'=>'icon-print',
-                                    //'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array())',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfgoc", array("id" =>$data["promo_redemption_id"], "member_id" =>$data["member_id"], "member_name" =>$data["member_name"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),

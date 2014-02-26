@@ -32,7 +32,8 @@ class Unilevel extends CFormModel
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
                     u.date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
-                    u.status
+                    u.status,
+                    u.member_id
                   FROM unilevel u
                     INNER JOIN member_details m
                       ON u.member_id = m.member_id

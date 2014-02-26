@@ -30,7 +30,8 @@ class GroupOverrideCommission extends CFormModel
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
                     c.date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
-                    c.status
+                    c.status,
+                    c.member_id
                   FROM commissions c
                     INNER JOIN member_details m
                       ON c.member_id = m.member_id

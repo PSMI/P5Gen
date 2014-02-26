@@ -29,7 +29,8 @@ class Bonus extends CFormModel
                     pr.date_completed,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
-                    pr.status
+                    pr.status,
+                    pr.member_id
                   FROM promo_redemption pr
                     INNER JOIN promos p
                       ON pr.promo_id = p.promo_id

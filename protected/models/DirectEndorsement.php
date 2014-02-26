@@ -24,12 +24,14 @@ class DirectEndorsement extends CFormModel
                     d.direct_endorsement_id,
                     CONCAT(md.last_name, ', ', md.first_name) AS member_name,
                     DATE_FORMAT(d.date_created,'%d %b %Y') AS date_created,
-                    d.date_approved,
+                    DATE_FORMAT(d.date_approved,'%d %b %Y') AS date_approved,
                     CONCAT(md2.last_name, ', ', md2.first_name) AS approved_by,
-                    d.date_claimed,
+                    DATE_FORMAT(d.date_claimed,'%d %b %Y') AS date_claimed,
                     CONCAT(md3.last_name, ', ', md3.first_name) AS claimed_by,
                     CONCAT(md4.last_name, ', ', md4.first_name) AS endorser_name,
-                    d.status
+                    d.status,
+                    COUNT(d.endorser_id) AS ibo_count,
+                    d.cutoff_id
                   FROM direct_endorsements d
                     LEFT OUTER JOIN member_details md
                       ON d.member_id = md.member_id
@@ -39,7 +41,9 @@ class DirectEndorsement extends CFormModel
                       ON d.claimed_by_id = md3.member_id
                     LEFT OUTER JOIN member_details md4
                       ON d.endorser_id = md4.member_id
-                  WHERE d.date_created BETWEEN :dateFrom AND :dateTo ORDER BY d.date_created DESC;";
+                  WHERE d.date_created BETWEEN :dateFrom AND :dateTo
+                  GROUP BY d.endorser_id
+                  ORDER BY d.date_created DESC;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':dateFrom', $dateFrom);
@@ -71,6 +75,10 @@ class DirectEndorsement extends CFormModel
                             claimed_by_id = :userid
                         WHERE direct_endorsement_id = :direct_endorsement_id;";
         }
+        
+        ////***get cutoff id and endorser_id****////
+//        UPDATE direct_endorsements de SET de.status = 1
+//  where de.endorser_id = 5 and de.cutoff_id = 4;
         
         $command = $conn->createCommand($query);
         

@@ -433,5 +433,93 @@ class AdmintransactionsController extends Controller
         $html2pdf->WriteHTML($content);
         $html2pdf->Output('Loan_' . date('Y-m-d') . '.pdf', 'D'); 
     }
+    
+    public function actionPdfGoc()
+    {
+        if(isset($_GET["id"]))
+        {
+            $commission_id = $_GET["id"];
+            $member_id = $_GET["member_id"];
+            $member_name = $_GET["member_name"];
+
+            $content = "Group Override Commission for ".$commission_id." cut off";
+            $content .= "<br>";
+            $content .= "Member Name: ".$member_name;
+            
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();
+            $html2pdf->WriteHTML($content);
+            $html2pdf->Output('GOC_' . date('Y-m-d') . '.pdf', 'D'); 
+        }
+        else
+        {
+            echo "id not set";
+        }
+    }
+    
+    public function actionPdfUnilevel()
+    {
+        if(isset($_GET["id"]))
+        {
+            $unilevel_id = $_GET["id"];
+            $member_id = $_GET["member_id"];
+            $member_name = $_GET["member_name"];
+
+            $content = "Unilevel Payout for ".$unilevel_id." cut off";
+            $content .= "<br>";
+            $content .= "Member Name: ".$member_name;
+            
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();
+            $html2pdf->WriteHTML($content);
+            $html2pdf->Output('Unilevel_' . date('Y-m-d') . '.pdf', 'D'); 
+        }
+        else
+        {
+            echo "id not set";
+        }
+    }
+    
+    public function actionPdfBonus()
+    {
+        if(isset($_GET["id"]))
+        {
+            $promo_redemption_id = $_GET["id"];
+            $member_id = $_GET["member_id"];
+            $member_name = $_GET["member_name"];
+
+            $content = "Bonus Payout for ".$promo_redemption_id." cut off";
+            $content .= "<br>";
+            $content .= "Member Name: ".$member_name;
+            
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();
+            $html2pdf->WriteHTML($content);
+            $html2pdf->Output('Bonus_' . date('Y-m-d') . '.pdf', 'D'); 
+        }
+        else
+        {
+            echo "id not set";
+        }
+    }
+    
+    public function actionPdfDirect()
+    {
+        if(isset($_GET["id"]))
+        {
+            $direct_endorsement_id = $_GET["id"];
+            $cutoff_id = $_GET["cutoff_id"];
+            $endorser_name = $_GET["endorser_name"];
+
+            $content = "Bonus Payout for ".$promo_redemption_id." cut off";
+            $content .= "<br>";
+            $content .= "Member Name: ".$member_name;
+            
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();
+            $html2pdf->WriteHTML($content);
+            $html2pdf->Output('Bonus_' . date('Y-m-d') . '.pdf', 'D'); 
+        }
+        else
+        {
+            echo "id not set";
+        }
+    }
 }
 ?>
