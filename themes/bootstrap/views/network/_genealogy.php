@@ -90,11 +90,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     "success" => "function(data){
                                         $(\"#data\").html(data);
                                         $(\"#data\").show();
+                                        goto_data(\"data\");
                                     }"
                               )
                     )',
 //                    'value'=>'CHtml::linkButton($data["Total"], array("submit"=>array("downlines"), "params"=>array("postData"=>$data["Members"])))',
-                    'htmlOptions' => array('style' => 'text-align:center','onclick'=>"goto_data('data')"),     
+                    'htmlOptions' => array('style' => 'text-align:center'),     
                 ),
             )
 ));

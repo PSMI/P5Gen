@@ -78,10 +78,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     "success" => "function(data){
                                         $(\"#data\").html(data);
                                         $(\"#data\").show();
+                                        goto_data(\"data\");
                                     }"
                               )
                         )',
-                    'htmlOptions' => array('style' => 'text-align:center','onclick'=>"goto_data('data')"),    
+                    'htmlOptions' => array('style' => 'text-align:center'),    
                 ),
         )
         ));
