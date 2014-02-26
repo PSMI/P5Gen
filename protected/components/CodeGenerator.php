@@ -17,12 +17,12 @@ class CodeGenerator extends Controller
      */        
     public function generateCode($length, $num)
     {
-        $numberic_set = '0123456789';
+        $numeric_set = '0123456789';
         $character_set = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $code_sets = $numberic_set . $character_set;
+        $code_sets = $numeric_set . $character_set;
         
         $codes = array();
-        $num_length = strlen($numberic_set);
+        $num_length = strlen($code_sets);
         $num_created = 0;
         
         while ($num_created < $num)

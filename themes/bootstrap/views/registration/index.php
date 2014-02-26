@@ -10,6 +10,23 @@
 $this->breadcrumbs = array('Registration');
 
 ?>
+<script type="text/javascript">
+function validateUpline()
+{
+    var text_upline_name = $("#RegistrationForm_upline_name"),
+        hidden_upline = $("#RegistrationForm_upline_id");
+    
+    if (text_upline_name.val() != '') {
+        if (hidden_upline.val() == '') {
+            $("#RegistrationForm_upline_name").val("");
+        }
+    }
+    else {
+        hidden_upline.val("");
+    }
+}
+</script>
+
 <?php Yii::app()->clientScript->registerScript('ui','
          
      $(\'input[rel="tooltip"]\').tooltip();     
@@ -64,7 +81,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <?php echo CHtml::label('Place under '. '<span class="required">*</span>', 'RegistrationForm_upline_id',array('class'=>'control-label required')) ?>
     <div class="controls">   
         <?php
-                
+        
         $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
                 'model'=>$model,
                 'attribute'=>'upline_name',
@@ -74,14 +91,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                     'showAnim'=>'fold',
                     'focus' => 'js:function(event, ui){upline_name.val(ui.item["value"])}',
                     'select' => 'js:function(event, ui){upline_id.val(ui.item["id"]); }',
-                    //'select' => 'js:function(event, ui){alert(ui.item["id"]); }',
                 ),
                 'htmlOptions'=>array(
                     'class'=>'span3',
                     'rel'=>'tooltip',
                     'title'=>'Please type your downline\'s name.',
                     'autocomplete'=>'off',
-                    //'test'=>  Yii::app()->createUrl(array('members/update'),'$data["member_id"]'),
+                    'onblur'=>'validateUpline()'
                 ),        
             ));
         
