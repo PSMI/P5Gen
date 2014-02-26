@@ -6,6 +6,12 @@
  */
 
 ?>
+<?php Yii::app()->clientScript->registerScript('ui','
+            function goto_data(id){
+                    $("html,body").animate({scrollTop: $("#"+id).offset().top},"slow");
+            }', CClientScript::POS_END);
+?>
+
 <h3><a href="" style="text-decoration: none; color: black">Unilevel</a></h3>
 
 <?php
@@ -75,7 +81,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     }"
                               )
                         )',
-                    'htmlOptions' => array('style' => 'text-align:center'),    
+                    'htmlOptions' => array('style' => 'text-align:center','onclick'=>"goto_data('data')"),    
                 ),
         )
         ));

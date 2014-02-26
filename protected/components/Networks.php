@@ -191,7 +191,7 @@ class Networks extends Controller
                 $genealogy[] = $temp;
             }
 
-//            krsort($genealogy);
+            krsort($genealogy);
         }
         
         return array('network'=>$genealogy, 'total'=>$total_downlines);
@@ -211,7 +211,7 @@ class Networks extends Controller
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-            $temp["DateEnrolled"] = date("Y M d h:i:s A", strtotime($val["date_enrolled"]));
+            $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
@@ -234,7 +234,7 @@ class Networks extends Controller
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-            $temp["DateEnrolled"] = date("Y M d h:i:s A", strtotime($val["date_enrolled"]));
+            $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;

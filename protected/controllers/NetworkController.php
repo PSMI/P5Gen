@@ -36,14 +36,12 @@ class NetworkController extends Controller
         
         $rawData = Networks::getDownlines($member_id);
         $final = Networks::arrangeLevel($rawData);
-        $count = $final['total'];
+        $count = $final['total'];       
         
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
-                        'pagination' => false,
-                        'sort' => array(
-                            'attributes' => array('level'),
-                            'defaultOrder' => array('level' => true)
+                        'pagination' => array(
+                            'pageSize' => 1000,
                         ),
 
         ));
@@ -72,10 +70,8 @@ class NetworkController extends Controller
         
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
-                        'pagination' => false,
-                        'sort' => array(
-                            'attributes' => array('level'),
-                            'defaultOrder' => array('level' => true)
+                        'pagination' => array(
+                            'pageSize' => 1000,
                         ),
         ));
         
@@ -118,8 +114,8 @@ class NetworkController extends Controller
         $dataProvider = new CArrayDataProvider($array, array(
                         'keyField' => false,
                         'pagination' => array(
-                        'pageSize' => 10,
-                    ),
+                            'pageSize' => 10,
+                        ),
         ));
 
         $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
@@ -141,8 +137,8 @@ class NetworkController extends Controller
         $dataProvider = new CArrayDataProvider($array, array(
                         'keyField' => false,
                         'pagination' => array(
-                        'pageSize' => 10,
-                    ),
+                            'pageSize' => 10,
+                        ),
         ));
 
         $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
