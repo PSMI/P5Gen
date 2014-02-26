@@ -46,6 +46,14 @@
 	<div id="footer">
 		Copyright &copy; <?php echo date('Y'); ?> by <?php echo Yii::app()->params['companyName']; ?>.<br/>
 		All Rights Reserved.
+                <?php
+                $this->widget('ext.scrolltop.ScrollTop', array(
+                    //Default values
+                    'fadeTransitionStart'=>10,
+                    'fadeTransitionEnd'=>200,
+                    'speed' => 'slow'
+                ));
+                ?>
 	</div><!-- footer -->
 
 </div><!-- page -->
