@@ -83,5 +83,38 @@ class ProfileController extends Controller
         
         $this->render('index', array('model'=>$model, 'data'=>$rawData, 'upline'=>$uplineInfo, 'endorser'=>$endorserInfo));
     }
+    
+    public function actionInfo()
+    {
+        $model = new NetworksModel();
+        
+        $member_id = $_POST['id'];
+        
+        $rawData = $model->getContactInfo($member_id);
+        
+        return $this->renderPartial('_update', array('model'=>$model, 'data'=>$rawData));
+    }
+    
+    public function actionUpdate()
+    {
+        $model = new NetworksModel();
+        
+        $model->attributes = $_POST['NetworksModel'];
+        
+        if ($model->validate()) {
+            $retval = $model->updateContactInfo();
+            if ($retval)
+                $array = array('code'=>1, 'msg'=>'Contact information successfully updated!');
+            else
+                $array = array('code'=>0, 'msg'=>'Failed in updating contact information.');
+            
+            $this->showRedirect = true;
+        }
+        else {
+            $array = array('code'=>0, 'msg'=>'Please check all your input fields.');
+        }
+        
+        echo CJSON::encode($array);
+    }
 }
 ?>

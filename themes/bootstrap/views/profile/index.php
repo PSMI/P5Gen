@@ -15,6 +15,9 @@
 
 <table>
     <tr>
+        <th>Date Enrolled:</th><td><?php echo date('m-d-Y', strtotime($data["date_created"])); ?></td>
+    </tr>
+    <tr>
         <th>Username:</th><td><?php echo $data["username"]; ?></td>
     </tr>
     <tr>
@@ -45,14 +48,29 @@
 </table>
 <br/>
 
-<h3>II. Contact Information</h3>
+<h3 style="float: left">II. Contact Information</h3>
+<div style="padding-top: 2%">
+    <?php 
+        echo CHtml::hiddenField('member_id', $data['member_id']);
+        echo CHtml::ajaxLink('[Edit]', 
+            Yii::app()->createUrl('profile/info'),
+            array(
+                'type'=>'post',
+                'data'=>array('id' => 'js:$("#member_id").val()'),
+                'success'=>'function(data){
+                    $("#div-update").html(data);
+                    $("#update-profile").dialog("open");
+                }',
+                'error'=>'function(e){ alert(e); }'
+            )); ?>
+</div>
 
-<table>
+<table style="clear: both">
     <tr>
         <th>Email Address:</th><td><?php echo $data["email"]; ?></td>
     </tr>
     <tr>
-        <th>Address:</th><td><?php echo $data["address1"]; ?></td>
+        <th>Address:</th><td colspan="2"><?php echo $data["address1"]; ?></td>
     </tr>
     <tr>
         <th>Telephone Number:</th><td><?php echo $data["telephone_no"]; ?></td>
@@ -81,7 +99,7 @@
     </tr>
 </table>
 
-<!-- dialog box -->
+<!-- change password -->
 <?php
 $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
         'id'=>'change-password',
@@ -98,8 +116,32 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
 <?php $this->renderPartial('_changepassword'); ?>
 <br />
 <?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+<!-- change password -->
 
+<!-- update profile -->
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'update-profile',
+        'options'=>array(
+            'title'=>'Contact Information',
+            'modal'=>true,
+            'width'=>'680',
+            'height'=>'auto',
+            'resizable'=>false,
+            'autoOpen'=>false,
+        ),
+)); ?>
+<br />
+<?php 
+echo '<div id="div-update">';
+$this->renderPartial('_update', array('model'=>$model)); 
+echo '</div>';
+?>
+<br />
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+<!-- update profile -->
 
+<!-- dialog box -->
 <?php 
 $trigger = false;
 if ($this->showDialog) 
@@ -144,5 +186,49 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
 )); ?>
 <br />
 <?php echo $this->msg; ?>
+<br />
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'update-dialog-box',
+        'options'=>array(
+            'title'=>'Contact Information',
+            'modal'=>true,
+            'width'=>'350',
+            'height'=>'auto',
+            'resizable'=>false,
+            'autoOpen'=>false,
+            'buttons'=>array(
+                'OK'=>'js:function(){
+                    $(this).dialog("close");
+                }'
+            )
+        ),
+)); ?>
+<br />
+<div id="dialog-msg"></div>
+<br />
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'update-redirect-box',
+        'options'=>array(
+            'title'=>'Contact Information',
+            'modal'=>true,
+            'width'=>'350',
+            'height'=>'auto',
+            'resizable'=>false,
+            'autoOpen'=>false,
+            'buttons'=>array(
+                'OK'=>'js:function(){
+                    location.href = "'. Yii::app()->createUrl('profile/index') . '";
+                }'
+            )
+        ),
+)); ?>
+<br />
+<div id="dialog-msg2"></div>
 <br />
 <?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>

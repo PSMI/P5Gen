@@ -61,7 +61,7 @@ class RegistrationForm extends CFormModel
             array('activation_code', 'length', 'min'=>20, 'max'=>20),
                         
             array('upline_id,upline_name','required','message'=>'Upline is required for new registrations.'),
-            array('last_name,first_name,middle_name,gender,civil_status,mobile_no', 'required'),
+            array('last_name,first_name,middle_name,gender,civil_status,mobile_no,beneficiary_name', 'required'),
             
             array('email','email','message'=>'The email address is not valid.'),
             array('email','required'),
