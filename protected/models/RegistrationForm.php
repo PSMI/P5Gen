@@ -482,6 +482,28 @@ class RegistrationForm extends CFormModel
         
     }
     
+    public function validateMemberName()
+    {
+        $conn = $this->_connection;
+        
+        $last_name = trim($this->last_name);
+        $first_name = trim($this->first_name);
+        $middle_name = trim($this->middle_name);
+                
+        $query = "SELECT member_id FROM member_details
+                    WHERE last_name = :last_name
+                    AND first_name = :first_name
+                    AND middle_name = :middle_name";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':last_name', $last_name);
+        $command->bindParam(':first_name', $first_name);
+        $command->bindParam(':middle_name', $middle_name);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
+    
     public function log_messages($sender, $sender_name, $recipient, $subject, $message_body)
     {
         $conn = $this->_connection;

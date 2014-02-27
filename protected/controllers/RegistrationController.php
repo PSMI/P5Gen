@@ -32,32 +32,42 @@ class RegistrationController extends Controller
                 
                 if(count($result) > 0)
                 {
-                    //process registration
-                    $retval = $model->register();                    
-                    if($retval['result_code'] == 0)
-                    {
-                        //send email notification
-                        $param['member_id'] = $model->new_member_id;
-                        $param['plain_password'] = $model->plain_password;
-                        
-                        Mailer::sendVerificationLink($param);
-                        
-                        $param2['upline_id'] = $model->upline_id;
-                        $param2['new_member_id'] = $model->new_member_id;
-                        $param2['endorser_id'] = $model->member_id;                      
-                        
-                        Mailer::sendUplineNotification($param2);
-                        
-                        $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business partner.';
-                        
-                    }
-                    else
-                    {
-                        $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
-                        
-                    }
+                    $retname = $model->validateMemberName();
                     
-                    $this->errorCode = $retval['result_code'];
+                    if (is_array($retname)) 
+                    {
+                        $this->dialogMessage = '<strong>Ooops!</strong> Member name already exist. Please use another name or append some characters you preferred to make it unique.';
+                        $this->errorCode = 6;
+                    }
+                    else 
+                    {
+                        //process registration
+                        $retval = $model->register();                    
+                        if($retval['result_code'] == 0)
+                        {
+                            //send email notification
+                            $param['member_id'] = $model->new_member_id;
+                            $param['plain_password'] = $model->plain_password;
+
+                            Mailer::sendVerificationLink($param);
+
+                            $param2['upline_id'] = $model->upline_id;
+                            $param2['new_member_id'] = $model->new_member_id;
+                            $param2['endorser_id'] = $model->member_id;                      
+
+                            Mailer::sendUplineNotification($param2);
+
+                            $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business partner.';
+
+                        }
+                        else
+                        {
+                            $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
+
+                        }
+
+                        $this->errorCode = $retval['result_code'];
+                    }
                     
                 }
                 else
