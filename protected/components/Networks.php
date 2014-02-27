@@ -211,7 +211,7 @@ class Networks extends Controller
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-            $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
+            $temp["DateEnrolled"] = date("m-d-Y", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
@@ -234,7 +234,7 @@ class Networks extends Controller
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-            $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
+            $temp["DateEnrolled"] = date("m-d-Y", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
