@@ -18,7 +18,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     ));
 ?>
 
-<?php echo $this->renderPartial('_search'); ?>
+<?php echo $this->renderPartial('_search', array('model'=>$model)); ?>
 
 <?php echo $this->renderPartial('_view', array('dataProvider'=>$dataProvider)); ?>
 

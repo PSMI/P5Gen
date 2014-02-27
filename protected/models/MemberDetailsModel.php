@@ -28,6 +28,7 @@ class MemberDetailsModel extends CFormModel
     public $spouse_contact_no;
     public $beneficiary_name;
     public $relationship;
+    public $autocomplete_name;
     
     
     public function __construct() {
@@ -197,7 +198,7 @@ class MemberDetailsModel extends CFormModel
     {
         $connection = $this->_connection;
         
-        $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
+        /*$sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
                 a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id, b.username,
                 CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
@@ -206,7 +207,18 @@ class MemberDetailsModel extends CFormModel
                 WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField) AND b.account_type_id = 3";
         $command = $connection->createCommand($sql);
         $keyword = "%" . $searchField . "%";
-        $command->bindParam(":searchField", $keyword);
+        $command->bindParam(":searchField", $keyword);*/
+        
+        $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
+                a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id, b.username,
+                CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
+                WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
+                FROM member_details a
+                INNER JOIN members b ON a.member_id = b.member_id
+                WHERE b.member_id = :member_id AND b.account_type_id = 3";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":member_id", $searchField);
+        
         $result = $command->queryAll();
         
         return $result;
@@ -223,5 +235,27 @@ class MemberDetailsModel extends CFormModel
         
         return $result;
     }
+    
+    public function autoCompleteSearch($filter)
+    {
+        $conn = $this->_connection;        
+        $filter = "%".$filter."%";                      
+        
+        $query = "SELECT
+                    m.member_id,
+                    CONCAT(COALESCE(md.last_name,' '), ', ', COALESCE(md.first_name,' '), ' ', COALESCE(md.middle_name,' ')) AS member_name
+                  FROM members m
+                    INNER JOIN member_details md ON m.member_id = md.member_id
+                  WHERE (md.last_name LIKE :filter
+                    OR md.first_name LIKE :filter
+                    OR md.middle_name LIKE :filter)
+                    AND m.account_type_id = 3
+                  ORDER BY md.last_name";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':filter', $filter);
+        $result = $command->queryAll();        
+        return $result;
+    }  
 }
 ?>

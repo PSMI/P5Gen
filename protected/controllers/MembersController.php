@@ -20,10 +20,10 @@ class MembersController extends Controller
         
         $model = new MemberDetailsModel();
         $members = new MembersModel();
-        
-        if (isset($_POST["txtSearch"]) && $_POST["txtSearch"] != "")
+
+        if ($_POST["MemberDetailsModel"]) //(isset($_POST["txtSearch"]) && $_POST["txtSearch"] != "")
         {
-            $searchField = $_POST["txtSearch"];
+            $searchField = $_POST["member_id"]; //$_POST["txtSearch"];
             $rawData = $model->selectMemberDetailsBySearchField($searchField);
         }
         else
@@ -186,6 +186,32 @@ class MembersController extends Controller
         }
         
         echo $msg;
+    }
+    
+    public function actionSearch()
+    {
+        if(Yii::app()->request->isAjaxRequest && isset($_GET['term']))
+        {
+            $model = new MemberDetailsModel();
+
+            $result = $model->autoCompleteSearch($_GET['term']);
+
+            if(count($result)>0)
+            {
+                foreach($result as $row)
+                {
+                    $arr[] = array(
+                        'id'=>$row['member_id'],
+                        'value'=>$row['member_name'],
+                        'label'=>$row['member_name'],
+                    );
+                }
+
+                echo CJSON::encode($arr);
+                Yii::app()->end();
+            }
+            
+        }
     }
 }
 ?>
