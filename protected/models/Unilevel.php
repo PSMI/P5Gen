@@ -28,9 +28,9 @@ class Unilevel extends CFormModel
                     u.ibo_count,
                     u.amount,
                     u.date_created,
-                    u.date_approved,
+                    DATE_FORMAT(u.date_approved,'%d-%m-%Y') AS date_approved,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
-                    u.date_claimed,
+                    DATE_FORMAT(u.date_claimed,'%d-%m-%Y') AS date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     u.status,
                     u.member_id

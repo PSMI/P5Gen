@@ -22,10 +22,10 @@ class GroupOverrideCommissionMember extends CFormModel
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
                     c.ibo_count,
                     c.amount,
-                    DATE_FORMAT(c.date_created,'%d %b %Y') AS date_created,
-                    c.date_approved,
+                    DATE_FORMAT(c.date_created,'%d-%m-%Y') AS date_created,
+                    DATE_FORMAT(c.date_approved,'%d-%m-%Y') AS date_approved,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
-                    c.date_claimed,
+                    DATE_FORMAT(c.date_claimed,'%d-%m-%Y') AS date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     c.status
                   FROM commissions c

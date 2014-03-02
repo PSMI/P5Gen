@@ -22,9 +22,9 @@ class BonusMember extends CFormModel
                     p.promo_name,
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
                     pr.ibo_count,
-                    pr.date_approved,
-                    pr.date_claimed,
-                    pr.date_completed,
+                    DATE_FORMAT(pr.date_approved,'%d-%m-%Y') AS date_approved,
+                    DATE_FORMAT(pr.date_claimed,'%d-%m-%Y') AS date_claimed,
+                    DATE_FORMAT(pr.date_completed,'%d-%m-%Y') AS date_completed,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     pr.status

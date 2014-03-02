@@ -23,10 +23,10 @@ class DirectEndorsement extends CFormModel
         $query = "SELECT
                     d.direct_endorsement_id,
                     CONCAT(md.last_name, ', ', md.first_name) AS member_name,
-                    DATE_FORMAT(d.date_created,'%d %b %Y') AS date_created,
-                    DATE_FORMAT(d.date_approved,'%d %b %Y') AS date_approved,
+                    DATE_FORMAT(d.date_created,'%d-%m-%Y') AS date_created,
+                    DATE_FORMAT(d.date_approved,'%d-%m-%Y') AS date_approved,
                     CONCAT(md2.last_name, ', ', md2.first_name) AS approved_by,
-                    DATE_FORMAT(d.date_claimed,'%d %b %Y') AS date_claimed,
+                    DATE_FORMAT(d.date_claimed,'%d-%m-%Y') AS date_claimed,
                     CONCAT(md3.last_name, ', ', md3.first_name) AS claimed_by,
                     CONCAT(md4.last_name, ', ', md4.first_name) AS endorser_name,
                     d.status,

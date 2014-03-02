@@ -12,6 +12,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'enablePagination' => false,
         'template'=>"{items}",
         'columns' => array(
+                        array(
+                            'header' => '',
+                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
+                            * $this->grid->dataProvider->pagination->pageSize + 1)',
+                        ),
 //                        array('name'=>'member_name',
 //                            'header'=>'Member Name',
 //                            'htmlOptions' => array('style' => 'text-align:left'),  
@@ -24,7 +29,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),   
                         array('name'=>'date_created',
                             'header'=>'Date Endorsed',
-                            //'value'=>'AdmintransactionsController::dateFormat($data["date_approved"])',
+                            //'value'=>'AdmintransactionsController::dateFormat($data["date_created"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -46,7 +51,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('name'=>'claimed_by',
-                            'header'=>'Claimed By',
+                            'header'=>'Processed By',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),

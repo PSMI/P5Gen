@@ -12,6 +12,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'enablePagination' => true,
         //'template'=>"{items}",
         'columns' => array(
+                        array(
+                            'header' => '',
+                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
+                            * $this->grid->dataProvider->pagination->pageSize + 1)',
+                        ),
                         array('name'=>'date_created',
                             'header'=>'Transaction Date',
                             //'value'=>'AdmintransactionsController::dateFormat($data["date_completed"])',
@@ -64,7 +69,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('name'=>'claimed_by',
-                            'header'=>'Claimed By',
+                            'header'=>'Processed By',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
