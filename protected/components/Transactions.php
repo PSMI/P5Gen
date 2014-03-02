@@ -38,6 +38,7 @@ class Transactions extends Controller
                 $model->cutoff_id = $cutoff_id;                
                 $model->uplines = $uplines;
                 $member->status = 1;
+                $model->payout_rate = $reference->get_variable_value('GOC_LEVEL_10_BELOW_AMOUNT');;
                 
                 //Check if all uplines has existing records, add new otherwise
                 $retval = $model->check_transactions();
@@ -51,14 +52,24 @@ class Transactions extends Controller
                     $new_list = array_diff($uplines,$retval);
                     $model->uplines = $uplines_wt;
                     
-                    //Update current transaction, +1 to current ibo_count. NOTE: MUST BE LOGGED TO AUDIT TRAIL FOR BACK TRACKING
-                    $update = $model->update_transactions();
+                    foreach($retval as $val)
+                    {
+                        $model->upline_id = $val;
+                        $level = Networks::getLevel($val, $member_id);
+                        
+                        if(!is_null($level) && $level > 10)
+                            $model->payout_rate = $reference->get_variable_value('GOC_LEVEL_11_UP_AMOUNT');
+                        
+                        
+                        //Update current transaction, +1 to current ibo_count. NOTE: MUST BE LOGGED TO AUDIT TRAIL FOR BACK TRACKING
+                        $model->update_transactions();
+                    }
                               
-                    if(count($update) > 0)
+                    if(!$model->hasErrors())
                     {
                         $audit->log_message = "Members ".$uplines_wt." has been updated.";
                         $audit->log_cron();
-                    
+
                         if(count($new_list)>0)
                         {
                             //Add new commission to uplines without transactions
@@ -72,7 +83,6 @@ class Transactions extends Controller
                 }
                 else
                 {                
-
                     $model->uplines = $uplines;
                     $model->add_transactions();                
                     

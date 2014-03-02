@@ -7,9 +7,10 @@
 class GroupOverrideCommission extends CFormModel
 {
     public $_connection;
-    public $payout_rate = 100;
+    public $payout_rate;
     public $cutoff_id;
     public $uplines;
+    public $upline_id;
     
     public function __construct() 
     {
@@ -148,18 +149,26 @@ class GroupOverrideCommission extends CFormModel
     public function update_transactions()
     {
         $conn = $this->_connection;        
-        $uplines = $this->uplines;
+        //$uplines = $this->uplines;
         
-        $query = "UPDATE commissions 
+//        $query = "UPDATE commissions 
+//                    SET ibo_count = ibo_count + 1,
+//                        amount = amount + :payout_rate,
+//                        date_last_updated = now()
+//                    WHERE member_id IN ($uplines)
+//                    AND cutoff_id = :cutoff_id AND status = 0";
+        
+         $query = "UPDATE commissions 
                     SET ibo_count = ibo_count + 1,
                         amount = amount + :payout_rate,
                         date_last_updated = now()
-                    WHERE member_id IN ($uplines)
+                    WHERE member_id = :upline_id
                     AND cutoff_id = :cutoff_id AND status = 0";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':payout_rate', $this->payout_rate);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':upline_id', $this->upline_id);
         $result = $command->execute();
         return $result;
     }
