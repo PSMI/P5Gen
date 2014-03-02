@@ -31,6 +31,10 @@ class TransactionController extends Controller
     public function actionGoc()
     {
         $model = new GroupOverrideCommissionMember();
+        $reference = new ReferenceModel();
+        
+        $cutoff = $reference->get_cutoff_dates(TransactionTypes::GOC);
+        $next_cutoff = date('M d Y',strtotime($cutoff['next_cutoff_date']));
 
         $member_id = Yii::app()->user->getId();
 
@@ -43,7 +47,7 @@ class TransactionController extends Controller
                                             ),
                                 ));
 
-        $this->render('goc', array('dataProvider' => $dataProvider));
+        $this->render('goc', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff));
     }
     
     //For Bonus
@@ -69,6 +73,10 @@ class TransactionController extends Controller
     public function actionDirectendorse()
     {
         $model = new DirectEndorsementMember();
+        $reference = new ReferenceModel();
+        
+        $cutoff = $reference->get_cutoff_dates(TransactionTypes::DIRECT_ENDORSE);
+        $next_cutoff = date('M d Y',strtotime($cutoff['next_cutoff_date']));
 
         $member_id = Yii::app()->user->getId();
 
@@ -81,14 +89,18 @@ class TransactionController extends Controller
                                             ),
                                 ));
 
-        $this->render('directendorse', array('dataProvider' => $dataProvider));
+        $this->render('directendorse', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff));
     }
     
     //For Unilevel
     public function actionUnilevel()
     {
         $model = new UnilevelMember();
-
+        $reference = new ReferenceModel();
+        
+        $cutoff = $reference->get_cutoff_dates(TransactionTypes::UNILEVEL);
+        $next_cutoff = date('M d Y',strtotime($cutoff['next_cutoff_date']));
+        
         $member_id = Yii::app()->user->getId();
 
         $rawData = $model->getUnilevel($member_id);
@@ -100,7 +112,7 @@ class TransactionController extends Controller
                                             ),
                                 ));
 
-        $this->render('unilevel', array('dataProvider' => $dataProvider));
+        $this->render('unilevel', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff));
     }
     
     

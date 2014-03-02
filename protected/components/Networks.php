@@ -166,7 +166,7 @@ class Networks extends Controller
      * @param array $array the array to arrange
      * @return array $genealogy
      */
-    public function arrangeLevel($array)
+    public function arrangeLevel($array, $sort='DESC')
     {
         $genealogy = array();
         $total_downlines = 0;
@@ -190,8 +190,10 @@ class Networks extends Controller
 
                 $genealogy[] = $temp;
             }
-
-            krsort($genealogy);
+            if($sort == 'DESC')
+                krsort($genealogy);
+            else
+                ksort ($genealogy);
         }
         
         return array('network'=>$genealogy, 'total'=>$total_downlines);
@@ -211,7 +213,7 @@ class Networks extends Controller
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-            $temp["DateEnrolled"] = date("m-d-Y", strtotime($val["date_enrolled"]));
+            $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
@@ -234,7 +236,7 @@ class Networks extends Controller
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-            $temp["DateEnrolled"] = date("m-d-Y", strtotime($val["date_enrolled"]));
+            $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
@@ -323,6 +325,28 @@ class Networks extends Controller
         $member_name = strtoupper($member_name);
         
         return $member_name;
+    }
+    
+    public function getLevel($member_id, $downline_id)
+    {
+                
+       $rawData = Networks::getDownlines($member_id);
+       $levels = Networks::arrangeLevel($rawData,'ASC');
+       
+        if (count($levels['network']) > 0)
+        {
+            foreach ($levels['network'] as $row)
+            {
+                $arr_ids = explode(",", $row['Members']);
+                
+                if(in_array($downline_id,$arr_ids))
+                {
+                    return $row['Level'];
+                }
+                
+            }
+        }
+        
     }
 }
 ?>

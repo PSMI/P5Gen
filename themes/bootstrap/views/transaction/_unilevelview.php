@@ -9,6 +9,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'type'=>'striped bordered condensed',
         //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
+        'htmlOptions'=>array('style'=>'font-size:12px'),
         'enablePagination' => true,
         //'template'=>"{items}",
         'columns' => array( 
