@@ -213,5 +213,55 @@ class MembersController extends Controller
             
         }
     }
+    
+    public function actionGenealogy()
+    {
+        if (isset($_POST["hidden_member_id"])) {
+            $member_id = $_POST["hidden_member_id"];
+        }
+        else 
+        {
+            $member_id = $_GET["id"];
+        }
+        
+        $member_name = Networks::getMemberName($member_id);
+        
+        $rawData = Networks::getDownlines($member_id);
+        $final = Networks::arrangeLevel($rawData);
+        $count = $final['total'];       
+        
+        $dataProvider = new CArrayDataProvider($final['network'], array(
+                        'keyField' => false,
+                        'pagination' => array(
+                            'pageSize' => 1000,
+                        ),
+
+        ));
+        
+        $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));
+    }
+    
+    public function actionGenealogyDownlines()
+    {
+        if (isset($_POST["postData"])) 
+        {
+            $member_ids = $_POST["postData"];
+            Yii::app()->session['ids'] = $member_ids;
+        }
+        else if (Yii::app()->request->isAjaxRequest) {
+            $member_ids = Yii::app()->session['ids'];
+        }
+        
+        $array = Networks::getGenealogyDownlines($member_ids);
+
+        $dataProvider = new CArrayDataProvider($array, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                            'pageSize' => 10,
+                        ),
+        ));
+
+        $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
+    }
 }
 ?>

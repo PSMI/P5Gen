@@ -27,7 +27,9 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         array('name'=>'FullName',
                             'header'=>'Full Name',
                             'type'=>'raw',
-                            'value'=>'CHtml::encode($data["last_name"] . ", " . $data["first_name"] . " " . $data["middle_name"])',
+                            'value'=>'CHtml::link(CHtml::encode($data["last_name"] . ", " . $data["first_name"] . " " . $data["middle_name"]), 
+                                array("members/genealogy", "id"=>$data["member_id"])
+                            )',
                             'htmlOptions' => array('style' => 'text-align:left'),  
                             'headerHtmlOptions' => array('style' => 'text-align:left'),  
                         ),
