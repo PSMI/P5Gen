@@ -273,7 +273,7 @@ class Networks extends Controller
         $model->member_id = $member_id;
         $member_array = array();
         
-        $downlines = $model->firstLevel();
+        $downlines = $model->officialFirstLevel();
         if (count($downlines) < 5) {
             $member_array[] = $member_id;
         }
