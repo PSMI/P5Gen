@@ -142,7 +142,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Print',
                                     'icon'=>'icon-print',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array("id" =>$data["loan_id"], "member_id" =>$data["member_id"], "loan_type_id" =>$data["loan_type_id"], "level_no" =>$data["level_no"], "member_name" =>$data["member_name"]))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array("id" =>$data["loan_id"], "member_id" =>$data["member_id"], "loan_type_id" =>$data["loan_type_id"], "level_no" =>$data["level_no"], "member_name" =>$data["member_name"], "loan_amount" =>$data["loan_amount"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),

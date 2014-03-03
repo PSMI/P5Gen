@@ -102,10 +102,13 @@ class Loan extends CFormModel
         
         $query = "SELECT
                         CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                        DATE_FORMAT(m.date_created,'%d-%m-%Y') AS date_created
+                        DATE_FORMAT(m.date_created,'%d-%m-%Y') AS date_created,
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS endorser_name
                     FROM members m
                         INNER JOIN member_details md
                         ON m.member_id = md.member_id
+                        LEFT OUTER JOIN member_details md2
+                        ON md2.member_id = m.endorser_id
                     WHERE m.member_id IN ($downline_ids);";
         
         $command =  $conn->createCommand($query);
@@ -124,13 +127,36 @@ class Loan extends CFormModel
                         md.email,
                         md.mobile_no,
                         md.telephone_no,
-                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS endorser_name
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS endorser_name
                     FROM members m
                       INNER JOIN member_details md
                         ON m.member_id = md.member_id
                       LEFT OUTER JOIN member_details md2
                         ON md2.member_id = m.endorser_id
                     WHERE m.member_id = :member_id;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function getLoanDirectEndorsementDownlines($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                        DATE_FORMAT(m.date_created,'%d-%m-%Y') AS date_created,
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS endorser_name
+                    FROM members m
+                        INNER JOIN member_details md
+                        ON m.member_id = md.member_id
+                        LEFT OUTER JOIN member_details md2
+                        ON md2.member_id = m.endorser_id
+                    WHERE m.endorser_id = :member_id
+                    LIMIT 5;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);

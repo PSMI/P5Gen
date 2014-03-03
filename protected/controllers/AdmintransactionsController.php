@@ -375,15 +375,118 @@ class AdmintransactionsController extends Controller
             $loan_type_id = $_GET["loan_type_id"];
             $level_no = $_GET["level_no"];
             $member_name = $_GET["member_name"];
+            $loan_amount = $_GET["loan_amount"];
             
             $model = new Loan();
             
             if ($loan_type_id == 1)
             {
                 //direct 5
-                $content = "Direct Endorsement Loan Completion";
-                $content .= "<br>";
-                $content .= "Member Name: ".$member_name;
+                //Get Payee Details
+                    $payee_details = $model->getPayeeDetails($member_id);
+                    
+                    $username = $payee_details[0]['username'];
+                    $date_joined = $payee_details[0]['date_created'];
+                    $email = $payee_details[0]['email'];
+                    $mobile_no = $payee_details[0]['mobile_no'];
+                    $telephone_no = $payee_details[0]['telephone_no'];
+                    $endorser_name = $payee_details[0]['endorser_name'];
+
+                    
+                    $content = "<table  align='center'><tr><td><h3>LOAN - DIRECT ENDORSEMENT</h3></td></tr></table>";
+                    
+                    $content .= "<br>";
+                    
+                    $content .= "<table style='width: 100%;'>";
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Name of Payee: </td>";
+                    $content .= "<td>$member_name</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Username: </td>";
+                    $content .= "<td>$username</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Endorser Name: </td>";
+                    $content .= "<td>$endorser_name</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Email Address: </td>";
+                    $content .= "<td>$email</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Mobile Number: </td>";
+                    $content .= "<td>$mobile_no</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Telephone Number: </td>";
+                    $content .= "<td>$telephone_no</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Date Joined: </td>";
+                    $content .= "<td>$date_joined</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "</table>";
+                    
+                    $content .= "<br><br><br><br>";
+                    
+                    //Downlines table
+                    $content .= "<table>";
+                    $content .= "<tr>";
+                    $content .= "<td></td>";
+                    $content .= "<td align='center' style='font-weight:bold;'>Name of Endorsed IBO</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td align='center' style='font-weight:bold;'>Placed Under</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td align='center' style='font-weight:bold;'>Date Joined</td>";
+                    $content .= "</tr>";
+                    
+                    $direct_downline_details = $model->getLoanDirectEndorsementDownlines($member_id);
+                    
+                    $count = 1;
+                    foreach ($direct_downline_details as $ddd)
+                    {
+                        $content .= "<tr>";
+                        $content .= "<td>" . $count . ". </td>";
+                        $content .= "<td>" . $ddd['member_name'] . "</td>";
+                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                        $content .= "<td>" . $ddd['endorser_name'] . "</td>";
+                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                        $content .= "<td>" . $ddd['date_created'] . "</td>";
+                        $content .= "</tr>";
+                        $count++;
+                    }
+                    $content .= "</table>";
+                    
+                    $content .= "<br><br><br><br>";
+                    
+                    //Total Amount table
+                    $cash_percentage = (80 / 100) * $loan_amount;
+                    $check_percentage = (20 / 100) * $loan_amount;
+                    
+                    $content .= "<table style='font-weight:bold;'>";
+                    $content .= "<tr>";
+                    $content .= "<td>LOAN AMOUNT:</td>";
+                    $content .= "<td>" . $this->numberFormat($loan_amount) . " </td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td>80% - Cash:</td>";
+                    $content .= "<td>" . $this->numberFormat($cash_percentage) . "</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td>20% - G.C:</td>";
+                    $content .= "<td>" . $this->numberFormat($check_percentage) . "</td>";
+                    $content .= "</tr>";
+                    $content .= "</table>";
             }
             else
             {
@@ -403,48 +506,49 @@ class AdmintransactionsController extends Controller
                     $endorser_name = $payee_details[0]['endorser_name'];
 
                     
-                    $content = "<table  align='center'><tr><td><b>LOAN - LEVEL COMPLETION</b></td></tr></table>";
+                    $content = "<table  align='center'><tr><td><h3>LOAN - LEVEL COMPLETION</h3></td></tr></table>";
+                    
                     $content .= "<br>";
+                    
                     $content .= "<table style='width: 100%;'>";
-                    
                     $content .= "<tr>";
-                    $content .= "<td align='left'>Name of Payee: $member_name</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td align='left'>Email Address: $email</td>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Name of Payee: </td>";
+                    $content .= "<td>$member_name</td>";
                     $content .= "</tr>";
                     
                     $content .= "<tr>";
-                    $content .= "<td align='left'>Username: $username</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td align='left'>Mobile Number: $mobile_no</td>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Username: </td>";
+                    $content .= "<td>$username</td>";
                     $content .= "</tr>";
                     
                     $content .= "<tr>";
-                    $content .= "<td align='left'>Endorser Name: $endorser_name</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td align='left'>Telephone Number: $telephone_no</td>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Endorser Name: </td>";
+                    $content .= "<td>$endorser_name</td>";
                     $content .= "</tr>";
                     
                     $content .= "<tr>";
-                    $content .= "<td align='left'></td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td align='left'>Date Joined: $date_joined</td>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Email Address: </td>";
+                    $content .= "<td>$email</td>";
                     $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Mobile Number: </td>";
+                    $content .= "<td>$mobile_no</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Telephone Number: </td>";
+                    $content .= "<td>$telephone_no</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left' style='font-weight:bold;'>Date Joined: </td>";
+                    $content .= "<td>$date_joined</td>";
+                    $content .= "</tr>";
+                    
                     $content .= "</table>";
                     
-                    $content .= "<br><br><br>";
+                    $content .= "<br><br><br><br>";
                     
                     $final = Networks::arrangeLevel($rawData);
                     
@@ -458,29 +562,58 @@ class AdmintransactionsController extends Controller
                             $downline_details = $model->getLoanCompletionDownlines($downline_ids);
                         }
                     }
-                    //echo count($downline_details); exit;
-                    $content .= "<table style='width: 100%;'>";
+
+                    //Downlines table
+                    $content .= "<table>";
                     $content .= "<tr>";
-                    $content .= "<td>Name of Endorsed IBO</td>";
+                    $content .= "<td></td>";
+                    $content .= "<td align='center' style='font-weight:bold;'>Name of IBO</td>";
                     $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td align='center' style='font-weight:bold;'>Level No.</td>";
                     $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>Placed Under</td>";
+                    $content .= "<td align='center' style='font-weight:bold;'>Placed Under</td>";
                     $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>Date Joined</td>";
+                    $content .= "<td align='center' style='font-weight:bold;'>Date Joined</td>";
                     $content .= "</tr>";
+                    
+                    $count = 1;
                     foreach ($downline_details as $dd)
                     {
                         $content .= "<tr>";
+                        $content .= "<td>" . $count . ". </td>";
                         $content .= "<td>" . $dd['member_name'] . "</td>";
                         $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                        $content .= "<td align='center'>" . $level_no . "</td>";
                         $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                        $content .= "<td></td>";
-                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                        $content .= "<td>" . $dd['endorser_name'] . "</td>";
                         $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
                         $content .= "<td>" . $dd['date_created'] . "</td>";
                         $content .= "</tr>";
+                        $count++;
                     }
+                    $content .= "</table>";
+                    
+                    $content .= "<br><br><br><br>";
+                    
+                    //Total Amount table
+                    $cash_percentage = (80 / 100) * $loan_amount;
+                    $check_percentage = (20 / 100) * $loan_amount;
+                    
+                    $content .= "<table style='font-weight:bold;'>";
+                    $content .= "<tr>";
+                    $content .= "<td>LOAN AMOUNT:</td>";
+                    $content .= "<td>" . $this->numberFormat($loan_amount) . " </td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td>80% - Cash:</td>";
+                    $content .= "<td>" . $this->numberFormat($cash_percentage) . "</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td>20% - G.C:</td>";
+                    $content .= "<td>" . $this->numberFormat($check_percentage) . "</td>";
+                    $content .= "</tr>";
                     $content .= "</table>";
                 }
             }
