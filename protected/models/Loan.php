@@ -102,13 +102,38 @@ class Loan extends CFormModel
         
         $query = "SELECT
                         CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                        DATE_FORMAT(m.date_created,'%d %b %Y') AS date_created
+                        DATE_FORMAT(m.date_created,'%d-%m-%Y') AS date_created
                     FROM members m
                         INNER JOIN member_details md
                         ON m.member_id = md.member_id
                     WHERE m.member_id IN ($downline_ids);";
         
         $command =  $conn->createCommand($query);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function getPayeeDetails($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                        m.username,
+                        DATE_FORMAT(m.date_created,'%d-%m-%Y') AS date_created,
+                        md.email,
+                        md.mobile_no,
+                        md.telephone_no,
+                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS endorser_name
+                    FROM members m
+                      INNER JOIN member_details md
+                        ON m.member_id = md.member_id
+                      LEFT OUTER JOIN member_details md2
+                        ON md2.member_id = m.endorser_id
+                    WHERE m.member_id = :member_id;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
         return $result;

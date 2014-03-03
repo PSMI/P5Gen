@@ -13,10 +13,14 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'enablePagination' => true,
         //'template'=>"{items}",
         'columns' => array(
+//                        array(
+//                            'header' => '',
+//                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
+//                            * $this->grid->dataProvider->pagination->pageSize + 1)',
+//                        ),
                         array(
                             'header' => '',
-                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
-                            * $this->grid->dataProvider->pagination->pageSize + 1)',
+                            'value' => '$row + 1',
                         ),
                         array('name'=>'promo_name',
                               'header'=>'Promo Name',

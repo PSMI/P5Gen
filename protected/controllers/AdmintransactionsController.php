@@ -387,10 +387,65 @@ class AdmintransactionsController extends Controller
             }
             else
             {
+                //Get names of endorsed IBO
                 $rawData = Networks::getDownlines($member_id);
                 
                 if (count($rawData) > 0)
-                {
+                {   
+                    //Get Payee Details
+                    $payee_details = $model->getPayeeDetails($member_id);
+                    
+                    $username = $payee_details[0]['username'];
+                    $date_joined = $payee_details[0]['date_created'];
+                    $email = $payee_details[0]['email'];
+                    $mobile_no = $payee_details[0]['mobile_no'];
+                    $telephone_no = $payee_details[0]['telephone_no'];
+                    $endorser_name = $payee_details[0]['endorser_name'];
+
+                    
+                    $content = "<table  align='center'><tr><td><b>LOAN - LEVEL COMPLETION</b></td></tr></table>";
+                    $content .= "<br>";
+                    $content .= "<table style='width: 100%;'>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left'>Name of Payee: $member_name</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td align='left'>Email Address: $email</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left'>Username: $username</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td align='left'>Mobile Number: $mobile_no</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left'>Endorser Name: $endorser_name</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td align='left'>Telephone Number: $telephone_no</td>";
+                    $content .= "</tr>";
+                    
+                    $content .= "<tr>";
+                    $content .= "<td align='left'></td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td align='left'>Date Joined: $date_joined</td>";
+                    $content .= "</tr>";
+                    $content .= "</table>";
+                    
+                    $content .= "<br><br><br>";
+                    
                     $final = Networks::arrangeLevel($rawData);
                     
                     //Get level 1 downline ids
@@ -403,24 +458,30 @@ class AdmintransactionsController extends Controller
                             $downline_details = $model->getLoanCompletionDownlines($downline_ids);
                         }
                     }
-
-                    //Get downline names
-                    $content = "Loan Completion for Level #: ".$level_no;
-                    $content .= "<br>";
-                    $content .= "Member Name: ".$member_name;
-                    $content .= '<table cellspacing="20">';
-                    $content .= '<tr>';
-                    $content .= '<td>Downline Name</td>';
-                    $content .= '<td>Date Joined</td>';
-                    $content .= '</tr>';
+                    //echo count($downline_details); exit;
+                    $content .= "<table style='width: 100%;'>";
+                    $content .= "<tr>";
+                    $content .= "<td>Name of Endorsed IBO</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>Placed Under</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                    $content .= "<td>Date Joined</td>";
+                    $content .= "</tr>";
                     foreach ($downline_details as $dd)
                     {
-                        $content .= '<tr>';
-                        $content .= '<td>' . $dd["member_name"] . '</td>';
-                        $content .= '<td>' . $dd["date_created"] . '</td>';
-                        $content .= '</tr>';
+                        $content .= "<tr>";
+                        $content .= "<td>" . $dd['member_name'] . "</td>";
+                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                        $content .= "<td></td>";
+                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+                        $content .= "<td>" . $dd['date_created'] . "</td>";
+                        $content .= "</tr>";
                     }
-                    $content .= '</table>';
+                    $content .= "</table>";
                 }
             }
         }
@@ -428,7 +489,7 @@ class AdmintransactionsController extends Controller
         {
             echo "id not set";
         }
-        
+        //echo $content;
         $html2pdf = Yii::app()->ePdf->HTML2PDF();
         $html2pdf->WriteHTML($content);
         $html2pdf->Output('Loan_' . date('Y-m-d') . '.pdf', 'D'); 
