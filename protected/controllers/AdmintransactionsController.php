@@ -448,7 +448,12 @@ class AdmintransactionsController extends Controller
                     $content .= "<td align='center' style='font-weight:bold;'>Date Joined</td>";
                     $content .= "</tr>";
                     
-                    $direct_downline_details = $model->getLoanDirectEndorsementDownlines($member_id);
+                    //Check if member has previous loan/s.
+                    $prev_loan = $model->getPreviousLoans($member_id, $loan_id);
+                    $limit = 5 * count($prev_loan);
+                    
+                    //Get direct endorse details
+                    $direct_downline_details = $model->getLoanDirectEndorsementDownlines($member_id, $limit);
                     
                     $count = 1;
                     foreach ($direct_downline_details as $ddd)

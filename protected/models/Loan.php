@@ -142,7 +142,26 @@ class Loan extends CFormModel
         return $result;
     }
     
-    public function getLoanDirectEndorsementDownlines($member_id)
+    public function getPreviousLoans($member_id, $loan_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                        l.loan_id
+                    FROM loans l
+                    WHERE l.loan_type_id = 1
+                    AND loan_id < :loan_id
+                    AND member_id = :member_id;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':loan_id', $loan_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function getLoanDirectEndorsementDownlines($member_id, $limit)
     {
         $conn = $this->_connection;
         
@@ -156,10 +175,12 @@ class Loan extends CFormModel
                         LEFT OUTER JOIN member_details md2
                         ON md2.member_id = m.endorser_id
                     WHERE m.endorser_id = :member_id
-                    LIMIT 5;";
+                    AND placement_status != 0
+                    ORDER BY placement_date ASC LIMIT :limit, 5;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':limit', $limit);
         $result = $command->queryAll();
         
         return $result;
