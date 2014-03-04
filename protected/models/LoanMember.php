@@ -30,7 +30,8 @@ class LoanMember extends CFormModel
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
                     DATE_FORMAT(l.date_claimed,'%d-%m-%Y') AS date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
-                    l.status
+                    l.status,
+                    l.member_id
                   FROM loans l
                     INNER JOIN member_details m
                       ON l.member_id = m.member_id
