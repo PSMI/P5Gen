@@ -34,6 +34,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'level_no',
                             'header'=>'Level',
+                            'value'=>'$data["loan_type_id"] == 1 ? "" : $data["level_no"]',
                             'htmlOptions' => array('style' => 'text-align:center'),
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),

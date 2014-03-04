@@ -147,9 +147,12 @@ class AdmintransactionsController extends Controller
             else if($transtype == 'directendrse')
             {
                 $direct_endorsement_id = $_GET["id"];
+                $endorser_id = $_GET["endorser_id"];
+                $cutoff_id = $_GET["cutoff_id"];
+                
                 
                 $model = new DirectEndorsement();
-                $result = $model->updateDirectEndorsementStatus($direct_endorsement_id, $status, $userid);
+                $result = $model->updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid);
                 
                 if (count($result) > 0)
                 {
@@ -390,7 +393,7 @@ class AdmintransactionsController extends Controller
 
                 //Get direct endorse details
                 $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $limit);
-
+                
                 //Total Amount table
                 $pct['cash'] = (80 / 100) * $loan_amount;
                 $pct['check'] = (20 / 100) * $loan_amount;
@@ -430,7 +433,7 @@ class AdmintransactionsController extends Controller
                             $downlines = $model->getLoanCompletionDownlines($downline_ids);
                         }
                     }
-
+                    
                     //Total Amount table
                     $pct['cash'] = (80 / 100) * $loan_amount;
                     $pct['check'] = (20 / 100) * $loan_amount;
@@ -441,6 +444,7 @@ class AdmintransactionsController extends Controller
                             'pct'=>$pct,
                             'loan_amount'=>$loan_amount,
                             'downlines'=>$downlines,
+                            'level_no'=>$level_no,
                         ), true
                      ));
                     $html2pdf->Output('LoanCompletion_' . $member_name . '_' . date('Y-m-d') . '.pdf', 'D'); 

@@ -117,7 +117,7 @@ class DirectEndorsement extends CFormModel
         return $result;
     }
     
-    public function updateDirectEndorsementStatus($direct_endorsement_id, $status, $userid)
+    public function updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid)
     {
         $conn = $this->_connection;
         
@@ -129,7 +129,8 @@ class DirectEndorsement extends CFormModel
                         SET date_approved = NOW(),
                             status = :status,
                             approved_by_id = :userid
-                        WHERE direct_endorsement_id = :direct_endorsement_id;";
+                        WHERE endorser_id = :endorser_id 
+                        AND cutoff_id = :cutoff_id;";
         }
         else if ($status == 2)
         {
@@ -137,18 +138,16 @@ class DirectEndorsement extends CFormModel
                         SET date_claimed = NOW(),
                             status = :status,
                             claimed_by_id = :userid
-                        WHERE direct_endorsement_id = :direct_endorsement_id;";
+                        WHERE endorser_id = :endorser_id 
+                        AND cutoff_id = :cutoff_id;";
         }
-        
-        ////***get cutoff id and endorser_id****////
-//        UPDATE direct_endorsements de SET de.status = 1
-//  where de.endorser_id = 5 and de.cutoff_id = 4;
         
         $command = $conn->createCommand($query);
         
-        $command->bindParam(':direct_endorsement_id', $direct_endorsement_id);
         $command->bindParam(':status', $status);
         $command->bindParam(':userid', $userid);
+        $command->bindParam(':endorser_id', $endorser_id);
+        $command->bindParam(':cutoff_id', $cutoff_id);
 
         $result = $command->execute();
         
