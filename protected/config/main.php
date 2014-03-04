@@ -59,11 +59,12 @@ return array(
                  ),
 		 'ePdf' => array(
                     'class'         => 'ext.html2pdf.EYiiPdf',
-                    'params'        => array('HTML2PDF' => array(
-                                                        'librarySourcePath' => 'application.extensions.html2pdf.*',
-                                                        'classFile'         => 'html2pdf.class.php'
-                                        )
-                                    )
+                    'params' => array(
+                        'HTML2PDF' => array(
+                            'librarySourcePath' => 'application.extensions.html2pdf.*',
+                            'classFile' => 'html2pdf.class.php'
+                        )
+                    )
                 ),
                 'file'=>array(
                     'class'=>'application.extensions.file.CFile',

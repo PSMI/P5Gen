@@ -5,42 +5,33 @@
 ------------------------*/
 
 $this->widget('bootstrap.widgets.TbGridView', array(
-        'id'=>'directendrse-grid',
+        'id'=>'directendorse-grid',
         'type'=>'striped bordered condensed',
-        //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
         'htmlOptions'=>array('style'=>'font-size:12px'),
-        'enablePagination' => false,
-        'template'=>"{items}",
+        'enablePagination' => true,
         'columns' => array(
-//                        array(
-//                            'header' => '',
-//                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
-//                            * $this->grid->dataProvider->pagination->pageSize + 1)',
-//                        ),
                         array(
                             'header' => '',
                             'value' => '$row + 1',
                         ),
-//                        array('name'=>'member_name',
-//                            'header'=>'Member Name',
-//                            'htmlOptions' => array('style' => 'text-align:left'),  
-//                            'headerHtmlOptions' => array('style' => 'text-align:left'),
-//                        ),
                         array('name'=>'endorser_name',
                               'header'=>'Endorser Name',
                               'htmlOptions' => array('style' => 'text-align:left'),
                               'headerHtmlOptions' => array('style' => 'text-align:left'),
                         ),   
-                        array('name'=>'date_created',
-                            'header'=>'Date Endorsed',
-                            //'value'=>'AdmintransactionsController::dateFormat($data["date_created"])',
+                        array('name'=>'ibo_count',
+                            'header'=>'IBO Count',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
+                        array('name'=>'total_payout',
+                            'header'=>'Total Payout',
+                            'htmlOptions' => array('style' => 'text-align:right'), 
+                            'headerHtmlOptions' => array('style' => 'text-align:right'),
+                        ),
                         array('name'=>'date_approved',
                             'header'=>'Date Approved',
-                            //'value'=>'AdmintransactionsController::dateFormat($data["date_approved"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -51,7 +42,6 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'date_claimed',
                             'header'=>'Date Claimed',
-                            //'value'=>'AdmintransactionsController::dateFormat($data["date_claimed"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -67,7 +57,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}{claim}{print}',
+                            'template'=>'{approve}{claim}{download}',
                             'buttons'=>array
                             (
                                 'approve'=>array
@@ -124,11 +114,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     ),
                                     array('id' => 'send-link-'.uniqid())
                                 ),
-                                'print'=>array
+                                'download'=>array
                                 (
-                                    'label'=>'Print',
-                                    'icon'=>'icon-print',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfunilevel", array("id" =>$data["direct_endorsement_id"], "cutoff_id" =>$data["cutoff_id"], "endorser_name" =>$data["endorser_name"]))',
+                                    'label'=>'Download',
+                                    'icon'=>'icon-download-alt',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfdirect", array("id" =>$data["endorser_id"], "cutoff_id" =>$data["cutoff_id"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),
@@ -138,24 +128,6 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'header'=>'Action',
                             'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
                         ),
-//                        array('class'=>'bootstrap.widgets.TbButtonColumn',
-//                            'template'=>'{print}',
-//                            'buttons'=>array
-//                            (
-//                                'print'=>array
-//                                (
-//                                    'label'=>'Print',
-//                                    'icon'=>'icon-print',
-//                                    //'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array())',
-//                                    'options' => array(
-//                                        'class'=>"btn btn-small",
-//                                    ),
-//                                    array('id' => 'send-link-'.uniqid())
-//                                ),
-//                            ),
-//                            'header'=>'Print',
-//                            'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
-//                        ),
-        )
+                )
         ));
 ?>

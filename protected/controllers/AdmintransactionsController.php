@@ -256,28 +256,31 @@ class AdmintransactionsController extends Controller
     //For Direct Endorsement
     public function actionDirectendorse()
     {
-        $model = new DirectEndorsement();
+        $model = new DirectEndorsement();       
         
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
+        if (isset($_POST["DirectEndorsement"]))
         {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
-            
-            $rawData = $model->getDirectEndorsement($dateFrom, $dateTo);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => false,
-//                                                    'pageSize' => 10,
-//                                                ),
-                                    ));
-            
-            $this->render('directendorse', array('dataProvider' => $dataProvider));
+            unset(Yii::app()->session['endorsements']);
+            $model->attributes = $_POST['DirectEndorsement'];
+            Yii::app()->session['endorsements'] = $model->attributes;
+                $rawData = $model->getDirectEndorsement();
+                
         }
         else
         {
-            $this->render('directendorse');
+            $model->attributes = Yii::app()->session['endorsements'];
         }
+        
+        $rawData = $model->getDirectEndorsement();
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                    'keyField' => false, //'direct_endorsement_id',
+                    'pagination' => array(
+                        'pageSize' => 25,
+                    ),
+                ));
+
+        $this->render('directendorse', array('model'=>$model,'dataProvider' => $dataProvider));
     }
     
     public function getStatusForButtonDisplayLoan($status_id, $status_type)
@@ -360,13 +363,9 @@ class AdmintransactionsController extends Controller
         }
     }
     
-    public function actionPdf()
+    public function actionPdfLoans()
     {
-        /*$pdf = CTCPDF::c_getInstance();
-        $pdf->c_commonReportFormat();
-        $pdf->c_setHeader('Activation Codes');
-        $pdf->SetFontSize(10);
-        $pdf->c_generatePDF('Activation_Codes_' . date('Y-m-d') . '.pdf'); */
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();
         
         if(isset($_GET["id"]))
         {
@@ -383,115 +382,31 @@ class AdmintransactionsController extends Controller
             {
                 //direct 5
                 //Get Payee Details
-                $payee_details = $model->getPayeeDetails($member_id);
-
-                $username = $payee_details[0]['username'];
-                $date_joined = $payee_details[0]['date_created'];
-                $email = $payee_details[0]['email'];
-                $mobile_no = $payee_details[0]['mobile_no'];
-                $telephone_no = $payee_details[0]['telephone_no'];
-                $endorser_name = $payee_details[0]['endorser_name'];
-
-
-                $content = "<table  align='center'><tr><td><h3>LOAN - DIRECT ENDORSEMENT</h3></td></tr></table>";
-
-                $content .= "<br>";
-
-                $content .= "<table style='width: 100%;'>";
-                $content .= "<tr>";
-                $content .= "<td align='left' style='font-weight:bold;'>Name of Payee: </td>";
-                $content .= "<td>$member_name</td>";
-                $content .= "</tr>";
-
-                $content .= "<tr>";
-                $content .= "<td align='left' style='font-weight:bold;'>Username: </td>";
-                $content .= "<td>$username</td>";
-                $content .= "</tr>";
-
-                $content .= "<tr>";
-                $content .= "<td align='left' style='font-weight:bold;'>Endorser Name: </td>";
-                $content .= "<td>$endorser_name</td>";
-                $content .= "</tr>";
-
-                $content .= "<tr>";
-                $content .= "<td align='left' style='font-weight:bold;'>Email Address: </td>";
-                $content .= "<td>$email</td>";
-                $content .= "</tr>";
-
-                $content .= "<tr>";
-                $content .= "<td align='left' style='font-weight:bold;'>Mobile Number: </td>";
-                $content .= "<td>$mobile_no</td>";
-                $content .= "</tr>";
-
-                $content .= "<tr>";
-                $content .= "<td align='left' style='font-weight:bold;'>Telephone Number: </td>";
-                $content .= "<td>$telephone_no</td>";
-                $content .= "</tr>";
-
-                $content .= "<tr>";
-                $content .= "<td align='left' style='font-weight:bold;'>Date Joined: </td>";
-                $content .= "<td>$date_joined</td>";
-                $content .= "</tr>";
-
-                $content .= "</table>";
-
-                $content .= "<br><br><br><br>";
-
-                //Downlines table
-                $content .= "<table>";
-                $content .= "<tr>";
-                $content .= "<td></td>";
-                $content .= "<td align='center' style='font-weight:bold;'>Name of Endorsed IBO</td>";
-                $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                $content .= "<td align='center' style='font-weight:bold;'>Placed Under</td>";
-                $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                $content .= "<td align='center' style='font-weight:bold;'>Date Joined</td>";
-                $content .= "</tr>";
+                $payee = $model->getPayeeDetails($member_id);
 
                 //Check if member has previous loan/s.
                 $prev_loan = $model->getPreviousLoans($member_id, $loan_id);
                 $limit = 5 * count($prev_loan);
 
                 //Get direct endorse details
-                $direct_downline_details = $model->getLoanDirectEndorsementDownlines($member_id, $limit);
-
-                $count = 1;
-                foreach ($direct_downline_details as $ddd)
-                {
-                    $content .= "<tr>";
-                    $content .= "<td>" . $count . ". </td>";
-                    $content .= "<td>" . $ddd['member_name'] . "</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>" . $ddd['endorser_name'] . "</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td>" . $ddd['date_created'] . "</td>";
-                    $content .= "</tr>";
-                    $count++;
-                }
-                $content .= "</table>";
-
-                $content .= "<br><br><br><br>";
+                $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $limit);
 
                 //Total Amount table
-                $cash_percentage = (80 / 100) * $loan_amount;
-                $check_percentage = (20 / 100) * $loan_amount;
+                $pct['cash'] = (80 / 100) * $loan_amount;
+                $pct['check'] = (20 / 100) * $loan_amount;
 
-                $content .= "<table style='font-weight:bold;'>";
-                $content .= "<tr>";
-                $content .= "<td>LOAN AMOUNT:</td>";
-                $content .= "<td>" . $this->numberFormat($loan_amount) . " </td>";
-                $content .= "</tr>";
-
-                $content .= "<tr>";
-                $content .= "<td>80% - Cash:</td>";
-                $content .= "<td>" . $this->numberFormat($cash_percentage) . "</td>";
-                $content .= "</tr>";
-
-                $content .= "<tr>";
-                $content .= "<td>20% - G.C:</td>";
-                $content .= "<td>" . $this->numberFormat($check_percentage) . "</td>";
-                $content .= "</tr>";
-                $content .= "</table>";
+                $html2pdf->WriteHTML($this->renderPartial('_loandirectreport', array(
+                        'member_name'=>$member_name,
+                        'payee'=>$payee,
+                        'pct'=>$pct,
+                        'loan_amount'=>$loan_amount,
+                        'direct_downlines'=>$direct_downlines,
+                    ), true
+                 ));
+                $html2pdf->Output('LoanDirect_' . $member_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+                Yii::app()->end();
+                    
+                    
             }
             else
             {
@@ -501,59 +416,7 @@ class AdmintransactionsController extends Controller
                 if (count($rawData) > 0)
                 {   
                     //Get Payee Details
-                    $payee_details = $model->getPayeeDetails($member_id);
-                    
-                    $username = $payee_details[0]['username'];
-                    $date_joined = $payee_details[0]['date_created'];
-                    $email = $payee_details[0]['email'];
-                    $mobile_no = $payee_details[0]['mobile_no'];
-                    $telephone_no = $payee_details[0]['telephone_no'];
-                    $endorser_name = $payee_details[0]['endorser_name'];
-
-                    
-                    $content = "<table  align='center'><tr><td><h3>LOAN - LEVEL COMPLETION</h3></td></tr></table>";
-                    
-                    $content .= "<br>";
-                    
-                    $content .= "<table style='width: 100%;'>";
-                    $content .= "<tr>";
-                    $content .= "<td align='left' style='font-weight:bold;'>Name of Payee: </td>";
-                    $content .= "<td>$member_name</td>";
-                    $content .= "</tr>";
-                    
-                    $content .= "<tr>";
-                    $content .= "<td align='left' style='font-weight:bold;'>Username: </td>";
-                    $content .= "<td>$username</td>";
-                    $content .= "</tr>";
-                    
-                    $content .= "<tr>";
-                    $content .= "<td align='left' style='font-weight:bold;'>Endorser Name: </td>";
-                    $content .= "<td>$endorser_name</td>";
-                    $content .= "</tr>";
-                    
-                    $content .= "<tr>";
-                    $content .= "<td align='left' style='font-weight:bold;'>Email Address: </td>";
-                    $content .= "<td>$email</td>";
-                    $content .= "</tr>";
-                    
-                    $content .= "<tr>";
-                    $content .= "<td align='left' style='font-weight:bold;'>Mobile Number: </td>";
-                    $content .= "<td>$mobile_no</td>";
-                    $content .= "</tr>";
-                    
-                    $content .= "<tr>";
-                    $content .= "<td align='left' style='font-weight:bold;'>Telephone Number: </td>";
-                    $content .= "<td>$telephone_no</td>";
-                    $content .= "</tr>";
-                    
-                    $content .= "<tr>";
-                    $content .= "<td align='left' style='font-weight:bold;'>Date Joined: </td>";
-                    $content .= "<td>$date_joined</td>";
-                    $content .= "</tr>";
-                    
-                    $content .= "</table>";
-                    
-                    $content .= "<br><br><br><br>";
+                    $payee = $model->getPayeeDetails($member_id);
                     
                     $final = Networks::arrangeLevel($rawData);
                     
@@ -564,73 +427,27 @@ class AdmintransactionsController extends Controller
                         {
                             $downline_ids = $val['Members'];
 
-                            $downline_details = $model->getLoanCompletionDownlines($downline_ids);
+                            $downlines = $model->getLoanCompletionDownlines($downline_ids);
                         }
                     }
 
-                    //Downlines table
-                    $content .= "<table>";
-                    $content .= "<tr>";
-                    $content .= "<td></td>";
-                    $content .= "<td align='center' style='font-weight:bold;'>Name of IBO</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td align='center' style='font-weight:bold;'>Level No.</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td align='center' style='font-weight:bold;'>Placed Under</td>";
-                    $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                    $content .= "<td align='center' style='font-weight:bold;'>Date Joined</td>";
-                    $content .= "</tr>";
-                    
-                    $count = 1;
-                    foreach ($downline_details as $dd)
-                    {
-                        $content .= "<tr>";
-                        $content .= "<td>" . $count . ". </td>";
-                        $content .= "<td>" . $dd['member_name'] . "</td>";
-                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                        $content .= "<td align='center'>" . $level_no . "</td>";
-                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                        $content .= "<td>" . $dd['endorser_name'] . "</td>";
-                        $content .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-                        $content .= "<td>" . $dd['date_created'] . "</td>";
-                        $content .= "</tr>";
-                        $count++;
-                    }
-                    $content .= "</table>";
-                    
-                    $content .= "<br><br><br><br>";
-                    
                     //Total Amount table
-                    $cash_percentage = (80 / 100) * $loan_amount;
-                    $check_percentage = (20 / 100) * $loan_amount;
+                    $pct['cash'] = (80 / 100) * $loan_amount;
+                    $pct['check'] = (20 / 100) * $loan_amount;
                     
-                    $content .= "<table style='font-weight:bold;'>";
-                    $content .= "<tr>";
-                    $content .= "<td>LOAN AMOUNT:</td>";
-                    $content .= "<td>" . $this->numberFormat($loan_amount) . " </td>";
-                    $content .= "</tr>";
-                    
-                    $content .= "<tr>";
-                    $content .= "<td>80% - Cash:</td>";
-                    $content .= "<td>" . $this->numberFormat($cash_percentage) . "</td>";
-                    $content .= "</tr>";
-                    
-                    $content .= "<tr>";
-                    $content .= "<td>20% - G.C:</td>";
-                    $content .= "<td>" . $this->numberFormat($check_percentage) . "</td>";
-                    $content .= "</tr>";
-                    $content .= "</table>";
+                    $html2pdf->WriteHTML($this->renderPartial('_loancompletionreport', array(
+                            'member_name'=>$member_name,
+                            'payee'=>$payee,
+                            'pct'=>$pct,
+                            'loan_amount'=>$loan_amount,
+                            'downlines'=>$downlines,
+                        ), true
+                     ));
+                    $html2pdf->Output('LoanCompletion_' . $member_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+                    Yii::app()->end();
                 }
             }
         }
-        else
-        {
-            echo "id not set";
-        }
-        //echo $content;
-        $html2pdf = Yii::app()->ePdf->HTML2PDF();
-        $html2pdf->WriteHTML($content);
-        $html2pdf->Output('Loan_' . date('Y-m-d') . '.pdf', 'D'); 
     }
     
     public function actionPdfGoc()
@@ -701,23 +518,44 @@ class AdmintransactionsController extends Controller
     
     public function actionPdfDirect()
     {
-        if(isset($_GET["id"]))
+        if(isset($_GET['id']) && isset($_GET['cutoff_id']))
         {
-            $direct_endorsement_id = $_GET["id"];
-            $cutoff_id = $_GET["cutoff_id"];
-            $endorser_name = $_GET["endorser_name"];
-
-            $content = "Bonus Payout for ".$promo_redemption_id." cut off";
-            $content .= "<br>";
-            $content .= "Member Name: ".$member_name;
             
-            $html2pdf = Yii::app()->ePdf->HTML2PDF();
-            $html2pdf->WriteHTML($content);
-            $html2pdf->Output('Bonus_' . date('Y-m-d') . '.pdf', 'D'); 
-        }
-        else
-        {
-            echo "id not set";
+            $endorser_id = $_GET["id"];
+            $cutoff_id = $_GET["cutoff_id"];
+            
+            $member = new MembersModel();            
+            $model = new DirectEndorsement();
+            $reference = new ReferenceModel();
+            
+            $model->cutoff_id = $cutoff_id;
+            $model->endorser_id = $endorser_id;
+            
+            //Payee Information
+            $payee = $member->selectMemberDetails($endorser_id);
+            $payee_endorser_id = $payee['endorser_id'];
+            $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
+            
+            //Endorser Information
+            $endorser = $member->selectMemberDetails($payee_endorser_id);
+            
+            //Cut-Off Dates
+            $cutoff = $reference->get_cutoff_by_id($cutoff_id);
+            
+            $endorsee = $model->getEndorseeByCutoff();
+            $total_payout = $model->getEndorsementTotalPayout();
+           
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+            $html2pdf->WriteHTML($this->renderPartial('_directendorsereport', array(
+                    'payee'=>$payee,
+                    'endorser'=>$endorser,
+                    'endorsee'=>$endorsee,
+                    'cutoff'=>$cutoff,
+                    'payout'=>$total_payout,
+                ), true
+             ));
+            $html2pdf->Output('DirectEndorsement_' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+            Yii::app()->end();
         }
     }
 }

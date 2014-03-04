@@ -10,28 +10,47 @@ class DirectEndorsement extends CFormModel
     public $member_id;
     public $endorser_id;
     public $cutoff_id;
+    public $list_cutoffs;
     
     public function __construct()
     {
         $this->_connection = Yii::app()->db;
     }
     
-    public function getDirectEndorsement($dateFrom, $dateTo)
+    public function rules()
     {
+        return array(
+            array('cutoff_id','required'),
+        );
+    }
+
+
+    
+    public function attributeLabels() {
+        return array('cutoff_id'=>'Cut-Off Date&nbsp;');
+    }
+    
+    public function getDirectEndorsement()
+    {
+        $model = new ReferenceModel();
+        $payout_rate = $model->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
+        
         $conn = $this->_connection;
         
         $query = "SELECT
                     d.direct_endorsement_id,
+                    d.endorser_id,
+                    d.cutoff_id,
                     CONCAT(md.last_name, ', ', md.first_name) AS member_name,
-                    DATE_FORMAT(d.date_created,'%d-%m-%Y') AS date_created,
-                    DATE_FORMAT(d.date_approved,'%d-%m-%Y') AS date_approved,
+                    DATE_FORMAT(d.date_created, '%d-%m-%Y') AS date_created,
+                    DATE_FORMAT(d.date_approved, '%d-%m-%Y') AS date_approved,
                     CONCAT(md2.last_name, ', ', md2.first_name) AS approved_by,
-                    DATE_FORMAT(d.date_claimed,'%d-%m-%Y') AS date_claimed,
+                    DATE_FORMAT(d.date_claimed, '%d-%m-%Y') AS date_claimed,
                     CONCAT(md3.last_name, ', ', md3.first_name) AS claimed_by,
-                    CONCAT(md4.last_name, ', ', md4.first_name) AS endorser_name,
-                    d.status,
+                    CONCAT(md4.last_name, ', ', md4.first_name) AS endorser_name,                    
                     COUNT(d.endorser_id) AS ibo_count,
-                    d.cutoff_id
+                    FORMAT(COUNT(d.endorser_id) * :payout_rate,2) AS total_payout,
+                    d.status
                   FROM direct_endorsements d
                     LEFT OUTER JOIN member_details md
                       ON d.member_id = md.member_id
@@ -41,15 +60,60 @@ class DirectEndorsement extends CFormModel
                       ON d.claimed_by_id = md3.member_id
                     LEFT OUTER JOIN member_details md4
                       ON d.endorser_id = md4.member_id
-                  WHERE d.date_created BETWEEN :dateFrom AND :dateTo
+                  WHERE d.cutoff_id = :cutoff_id
                   GROUP BY d.endorser_id
-                  ORDER BY d.date_created DESC;";
+                  ORDER BY md4.last_name;
+                ";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':dateFrom', $dateFrom);
-        $command->bindParam(':dateTo', $dateTo);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':payout_rate', $payout_rate);
         $result = $command->queryAll();
         
+        return $result;
+    }
+    
+    public function getEndorseeByCutoff()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    d.direct_endorsement_id,
+                    CONCAT(md.last_name, ', ', md.first_name) AS member_name,
+                    CONCAT(md1.last_name, ', ', md1.first_name) AS upline_name,
+                    DATE_FORMAT(m.date_created, '%M %d, %Y') AS date_joined
+                  FROM direct_endorsements d
+                    INNER JOIN member_details md
+                      ON d.member_id = md.member_id
+                    INNER JOIN members m ON d.member_id = m.member_id
+                    LEFT OUTER JOIN member_details md1
+                      ON m.upline_id = md1.member_id
+                  WHERE d.cutoff_id = :cutoff_id
+                  AND d.endorser_id = :endorser_id
+                  ORDER BY md.last_name;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':endorser_id', $this->endorser_id);
+        $result = $command->queryAll();        
+        return $result;
+    }
+    
+    public function getEndorsementTotalPayout()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    FORMAT(COUNT(d.endorser_id) * 300,2) AS total_payout
+                  FROM direct_endorsements d
+                  WHERE d.cutoff_id = :cutoff_id
+                  AND d.endorser_id = :endorser_id
+                  GROUP BY d.endorser_id";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':endorser_id', $this->endorser_id);
+        $result = $command->queryAll();        
         return $result;
     }
     
@@ -182,6 +246,7 @@ class DirectEndorsement extends CFormModel
         }
         
     }
+    
     
 }
 ?>

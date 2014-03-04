@@ -154,5 +154,40 @@ class ReferenceModel extends CFormModel
         return $result['amount'];
     }
     
+    public function get_all_cutoff($trans_type_id)
+    {
+        $conn = Yii::app()->db;
+        
+        $query = "SELECT cutoff_id, concat(date_format(last_cutoff_date,'%M %d, %Y'), ' to ', date_format(next_cutoff_date,'%M %d, %Y')) as cutoff_date 
+                    FROM ref_cutoffs 
+                    WHERE transaction_type_id = :trans_type_id 
+                  ORDER BY cutoff_id DESC";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':trans_type_id', $trans_type_id);
+        $result = $command->queryAll();
+        return $result;
+    }
+    
+    public function get_cutoff_by_id($cutoff_id)
+    {
+        $conn = Yii::app()->db;
+        
+        $query = "SELECT concat(date_format(last_cutoff_date,'%M %d, %Y'), ' to ', date_format(next_cutoff_date,'%M %d, %Y')) as cutoff_date 
+                    FROM ref_cutoffs 
+                  WHERE cutoff_id = :cutoff_id 
+                  ORDER BY cutoff_id DESC";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $cutoff_id);
+        $result = $command->queryRow();
+        return $result;
+    }
+    
+    public function list_cutoffs($trans_type_id)
+    {
+        
+        return CHtml::listData(ReferenceModel::get_all_cutoff($trans_type_id), 'cutoff_id', 'cutoff_date');
+    }
 }
 ?>

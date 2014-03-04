@@ -7,11 +7,9 @@
 $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'loans-grid',
         'type'=>'striped bordered condensed',
-        //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
         'htmlOptions'=>array('style'=>'font-size:12px'),
         'enablePagination' => true,
-        //'template'=>"{items}",
         'columns' => array(
                         array(
                             'header' => '',
@@ -20,14 +18,13 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'date_created',
                             'header'=>'Transaction Date',
-                            //'value'=>'AdmintransactionsController::dateFormat($data["date_completed"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('name'=>'member_name',
                               'header'=>'Member Name',
-                              'htmlOptions' => array('style' => 'text-align:center'),
-                              'headerHtmlOptions' => array('style' => 'text-align:center'),
+                              'htmlOptions' => array('style' => 'text-align:left'),
+                              'headerHtmlOptions' => array('style' => 'text-align:left'),
                         ),
                         array('name'=>'loan_type_id',
                               'header'=>'Loan Type',
@@ -48,13 +45,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'date_completed',
                             'header'=>'Date Completed',
-                            //'value'=>'AdmintransactionsController::dateFormat($data["date_completed"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('name'=>'date_approved',
                             'header'=>'Date Approved',
-                            //'value'=>'AdmintransactionsController::dateFormat($data["date_approved"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -65,7 +60,6 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'date_claimed',
                             'header'=>'Date Claimed',
-                            //'value'=>'AdmintransactionsController::dateFormat($data["date_claimed"])',
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
@@ -81,7 +75,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}{claim}{print}',
+                            'template'=>'{approve}{claim}{download}',
                             'buttons'=>array
                             (
                                 'approve'=>array
@@ -138,11 +132,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     ),
                                     array('id' => 'send-link-'.uniqid())
                                 ),
-                                'print'=>array
+                                'download'=>array
                                 (
-                                    'label'=>'Print',
-                                    'icon'=>'icon-print',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array("id" =>$data["loan_id"], "member_id" =>$data["member_id"], "loan_type_id" =>$data["loan_type_id"], "level_no" =>$data["level_no"], "member_name" =>$data["member_name"], "loan_amount" =>$data["loan_amount"]))',
+                                    'label'=>'Download',
+                                    'icon'=>'icon-download-alt',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfloans", array("id" =>$data["loan_id"], "member_id" =>$data["member_id"], "loan_type_id" =>$data["loan_type_id"], "level_no" =>$data["level_no"], "member_name" =>$data["member_name"], "loan_amount" =>$data["loan_amount"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),
@@ -152,24 +146,6 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'header'=>'Action',
                             'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
                         ),
-//                        array('class'=>'bootstrap.widgets.TbButtonColumn',
-//                            'template'=>'{print}',
-//                            'buttons'=>array
-//                            (
-//                                'print'=>array
-//                                (
-//                                    'label'=>'Print',
-//                                    'icon'=>'icon-print',
-//                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array("id" =>$data["loan_id"]))',
-//                                    'options' => array(
-//                                        'class'=>"btn btn-small",
-//                                    ),
-//                                    array('id' => 'send-link-'.uniqid())
-//                                ),
-//                            ),
-//                            'header'=>'Print',
-//                            'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
-//                        ),
         )
         ));
 ?>
