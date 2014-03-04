@@ -196,7 +196,7 @@ class TransactionController extends Controller
         }
     }
     
-    public function actionPdf()
+    public function actionPdfLoans()
     {
         if(isset($_GET["id"]))
         {

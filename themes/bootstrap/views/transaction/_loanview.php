@@ -7,11 +7,9 @@
 $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'loans-grid',
         'type'=>'striped bordered condensed',
-        //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
         'htmlOptions'=>array('style'=>'font-size:12px'),
         'enablePagination' => true,
-        //'template'=>"{items}",
         'columns' => array(
                         array(
                             'header' => '',
@@ -81,14 +79,14 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{print}',
+                            'template'=>'{download}',
                             'buttons'=>array
                             (
-                                'print'=>array
+                                'download'=>array
                                 (
-                                    'label'=>'Print',
-                                    'icon'=>'icon-print',
-                                    'url'=>'Yii::app()->createUrl("/transaction/pdf", array("id" =>$data["loan_id"], "member_id" =>$data["member_id"], "loan_type_id" =>$data["loan_type_id"], "level_no" =>$data["level_no"], "member_name" =>$data["member_name"], "loan_amount" =>$data["loan_amount"]))',
+                                    'label'=>'Download',
+                                    'icon'=>'icon-download-alt',
+                                    'url'=>'Yii::app()->createUrl("/transaction/pdfloans", array("id" =>$data["loan_id"], "member_id" =>$data["member_id"], "loan_type_id" =>$data["loan_type_id"], "level_no" =>$data["level_no"], "member_name" =>$data["member_name"], "loan_amount" =>$data["loan_amount"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),
