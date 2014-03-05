@@ -327,6 +327,12 @@ class Networks extends Controller
         return $member_name;
     }
     
+    /**
+     * @author owliber
+     * @param type $member_id
+     * @param type $downline_id
+     * @return type
+     */
     public function getLevel($member_id, $downline_id)
     {
                 
@@ -347,6 +353,31 @@ class Networks extends Controller
             }
         }
         
+    }
+    
+    public function getUnilevelByCutOff($member_id, $date_from, $date_to, $level = 0)
+    {
+        $model = new Downlines();
+        $model->member_id = $member_id;
+        $model->date_from = $date_from;
+        $model->date_to = $date_to;
+        
+        $parent = array();
+        $children = array();
+        
+        $i = 0;
+        $level++;
+        $downlines = $model->findDirectEndorseByDate();  
+        foreach ($downlines as $key => $val)
+        {
+            $parent[$i][$level] = $downlines[$key]["downline"];
+            $children = array_merge($children, Networks::getUnilevelByCutOff($downlines[$key]["downline"], $date_from, $date_to, $level));
+            $i++;
+        }
+
+        $finalTree = array_merge($parent, $children);
+
+        return $finalTree;
     }
 }
 ?>

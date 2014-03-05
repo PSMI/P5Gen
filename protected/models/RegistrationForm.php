@@ -209,17 +209,19 @@ class RegistrationForm extends CFormModel
         $activation_code = $this->activation_code;
         $endorser_id = $this->member_id;
         $upline_id = $this->upline_id;
+        $date_joined = $this->date_purchased;
                
         /* Insert member account info */
         
-        $query = "INSERT INTO members (account_type_id, activation_code, endorser_id, upline_id, placement_date)
-                  VALUES (:account_type_id, :activation_code, :endorser_id, :upline_id, now())";
+        $query = "INSERT INTO members (account_type_id, activation_code, endorser_id, upline_id, placement_date, date_joined)
+                  VALUES (:account_type_id, :activation_code, :endorser_id, :upline_id, now(),:date_joined)";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':account_type_id', $account_type_id);
         $command->bindParam(':activation_code', $activation_code);
         $command->bindParam(':endorser_id', $endorser_id);
         $command->bindParam(':upline_id', $upline_id);
+        $command->bindParam(':date_joined', $date_joined);
         
         $result = $command->execute();
         //Get the new member_id

@@ -216,27 +216,42 @@ class AdmintransactionsController extends Controller
     public function actionUnilevel()
     {
         $model = new Unilevel();
+        $reference = new ReferenceModel();
+                
+        if (isset($_POST['Unilevel']))
+        {            
+            if(isset(Yii::app()->session['unilevel']))
+                unset(Yii::app()->session['unilevel']);
+            
+            $cutoff = $reference->get_cutoff_by_id($model->cutoff_id);
+            
+            $model->last_cutoff_date = $cutoff['last_cutoff_date'];
+            $model->next_cutoff_date = $cutoff['next_cutoff_date'];
         
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
-        {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
-            
-            $rawData = $model->getUnilevel($dateFrom, $dateTo);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => false,
-//                                                    'pageSize' => 10,
-//                                                ),
-                                    ));
-            
-            $this->render('unilevel', array('dataProvider' => $dataProvider));
+            $model->attributes = $_POST['Unilevel'];
+            Yii::app()->session['unilevel'] = $model->attributes;
         }
         else
         {
-            $this->render('unilevel');
+            $model->attributes = Yii::app()->session['unilevel'];
+            
         }
+        
+        $rawData = $model->getUnilevel();
+        $total_amount = $model->getUnilevelTotalAmount();
+        $total_ibo = $model->getUnilevelTotalIBO();
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                    'pageSize' => 25,
+                                                ),
+                                ));
+
+        $this->render('unilevel', array(
+                'dataProvider' => $dataProvider,
+                'model'=>$model,
+                'total_amount'=>$total_amount,
+                'total_ibo'=>$total_ibo));
     }
     
     //For Bonus
@@ -266,7 +281,6 @@ class AdmintransactionsController extends Controller
             unset(Yii::app()->session['endorsements']);
             $model->attributes = $_POST['DirectEndorsement'];
             Yii::app()->session['endorsements'] = $model->attributes;
-                $rawData = $model->getDirectEndorsement();
                 
         }
         else
@@ -393,7 +407,7 @@ class AdmintransactionsController extends Controller
 
                 //Get direct endorse details
                 $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $limit);
-                
+
                 //Total Amount table
                 $pct['cash'] = (80 / 100) * $loan_amount;
                 $pct['check'] = (20 / 100) * $loan_amount;
@@ -433,7 +447,7 @@ class AdmintransactionsController extends Controller
                             $downlines = $model->getLoanCompletionDownlines($downline_ids);
                         }
                     }
-                    
+
                     //Total Amount table
                     $pct['cash'] = (80 / 100) * $loan_amount;
                     $pct['check'] = (20 / 100) * $loan_amount;
@@ -478,23 +492,64 @@ class AdmintransactionsController extends Controller
     
     public function actionPdfUnilevel()
     {
-        if(isset($_GET["id"]))
+        if(isset($_GET["id"]) && isset($_GET['cutoff_id']))
         {
-            $unilevel_id = $_GET["id"];
-            $member_id = $_GET["member_id"];
-            $member_name = $_GET["member_name"];
-
-            $content = "Unilevel Payout for ".$unilevel_id." cut off";
-            $content .= "<br>";
-            $content .= "Member Name: ".$member_name;
+            $member_id = $_GET["id"];
+            $cutoff_id = $_GET["cutoff_id"];
+            
+            $model = new Unilevel();
+            $member = new MembersModel();            
+            $reference = new ReferenceModel();
+            
+            $model->cutoff_id = $cutoff_id;
+            $model->member_id = $member_id;
+            
+            $result = $model->getUnilevelDetails();
+            $total_amount = $result['amount'];
+            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $total_tax = $total_amount * ($tax_withheld/100);
+            
+            $payout['total_amount'] = $total_amount;
+            $payout['ibo_count'] = $result['ibo_count'];
+            
+            $payout['tax_amount'] = $total_tax;
+            $payout['net_amount'] = $total_amount - $total_tax;
+            
+            //Payee Information
+            $payee = $member->selectMemberDetails($member_id);
+            $payee_endorser_id = $payee['endorser_id'];
+            $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
+            
+            //Endorser Information
+            $endorser = $member->selectMemberDetails($payee_endorser_id);
+            
+            //Cut-Off Dates
+            $cutoff = $reference->get_cutoff_by_id($cutoff_id);
+            $date_from = $cutoff['last_cutoff_date'];
+            $date_to = $cutoff['next_cutoff_date'];
+            
+            $downline = Networks::getUnilevelByCutOff($member_id,$date_from, $date_to);
+            
+            $unilevels = Networks::arrangeLevel($downline, 'ASC');
+            
+            foreach($unilevels['network'] as $level)
+            {
+                $unilevel['level'] = $level['Level'];
+                $unilevel['downlines'] = Networks::getUnilevelDownlines($level['Members']);
+                $unilevel_downlines[] = $unilevel;
+            }
             
             $html2pdf = Yii::app()->ePdf->HTML2PDF();
-            $html2pdf->WriteHTML($content);
-            $html2pdf->Output('Unilevel_' . date('Y-m-d') . '.pdf', 'D'); 
-        }
-        else
-        {
-            echo "id not set";
+            $html2pdf->WriteHTML($this->renderPartial('_unilevelreport', array(
+                    'payee'=>$payee,
+                    'endorser'=>$endorser,
+                    'downlines'=>$unilevel_downlines,
+                    'cutoff'=>$cutoff,
+                    'payout'=>$payout,
+                ), true
+             ));
+            $html2pdf->Output('Unilevel_' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+             
         }
     }
     

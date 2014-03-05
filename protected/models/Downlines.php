@@ -10,6 +10,8 @@ class Downlines extends CFormModel
     public $_connection;
     public $endorser_id;
     public $member_id;
+    public $date_from;
+    public $date_to;
     
     public function __construct() {
         $this->_connection = Yii::app()->db;
@@ -175,7 +177,7 @@ class Downlines extends CFormModel
         $query = "SELECT 
                     m.member_id,
                     md.last_name, md.first_name, md.middle_name,
-                    m.date_created as date_enrolled,
+                    m.date_joined as date_enrolled,
                     m.upline_id,
                     m.endorser_id
                   FROM members m
@@ -250,6 +252,27 @@ class Downlines extends CFormModel
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+        
+    }
+    
+    public function findDirectEndorseByDate()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    member_id AS downline
+                  FROM members m
+                  WHERE m.endorser_id = :member_id 
+                    AND m.placement_status = 1
+                    AND m.placement_date BETWEEN :date_from AND :date_to";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':date_from', $this->date_from);
+        $command->bindParam(':date_to', $this->date_to);
         $result = $command->queryAll();
         
         return $result;

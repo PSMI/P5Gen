@@ -158,7 +158,7 @@ class ReferenceModel extends CFormModel
     {
         $conn = Yii::app()->db;
         
-        $query = "SELECT cutoff_id, concat(date_format(last_cutoff_date,'%M %d, %Y'), ' to ', date_format(next_cutoff_date,'%M %d, %Y')) as cutoff_date 
+        $query = "SELECT cutoff_id, concat(date_format(last_cutoff_date,'%b %d, %Y'), ' -- ', date_format(next_cutoff_date,'%b %d, %Y')) as cutoff_date 
                     FROM ref_cutoffs 
                     WHERE transaction_type_id = :trans_type_id 
                   ORDER BY cutoff_id DESC";
@@ -173,10 +173,11 @@ class ReferenceModel extends CFormModel
     {
         $conn = Yii::app()->db;
         
-        $query = "SELECT concat(date_format(last_cutoff_date,'%M %d, %Y'), ' to ', date_format(next_cutoff_date,'%M %d, %Y')) as cutoff_date 
+        $query = "SELECT concat(date_format(last_cutoff_date,'%b %d, %Y'), ' - ', date_format(next_cutoff_date,'%b %d, %Y')) as cutoff_date,
+                         last_cutoff_date, 
+                         next_cutoff_date
                     FROM ref_cutoffs 
-                  WHERE cutoff_id = :cutoff_id 
-                  ORDER BY cutoff_id DESC";
+                  WHERE cutoff_id = :cutoff_id";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $cutoff_id);

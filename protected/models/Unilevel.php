@@ -12,41 +12,124 @@ class Unilevel extends CFormModel
     public $upline_id;
     public $cutoff_id;
     public $total_direct_endorse;
+    public $next_cutoff_date;
+    public $last_cutoff_date;
     
     public function __construct()
     {
         $this->_connection = Yii::app()->db;
     }
     
-    public function getUnilevel($dateFrom, $dateTo)
+    public function rules()
+    {
+        return array(
+            array('cutoff_id','required'),
+        );
+    }
+    
+    public function attributeLabels() {
+        return array('cutoff_id'=>'Cut-Off Date');
+    }
+    
+    public function getUnilevel()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    u.unilevel_id,  
+                    u.cutoff_id,
+                    u.member_id,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                    u.ibo_count,
+                    u.amount,
+                    u.date_created,
+                    DATE_FORMAT(u.date_approved, '%d-%m-%Y') AS date_approved,
+                    CONCAT(md1.last_name, ', ', md1.first_name, ' ', md1.middle_name) AS approved_by,
+                    DATE_FORMAT(u.date_claimed, '%d-%m-%Y') AS date_claimed,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                    u.status
+                  FROM unilevel u
+                    INNER JOIN member_details md
+                      ON u.member_id = md.member_id
+                    LEFT OUTER JOIN member_details md1
+                      ON u.approved_by_id = md1.member_id
+                    LEFT OUTER JOIN member_details md2
+                      ON u.claimed_by_id = md2.member_id
+                  WHERE u.cutoff_id = :cutoff_id 
+                  ORDER BY md.last_name;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function getUnilevelTotalAmount()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    sum(u.amount) as amount_total
+                  FROM unilevel u
+                  WHERE u.cutoff_id = :cutoff_id";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $result = $command->queryAll();
+        
+        return $result[0]['amount_total'];
+    }
+    
+    public function getUnilevelTotalIBO()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    sum(u.ibo_count) as ibo_total
+                  FROM unilevel u
+                  WHERE u.cutoff_id = :cutoff_id";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $result = $command->queryAll();
+        
+        return $result[0]['ibo_total'];
+    }
+    
+    public function getUnilevelDetails()
     {
         $conn = $this->_connection;
         
         $query = "SELECT
                     u.unilevel_id,
-                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
+                    u.cutoff_id,
+                    u.member_id,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
                     u.ibo_count,
                     u.amount,
                     u.date_created,
-                    DATE_FORMAT(u.date_approved,'%d-%m-%Y') AS date_approved,
-                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
-                    DATE_FORMAT(u.date_claimed,'%d-%m-%Y') AS date_claimed,
+                    DATE_FORMAT(u.date_approved, '%d-%m-%Y') AS date_approved,
+                    CONCAT(md1.last_name, ', ', md1.first_name, ' ', md1.middle_name) AS approved_by,
+                    DATE_FORMAT(u.date_claimed, '%d-%m-%Y') AS date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
-                    u.status,
-                    u.member_id
+                    u.status
                   FROM unilevel u
-                    INNER JOIN member_details m
+                    INNER JOIN members m
                       ON u.member_id = m.member_id
-                    LEFT OUTER JOIN member_details md
-                      ON u.approved_by_id = md.member_id
+                    INNER JOIN member_details md
+                      ON u.member_id = md.member_id
+                    LEFT OUTER JOIN member_details md1
+                      ON u.approved_by_id = md1.member_id
                     LEFT OUTER JOIN member_details md2
                       ON u.claimed_by_id = md2.member_id
-                  WHERE u.date_created BETWEEN :dateFrom AND :dateTo ORDER BY u.date_created DESC;";
+                  WHERE u.cutoff_id = :cutoff_id
+                  AND u.member_id = :member_id";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':dateFrom', $dateFrom);
-        $command->bindParam(':dateTo', $dateTo);
-        $result = $command->queryAll();
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':member_id', $this->member_id);
+        $result = $command->queryRow();
         
         return $result;
     }

@@ -102,8 +102,8 @@ class Loan extends CFormModel
         
         $query = "SELECT
                         CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                        DATE_FORMAT(m.date_created,'%d-%m-%Y') AS date_joined,
-                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS upline_name
+                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS endorser_name
                     FROM members m
                         INNER JOIN member_details md
                         ON m.member_id = md.member_id
