@@ -1,5 +1,5 @@
 <style type="text/css">
-    page {font-family:Courier; font-size:11px; width:100%;}
+    page {font-family:Courier; font-size:10px; width:100%;}
     #tbl-body, #tbl-body td, #tbl-body th {border:1px solid #ccc; border-collapse: collapse; padding: 2px}
     #tbl-body th {background-color: #ccc;}
     .tborder {width:100%; border-bottom: 1px solid #ccc;}
@@ -69,10 +69,14 @@ $curdate = date('M d, Y h:ia');
         }?>
     </table>
     <br />
-    <table>
+    <table id="tbl-body">
+        <tr>
+            <th>Total IBO</th>
+            <td width="100" align="right"><?php echo number_format($total['total_ibo'],0); ?></td>
+        </tr>
         <tr>
             <th>Total Payout</th>
-            <td><?php echo $payout[0]['total_payout']; ?></td>
+            <td width="100" align="right"><?php echo number_format($total['total_amount'],2); ?></td>
         </tr>
     </table>
 </page>

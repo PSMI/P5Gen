@@ -27,7 +27,7 @@ class CodesController extends Controller
         $dataProvider = new CArrayDataProvider($rawData, array(
                         'keyField' => false,
                         'pagination' => array(
-                        'pageSize' => 10,
+                        'pageSize' => 25,
                     ),
         ));
         
@@ -97,7 +97,7 @@ class CodesController extends Controller
         $dataProvider = new CArrayDataProvider($rawData, array(
                         'keyField' => false,
                         'pagination' => array(
-                        'pageSize' => 10,
+                        'pageSize' => 25,
                     ),
         ));
         

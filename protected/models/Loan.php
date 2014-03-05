@@ -36,12 +36,27 @@ class Loan extends CFormModel
                       ON l.member_id = m.member_id
                     LEFT OUTER JOIN member_details md ON l.approved_by_id = md.member_id
                     LEFT OUTER JOIN member_details md2 ON l.claimed_by_id = md2.member_id
-                  WHERE l.status IN (1, 2, 3) ORDER BY l.date_completed DESC;";
+                  WHERE l.status IN (1, 2, 3) ORDER BY m.last_name;";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryAll();
         
         return $result;
+    }
+    
+    public function getTotalLoans()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    sum(l.loan_amount) as total_loans                    
+                  FROM loans l
+                  WHERE l.status IN (1, 2, 3);";
+        
+        $command =  $conn->createCommand($query);
+        $result = $command->queryRow();
+        
+        return $result['total_loans'];
     }
     
     public function updateLoanStatus($loan_id, $status, $userid)

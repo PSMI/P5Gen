@@ -1,5 +1,5 @@
 <style type="text/css">
-    page {font-family:Courier; font-size:11px; width:100%;}
+    page {font-family:Courier; font-size:10px; width:100%;}
     #tbl-body, #tbl-body td, #tbl-body th {border:1px solid #ccc; border-collapse: collapse; padding: 2px}
     #tbl-body th {background-color: #ccc;}
     .tborder {width:100%; border-bottom: 1px solid #ccc;}

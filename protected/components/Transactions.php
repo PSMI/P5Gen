@@ -177,7 +177,7 @@ class Transactions extends Controller
                                      
         $member->member_id = $member_id;
         
-        $uplines = Networks::getUplines($member_id);
+        $uplines = Networks::getEndorser($member_id);
         
         if(is_null($uplines))//root record
             $uplines = array($member_id);

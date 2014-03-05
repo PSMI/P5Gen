@@ -267,7 +267,8 @@ class Downlines extends CFormModel
                   FROM members m
                   WHERE m.endorser_id = :member_id 
                     AND m.placement_status = 1
-                    AND m.placement_date BETWEEN :date_from AND :date_to";
+                    AND (m.placement_date >= :date_from 
+                    AND m.placement_date <= :date_to)";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);

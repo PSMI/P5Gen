@@ -65,36 +65,21 @@ class Unilevel extends CFormModel
         return $result;
     }
     
-    public function getUnilevelTotalAmount()
+    public function getPayoutTotal()
     {
         $conn = $this->_connection;
         
         $query = "SELECT
-                    sum(u.amount) as amount_total
+                    sum(u.amount) as total_amount,
+                    sum(u.ibo_count) as total_ibo
                   FROM unilevel u
                   WHERE u.cutoff_id = :cutoff_id";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
-        $result = $command->queryAll();
+        $result = $command->queryRow();
         
-        return $result[0]['amount_total'];
-    }
-    
-    public function getUnilevelTotalIBO()
-    {
-        $conn = $this->_connection;
-        
-        $query = "SELECT
-                    sum(u.ibo_count) as ibo_total
-                  FROM unilevel u
-                  WHERE u.cutoff_id = :cutoff_id";
-        
-        $command =  $conn->createCommand($query);
-        $command->bindParam(':cutoff_id', $this->cutoff_id);
-        $result = $command->queryAll();
-        
-        return $result[0]['ibo_total'];
+        return $result;
     }
     
     public function getUnilevelDetails()

@@ -69,10 +69,10 @@ $curdate = date('M d, Y h:ia');
         }?>
     </table>
     <br />
-    <table>
+    <table id="tbl-body">
         <tr>
             <th>Total Loan Amount</th>
-            <td align="right"><?php echo number_format($loan_amount,2); ?></td>
+            <td width="100" align="right"><?php echo number_format($loan_amount,2); ?></td>
         </tr>
         <tr>
             <th align="right">Cash (80%)</th>

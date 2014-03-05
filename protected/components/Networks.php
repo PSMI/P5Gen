@@ -95,6 +95,23 @@ class Networks extends Controller
         return $uplines;
     }
     
+     public function getEndorser($member_id)
+    {
+        $uplines = array();
+        $model = new Endorser();
+        do
+        {
+             
+             $result = $model->getEndorsers($member_id);    
+             $member_id = $result['endorser'];
+             
+             if(!is_null($member_id)) $uplines[] = $member_id;
+             
+        }while(!empty($member_id) && !is_null($member_id));
+            
+        return $uplines;
+    }
+    
     /**
      * This recursive function is used to retrieve the downlines
      * of the logged-in member.

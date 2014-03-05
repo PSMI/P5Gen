@@ -101,10 +101,11 @@ class ActivationCodeModel extends CFormModel
         $connection = $this->_connection;
         
         $sql = "SELECT a.activation_code, 
-                CASE a.status WHEN 0 THEN 'Available' WHEN 1 THEN 'Used/Assigned' END AS status
+                CASE a.status WHEN 0 THEN 'Available' WHEN 1 THEN 'Used' END AS status
                 FROM activation_codes a
                 INNER JOIN activation_code_batch b ON a.activation_code_batch_id = b.activation_code_batch_id
-                WHERE b.activation_code_batch_id = :batchId";
+                WHERE b.activation_code_batch_id = :batchId
+                ORDER BY 2";
         $command = $connection->createCommand($sql);
         $command->bindParam(":batchId", $batchId);
         $result = $command->queryAll();

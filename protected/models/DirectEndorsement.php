@@ -81,7 +81,7 @@ class DirectEndorsement extends CFormModel
                     d.direct_endorsement_id,
                     CONCAT(md.last_name, ', ', md.first_name) AS member_name,
                     CONCAT(md1.last_name, ', ', md1.first_name) AS upline_name,
-                    DATE_FORMAT(m.date_created, '%M %d, %Y') AS date_joined
+                    DATE_FORMAT(m.date_joined, '%M %d, %Y') AS date_joined
                   FROM direct_endorsements d
                     INNER JOIN member_details md
                       ON d.member_id = md.member_id
@@ -99,12 +99,16 @@ class DirectEndorsement extends CFormModel
         return $result;
     }
     
-    public function getEndorsementTotalPayout()
+    public function getEndorsementTotalAmount()
     {
+        $reference = new ReferenceModel();
+        
         $conn = $this->_connection;
+        $payout_rate = $reference->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
         
         $query = "SELECT
-                    FORMAT(COUNT(d.endorser_id) * 300,2) AS total_payout
+                    (COUNT(d.endorser_id) * :payout_rate) AS total_amount,
+                    count(*) AS total_ibo
                   FROM direct_endorsements d
                   WHERE d.cutoff_id = :cutoff_id
                   AND d.endorser_id = :endorser_id
@@ -113,7 +117,28 @@ class DirectEndorsement extends CFormModel
         $command =  $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->bindParam(':endorser_id', $this->endorser_id);
-        $result = $command->queryAll();        
+        $command->bindParam(':payout_rate', $payout_rate);
+        $result = $command->queryRow();        
+        return $result;
+    }
+    
+    public function getPayoutTotal()
+    {
+        $reference = new ReferenceModel();
+        
+        $conn = $this->_connection;
+        $payout_rate = $reference->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
+        
+        $query = "SELECT
+                    (COUNT(*) * :payout_rate) AS total_amount,
+                    COUNT(*) AS total_ibo
+                  FROM direct_endorsements d
+                  WHERE d.cutoff_id = :cutoff_id";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':payout_rate', $payout_rate);
+        $result = $command->queryRow();        
         return $result;
     }
     

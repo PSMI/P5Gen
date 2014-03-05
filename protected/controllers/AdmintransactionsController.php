@@ -14,15 +14,19 @@ class AdmintransactionsController extends Controller
         $model = new Loan();
             
         $rawData = $model->getLoanApplications();
+        $total = $model->getTotalLoans();
 
         $dataProvider = new CArrayDataProvider($rawData, array(
                                                 'keyField' => false,
                                                 'pagination' => array(
-                                                'pageSize' => 10,
+                                                'pageSize' => 25,
                                             ),
                                 ));
 
-        $this->render('loan', array('dataProvider' => $dataProvider));  
+        $this->render('loan', array(
+            'dataProvider' => $dataProvider,
+            'total'=>$total
+        ));  
     }
     
     public function actionProcessTransaction()
@@ -238,8 +242,7 @@ class AdmintransactionsController extends Controller
         }
         
         $rawData = $model->getUnilevel();
-        $total_amount = $model->getUnilevelTotalAmount();
-        $total_ibo = $model->getUnilevelTotalIBO();
+        $total = $model->getPayoutTotal();
         $dataProvider = new CArrayDataProvider($rawData, array(
                                                 'keyField' => false,
                                                 'pagination' => array(
@@ -250,8 +253,8 @@ class AdmintransactionsController extends Controller
         $this->render('unilevel', array(
                 'dataProvider' => $dataProvider,
                 'model'=>$model,
-                'total_amount'=>$total_amount,
-                'total_ibo'=>$total_ibo));
+                'total'=>$total,
+            ));
     }
     
     //For Bonus
@@ -289,6 +292,7 @@ class AdmintransactionsController extends Controller
         }
         
         $rawData = $model->getDirectEndorsement();
+        $total = $model->getPayoutTotal();
         
         $dataProvider = new CArrayDataProvider($rawData, array(
                     'keyField' => false, //'direct_endorsement_id',
@@ -297,7 +301,11 @@ class AdmintransactionsController extends Controller
                     ),
                 ));
 
-        $this->render('directendorse', array('model'=>$model,'dataProvider' => $dataProvider));
+        $this->render('directendorse', array(
+            'model'=>$model,
+            'dataProvider' => $dataProvider,
+            'total'=>$total,
+         ));
     }
     
     public function getStatusForButtonDisplayLoan($status_id, $status_type)
@@ -528,8 +536,7 @@ class AdmintransactionsController extends Controller
             $date_from = $cutoff['last_cutoff_date'];
             $date_to = $cutoff['next_cutoff_date'];
             
-            $downline = Networks::getUnilevelByCutOff($member_id,$date_from, $date_to);
-            
+            $downline = Networks::getUnilevelByCutOff($member_id,$date_from, $date_to);            
             $unilevels = Networks::arrangeLevel($downline, 'ASC');
             
             foreach($unilevels['network'] as $level)
@@ -602,7 +609,7 @@ class AdmintransactionsController extends Controller
             $cutoff = $reference->get_cutoff_by_id($cutoff_id);
             
             $endorsee = $model->getEndorseeByCutoff();
-            $total_payout = $model->getEndorsementTotalPayout();
+            $total = $model->getEndorsementTotalAmount();
            
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
             $html2pdf->WriteHTML($this->renderPartial('_directendorsereport', array(
@@ -610,7 +617,7 @@ class AdmintransactionsController extends Controller
                     'endorser'=>$endorser,
                     'endorsee'=>$endorsee,
                     'cutoff'=>$cutoff,
-                    'payout'=>$total_payout,
+                    'total'=>$total,
                 ), true
              ));
             $html2pdf->Output('DirectEndorsement_' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
