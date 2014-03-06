@@ -775,5 +775,16 @@ class CronController extends Controller
        
     }
     
+    public function actionRotateLog()
+    {
+        $model = new Logs();
+        $model->log_rotate();
+        
+        if(!$model->hasErrors())
+            echo 'Log rotation completed';
+        else
+            echo $model->getErrors ();
+    }
+    
 }
 ?>

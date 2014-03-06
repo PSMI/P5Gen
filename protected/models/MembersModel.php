@@ -253,7 +253,7 @@ class MembersModel extends CFormModel
                       ON m.member_id = md.member_id
                     INNER JOIN running_accounts ra
                       ON m.member_id = ra.member_id
-                  WHERE ra.total_member >= :min_member_count
+                  WHERE ra.direct_endorse >= :min_member_count
                   AND ra.date_last_updated <= DATE_ADD(m.date_created, INTERVAL ".$interval." MONTH);";
         
         $command = $conn->createCommand($query);
