@@ -60,6 +60,23 @@ class GroupOverrideCommission extends CFormModel
         return $result;
     }
     
+    public function getCommissionsTotal()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    sum(c.ibo_count) AS total_ibo,
+                    sum(c.amount) AS total_amount
+                  FROM commissions c
+                  WHERE c.cutoff_id = :cutoff_id";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
+    
     public function updateCommisionStatus($comm_id, $status, $userid)
     {
         $conn = $this->_connection;
@@ -270,7 +287,7 @@ class GroupOverrideCommission extends CFormModel
                         m.member_id
                     FROM members m
                     WHERE m.member_id = :ibo_id
-                    AND placement_date BETWEEN :from_cutoff AND :to_cutoff;";
+                    AND placement_date > :from_cutoff AND placement_date <= :to_cutoff;";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':ibo_id', $ibo_id);

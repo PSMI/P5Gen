@@ -1,5 +1,5 @@
 <style type="text/css">
-    page {font-family:Courier; font-size:11px; width:100%;}
+    page {font-family:Courier; font-size:10px; width:100%;}
     #tbl-body, #tbl-body td, #tbl-body th {border:1px solid #ccc; border-collapse: collapse; padding: 2px}
     #tbl-body th {background-color: #ccc;}
     .tborder {width:100%; border-bottom: 1px solid #ccc;}
@@ -48,10 +48,10 @@ $curdate = date('M d, Y h:ia');
     <table width="100%" id="tbl-body">
         <tr>
             <th>&nbsp;</th>
+            <th>Level</th>
             <th width="250">Name of Endorsed IBO</th>
-            <th>Level No.</th>
             <th width="250">Place Under</th>
-            <th width="200">Date Joined</th>
+            <th width="150">Date Joined</th>
         </tr>
         <?php 
         $ctr = 1;
@@ -59,9 +59,9 @@ $curdate = date('M d, Y h:ia');
         {
         ?>
         <tr>
-            <td><?php echo $ctr; ?></td>
+            <td align="center"><?php echo $ctr; ?></td>
+            <td align="center"><?php echo $row['level']; ?></td>
             <td><?php echo $row['member_name'] ?></td>
-            <td><?php echo $row['level']; ?></td>
             <td><?php echo $row['upline_name']; ?></td>
             <td><?php echo $row['date_joined']; ?></td>
         </tr>

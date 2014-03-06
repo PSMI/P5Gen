@@ -84,20 +84,20 @@ class Networks extends Controller
         $model = new Uplines();
         do
         {
-             
+
              $result = $model->getUplines($member_id);    
              $member_id = $result['upline'];
              
-             if(!is_null($member_id)) $uplines[] = $member_id;
+              if(!is_null($member_id)) $uplines[] = $member_id;
              
-        }while(!empty($member_id) && !is_null($member_id));
+        }while(!is_null($member_id));
             
         return $uplines;
     }
     
      public function getEndorser($member_id)
     {
-        $uplines = array();
+        $endorser = array();
         $model = new Endorser();
         do
         {
@@ -105,11 +105,11 @@ class Networks extends Controller
              $result = $model->getEndorsers($member_id);    
              $member_id = $result['endorser'];
              
-             if(!is_null($member_id)) $uplines[] = $member_id;
+             if(!is_null($member_id)) $endorser[] = $member_id;
              
         }while(!empty($member_id) && !is_null($member_id));
             
-        return $uplines;
+        return $endorser;
     }
     
     /**

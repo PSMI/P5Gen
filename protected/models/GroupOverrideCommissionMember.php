@@ -41,5 +41,6 @@ class GroupOverrideCommissionMember extends CFormModel
         
         return $result;
     }
+    
 }
 ?>

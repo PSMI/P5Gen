@@ -204,6 +204,7 @@ class AdmintransactionsController extends Controller
         }
         
         $rawData = $model->getComissions();
+        $total = $model->getCommissionsTotal();
         
         $dataProvider = new CArrayDataProvider($rawData, array(
                     'keyField' => false, //'direct_endorsement_id',
@@ -212,7 +213,7 @@ class AdmintransactionsController extends Controller
                     ),
                 ));
         
-        $this->render('goc', array('model'=>$model, 'dataProvider' => $dataProvider));
+        $this->render('goc', array('model'=>$model, 'dataProvider' => $dataProvider, 'total'=>$total));
     }
     
     //For Unilevel
@@ -483,7 +484,6 @@ class AdmintransactionsController extends Controller
         
         if(isset($_GET["id"]))
         {
-            $commission_id = $_GET["id"];
             $member_id = $_GET["member_id"];
             $member_name = $_GET["member_name"];
             $amount = $_GET["amount"];
@@ -494,7 +494,7 @@ class AdmintransactionsController extends Controller
             
             //Get names of endorsed IBO
             $rawData = Networks::getDownlines($member_id);
-            $final = Networks::arrangeLevel($rawData);
+            $final = Networks::arrangeLevel($rawData,'ASC');
             
             //get cutoff dates
             $cutoff = ReferenceModel::get_cutoff_by_id($_GET["cutoff_id"]);
@@ -502,30 +502,7 @@ class AdmintransactionsController extends Controller
             $to_cutoff = $cutoff['next_cutoff_date'];
             
             //Get level 1 downline ids
-            //$downlines = array_fill_keys(array('member_name', 'level', 'upline_name', 'date_joined'), array());
             $downlines = array();
-            
-//            foreach ($final['network'] as $val)
-//            {
-//                if ($val['Level'] != 1)
-//                {
-//                    $exploded_members = explode(",", $val['Members']);
-//                    
-//                    foreach ($exploded_members as $ibo_id)
-//                    {
-//                        $exist = $model->checkIfExistInCutoff($ibo_id, $from_cutoff, $to_cutoff);
-//
-//                        if (count($exist) > 0)
-//                        {  
-//                            $downlines_new = $model->getPayeeDownlineDetails($ibo_id);
-//                            array_push($downlines['member_name'], $downlines_new[0]['member_name']);
-//                            array_push($downlines['level'], $val['Level']);
-//                            array_push($downlines['upline_name'], $downlines_new[0]['upline_name']);
-//                            array_push($downlines['date_joined'], $downlines_new[0]['date_joined']);
-//                        }
-//                    }
-//                 }
-//            }
             
             
             foreach ($final['network'] as $val)

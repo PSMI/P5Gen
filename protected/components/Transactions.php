@@ -62,8 +62,6 @@ class Transactions extends Controller
                         else
                             $model->payout_rate = $reference->get_variable_value('GOC_LEVEL_10_BELOW_AMOUNT');
 
-                        
-                        
                         //Update current transaction, +1 to current ibo_count. NOTE: MUST BE LOGGED TO AUDIT TRAIL FOR BACK TRACKING
                         $model->update_transactions();
                     }

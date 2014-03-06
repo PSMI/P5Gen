@@ -58,6 +58,7 @@ class TransactionController extends Controller
         $member_id = Yii::app()->user->getId();
 
         $rawData = $model->getBonus($member_id);
+        $promo = $model->getActivePromo();
 
         $dataProvider = new CArrayDataProvider($rawData, array(
                                                 'keyField' => false,
@@ -66,7 +67,7 @@ class TransactionController extends Controller
                                             ),
                                 ));
 
-        $this->render('bonus', array('dataProvider' => $dataProvider));
+        $this->render('bonus', array('dataProvider' => $dataProvider,'promo'=>$promo));
     }
     
     //For Direct Endorsement

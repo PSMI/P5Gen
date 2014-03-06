@@ -44,5 +44,18 @@ class BonusMember extends CFormModel
         
         return $result;
     }
+    
+    public function getActivePromo()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM promos
+                    WHERE status = 1
+                     ORDER BY promo_id DESC
+                      LIMIT 1";
+        
+        $command = $conn->createCommand($query);
+        return $command->queryRow();
+    }
 }
 ?>

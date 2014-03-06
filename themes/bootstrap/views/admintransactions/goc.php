@@ -41,6 +41,7 @@ if (isset($dataProvider))
 {
     $this->renderPartial('_gocview', array(
                 'dataProvider'=>$dataProvider,
+                'total'=>$total
         ));
 }
 else
