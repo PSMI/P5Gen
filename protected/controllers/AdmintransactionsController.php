@@ -191,29 +191,28 @@ class AdmintransactionsController extends Controller
     public function actionGoc()
     {
         $model = new GroupOverrideCommission();
-        
-        if (isset($_POST["calDateFrom"]) && $_POST["calDateTo"])
+
+        if (isset($_POST["GroupOverrideCommission"]))
         {
-            $dateFrom = $_POST["calDateFrom"];
-            $dateTo = $_POST["calDateTo"];
-//            Yii::app()->session['dateFromGoc'] = $dateFrom;
-//            Yii::app()->session['dateToGoc'] = $dateTo;
-            
-            $rawData = $model->getComissions($dateFrom, $dateTo);
-            
-            $dataProvider = new CArrayDataProvider($rawData, array(
-                                                    'keyField' => false,
-                                                    'pagination' => false,
-                                                    //'pageSize' => 10,
-                                                //),
-                                    ));
-            
-            $this->render('goc', array('dataProvider' => $dataProvider));
+            unset(Yii::app()->session['groupoc']);
+            $model->attributes = $_POST['GroupOverrideCommission'];
+            Yii::app()->session['groupoc'] = $model->attributes;
         }
         else
         {
-            $this->render('goc');
+            $model->attributes = Yii::app()->session['groupoc'];
         }
+        
+        $rawData = $model->getComissions();
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                    'keyField' => false, //'direct_endorsement_id',
+                    'pagination' => array(
+                        'pageSize' => 25,
+                    ),
+                ));
+        
+        $this->render('goc', array('model'=>$model, 'dataProvider' => $dataProvider));
     }
     
     //For Unilevel
@@ -455,7 +454,7 @@ class AdmintransactionsController extends Controller
                             $downlines = $model->getLoanCompletionDownlines($downline_ids);
                         }
                     }
-
+                    
                     //Total Amount table
                     $pct['cash'] = (80 / 100) * $loan_amount;
                     $pct['check'] = (20 / 100) * $loan_amount;
@@ -478,24 +477,114 @@ class AdmintransactionsController extends Controller
     
     public function actionPdfGoc()
     {
+        $model = new GroupOverrideCommission();
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();
+        
         if(isset($_GET["id"]))
         {
             $commission_id = $_GET["id"];
             $member_id = $_GET["member_id"];
             $member_name = $_GET["member_name"];
-
-            $content = "Group Override Commission for ".$commission_id." cut off";
-            $content .= "<br>";
-            $content .= "Member Name: ".$member_name;
             
-            $html2pdf = Yii::app()->ePdf->HTML2PDF();
-            $html2pdf->WriteHTML($content);
-            $html2pdf->Output('GOC_' . date('Y-m-d') . '.pdf', 'D'); 
+            //Get Payee Details
+            $payee = $model->getPayeeDetails($member_id);
+            
+            //Get names of endorsed IBO
+            $rawData = Networks::getDownlines($member_id);
+            $final = Networks::arrangeLevel($rawData);
+            
+            //get cutoff dates
+            $cutoff = ReferenceModel::get_cutoff_by_id($_GET["cutoff_id"]);
+            $from_cutoff = $cutoff['last_cutoff_date'];
+            $to_cutoff = $cutoff['next_cutoff_date'];
+            
+            //Get level 1 downline ids
+            $downlines = array_fill_keys(array('member_name', 'level', 'upline_name', 'date_joined'), array());
+            //$downlines = array();
+            
+            foreach ($final['network'] as $val)
+            {
+                if ($val['Level'] != 1)
+                {
+                    $exploded_members = explode(",", $val['Members']);
+                    
+                    foreach ($exploded_members as $ibo_id)
+                    {
+                        $exist = $model->checkIfExistInCutoff($ibo_id, $from_cutoff, $to_cutoff);
+
+                        if (count($exist) > 0)
+                        {  
+                            $downlines_new = $model->getPayeeDownlineDetails($ibo_id);
+                            array_push($downlines['member_name'], $downlines_new[0]['member_name']);
+                            array_push($downlines['level'], $val['Level']);
+                            array_push($downlines['upline_name'], $downlines_new[0]['upline_name']);
+                            array_push($downlines['date_joined'], $downlines_new[0]['date_joined']);
+                        }
+                    }
+                 }
+            }
+            
+            
+//            foreach ($final['network'] as $val)
+//            {
+//                if ($val['Level'] != 1)
+//                {
+//                    $exploded_members = explode(",", $val['Members']);
+//
+//                    $current_level = $val["Level"];
+//                    $i = 0;
+//                    foreach ($exploded_members as $ibo_id)
+//                    {
+//                        $exist = $model->checkIfExistInCutoff($ibo_id, $from_cutoff, $to_cutoff);
+//                        
+//                        if (count($exist) > 0)
+//                        {
+//                            $downlines_new = $model->getPayeeDownlineDetails($ibo_id);
+//                            
+//                            $downlines["level"][$i] = $current_level;
+//                            $downlines["member_name"][$i] = $downlines_new[0]["member_name"];
+//                            $downlines["upline_name"][$i] = $downlines_new[0]["upline_name"];
+//                            $downlines["date_joined"][$i] = $downlines_new[0]["date_joined"];
+//                        }
+//                        
+//                        $i++;
+//                        
+//                        }
+//                    }
+//                }
+            
+           //print_r($downlines); exit;
+//            foreach ($downlines['member_name'] as $dl)
+//            {
+//                echo $dl;
+//                echo "</br>";
+//            }
+//            exit;
+            
+            $html2pdf->WriteHTML($this->renderPartial('_gocreport', array(
+                            'member_name'=>$member_name,
+                            'payee'=>$payee,
+//                            'pct'=>$pct,
+//                            'loan_amount'=>$loan_amount,
+                            'downlines'=>$downlines,
+//                            'level_no'=>$level_no,
+                        ), true
+                     ));
+            
+            $html2pdf->Output('GOC_' . $member_name . '_'  . date('Y-m-d') . '.pdf', 'D'); 
+            Yii::app()->end();
         }
         else
         {
             echo "id not set";
         }
+    }
+    
+    private function checkCutoff()
+    {
+        $model = new GroupOverrideCommission();
+        
     }
     
     public function actionPdfUnilevel()

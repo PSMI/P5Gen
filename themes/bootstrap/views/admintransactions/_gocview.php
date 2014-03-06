@@ -7,15 +7,15 @@
 $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'goc-grid',
         'type'=>'striped bordered condensed',
-        //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
         'htmlOptions'=>array('style'=>'font-size:12px'),
-        'enablePagination' => false,
-        'template'=>"{items}",
+        'enablePagination' => true,
+        //'template'=>"{items}",
         'columns' => array(
                         array(
                             'header' => '',
-                            'value' => '$row + 1',
+                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
+                            * $this->grid->dataProvider->pagination->pageSize + 1)',
                         ),
                         array('name'=>'member_name',
                               'header'=>'Member Name',
@@ -62,7 +62,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}{claim}{print}',
+                            'template'=>'{approve}{claim}{download}',
                             'buttons'=>array
                             (
                                 'approve'=>array
@@ -119,11 +119,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     ),
                                     array('id' => 'send-link-'.uniqid())
                                 ),
-                                'print'=>array
+                                'download'=>array
                                 (
-                                    'label'=>'Print',
-                                    'icon'=>'icon-print',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfgoc", array("id" =>$data["commission_id"], "member_id" =>$data["member_id"], "member_name" =>$data["member_name"]))',
+                                    'label'=>'Download',
+                                    'icon'=>'icon-download-alt',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfgoc", array("id" =>$data["commission_id"], "member_id" =>$data["member_id"], "member_name" =>$data["member_name"], "cutoff_id" =>$data["cutoff_id"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),
