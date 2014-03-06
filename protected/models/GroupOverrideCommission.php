@@ -12,7 +12,7 @@ class GroupOverrideCommission extends CFormModel
     public $uplines;
     public $upline_id;
     
-    public function __construct() 
+    public function __construct()
     {
         $this->_connection = Yii::app()->db;
     }

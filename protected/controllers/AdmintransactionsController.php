@@ -486,6 +486,7 @@ class AdmintransactionsController extends Controller
             $commission_id = $_GET["id"];
             $member_id = $_GET["member_id"];
             $member_name = $_GET["member_name"];
+            $amount = $_GET["amount"];
             
             //Get Payee Details
             $payee = $model->getPayeeDetails($member_id);
@@ -500,75 +501,71 @@ class AdmintransactionsController extends Controller
             $to_cutoff = $cutoff['next_cutoff_date'];
             
             //Get level 1 downline ids
-            $downlines = array_fill_keys(array('member_name', 'level', 'upline_name', 'date_joined'), array());
-            //$downlines = array();
-            
-            foreach ($final['network'] as $val)
-            {
-                if ($val['Level'] != 1)
-                {
-                    $exploded_members = explode(",", $val['Members']);
-                    
-                    foreach ($exploded_members as $ibo_id)
-                    {
-                        $exist = $model->checkIfExistInCutoff($ibo_id, $from_cutoff, $to_cutoff);
-
-                        if (count($exist) > 0)
-                        {  
-                            $downlines_new = $model->getPayeeDownlineDetails($ibo_id);
-                            array_push($downlines['member_name'], $downlines_new[0]['member_name']);
-                            array_push($downlines['level'], $val['Level']);
-                            array_push($downlines['upline_name'], $downlines_new[0]['upline_name']);
-                            array_push($downlines['date_joined'], $downlines_new[0]['date_joined']);
-                        }
-                    }
-                 }
-            }
-            
+            //$downlines = array_fill_keys(array('member_name', 'level', 'upline_name', 'date_joined'), array());
+            $downlines = array();
             
 //            foreach ($final['network'] as $val)
 //            {
 //                if ($val['Level'] != 1)
 //                {
 //                    $exploded_members = explode(",", $val['Members']);
-//
-//                    $current_level = $val["Level"];
-//                    $i = 0;
+//                    
 //                    foreach ($exploded_members as $ibo_id)
 //                    {
 //                        $exist = $model->checkIfExistInCutoff($ibo_id, $from_cutoff, $to_cutoff);
-//                        
+//
 //                        if (count($exist) > 0)
-//                        {
+//                        {  
 //                            $downlines_new = $model->getPayeeDownlineDetails($ibo_id);
-//                            
-//                            $downlines["level"][$i] = $current_level;
-//                            $downlines["member_name"][$i] = $downlines_new[0]["member_name"];
-//                            $downlines["upline_name"][$i] = $downlines_new[0]["upline_name"];
-//                            $downlines["date_joined"][$i] = $downlines_new[0]["date_joined"];
-//                        }
-//                        
-//                        $i++;
-//                        
+//                            array_push($downlines['member_name'], $downlines_new[0]['member_name']);
+//                            array_push($downlines['level'], $val['Level']);
+//                            array_push($downlines['upline_name'], $downlines_new[0]['upline_name']);
+//                            array_push($downlines['date_joined'], $downlines_new[0]['date_joined']);
 //                        }
 //                    }
-//                }
-            
-           //print_r($downlines); exit;
-//            foreach ($downlines['member_name'] as $dl)
-//            {
-//                echo $dl;
-//                echo "</br>";
+//                 }
 //            }
-//            exit;
+            
+            
+            foreach ($final['network'] as $val)
+            {   
+                if ($val['Level'] != 1)
+                {
+                    $exploded_members = explode(",", $val['Members']);
+                    
+                    $current_level = $val["Level"];
+                    $i = 0;
+                    foreach ($exploded_members as $ibo_id)
+                    {
+                        $exist = $model->checkIfExistInCutoff($ibo_id, $from_cutoff, $to_cutoff);
+                        
+                        if (count($exist) > 0)
+                        {
+                            $downlines_new = $model->getPayeeDownlineDetails($ibo_id);
+                            
+                            $downlines["level"] = $current_level;
+                            $downlines["member_name"] = $downlines_new[0]["member_name"];
+                            $downlines["upline_name"] = $downlines_new[0]["upline_name"];
+                            $downlines["date_joined"] = $downlines_new[0]["date_joined"];
+                            $dt[] = $downlines;
+                        }
+                        
+                        $i++;
+                        
+                    }
+                }
+            }
+            
+            //Total Amount table
+            $pct['cash'] = (80 / 100) * $amount;
+            $pct['check'] = (20 / 100) * $amount;
             
             $html2pdf->WriteHTML($this->renderPartial('_gocreport', array(
                             'member_name'=>$member_name,
                             'payee'=>$payee,
-//                            'pct'=>$pct,
-//                            'loan_amount'=>$loan_amount,
-                            'downlines'=>$downlines,
-//                            'level_no'=>$level_no,
+                            'pct'=>$pct,
+                            'loan_amount'=>$amount,
+                            'downlines'=>$dt,
                         ), true
                      ));
             

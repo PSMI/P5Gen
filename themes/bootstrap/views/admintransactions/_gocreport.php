@@ -55,21 +55,35 @@ $curdate = date('M d, Y h:ia');
         </tr>
         <?php 
         $ctr = 1;
-        foreach($downlines['member_name'] as $member_names)
+        foreach($downlines as $row)
         {
         ?>
         <tr>
             <td><?php echo $ctr; ?></td>
-            <td><?php echo $member_names ?></td>
-            
-
-        
+            <td><?php echo $row['member_name'] ?></td>
+            <td><?php echo $row['level']; ?></td>
+            <td><?php echo $row['upline_name']; ?></td>
+            <td><?php echo $row['date_joined']; ?></td>
         </tr>
         <?php
         $ctr++;
         }?>
     </table>
     <br />
+    <table id="tbl-body">
+        <tr>
+            <th>Total Loan Amount</th>
+            <td width="100" align="right"><?php echo number_format($loan_amount,2); ?></td>
+        </tr>
+        <tr>
+            <th align="right">Cash (80%)</th>
+            <td align="right"><?php echo number_format($pct['cash'],2); ?></td>
+        </tr>
+        <tr>
+            <th align="right">Check (20%)</th>
+            <td align="right"><?php echo number_format($pct['check'],2); ?></td>
+        </tr>
+    </table>
 </page>
 
 
