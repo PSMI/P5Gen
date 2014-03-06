@@ -487,6 +487,7 @@ class AdmintransactionsController extends Controller
             $member_id = $_GET["member_id"];
             $member_name = $_GET["member_name"];
             $amount = $_GET["amount"];
+            $ibo_count = $_GET["ibo_count"];
             
             //Get Payee Details
             $payee = $model->getPayeeDetails($member_id);
@@ -564,8 +565,9 @@ class AdmintransactionsController extends Controller
                             'member_name'=>$member_name,
                             'payee'=>$payee,
                             'pct'=>$pct,
-                            'loan_amount'=>$amount,
+                            'amount'=>$amount,
                             'downlines'=>$dt,
+                            'ibo_count'=>$ibo_count,
                         ), true
                      ));
             

@@ -72,8 +72,12 @@ $curdate = date('M d, Y h:ia');
     <br />
     <table id="tbl-body">
         <tr>
-            <th>Total Loan Amount</th>
-            <td width="100" align="right"><?php echo number_format($loan_amount,2); ?></td>
+            <th>Total IBO</th>
+            <td width="100" align="right"><?php echo number_format($ibo_count,0); ?></td>
+        </tr>
+        <tr>
+            <th>Total GOC Amount</th>
+            <td width="100" align="right"><?php echo number_format($amount,2); ?></td>
         </tr>
         <tr>
             <th align="right">Cash (80%)</th>
