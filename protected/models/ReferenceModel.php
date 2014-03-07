@@ -158,9 +158,11 @@ class ReferenceModel extends CFormModel
     {
         $conn = Yii::app()->db;
         
-        $query = "SELECT cutoff_id, concat(date_format(last_cutoff_date,'%b %d, %Y'), ' -- ', date_format(next_cutoff_date,'%b %d, %Y')) as cutoff_date 
-                    FROM ref_cutoffs 
-                    WHERE transaction_type_id = :trans_type_id 
+        $query = "SELECT
+                    cutoff_id,
+                    CONCAT(DATE_FORMAT(DATE_ADD(last_cutoff_date, INTERVAL 1 DAY), '%b %d, %Y'), ' - ', DATE_FORMAT(next_cutoff_date, '%b %d, %Y')) AS cutoff_date
+                  FROM ref_cutoffs
+                  WHERE transaction_type_id = :trans_type_id
                   ORDER BY cutoff_id DESC";
         
         $command = $conn->createCommand($query);
@@ -173,7 +175,7 @@ class ReferenceModel extends CFormModel
     {
         $conn = Yii::app()->db;
         
-        $query = "SELECT concat(date_format(last_cutoff_date,'%b %d, %Y'), ' - ', date_format(next_cutoff_date,'%b %d, %Y')) as cutoff_date,
+        $query = "SELECT CONCAT(DATE_FORMAT(DATE_ADD(last_cutoff_date, INTERVAL 1 DAY), '%b %d, %Y'), ' - ', DATE_FORMAT(next_cutoff_date, '%b %d, %Y')) AS cutoff_date,
                          last_cutoff_date, 
                          next_cutoff_date
                     FROM ref_cutoffs 
@@ -189,6 +191,29 @@ class ReferenceModel extends CFormModel
     {
         
         return CHtml::listData(ReferenceModel::get_all_cutoff($trans_type_id), 'cutoff_id', 'cutoff_date');
+    }
+    
+    public function is_first_cutoff($trans_type_id)
+    {
+        $conn = Yii::app()->db;
+        
+        $query = "SELECT MIN(cutoff_id) as cutoff_id
+                    FROM ref_cutoffs 
+                  WHERE transaction_type_id = :trans_type_id";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':trans_type_id', $trans_type_id);
+        $result = $command->queryRow();
+        return $result['cutoff_id'];
+        /*
+        $cutoff_count = $result['cutoff_count'];
+        
+        if($cutoff_count == 1)
+            return true;
+        else
+            return false;
+         * 
+         */
     }
 }
 ?>

@@ -177,9 +177,10 @@ class Unilevel extends CFormModel
         $query = "SELECT
                     ra.member_id,
                     ra.direct_endorse,
+                    ra.total_member,
                     ra.date_first_five_completed,
                     ra.with_unilevel_trx,
-                    TIMESTAMPDIFF(MONTH,m.date_created,date_first_five_completed) AS num_of_months
+                    TIMESTAMPDIFF(MONTH,m.date_joined,date_first_five_completed) AS num_of_months
                   FROM running_accounts ra
                     INNER JOIN members m
                       ON ra.member_id = m.member_id
@@ -320,6 +321,24 @@ class Unilevel extends CFormModel
         $command->bindParam(':member_id', $this->upline_id);
         $result = $command->queryAll();
         return $result;
+    }
+    
+    public function is_first_transaction()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT count(*) as total FROM unilevel 
+                    WHERE member_id = :member_id";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $result = $command->queryRow();
+        $trx_count = $result['total'];
+        if($trx_count == 1)
+            return true;
+        else
+            return false; 
+       
     }
     
     

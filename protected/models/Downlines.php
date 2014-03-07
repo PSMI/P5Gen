@@ -179,16 +179,19 @@ class Downlines extends CFormModel
                     md.last_name, md.first_name, md.middle_name,
                     m.date_joined as date_enrolled,
                     m.upline_id,
-                    m.endorser_id
+                    m.endorser_id,
+                    m.placement_date
                   FROM members m
                     INNER JOIN member_details md ON m.member_id = md.member_id
-                  WHERE m.member_id IN ($member_ids)";
+                  WHERE m.member_id IN ($member_ids)
+                    AND m.placement_status = 1";
         
         $command = $conn->createCommand($query);
         $result = $command->queryAll();
         
         return $result;
     }
+    
     
     /**
      * This model function is used to retrieve the total count of downlines.
@@ -267,8 +270,9 @@ class Downlines extends CFormModel
                   FROM members m
                   WHERE m.endorser_id = :member_id 
                     AND m.placement_status = 1
-                    AND (m.placement_date >= :date_from 
-                    AND m.placement_date <= :date_to)";
+                    AND m.placement_date > :date_from 
+                   AND m.placement_date <= :date_to
+                 ";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);

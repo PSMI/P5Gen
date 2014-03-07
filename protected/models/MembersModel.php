@@ -217,7 +217,7 @@ class MembersModel extends CFormModel
         $query = "SELECT * 
                   FROM unprocessed_members 
                   WHERE status = :status
-                  LIMIT 25";
+                  LIMIT 50";
         $command = $conn->createCommand($query);
         $command->bindParam(':status', $this->status);
         return $command->queryAll();
@@ -269,8 +269,8 @@ class MembersModel extends CFormModel
         $query = "SELECT
                     count(*) as total_direct_endorse
                   FROM members m
-                  WHERE m.member_id = :member_id
-                  AND m.date_created > DATE_ADD(m.date_created, INTERVAL 3 MONTH);";
+                  WHERE m.endorser_id = :member_id
+                  AND m.date_joined > DATE_ADD(m.date_joined, INTERVAL 3 MONTH);";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
         $result = $command->queryRow();
@@ -349,17 +349,64 @@ class MembersModel extends CFormModel
     
     public function updateRunningAccount($direct,$downlines)
     {
-        $connection = $this->_connection;
+        $conn = $this->_connection;       
         
         $query = "UPDATE running_accounts ra
                     SET direct_endorse = :direct,
                         total_member = :total
-                    WHERE member_id = :member_id";
-        $command = $connection->createCommand($query);
+                    WHERE member_id = :member_id;";
+        
+        $command = $conn->createCommand($query);
         $command->bindParam(":direct", $direct);
         $command->bindParam(":total", $downlines);
         $command->bindParam(":member_id", $this->member_id);
         $command->execute();
+        
+       
+    }
+    
+    public function alterTable1()
+    {
+        $conn = $this->_connection;   
+        $trx = $conn->beginTransaction();
+        
+        $query = "ALTER TABLE running_accounts
+                    CHANGE COLUMN date_last_updated date_last_updated DATETIME DEFAULT NULL;";
+        $command = $conn->createCommand($query);
+        $command->execute();
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
+    }
+    
+    public function alterTable2()
+    {
+        $conn = $this->_connection;   
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE running_accounts ra
+                    SET ra.with_unilevel_trx = 0,
+                        ra.date_first_five_completed = NULL
+                    WHERE ra.direct_endorse < 5;
+
+                    ALTER TABLE running_accounts
+                      CHANGE COLUMN date_last_updated date_last_updated TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;";
+        
+        $command = $conn->createCommand($query);
+        $command->execute();
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
     }
 }
 ?>

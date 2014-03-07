@@ -91,6 +91,9 @@ class SiteController extends Controller
 	 */
 	public function actionLogin()
 	{
+                if(isset(Yii::app()->session['member_id']) && isset(Yii::app()->session['account_type_id']))
+                        $this->redirect(array("site/index"));
+            
 		$model=new LoginForm;
 
 		// if it is ajax validation request
@@ -99,7 +102,7 @@ class SiteController extends Controller
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
-
+                
 		// collect user input data
 		if(isset($_POST['LoginForm']))
 		{

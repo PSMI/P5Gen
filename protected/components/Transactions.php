@@ -210,7 +210,7 @@ class Transactions extends Controller
                     
                     if($account['direct_endorse'] >= 5)
                     {
-                        $model->total_direct_endorse = $account['direct_endorse'];
+                        $model->total_direct_endorse = $account['total_member'];
                         
                         //Check direct endorse count if >= 5 date and if no. of month < 3 months
                         if($account['num_of_months'] < 3)

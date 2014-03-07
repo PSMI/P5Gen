@@ -107,7 +107,7 @@ class Networks extends Controller
              
              if(!is_null($member_id)) $endorser[] = $member_id;
              
-        }while(!empty($member_id) && !is_null($member_id));
+        }while(!is_null($member_id));
             
         return $endorser;
     }
@@ -252,6 +252,7 @@ class Networks extends Controller
             $count = $model->getUnilevelCount($val["member_id"]);
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
+            $temp["Placement_Date"] = $val['placement_date'];
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
             $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);

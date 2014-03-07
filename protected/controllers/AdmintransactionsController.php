@@ -394,15 +394,23 @@ class AdmintransactionsController extends Controller
         
         if(isset($_GET["id"]))
         {
+            $reference = new ReferenceModel();
+            $model = new Loan();
+            
             $loan_id = $_GET["id"];
             $member_id = $_GET["member_id"];
             $loan_type_id = $_GET["loan_type_id"];
             $level_no = $_GET["level_no"];
             $member_name = $_GET["member_name"];
             $loan_amount = $_GET["loan_amount"];
+            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $total_tax = $loan_amount * ($tax_withheld/100);
+            $net_loan_amount = $loan_amount - $total_tax;
             
-            $model = new Loan();
-            
+            $amount['total_loan'] = $loan_amount;
+            $amount['tax_amount'] = $total_tax;
+            $amount['net_loan'] = $net_loan_amount;
+                        
             if ($loan_type_id == 1)
             {
                 //direct 5
@@ -417,14 +425,14 @@ class AdmintransactionsController extends Controller
                 $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $limit);
 
                 //Total Amount table
-                $pct['cash'] = (80 / 100) * $loan_amount;
-                $pct['check'] = (20 / 100) * $loan_amount;
-
+                $amount['cash'] = (80 / 100) * $net_loan_amount;
+                $amount['check'] = (20 / 100) * $net_loan_amount;
+                
                 $html2pdf->WriteHTML($this->renderPartial('_loandirectreport', array(
                         'member_name'=>$member_name,
                         'payee'=>$payee,
-                        'pct'=>$pct,
-                        'loan_amount'=>$loan_amount,
+                        'amount'=>$amount,
+                        //'loan_amount'=>$loan_amount,
                         'direct_downlines'=>$direct_downlines,
                     ), true
                  ));
@@ -457,14 +465,14 @@ class AdmintransactionsController extends Controller
                     }
                     
                     //Total Amount table
-                    $pct['cash'] = (80 / 100) * $loan_amount;
-                    $pct['check'] = (20 / 100) * $loan_amount;
+                    $amount['cash'] = (80 / 100) * $net_loan_amount;
+                    $amount['check'] = (20 / 100) * $net_loan_amount;
                     
                     $html2pdf->WriteHTML($this->renderPartial('_loancompletionreport', array(
                             'member_name'=>$member_name,
                             'payee'=>$payee,
-                            'pct'=>$pct,
-                            'loan_amount'=>$loan_amount,
+                            'amount'=>$amount,
+                          //  'loan_amount'=>$loan_amount,
                             'downlines'=>$downlines,
                             'level_no'=>$level_no,
                         ), true
@@ -479,6 +487,7 @@ class AdmintransactionsController extends Controller
     public function actionPdfGoc()
     {
         $model = new GroupOverrideCommission();
+        $reference = new ReferenceModel();
         
         $html2pdf = Yii::app()->ePdf->HTML2PDF();
         
@@ -486,7 +495,7 @@ class AdmintransactionsController extends Controller
         {
             $member_id = $_GET["member_id"];
             $member_name = $_GET["member_name"];
-            $amount = $_GET["amount"];
+            $commission_amount = $_GET["amount"];
             $ibo_count = $_GET["ibo_count"];
             
             //Get Payee Details
@@ -533,15 +542,20 @@ class AdmintransactionsController extends Controller
                     }
                 }
             }
+            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $total_tax = $commission_amount * ($tax_withheld/100);
+            $net_commission = $commission_amount - $total_tax;
+            $amount['total_commission'] = $commission_amount;
+            $amount['tax'] = $total_tax;
+            $amount['net_commission'] = $net_commission;
             
             //Total Amount table
-            $pct['cash'] = (80 / 100) * $amount;
-            $pct['check'] = (20 / 100) * $amount;
+            $amount['cash'] = (80 / 100) * $net_commission;
+            $amount['check'] = (20 / 100) * $net_commission;
             
             $html2pdf->WriteHTML($this->renderPartial('_gocreport', array(
                             'member_name'=>$member_name,
                             'payee'=>$payee,
-                            'pct'=>$pct,
                             'amount'=>$amount,
                             'downlines'=>$dt,
                             'ibo_count'=>$ibo_count,
@@ -555,12 +569,6 @@ class AdmintransactionsController extends Controller
         {
             echo "id not set";
         }
-    }
-    
-    private function checkCutoff()
-    {
-        $model = new GroupOverrideCommission();
-        
     }
     
     public function actionPdfUnilevel()
@@ -600,22 +608,59 @@ class AdmintransactionsController extends Controller
             $cutoff = $reference->get_cutoff_by_id($cutoff_id);
             $date_from = $cutoff['last_cutoff_date'];
             $date_to = $cutoff['next_cutoff_date'];
-            
-            $downline = Networks::getUnilevelByCutOff($member_id,$date_from, $date_to);            
+              
+            $downline = Networks::getUnilevel($member_id);
+            //$downline = Networks::getUnilevelByCutOff($member_id,$date_from, $date_to);            
             $unilevels = Networks::arrangeLevel($downline, 'ASC');
+                
+            $first_cutoff = $reference->is_first_cutoff(TransactionTypes::UNILEVEL);
             
-            foreach($unilevels['network'] as $level)
+            //Check if current cutoff is the first cutoff
+            if($cutoff_id == $first_cutoff || $model->is_first_transaction())
             {
-                $unilevel['level'] = $level['Level'];
-                $unilevel['downlines'] = Networks::getUnilevelDownlines($level['Members']);
-                $unilevel_downlines[] = $unilevel;
+                $first_trx = true;
+
+                foreach($unilevels['network'] as $level)
+                {
+                    $unilevel['level'] = $level['Level'];
+                    $unilevel['downlines'] = Networks::getUnilevelDownlines($level['Members']);
+                    $unilevel_downlines[] = $unilevel;
+                }
             }
-            
+            else
+            {
+                $first_trx = false;
+
+                //Next transactions
+                foreach($unilevels['network'] as $level)
+                {
+                    $unilevel['level'] = $level['Level'];
+                    $unilevel['downlines'] = Networks::getUnilevelDownlines($level['Members']);
+                    $unilevel_downlines[] = $unilevel;
+                }
+
+                foreach($unilevel_downlines as $rows)
+                {
+                    $new['level'] = $rows['level'];
+                    foreach($rows['downlines'] as $row)
+                    {
+                        $placement_date = date('Y-m-d',strtotime($row['Placement_Date']));
+                        if($placement_date > $date_from && $placement_date <= $date_to)
+                            $new_row[] = $row;
+                    }
+                    $new['downlines'] = $new_row;
+
+                } 
+
+                $new_rows[] = $new;
+            }
+                
+            //var_dump($unilevel_downlines); exit;
             $html2pdf = Yii::app()->ePdf->HTML2PDF();
             $html2pdf->WriteHTML($this->renderPartial('_unilevelreport', array(
                     'payee'=>$payee,
                     'endorser'=>$endorser,
-                    'downlines'=>$unilevel_downlines,
+                    'downlines'=>($first_trx === false) ? $new_rows : $unilevel_downlines,
                     'cutoff'=>$cutoff,
                     'payout'=>$payout,
                 ), true
@@ -675,6 +720,14 @@ class AdmintransactionsController extends Controller
             
             $endorsee = $model->getEndorseeByCutoff();
             $total = $model->getEndorsementTotalAmount();
+            
+            $total_amount = $total['total_amount'];
+            
+            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $total_tax = $total_amount * ($tax_withheld/100);
+            
+            $total['tax_amount'] = $total_tax;
+            $total['net_amount'] = $total_amount - $total_tax;
            
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
             $html2pdf->WriteHTML($this->renderPartial('_directendorsereport', array(

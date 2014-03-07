@@ -754,7 +754,7 @@ class CronController extends Controller
        $model = new DirectEndorsement();
        
        $members = $member_model->getAllMembersByID();
-       
+       $member_model->alterTable1();
        foreach($members as $member)
        {
             $member_id = $member['member_id'];
@@ -770,7 +770,7 @@ class CronController extends Controller
             $member_model->updateRunningAccount($direct_count, $downline_count);
 
        }
-       
+       $member_model->alterTable2();
        echo 'Update done';       
        
     }
