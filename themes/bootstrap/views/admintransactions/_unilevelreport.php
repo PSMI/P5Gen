@@ -3,6 +3,18 @@
     table#tbl-summary{font-family:Courier; font-size:12px; width:100%;}
     table, table th, table td{border:1px solid #ccc; border-collapse: collapse; padding: 2px}
     table th {background-color: #ccc;}
+    .logo{
+        margin-top:10%;
+        margin-left:50%;
+        left: -70px;
+        margin-bottom: -10px;
+        position: relative;
+        width:140px;
+        height: 105px;
+        background: url(images/logo.png) 0 top center no-repeat #fff;
+    }
+    .address{font-size:8px;padding-top:4px;}
+    #footer{padding-top:10px; position:absolute; float:bottom; bottom: 10px; border-top:1px solid #ccc}
 </style>
 <?php
 /* Payee Information */
@@ -17,6 +29,14 @@ $cutoff_date = $cutoff['cutoff_date'];
 $curdate = date('M d, Y h:ia');
 ?>
 <page>
+    <div id="header" align="center">
+        <div class="logo">&nbsp;</div>
+        <p class="address">Unit 6 2nd Flr. Maclane Centre, Nat’l Hi-way<br />
+        San Antonio, San Pedro, Laguna<br />
+        www.p5partners.com<br />
+        (02)553-68-19
+        </p>
+    </div>
     <h4>Unilevel Payout Summary </h4>
     <table id="tbl-summary">
         <tr>
@@ -73,6 +93,9 @@ $curdate = date('M d, Y h:ia');
             <td width="100" align="right"><strong><?php echo number_format($payout['net_amount'], 2); ?></strong></td>
         </tr>
     </table>
+    <div id="footer">
+        <div class="slogan" align="center">“Finding ways in helping others is our top priority.”</div>
+    </div>
 </page>
 <page>
     <h4>Unilevel Payout </h4>

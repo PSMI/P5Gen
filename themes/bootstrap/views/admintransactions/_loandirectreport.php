@@ -3,6 +3,18 @@
     table#tbl-summary{font-family:Courier; font-size:12px; width:100%;}
     table, table th, table td{border:1px solid #ccc; border-collapse: collapse; padding: 2px}
     table th {background-color: #ccc;}
+    .logo{
+        margin-top:10%;
+        margin-left:50%;
+        left: -70px;
+        margin-bottom: -10px;
+        position: relative;
+        width:140px;
+        height: 137px;
+        background: url(images/sagip_logo.png) 0 top center no-repeat #fff;
+    }
+    .address{font-size:8px;padding-top:4px;}
+    #footer{padding-top:10px; position:absolute; float:bottom; bottom: 10px; border-top:1px solid #ccc}
 </style>
 <?php
 //Get Payee Details
@@ -15,6 +27,9 @@ $endorser_name = $payee[0]['endorser_name'];
 $curdate = date('M d, Y h:ia');
 ?>
 <page>
+    <div id="header" align="center">
+        <div class="logo">&nbsp;</div>
+    </div>
     <h4>Loan Direct Payout Summary </h4>
     <table id="tbl-summary">
         <tr>
