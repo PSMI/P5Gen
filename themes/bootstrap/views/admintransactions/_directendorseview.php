@@ -85,6 +85,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                                 {
                                                     alert(data.result_msg);
                                                     $.fn.yiiGridView.update("directendrse-grid");
+                                                    location.reload();
                                                 }
                                                 else
                                                     alert(data.result_msg);
@@ -112,6 +113,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                                 {
                                                     alert(data.result_msg);
                                                     $.fn.yiiGridView.update("directendrse-grid");
+                                                    location.reload();
                                                 }
                                                 else
                                                     alert(data.result_msg);

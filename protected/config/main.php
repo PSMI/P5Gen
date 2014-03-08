@@ -86,9 +86,9 @@ return array(
 		// uncomment the following to use a MySQL database
 		
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=netmarketing;port=3307',
+			'connectionString' => 'mysql:host=localhost;dbname=netmarketing;port=3306',
 			'emulatePrepare' => true,
-			'username' => 'p5admin',
+			'username' => 'root',
 			'password' => 'admin',
 			'charset' => 'utf8',
 		),

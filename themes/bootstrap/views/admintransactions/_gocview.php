@@ -89,6 +89,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                                 {
                                                     alert(data.result_msg);
                                                     $.fn.yiiGridView.update("goc-grid");
+                                                    location.reload();
                                                 }
                                                 else
                                                     alert(data.result_msg);
