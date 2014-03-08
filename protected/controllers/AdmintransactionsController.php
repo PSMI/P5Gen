@@ -510,9 +510,14 @@ class AdmintransactionsController extends Controller
             $from_cutoff = $cutoff['last_cutoff_date'];
             $to_cutoff = $cutoff['next_cutoff_date'];
             
-            //Get level 1 downline ids
-            $downlines = array();
             
+            //Get previous loans
+            $prev_loans_total = $model->getPrevousLoans($member_id, $from_cutoff, $to_cutoff);
+            $total_previous_loan = $prev_loans_total[0]['total_loan'];
+            
+            
+            //Get downlines excluding level 1
+            $downlines = array();
             
             foreach ($final['network'] as $val)
             {   
@@ -543,11 +548,14 @@ class AdmintransactionsController extends Controller
                 }
             }
             $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $amount['total_commission'] = $commission_amount;
+            $previous_loan = $total_previous_loan;
+            $commission_amount = $commission_amount - $previous_loan;
             $total_tax = $commission_amount * ($tax_withheld/100);
             $net_commission = $commission_amount - $total_tax;
-            $amount['total_commission'] = $commission_amount;
             $amount['tax'] = $total_tax;
             $amount['net_commission'] = $net_commission;
+            $amount['previous_loan'] = $previous_loan;
             
             //Total Amount table
             $amount['cash'] = (80 / 100) * $net_commission;
@@ -559,6 +567,7 @@ class AdmintransactionsController extends Controller
                             'amount'=>$amount,
                             'downlines'=>$dt,
                             'ibo_count'=>$ibo_count,
+                            'previous_loan'=>$previous_loan,
                         ), true
                      ));
             

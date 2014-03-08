@@ -297,5 +297,25 @@ class GroupOverrideCommission extends CFormModel
         
         return $result;
     }
+    
+    public function getPrevousLoans($member_id, $from_cutoff, $to_cutoff)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                        SUM(l.loan_amount) AS total_loan
+                    FROM loans l
+                    WHERE l.status = 3
+                    AND date_completed > :from_cutoff AND date_completed <= :to_cutoff
+                    AND l.member_id = :member_id;"; 
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':from_cutoff', $from_cutoff);
+        $command->bindParam(':to_cutoff', $to_cutoff);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
 }
 ?>
