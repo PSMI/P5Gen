@@ -137,10 +137,12 @@ class Transactions extends Controller
         
         $member->member_id = $member_id;        
         $cutoff_id = $reference->get_cutoff(TransactionTypes::DIRECT_ENDORSE);
+        $payout_rate = $reference->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
         
         $model->member_id = $member_id;
         $model->endorser_id = $endorser_id;
         $model->cutoff_id = $cutoff_id;
+        $model->payout_rate = $payout_rate;
         
         $retval = $model->add_transactions();
         

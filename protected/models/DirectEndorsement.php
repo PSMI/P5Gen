@@ -10,7 +10,7 @@ class DirectEndorsement extends CFormModel
     public $member_id;
     public $endorser_id;
     public $cutoff_id;
-    public $list_cutoffs;
+    public $payout_rate;
     
     public function __construct()
     {
@@ -101,13 +101,11 @@ class DirectEndorsement extends CFormModel
     
     public function getEndorsementTotalAmount()
     {
-        $reference = new ReferenceModel();
         
         $conn = $this->_connection;
-        $payout_rate = $reference->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
         
         $query = "SELECT
-                    (COUNT(d.endorser_id) * :payout_rate) AS total_amount,
+                    SUM(amount) AS total_amount,
                     count(*) AS total_ibo
                   FROM direct_endorsements d
                   WHERE d.cutoff_id = :cutoff_id
@@ -117,27 +115,23 @@ class DirectEndorsement extends CFormModel
         $command =  $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->bindParam(':endorser_id', $this->endorser_id);
-        $command->bindParam(':payout_rate', $payout_rate);
         $result = $command->queryRow();        
         return $result;
     }
     
     public function getPayoutTotal()
     {
-        $reference = new ReferenceModel();
         
         $conn = $this->_connection;
-        $payout_rate = $reference->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
         
         $query = "SELECT
-                    (COUNT(*) * :payout_rate) AS total_amount,
+                    SUM(amount) AS total_amount,
                     COUNT(*) AS total_ibo
                   FROM direct_endorsements d
                   WHERE d.cutoff_id = :cutoff_id";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
-        $command->bindParam(':payout_rate', $payout_rate);
         $result = $command->queryRow();        
         return $result;
     }
@@ -249,13 +243,14 @@ class DirectEndorsement extends CFormModel
         $conn = $this->_connection;
         $trx = $conn->beginTransaction();
                 
-        $query = "INSERT INTO direct_endorsements (cutoff_id,endorser_id,member_id) 
-                        VALUES (:cutoff_id, :endorser_id, :member_id)";
+        $query = "INSERT INTO direct_endorsements (cutoff_id,endorser_id,member_id,amount) 
+                        VALUES (:cutoff_id, :endorser_id, :member_id, :payout_rate)";
                  
         $command = $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->bindParam(':endorser_id', $this->endorser_id);
         $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':payout_rate', $this->payout_rate);
         $result = $command->execute();        
         
         if(count($result)>0)
