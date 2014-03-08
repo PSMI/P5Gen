@@ -16,17 +16,24 @@ Yii::app()->clientScript->registerScript('ui','
          upline_name = $("#PlacementModel_upline_name"),
          downline_id = $("#PlacementModel_downline_id"),
          downline_name = $("#PlacementModel_downline_name");
+         
+    function validateUpline()
+    {
+        if (upline_id.val() == "") {
+                upline_name.val("");
+        }
+    }
     
  ', CClientScript::POS_END);
 
-Yii::app()->user->setFlash('warning', '<strong>Warning!</strong> Please assign below new members to your downlines.');
+Yii::app()->user->setFlash('danger', '<strong>Warning!</strong> Please assign below new members to your downlines.');
 
 $this->widget('bootstrap.widgets.TbAlert', array(
         'block'=>true, // display a larger alert block?
         'fade'=>true, // use transitions?
         'closeText'=>'&times;', // close link text - if set to false, no close link is displayed
         'alerts'=>array( // configurations per alert type
-            'warning'=>array('block'=>true, 'fade'=>true, 'closeText'=>'&times;'), // success, info, warning, error or danger
+            'danger'//=>array('block'=>true, 'fade'=>true, 'closeText'=>'&times;'), // success, info, warning, error or danger
         ),
 )); ?>
 
@@ -127,7 +134,6 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                 (
                     'model'=>$model,
                     'attribute'=>'upline_name',
-                    //'sourceUrl'=>  Yii::app()->createUrl('placement/downlines',array('id'=>$model->downline_id)),
                     'source'=>'js: function(request, response) {
                        $.ajax({
                            url: "'.Yii::app()->createUrl('placement/downlines').'",
@@ -146,14 +152,21 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                         'minLength'=>'2',
                         'showAnim'=>'fold',
                         'focus' => 'js:function(event, ui){upline_name.val(ui.item["value"])}',
-                        'select' => 'js:function(event, ui){upline_id.val(ui.item["id"]); }',
-                        //'select' => 'js:function(event, ui){alert(ui.item["id"]); }',
+                        //'select' => 'js:function(event, ui){upline_id.val(ui.item["id"]); }',
+                        'select' => 'js:function(event, ui){
+                            var ans = confirm("Are you sure you want to place under "+ui.item["value"]+"?\n\nPlease NOTE that once your downline is approved by your \nassigned upline you will not be able to reassign it again.\n\nTo confirm your placement, click OK otherwise click Cancel \nand select the correct upline.");
+                            if(ans)
+                                upline_id.val(ui.item["id"]); 
+                            else
+                                upline_id.val("");
+                        }',
                     ),
                     'htmlOptions'=>array(
                         'class'=>'span4',
                         'rel'=>'tooltip',
                         'title'=>'Please type your downline\'s name.',
                         'autocomplete'=>'off',
+                        'onblur'=>'validateUpline()',
                     ),        
                 ));
 

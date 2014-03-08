@@ -59,7 +59,7 @@ class PlacementController extends Controller
             }
             else
             {
-                $result = array('result_code'=>1,'result_msg'=>'Assignment cancelled.');
+                $result = array('result_code'=>1,'result_msg'=>'You did not select an upline, please assign again.');
             }
             
             echo CJSON::encode($result);

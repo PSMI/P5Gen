@@ -38,16 +38,14 @@ function validateUpline()
 
 <?php 
 
-//Yii::app()->user->setFlash('success', '<strong>Well done!</strong> You have successfully registered our new business partner.');
-//Yii::app()->user->setFlash('error', '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.');
-Yii::app()->user->setFlash('info', '<strong>Important!</strong> Please make sure to fill-up all required information specially the email address as this is required for the activation of the new partners\' account.');
+Yii::app()->user->setFlash('danger', '<strong>Important!</strong> Please make sure to fill-up all required information specially the email address as this is required for the activation of the new partners\' account.');
 
 $this->widget('bootstrap.widgets.TbAlert', array(
         'block'=>true, // display a larger alert block?
         'fade'=>true, // use transitions?
-        'closeText'=>'X', // close link text - if set to false, no close link is displayed
+        'closeText'=>'&times;', // close link text - if set to false, no close link is displayed
         'alerts'=>array( // configurations per alert type
-            'info'=>array('block'=>true, 'fade'=>true, 'closeText'=>'X'), // success, info, warning, error or danger
+            'danger'//=>array('block'=>true, 'fade'=>true, 'closeText'=>'X'), // success, info, warning, error or danger
         ),
 )); ?>
 
@@ -90,7 +88,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                     'minLength'=>'2',
                     'showAnim'=>'fold',
                     'focus' => 'js:function(event, ui){upline_name.val(ui.item["value"])}',
-                    'select' => 'js:function(event, ui){upline_id.val(ui.item["id"]); }',
+                    'select' => 'js:function(event, ui){
+                        var ans = confirm("Are you sure you want to place under "+ui.item["value"]+"?\n\nPlease NOTE that once your downline is approved by your \nassigned upline you will not be able to reassign it again.\n\nTo confirm your placement, click OK otherwise click Cancel \nand select the correct upline.");
+                        if(ans)
+                            upline_id.val(ui.item["id"]); 
+                        else
+                            upline_name.val("");
+                    }',
                 ),
                 'htmlOptions'=>array(
                     'class'=>'span3',
