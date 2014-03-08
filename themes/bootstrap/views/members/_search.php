@@ -14,11 +14,10 @@ Yii::app()->clientScript->registerScript('ui','
  ', CClientScript::POS_END);
 ?>
 
-<div align="right">
+<!--<div align="right">-->
     <?php //echo CHtml::textField("txtSearch"); 
         
         echo CHtml::hiddenField('member_id');
-    
         $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
                 'model'=>$model,
                 'attribute'=>'autocomplete_name',
@@ -30,7 +29,7 @@ Yii::app()->clientScript->registerScript('ui','
                     'select' => 'js:function(event, ui){ member_id.val(ui.item["id"]); }',
                 ),
                 'htmlOptions'=>array(
-                    'class'=>'span3',
+                    'class'=>'span4',
                     'rel'=>'tooltip',
                     'title'=>'Please type your member\'s name.',
                     'autocomplete'=>'off',
@@ -38,5 +37,11 @@ Yii::app()->clientScript->registerScript('ui','
             ));
     ?>
     
-    <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Search', 'htmlOptions'=>array('id'=>'btnSearch', 'name'=>'btnSearch'))); ?>
-</div>
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'buttonType'=>'submit', 
+        'type'=>'primary',
+        'icon'=>'icon-search',
+        'label'=>'Search', 
+        'htmlOptions'=>array('id'=>'btnSearch', 'name'=>'btnSearch','style'=>'margin-top:-10px;')
+    )); ?>
+<!--</div>-->

@@ -184,7 +184,8 @@ class Downlines extends CFormModel
                   FROM members m
                     INNER JOIN member_details md ON m.member_id = md.member_id
                   WHERE m.member_id IN ($member_ids)
-                    AND m.placement_status = 1";
+                    AND m.placement_status = 1
+                  ORDER BY md.last_name";
         
         $command = $conn->createCommand($query);
         $result = $command->queryAll();

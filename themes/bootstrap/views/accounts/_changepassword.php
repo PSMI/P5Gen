@@ -1,3 +1,4 @@
+<?php $this->breadcrumbs = array('Administration'=>'#','Accounts'=>  Yii::app()->createUrl('accounts/index'),'Change Password'); ?>
 <h3>Change Password</h3>
 <?php
 $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -24,10 +25,10 @@ $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td><?php echo CHtml::passwordField('txtConfirmPass'); ?></td>
     </tr>
     <tr>
-        <td><?php   
-                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Change', 'htmlOptions'=>array('id'=>'btnChange', 'name'=>'btnChange', 'value'=>'Change')));
-                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("accounts/index") . '";')));
-            ?></td>
+        <td>
+            <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'type'=>'primary', 'label'=>'Change', 'htmlOptions'=>array('id'=>'btnChange', 'name'=>'btnChange', 'value'=>'Change'))); ?>
+            <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'type'=>'primary', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("accounts/index") . '";'))); ?>
+        </td>
     </tr>
 </table>
 

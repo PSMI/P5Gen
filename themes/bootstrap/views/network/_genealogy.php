@@ -6,24 +6,55 @@
  */
 
 ?>
+<style type="text/css">
+    table#summary{font-size:14px; width:100%;}
+    table#summary, table#summary th, table#summary td{border:1px solid #e1e1e1; border-collapse: collapse; padding: 2px 10px 2px 10px}
+    table#summary td.data{color:#0088cc}
+</style>
+<?php $this->breadcrumbs = array('Networks'=>'#',
+    'Genealogy'
+);
+?>
 <?php Yii::app()->clientScript->registerScript('ui','
             function goto_data(id){
                     $("html,body").animate({scrollTop: $("#"+id).offset().top},"slow");
             }', CClientScript::POS_END);
 ?>
-
-<h3><a href="" style="text-decoration: none; color: black">My Genealogy</a></h3>
-
+<?php $this->beginWidget('bootstrap.widgets.TbHeroUnit', array(
+    'heading'=>'My Genealogy',
+    'headingOptions'=>array('style'=>'font-size:200%')
+)); ?>
+  <p style="font-size:14px">This is your network genealogy. By using this tool, you will be able to see how large is your network level-by-level.</p>
+  <table with="100%" id="summary">
+      <tr>
+          <td width="15%" align="right">Genealogy of</td>
+          <td width="75%" class="data"><?php echo $genealogy['member']; ?></td>
+      </tr>
+      <tr>
+          <td width="15%" align="right">Endorser</td>
+          <td width="75%" class="data"><?php echo $genealogy['endorser']; ?></td>
+      </tr>
+      <tr>
+          <td width="15%" align="right">Upline</td>
+          <td width="75%" class="data"><?php echo $genealogy['upline']; ?></td>
+      </tr>
+      <tr>
+          <td align="right">Total network</td>
+          <td class="data"><?php echo $genealogy['total']; ?></td>
+      </tr>
+  </table>
 <?php
+$this->endWidget(); 
+
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'id'=>'index-form',
     'enableClientValidation' => true,
     'clientOptions' => array(
             'validateOnSubmit' => true,
     ),
-    'htmlOptions'=>array('class'=>'well'),
 ));
-
+/*
+echo '<h3><a href="" style="text-decoration: none; color: black">My Genealogy</a></h3>';
 echo '<table>';
 echo '<tr>';
 echo '<td>';
@@ -55,17 +86,9 @@ echo '</td>';
 echo '</tr>';
 echo '</table>';
 
-/*$this->widget('bootstrap.widgets.TbButton', array(
-    'label'=>'Genealogy of',
-    'type'=>'default',
-    'size'=>'normal',
-));
-
-$this->widget('bootstrap.widgets.TbButton', array(
-    'label'=>'JO PORMENTO',
-    'type'=>'info',
-    'size'=>'normal',
-));*/
+$this->endWidget(); 
+ * 
+ */
 
 $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'genealogy-grid',
@@ -101,7 +124,15 @@ $this->widget('bootstrap.widgets.TbGridView', array(
 ));
 
 echo CHtml::hiddenField('hidden_member_id', '', array('id'=>'hidden_member_id'));
-
-$this->endWidget(); 
 ?>
+  
+<?php $this->widget('bootstrap.widgets.TbButton', array(
+    'label'=>'Back',
+    'icon'=>'icon-chevron-left',
+    'type'=>'info', // null, 'primary', 'info', 'success', 'warning', 'danger' or 'inverse'
+    'htmlOptions'=>array('onclick'=>'history.back()'),
+)); ?>
+   
+<?php $this->endWidget(); ?>
+  
 <div id="data" style="display: none"><?php echo $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider)); ?></div>

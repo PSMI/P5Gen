@@ -5,6 +5,20 @@
  * @date 01-30-2014
  */
 ?>
+<?php $this->breadcrumbs = array('Members'=>'#','Update Member Profile'); ?>
+
+<?php
+Yii::app()->user->setFlash('danger', '<strong>Important!</strong> Please make sure to fill-up all required information specially the email address.');
+
+$this->widget('bootstrap.widgets.TbAlert', array(
+        'block'=>true, // display a larger alert block?
+        'fade'=>true, // use transitions?
+        'closeText'=>'&times', // close link text - if set to false, no close link is displayed
+        'alerts'=>array( // configurations per alert type
+            'danger'//=>array('block'=>true, 'fade'=>true, 'closeText'=>'X'), // success, info, warning, error or danger
+        ),
+));
+?>
 <h3>Update Member Profile</h3>
 
 <?php
@@ -17,16 +31,6 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 ));
 
-Yii::app()->user->setFlash('info', '<strong>Important!</strong> Please make sure to fill-up all required information specially the email address.');
-
-$this->widget('bootstrap.widgets.TbAlert', array(
-        'block'=>true, // display a larger alert block?
-        'fade'=>true, // use transitions?
-        'closeText'=>'X', // close link text - if set to false, no close link is displayed
-        'alerts'=>array( // configurations per alert type
-            'info'=>array('block'=>true, 'fade'=>true, 'closeText'=>'X'), // success, info, warning, error or danger
-        ),
-));
 ?>
 
 <p class="note">Fields with <span style="color: red">*</span> are required.</p>
@@ -35,6 +39,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 <p>Activation Code: <?php $this->widget('bootstrap.widgets.TbLabel', array(
     'type'=>'important', // 'success', 'warning', 'important', 'info' or 'inverse'
     'label'=>$activationCode,
+    'htmlOptions'=>array('style'=>'font-size:16px'),
 )); ?>
 </p>
 <br/>
@@ -86,10 +91,10 @@ $this->widget('bootstrap.widgets.TbAlert', array(
         <td><?php echo $form->textFieldRow($model, 'relationship', array('value'=>$data["relationship"])); ?></td>
     </tr>
     <tr>
-        <td><?php   
-                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Update'));
-                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("members/index") . '";')));
-            ?></td>
+        <td>
+            <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'type'=>'primary', 'label'=>'Update')); ?>
+            <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button',  'type'=>'primary', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("members/index") . '";'))); ?>
+        </td>
     </tr>
 </table>
 

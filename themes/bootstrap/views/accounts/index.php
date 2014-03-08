@@ -5,6 +5,7 @@
  * @date 01-28-2014
  */
 ?>
+<?php $this->breadcrumbs = array('Administration'=>'#','Accounts'); ?>
 <h3>Administration Accounts</h3>
 
 <?php
@@ -14,7 +15,6 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'clientOptions' => array(
             'validateOnSubmit' => true,
         ),        
-    'htmlOptions'=>array('class'=>'well'),
     ));
 
 $this->widget('bootstrap.widgets.TbButton', array(

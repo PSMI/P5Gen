@@ -339,7 +339,10 @@ class Networks extends Controller
     {
         $model = new MembersModel();
         $info = $model->selectMemberName($member_id);
-        $member_name = $info["last_name"] . ", " . $info["first_name"] . " " . $info["middle_name"];
+        if(empty($info['last_name']) && empty($info['first_name']) && empty($info['middle_name'])) 
+            $member_name = 'None';
+        else
+            $member_name = $info["last_name"] . ", " . $info["first_name"] . " " . $info["middle_name"];
         $member_name = strtoupper($member_name);
         
         return $member_name;

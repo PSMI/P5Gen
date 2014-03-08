@@ -4,9 +4,6 @@
  * @author Noel Antonio
  * @date 01-28-2014
  */
-$this->breadcrumbs = array(
-    'Activation Code Management'
-);
 
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'id' => 'index-form',

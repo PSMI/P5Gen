@@ -5,6 +5,7 @@
  * @date 01-30-2014
  */
 ?>
+<?php $this->breadcrumbs = array('Members'=>'#','Change Member Status'); ?>
 <h3>Change Member Status</h3>
 
 <?php
@@ -33,9 +34,21 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td colspan="2"><?php echo $form->dropDownListRow($model, 'status', $list, array('prompt'=>'Please Select')); ?></td>
     </tr>
     <tr>
-        <td><?php   
-                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Submit'));
-                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("members/index") . '";')));
+        <td>
+        <?php $this->widget('bootstrap.widgets.TbButton', array(
+                'buttonType'=>'submit', 
+                'type'=>'primary', 
+                'label'=>'Submit'
+             )); 
+        ?>
+        <?php $this->widget('bootstrap.widgets.TbButton', array(
+                'buttonType'=>'button', 
+                'type'=>'primary',
+                'label'=>'Back', 
+                'htmlOptions'=>array(
+                    'onclick'=>'location.href = "' . Yii::app()->createUrl("members/index") . '";'
+                    )
+            ));
         ?></td>
     </tr>
 </table>
@@ -94,18 +107,28 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
 <br />
 
 <div align="right">
-<?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'ajaxSubmit', 'url'=>Yii::app()->createUrl("members/terminateSuccess"), 'label'=>'YES',
-                                                                'ajaxOptions'=>array(
-                                                                    'type'=>'POST',
-                                                                    'data'=>'js:$("#terminate-form").serialize()',
-                                                                    'success'=>'function(data){
-                                                                        $("#msg").html(data);
-                                                                        $("#confirm-box").dialog("close");
-                                                                        $("#success-box").dialog("open");
-                                                                    }'
-                                                                )));
+<?php $this->widget('bootstrap.widgets.TbButton', array(
+    'buttonType'=>'ajaxSubmit', 
+    'url'=>Yii::app()->createUrl("members/terminateSuccess"), 
+    'label'=>'YES',
+        'ajaxOptions'=>array(
+            'type'=>'POST',
+            'data'=>'js:$("#terminate-form").serialize()',
+            'success'=>'function(data){
+                $("#msg").html(data);
+                $("#confirm-box").dialog("close");
+                $("#success-box").dialog("open");
+            }'
+        )
+    ));
 
-$this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'NO', 'htmlOptions'=>array('onclick'=>'$("#confirm-box").dialog("close")')));
+$this->widget('bootstrap.widgets.TbButton', array(
+    'buttonType'=>'button', 
+    'label'=>'NO', 
+    'htmlOptions'=>array(
+        'onclick'=>'$("#confirm-box").dialog("close")'
+        )
+    ));
 ?>
 </div>
       

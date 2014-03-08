@@ -567,7 +567,7 @@ class AdmintransactionsController extends Controller
                             'amount'=>$amount,
                             'downlines'=>$dt,
                             'ibo_count'=>$ibo_count,
-                            'previous_loan'=>$previous_loan,
+                            //'previous_loan'=>$previous_loan,
                         ), true
                      ));
             

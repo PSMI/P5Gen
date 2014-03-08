@@ -32,11 +32,18 @@ class NetworkController extends Controller
             $member_id = Yii::app()->user->getId();
         }
         
-        $member_name = Networks::getMemberName($member_id);
+        $model = new MembersModel();        
+        $member = $model->selectMemberDetails($member_id);
+        $endorser_id = $member['endorser_id'];
+        $upline_id = $member['upline_id'];
+        
+        $genealogy['member'] = Networks::getMemberName($member_id);
+        $genealogy['endorser'] = Networks::getMemberName($endorser_id);
+        $genealogy['upline'] = Networks::getMemberName($upline_id);
         
         $rawData = Networks::getDownlines($member_id);
         $final = Networks::arrangeLevel($rawData);
-        $count = $final['total'];       
+        $genealogy['total'] = $final['total'];       
         
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
@@ -46,7 +53,7 @@ class NetworkController extends Controller
 
         ));
         
-        return $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));
+        return $this->render('_genealogy', array('dataProvider'=>$dataProvider, 'genealogy'=>$genealogy));
     }
     
     public function actionUnilevel()
@@ -62,11 +69,18 @@ class NetworkController extends Controller
             $member_id = Yii::app()->user->getId();
         }
         
-        $member_name = Networks::getMemberName($member_id);
+        $model = new MembersModel();        
+        $member = $model->selectMemberDetails($member_id);
+        $endorser_id = $member['endorser_id'];
+        $upline_id = $member['upline_id'];
+        
+        $genealogy['member'] = Networks::getMemberName($member_id);
+        $genealogy['endorser'] = Networks::getMemberName($endorser_id);
+        $genealogy['upline'] = Networks::getMemberName($upline_id);
         
         $rawData = Networks::getUnilevel($member_id);
         $final = Networks::arrangeLevel($rawData);
-        $count = $final['total'];
+        $genealogy['total'] = $final['total'];
         
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
@@ -75,27 +89,27 @@ class NetworkController extends Controller
                         ),
         ));
         
-        $this->render('_unilevel', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));
+        $this->render('_unilevel', array('dataProvider'=>$dataProvider, 'genealogy'=>$genealogy));
     }
     
     public function actionDirectEndorse()
     {
         $model = new NetworksModel();
-        
+        $reference = new ReferenceModel();
         $member_id = Yii::app()->user->getId();
         
         $rawData = $model->getDirectEndorse($member_id);
         
         $count = count($rawData);
-        
+        $direct_payout = $reference->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
         $dataProvider = new CArrayDataProvider($rawData, array(
                         'keyField' => false,
                         'pagination' => array(
-                        'pageSize' => 10,
+                        'pageSize' => 25,
                     ),
         ));
         
-        $this->render('_directEndorse', array('dataProvider'=>$dataProvider, 'counter'=>$count));
+        $this->render('_directEndorse', array('dataProvider'=>$dataProvider, 'counter'=>$count,'payout'=>$direct_payout));
     }
     
     public function actionGenealogyDownlines()
@@ -114,7 +128,7 @@ class NetworkController extends Controller
         $dataProvider = new CArrayDataProvider($array, array(
                         'keyField' => false,
                         'pagination' => array(
-                            'pageSize' => 10,
+                            'pageSize' => 25,
                         ),
         ));
 
@@ -137,7 +151,7 @@ class NetworkController extends Controller
         $dataProvider = new CArrayDataProvider($array, array(
                         'keyField' => false,
                         'pagination' => array(
-                            'pageSize' => 10,
+                            'pageSize' => 25,
                         ),
         ));
 

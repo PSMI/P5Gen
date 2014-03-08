@@ -5,7 +5,11 @@
  * and open the template in the editor.
  */
 ?>
-<h3>Activation Code Management</h3>
+<?php $this->breadcrumbs = array('Administration'=>'#',
+    'Code Generator'
+);
+?>
+<h3>Code Generator</h3>
 
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -14,7 +18,6 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'clientOptions' => array(
             'validateOnSubmit' => true,
         ),        
-    'htmlOptions'=>array('class'=>'well'),
     ));
 ?>
 

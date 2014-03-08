@@ -38,16 +38,14 @@ class MembersController extends Controller
             
             if (is_array($endorserInfo) && count($endorserInfo) > 0) {
                 $endorser = $endorserInfo["last_name"] . ", " . $endorserInfo["first_name"] . " " . $endorserInfo["middle_name"];
-            }
-            else {
+            } else {
                 $endorser = '';
             }
             $rawData[$key]["endorser"] = $endorser;
-            
+
             if (is_array($uplineInfo) && count($uplineInfo) > 0) {
                 $upline = $uplineInfo["last_name"] . ", " . $uplineInfo["first_name"] . " " . $uplineInfo["middle_name"];
-            }
-            else {
+            } else {
                 $upline = '';
             }
             $rawData[$key]["upline"] = $upline;
@@ -56,7 +54,7 @@ class MembersController extends Controller
         $dataProvider = new CArrayDataProvider($rawData, array(
                         'keyField' => false,
                         'pagination' => array(
-                        'pageSize' => 10,
+                        'pageSize' => 25,
                     ),
         ));
         
@@ -257,7 +255,7 @@ class MembersController extends Controller
         $dataProvider = new CArrayDataProvider($array, array(
                         'keyField' => false,
                         'pagination' => array(
-                            'pageSize' => 10,
+                            'pageSize' => 25,
                         ),
         ));
 

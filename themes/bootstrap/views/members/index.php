@@ -5,8 +5,8 @@
  * and open the template in the editor.
  */
 ?>
+<?php $this->breadcrumbs = array('Members'=>'#','Member Management'); ?>
 <h3>Member Management</h3>
-
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'id' => 'index-form',
@@ -14,7 +14,6 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'clientOptions' => array(
             'validateOnSubmit' => true,
         ),        
-    'htmlOptions'=>array('class'=>'well'),
     ));
 ?>
 

@@ -11,6 +11,11 @@
         text-align: left;
     }
 </style>
+
+<?php $this->breadcrumbs = array('Profile'=>'#',
+    'Profile Information'
+);
+?>
 <h3>I. Personal Information</h3>
 
 <table>

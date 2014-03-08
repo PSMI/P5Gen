@@ -12,7 +12,7 @@ $this->breadcrumbs = array(
     /*.grid-view { width: 50%; }*/
 </style>
 
-<h3>Activation Code Generation History</h3>
+<h3>Activation Codes</h3>
 
 <?php
 
@@ -54,7 +54,8 @@ $this->widget('bootstrap.widgets.TbGridView', array(
             'htmlOptions' => array('style' => 'text-align:center'),
             'headerHtmlOptions' => array('style' => 'text-align:center'),
         ),
-    )
+    ),
+    'htmlOptions'=>array('style'=>'width:75%'),
 ));
 
 $this->widget('bootstrap.widgets.TbButton', array(
@@ -64,14 +65,12 @@ $this->widget('bootstrap.widgets.TbButton', array(
     )),
     'label' => 'Export to PDF',
     'type' => 'primary',
-    'size' => 'large'
 ));
 echo '&nbsp;';
 $this->widget('bootstrap.widgets.TbButton', array(
     'buttonType' => 'button', 
     'label' => 'Back', 
     'type' => 'primary', 
-    'size' => 'large', 
     'htmlOptions' => array(
         'onclick' => 'location.href = "' . Yii::app()->createUrl("codes/index") . '";'
  )));

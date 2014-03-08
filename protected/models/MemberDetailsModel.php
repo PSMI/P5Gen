@@ -58,9 +58,9 @@ class MemberDetailsModel extends CFormModel
                 'member_id' => 'ID',
                 'last_name' => 'Last Name',
                 'first_name' => 'First Name',
-                'address1' => 'Address 1',
-                'address2' => 'Address 2',
-                'address3' => 'Address 3',
+                'address1' => 'House/Unit/Street No',
+                'address2' => 'Subdivision/Village/Brgy',
+                'address3' => 'Municipality/City/Province',
                 'zip_code' => 'Zip Code',
                 'gender'=>'Gender',
                 'civil_status'=>'Civil Status',
@@ -121,7 +121,8 @@ class MemberDetailsModel extends CFormModel
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
-                WHERE b.account_type_id = 3";
+                WHERE b.account_type_id = 3
+                ORDER BY a.last_name";
         $command = $connection->createCommand($sql);
         $result = $command->queryAll();
         
@@ -215,7 +216,8 @@ class MemberDetailsModel extends CFormModel
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
-                WHERE b.member_id = :member_id AND b.account_type_id = 3";
+                WHERE b.member_id = :member_id AND b.account_type_id = 3
+                ORDER BY a.last_name";
         $command = $connection->createCommand($sql);
         $command->bindParam(":member_id", $searchField);
         

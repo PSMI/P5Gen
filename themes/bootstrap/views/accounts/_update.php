@@ -5,6 +5,7 @@
  * @date 01-30-2014
  */
 ?>
+<?php $this->breadcrumbs = array('Administration'=>'#','Accounts'=>  Yii::app()->createUrl('accounts/index'),'Update Admin Profile'); ?>
 <h3>Update Admin Profile</h3>
 
 <?php
@@ -67,10 +68,10 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td><?php echo $form->textFieldRow($model, 'relationship', array('value'=>$data["relationship"])); ?></td>
     </tr>
     <tr>
-        <td><?php   
-                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Update'));
-                    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("accounts/index") . '";')));
-            ?></td>
+        <td>
+            <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'type'=>'primary', 'label'=>'Update')); ?>
+            <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button','type'=>'primary', 'label'=>'Back', 'htmlOptions'=>array('onclick'=>'location.href = "' . Yii::app()->createUrl("accounts/index") . '";'))); ?>
+        </td>
     </tr>
 </table>
 

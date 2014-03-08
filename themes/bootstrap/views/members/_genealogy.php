@@ -6,6 +6,7 @@
  */
 
 ?>
+<?php $this->breadcrumbs = array('Members'=>'#','Member Genealogy'); ?>
 <?php Yii::app()->clientScript->registerScript('ui','
             function goto_data(id){
                     $("html,body").animate({scrollTop: $("#"+id).offset().top},"slow");
@@ -89,7 +90,12 @@ echo CHtml::hiddenField('hidden_member_id', '', array('id'=>'hidden_member_id'))
 ?>
 
 <div align="right">
-<?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'button', 'label'=>'Back to Parent Network', 'htmlOptions'=>array('onclick'=>'location.href = "";'))); ?>
+<?php $this->widget('bootstrap.widgets.TbButton', array(
+    'buttonType'=>'button', 
+    'type'=>'info',
+    'label'=>'Go to Parent Network', 
+    'htmlOptions'=>array(
+        'onclick'=>'location.href = "'.Yii::app()->createUrl('members/index').'";'))); ?>
 </div>    
 
 <?php
