@@ -394,7 +394,6 @@ class AdmintransactionsController extends Controller
         
         if(isset($_GET["id"]))
         {
-            $reference = new ReferenceModel();
             $model = new Loan();
             
             $loan_id = $_GET["id"];
@@ -403,26 +402,31 @@ class AdmintransactionsController extends Controller
             $level_no = $_GET["level_no"];
             $member_name = $_GET["member_name"];
             $loan_amount = $_GET["loan_amount"];
-            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
-            $total_tax = $loan_amount * ($tax_withheld/100);
-            $net_loan_amount = $loan_amount - $total_tax;
             
+            $model->loan_id = $loan_id;
+            $loan = $model->getLoanDetails();
+            
+            $interest_rate = $loan['interest_rate'];
+            $interest = ($interest_rate / 100) * $loan_amount;            
+            $other_charges_rate = $loan['other_charges'];
+            $other_charges = ($other_charges_rate / 100) * $loan_amount;            
+            $profit_share_entry = $loan['profit_share'];
+            
+            if($loan_type_id == 1)
+                $net_loan_amount = $loan_amount - ($interest + $other_charges + $profit_share_entry); 
+            else
+                $net_loan_amount = $loan_amount - ($interest + $other_charges); 
+
             $amount['total_loan'] = $loan_amount;
-            $amount['tax_amount'] = $total_tax;
+            $amount['interest'] = $interest;
+            $amount['interest_rate'] = $interest_rate;
+            $amount['other_charges'] = $other_charges;
+            $amount['other_charges_rate'] = $other_charges_rate;
+            $amount['profit_share_entry'] = $profit_share_entry;
             $amount['net_loan'] = $net_loan_amount;
-                        
+            
             if ($loan_type_id == 1)
             {
-                $interest = (3 / 100) * $loan_amount;
-                $other_charges = (3.28 / 100) * $loan_amount;
-                $net_loan_amount = $loan_amount - ($interest + $other_charges); 
-                $profit_share_entry = 1000;
-                
-                $amount['interest'] = $interest;
-                $amount['other_charges'] = $other_charges;
-                $amount['net_loan'] = $net_loan_amount;
-                $amount['profit_share_entry'] = $profit_share_entry;
-                
                 //direct 5
                 //Get Payee Details
                 $payee = $model->getPayeeDetails($member_id);
@@ -434,15 +438,10 @@ class AdmintransactionsController extends Controller
                 //Get direct endorse details
                 $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $limit);
 
-//                //Total Amount table
-//                $amount['cash'] = (80 / 100) * $net_loan_amount;
-//                $amount['check'] = (20 / 100) * $net_loan_amount;
-                
                 $html2pdf->WriteHTML($this->renderPartial('_loandirectreport', array(
                         'member_name'=>$member_name,
                         'payee'=>$payee,
                         'amount'=>$amount,
-                        //'loan_amount'=>$loan_amount,
                         'direct_downlines'=>$direct_downlines,
                     ), true
                  ));
@@ -453,6 +452,9 @@ class AdmintransactionsController extends Controller
             }
             else
             {
+                $amount['cash'] = $net_loan_amount * (80/100);
+                $amount['check'] = $net_loan_amount * (20/100);
+                
                 //Get names of endorsed IBO
                 $rawData = Networks::getDownlines($member_id);
                 
@@ -474,15 +476,10 @@ class AdmintransactionsController extends Controller
                         }
                     }
                     
-                    //Total Amount table
-                    $amount['cash'] = (80 / 100) * $net_loan_amount;
-                    $amount['check'] = (20 / 100) * $net_loan_amount;
-                    
                     $html2pdf->WriteHTML($this->renderPartial('_loancompletionreport', array(
                             'member_name'=>$member_name,
                             'payee'=>$payee,
                             'amount'=>$amount,
-                          //  'loan_amount'=>$loan_amount,
                             'downlines'=>$downlines,
                             'level_no'=>$level_no,
                         ), true

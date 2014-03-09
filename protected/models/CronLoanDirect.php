@@ -55,13 +55,21 @@ class CronLoanDirect extends CFormModel
     
     public function insertLoan()
     {
+        $reference = new ReferenceModel();
         $conn = $this->_connection;
+        
+        $interest_rate = $reference->get_variable_value('LOAN_INTEREST_RATE');
+        $other_charges = $reference->get_variable_value('LOAN_OTHER_CHARGES');
+        $profit_share = $reference->get_variable_value('LOAN_PROFIT_SHARE');
                 
-        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count) 
-                    VALUES (:member_id, 1, 1, 5000.00, 1)";
+        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count, interest_rate, other_charges, profit_share) 
+                    VALUES (:member_id, 1, 1, 5000.00, 1,:interest_rate, :other_charges, :profit_share)";
             
         $command = $conn->createCommand($query);
         $command->bindValue(':member_id', $this->member_id);
+        $command->bindValue(':interest_rate', $interest_rate);
+        $command->bindValue(':other_charges', $other_charges);
+        $command->bindValue(':profit_share', $profit_share);
 
         $result = $command->execute();
         return $result;

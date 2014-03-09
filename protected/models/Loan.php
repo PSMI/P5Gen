@@ -7,6 +7,7 @@
 class Loan extends CFormModel
 {   
     public $_connection;
+    public $loan_id;
     
     public function __construct() 
     {
@@ -198,6 +199,18 @@ class Loan extends CFormModel
         $command->bindParam(':limit', $limit);
         $result = $command->queryAll();
         
+        return $result;
+    }
+    
+    public function getLoanDetails()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM loans
+                    WHERE loan_id = :loan_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':loan_id', $this->loan_id);
+        $result = $command->queryRow();
         return $result;
     }
 }

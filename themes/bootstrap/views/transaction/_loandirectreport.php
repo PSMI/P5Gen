@@ -3,6 +3,16 @@
     table#tbl-summary{font-family:Courier; font-size:12px; width:100%;}
     table, table th, table td{border:1px solid #0099FF; border-collapse: collapse; padding: 2px}
     table th {background-color: #0099FF;}
+    .logo{
+        margin-top:10%;
+        margin-left:50%;
+        left: -70px;
+        margin-bottom: -10px;
+        position: relative;
+        width:140px;
+        height: 137px;
+        background: url(images/sagip_logo.png) top center no-repeat #fff;
+    }
 </style>
 <?php
 //Get Payee Details
@@ -45,6 +55,9 @@ else
 }
 ?>
 <page>
+    <div id="header" align="center">
+        <div class="logo">&nbsp;</div>
+    </div>
     <h4>Loan Endorsement Application Form</h4>
     <table>
         <tr>

@@ -1,21 +1,4 @@
-<style type="text/css">
-    page {font-family:Courier; font-size:10px; width:100%;}
-    table#tbl-summary{font-family:Courier; font-size:12px; width:100%;}
-    table, table th, table td{border:1px solid #ccc; border-collapse: collapse; padding: 2px}
-    table th {background-color: #ccc;}
-    .logo{
-        margin-top:10%;
-        margin-left:50%;
-        left: -70px;
-        margin-bottom: -10px;
-        position: relative;
-        width:140px;
-        height: 105px;
-        background: url(images/logo.png) 0 top center no-repeat #fff;
-    }
-    .address{font-size:8px;padding-top:4px;}
-    #footer{padding-top:10px; position:absolute; float:bottom; bottom: 10px; border-top:1px solid #ccc}
-</style>
+<link href="css/report.css" type="text/css" rel="stylesheet" />
 <?php
 /* Payee Information */
 $payee_name = $payee['last_name'] . ', ' . $payee['middle_name'] . ' ' . $payee['first_name'];
@@ -40,8 +23,8 @@ $curdate = date('M d, Y h:ia');
     <h4>Direct Endorsement Payout Summary</h4>
     <table id="tbl-summary">
         <tr>
-            <th width="150">Name of Payee</th>
-            <td width="575"><?php echo $payee_name; ?></td>
+            <th>Name of Payee</th>
+            <td><?php echo $payee_name; ?></td>
         </tr>
          <tr>
             <th>Endorser Name</th>
@@ -94,18 +77,33 @@ $curdate = date('M d, Y h:ia');
             <td align="right"><strong><?php echo number_format($total['net_amount'], 2); ?></strong></td>
         </tr>
     </table> 
+    <br />
+    <table id="tbl-signature">
+        <tr>
+            <th>Released By</th>
+            <td>&nbsp;</td>
+            <th>Received By</th>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <th>Date Released</th>
+            <td>&nbsp;</td>
+            <th>Date Received</th>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
     <div id="footer">
         <div class="slogan" align="center">“Finding ways in helping others is our top priority.”</div>
     </div>
 </page>
 <page>
     <h4>Direct Endorsement Payout </h4>
-    <table>
+    <table id="tbl-details">
         <tr>
-            <th width="100">Name of Payee</th>
-            <td width="250"><?php echo $payee_name; ?></td>
-            <th width="100">Email</th>
-            <td width="250"><?php echo $payee_email; ?></td>
+            <th>Name of Payee</th>
+            <td><?php echo $payee_name; ?></td>
+            <th>Email</th>
+            <td><?php echo $payee_email; ?></td>
         </tr>
         <tr>
             <th>Username</th>
@@ -127,22 +125,22 @@ $curdate = date('M d, Y h:ia');
         </tr>
     </table> 
     <br />
-    <table width="100%">
+    <table id="tbl-lists">
         <tr>
-            <th>&nbsp;</th>
-            <th width="250">Name of Endorsed IBO</th>
-            <th width="250">Place Under</th>
-            <th width="200">Date Joined</th>
+            <th class="ctr">&nbsp;</th>
+            <th class="name">Name of Endorsed IBO</th>
+            <th class="name">Place Under</th>
+            <th class="date">Date Joined</th>
         </tr>
         <?php
         $ctr = 1;
         foreach ($endorsee as $row) {
             ?>
             <tr>
-                <td><?php echo $ctr; ?></td>
-                <td><?php echo $row['member_name'] ?></td>
-                <td><?php echo $row['upline_name']; ?></td>
-                <td><?php echo $row['date_joined']; ?></td>
+                <td class="ctr"><?php echo $ctr; ?></td>
+                <td class="name"><?php echo $row['member_name'] ?></td>
+                <td class="name"><?php echo $row['upline_name']; ?></td>
+                <td class="date"><?php echo $row['date_joined']; ?></td>
             </tr>
             <?php
             $ctr++;
@@ -150,25 +148,25 @@ $curdate = date('M d, Y h:ia');
         ?>
     </table>
     <br />
-    <table>
+    <table id="tbl-details">
         <tr>
             <th>Total IBO</th>
-            <td width="100" align="right"><?php echo number_format($total['total_ibo'], 0); ?></td>
+            <td align="right"><?php echo number_format($total['total_ibo'], 0); ?></td>
         </tr>
         <tr>
             <th>Total Payout</th>
-            <td width="100" align="right"><?php echo number_format($total['total_amount'], 2); ?></td>
+            <td align="right"><?php echo number_format($total['total_amount'], 2); ?></td>
         </tr>        
         <tr>
             <th colspan="2">Deductions</th>
         </tr>
         <tr>
             <th>Tax Withheld</th>
-            <td width="100" align="right">(<?php echo number_format($total['tax_amount'], 2); ?>)</td>
+            <td align="right">(<?php echo number_format($total['tax_amount'], 2); ?>)</td>
         </tr>
         <tr>
             <th>Net Amount</th>
-            <td width="100" align="right"><strong><?php echo number_format($total['net_amount'], 2); ?></strong></td>
+            <td align="right"><strong><?php echo number_format($total['net_amount'], 2); ?></strong></td>
         </tr>
     </table>
 </page>

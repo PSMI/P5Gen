@@ -74,16 +74,23 @@ class CronLoanCompletion extends CFormModel
     
     public function insertLoan($member_id, $level, $amount, $total_members)
     {
+        $reference = new ReferenceModel();
+        
         $conn = $this->_connection;
         
-        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count) 
-                    VALUES (:member_id, 2, :level, :amount, :total_members)";
+        $interest_rate = $reference->get_variable_value('LOAN_INTEREST_RATE');
+        $other_charges = $reference->get_variable_value('LOAN_OTHER_CHARGES');
+        
+        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count, interest_rate, other_charges) 
+                    VALUES (:member_id, 2, :level, :amount, :total_members, :interest_rate, :other_charges)";
             
         $command = $conn->createCommand($query);
         $command->bindValue(':member_id', $member_id);
         $command->bindValue(':level', $level);
         $command->bindValue(':amount', $amount);
         $command->bindValue(':total_members', $total_members);
+        $command->bindValue(':interest_rate', $interest_rate);
+        $command->bindValue(':other_charges', $other_charges);
 
         $result = $command->execute();
         return $result;
@@ -92,16 +99,23 @@ class CronLoanCompletion extends CFormModel
     
     public function insertLoanWithCompletion($member_id, $level, $amount, $total_members)
     {
+        $reference = new ReferenceModel();
+        
         $conn = $this->_connection;
+        
+        $interest_rate = $reference->get_variable_value('LOAN_INTEREST_RATE');
+        $other_charges = $reference->get_variable_value('LOAN_OTHER_CHARGES');
                 
-        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count, date_completed) 
-                    VALUES (:member_id, 2, :level, :amount, :total_members, NOW())";
+        $query = "INSERT INTO loans (member_id, loan_type_id, level_no, loan_amount, ibo_count, date_completed, interest_rate, other_charges) 
+                    VALUES (:member_id, 2, :level, :amount, :total_members, NOW(), :interest_rate, :other_charges)";
             
         $command = $conn->createCommand($query);
         $command->bindValue(':member_id', $member_id);
         $command->bindValue(':level', $level);
         $command->bindValue(':amount', $amount);
         $command->bindValue(':total_members', $total_members);
+        $command->bindValue(':interest_rate', $interest_rate);
+        $command->bindValue(':other_charges', $other_charges);
 
         $result = $command->execute();
         return $result;
