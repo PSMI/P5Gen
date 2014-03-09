@@ -238,7 +238,7 @@ class GroupOverrideCommission extends CFormModel
         
         $query = "SELECT
                         m.username,
-                        DATE_FORMAT(m.date_created,'%d-%m-%Y') AS date_created,
+                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
                         md.email,
                         md.mobile_no,
                         md.telephone_no,

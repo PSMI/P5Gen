@@ -19,7 +19,7 @@
 <?php
 //Get Payee Details
 $payee_username = $payee[0]['username'];
-$date_joined = $payee[0]['date_created'];
+$date_joined = $payee[0]['date_joined'];
 $payee_email = $payee[0]['email'];
 $payee_mobile_no = $payee[0]['mobile_no'];
 $payee_tel_no = $payee[0]['telephone_no'];
@@ -29,7 +29,7 @@ $curdate = date('M d, Y h:ia');
 <page>
     <div id="header" align="center">
         <div class="logo">&nbsp;</div>
-        <p class="address">Unit 6 2nd Flr. Maclane Centre, Nat’l Hi-way<br />
+        <p class="address">Unit 6 2nd Flr. Maclane Centre, Natï¿½l Hi-way<br />
         San Antonio, San Pedro, Laguna<br />
         www.p5partners.com<br />
         (02)553-68-19
@@ -103,7 +103,7 @@ $curdate = date('M d, Y h:ia');
         </tr>
     </table> 
     <div id="footer">
-        <div class="slogan" align="center">“Finding ways in helping others is our top priority.”</div>
+        <div class="slogan" align="center">ï¿½Finding ways in helping others is our top priority.ï¿½</div>
     </div>
 </page>
 <page>

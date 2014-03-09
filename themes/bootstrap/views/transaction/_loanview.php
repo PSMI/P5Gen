@@ -86,6 +86,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Download',
                                     'icon'=>'icon-download-alt',
+                                    'visible'=>'$data["loan_type_id"] == 1 ? true : false',
                                     'url'=>'Yii::app()->createUrl("/transaction/pdfloans", array("id" =>$data["loan_id"], "member_id" =>$data["member_id"], "loan_type_id" =>$data["loan_type_id"], "level_no" =>$data["level_no"], "member_name" =>$data["member_name"], "loan_amount" =>$data["loan_amount"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",

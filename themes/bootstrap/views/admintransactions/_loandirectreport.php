@@ -19,7 +19,7 @@
 <?php
 //Get Payee Details
 $payee_username = $payee[0]['username'];
-$date_joined = $payee[0]['date_created'];
+$date_joined = $payee[0]['date_joined'];
 $payee_email = $payee[0]['email'];
 $payee_mobile_no = $payee[0]['mobile_no'];
 $payee_tel_no = $payee[0]['telephone_no'];

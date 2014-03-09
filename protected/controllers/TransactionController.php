@@ -199,6 +199,10 @@ class TransactionController extends Controller
     
     public function actionPdfLoans()
     {
+        $model = new LoanMember();
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();
+        
         if(isset($_GET["id"]))
         {
             $loan_id = $_GET["id"];
@@ -208,39 +212,36 @@ class TransactionController extends Controller
             $member_name = $_GET["member_name"];
             $loan_amount = $_GET["loan_amount"];
             
-            $model = new LoanMember();
+            //Convert amount in words
+            //$amount_in_words = $this->convert_number_to_words($num);
+            $loan_amount_nodecimal = floor($loan_amount);
+            $convert_amounttoword = $this->widget('ext.NumtoWord.NumtoWord', array('num'=>$loan_amount_nodecimal)); 
+            $amount_in_words = ucfirst($convert_amounttoword->result);
             
-            $content = "<table  align='center'><tr><td><h3>LOAN ENDORSEMENT APPLICATION FORM</h3></td></tr></table>";
-            
-            $content .= "<br>";
-                    
-            $content .= "<table style='width: 100%;'>";
-            $content .= "<tr>";
-            $content .= "<td align='left'>Loan Amount</td>";
-            $content .= "<td>_________________________________________________</td>";
-            $content .= "<td>P " . $this->numberFormat($loan_amount) . "</td>";
-            $content .= "</tr>";
-            $content .= "</table>";
-            
-            $content .= "<table style='width: 100%;'>";
-            $content .= "<tr>";
-            $content .= "<td align='left'>Purchased Product</td>";
-            $content .= "<td>&nbsp;&nbsp;</td>";
-            $content .= "<td>" . CHtml::checkBox('chkboxProduct', false) . "</td>";
-            $content .= "<td style='font-weight:bold;'>Water Filtration System - P2S</td>";
-            $content .= "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
-            $content .= "<td>" . CHtml::checkBox('chkboxOtherProduct', false) . "</td>";
-            $content .= "<td style='font-weight:bold;'>Other Product/s</td>";
-            $content .= "<td>___________________________</td>";
-            $content .= "</tr>";
-            $content .= "</table>";
-            
-            $content .= "<table align='center'><tr><td><h4>IBO's PERSONAL DETAILS</h4></td></tr></table>";
-            
-            
-            $html2pdf = Yii::app()->ePdf->HTML2PDF();
-            $html2pdf->WriteHTML($content);
-            $html2pdf->Output('Loan_' . date('Y-m-d') . '.pdf', 'D'); 
+            //Get Payee Details
+            $payee = $model->getPayeeDetails($member_id);
+
+            //Check if member has previous loan/s.
+            $prev_loan = $model->getPreviousLoans($member_id, $loan_id);
+            $limit = 5 * count($prev_loan);
+
+            //Get direct endorse details
+            $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $limit);
+
+            //Total Amount table
+//            $amount['cash'] = (80 / 100) * $net_loan_amount;
+//            $amount['check'] = (20 / 100) * $net_loan_amount;
+
+            $html2pdf->WriteHTML($this->renderPartial('_loandirectreport', array(
+                    'member_name'=>$member_name,
+                    'payee'=>$payee,
+                    'amount_in_words'=>$amount_in_words,
+                    'loan_amount'=>$loan_amount,
+                    'direct_downlines'=>$direct_downlines,
+                ), true
+             ));
+            $html2pdf->Output('LoanDirect_' . $member_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+            Yii::app()->end();
         }
         else
         {
