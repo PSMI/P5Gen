@@ -71,20 +71,24 @@ $curdate = date('M d, Y h:ia');
             <td width="100" align="right"><?php echo number_format($amount['total_loan'], 2); ?></td>
         </tr>
         <tr>
+            <th>Profit Sharing Entry</th>
+            <td width="100" align="right"><?php echo number_format($amount['profit_share_entry'], 2); ?></td>
+        </tr>
+        <tr>
             <th colspan="2">Deductions</th>
         </tr>
         <tr>
-            <th>Total Tax Amount</th>
-            <td width="100" align="right">(<?php echo number_format($amount['tax_amount'], 2); ?>)</td>
+            <th>Interest (3%)</th>
+            <td width="100" align="right">(<?php echo number_format($amount['interest'], 2); ?>)</td>
         </tr>       
         <tr>
-            <th>Total Cash (80%)</th>
-            <td align="right"><?php echo number_format($amount['cash'], 2); ?></td>
+            <th>Other Charges (3.28%)</th>
+            <td width="100" align="right">(<?php echo number_format($amount['other_charges'], 2); ?>)</td>
         </tr>
-        <tr>
+<!--        <tr>
             <th>Total Check (20%)</th>
-            <td align="right"><?php echo number_format($amount['check'], 2); ?></td>
-        </tr>
+            <td align="right"><?php //echo number_format($amount['check'], 2); ?></td>
+        </tr>-->
          <tr>
             <th>Total Net Loan</th>
             <td width="100" align="right"><strong><?php echo number_format($amount['net_loan'], 2); ?></strong></td>
@@ -149,20 +153,24 @@ $curdate = date('M d, Y h:ia');
             <td width="100" align="right"><?php echo number_format($amount['total_loan'], 2); ?></td>
         </tr>
         <tr>
+            <th>Profit Sharing Entry</th>
+            <td width="100" align="right"><?php echo number_format($amount['profit_share_entry'], 2); ?></td>
+        </tr>
+        <tr>
             <th colspan="2">Deductions</th>
         </tr>
         <tr>
-            <th>Total Tax Amount</th>
-            <td width="100" align="right">(<?php echo number_format($amount['tax_amount'], 2); ?>)</td>
+            <th>Interest (3%)</th>
+            <td width="100" align="right">(<?php echo number_format($amount['interest'], 2); ?>)</td>
         </tr>       
         <tr>
-            <th>Total Cash (80%)</th>
-            <td align="right"><?php echo number_format($amount['cash'], 2); ?></td>
+            <th>Other Charges (3.28%)</th>
+            <td width="100" align="right">(<?php echo number_format($amount['other_charges'], 2); ?>)</td>
         </tr>
-        <tr>
+<!--        <tr>
             <th>Total Check (20%)</th>
-            <td align="right"><?php echo number_format($amount['check'], 2); ?></td>
-        </tr>
+            <td align="right"><?php //echo number_format($amount['check'], 2); ?></td>
+        </tr>-->
          <tr>
             <th>Total Net Loan</th>
             <td width="100" align="right"><strong><?php echo number_format($amount['net_loan'], 2); ?></strong></td>

@@ -413,6 +413,16 @@ class AdmintransactionsController extends Controller
                         
             if ($loan_type_id == 1)
             {
+                $interest = (3 / 100) * $loan_amount;
+                $other_charges = (3.28 / 100) * $loan_amount;
+                $net_loan_amount = $loan_amount - ($interest + $other_charges); 
+                $profit_share_entry = 1000;
+                
+                $amount['interest'] = $interest;
+                $amount['other_charges'] = $other_charges;
+                $amount['net_loan'] = $net_loan_amount;
+                $amount['profit_share_entry'] = $profit_share_entry;
+                
                 //direct 5
                 //Get Payee Details
                 $payee = $model->getPayeeDetails($member_id);
@@ -424,9 +434,9 @@ class AdmintransactionsController extends Controller
                 //Get direct endorse details
                 $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $limit);
 
-                //Total Amount table
-                $amount['cash'] = (80 / 100) * $net_loan_amount;
-                $amount['check'] = (20 / 100) * $net_loan_amount;
+//                //Total Amount table
+//                $amount['cash'] = (80 / 100) * $net_loan_amount;
+//                $amount['check'] = (20 / 100) * $net_loan_amount;
                 
                 $html2pdf->WriteHTML($this->renderPartial('_loandirectreport', array(
                         'member_name'=>$member_name,
