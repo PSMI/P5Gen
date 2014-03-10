@@ -6,7 +6,7 @@
 
 $this->breadcrumbs = array('Member Transactions'=>'#','Loan');
 
-Yii::app()->user->setFlash('info', '<strong>Note </strong> | All loans are automatically becomes available once they are completed.');
+Yii::app()->user->setFlash('info', '<strong>Note </strong> | All loans automatically becomes available once they are completed.');
 
 $this->widget('bootstrap.widgets.TbAlert', array(
         'block'=>true, // display a larger alert block?

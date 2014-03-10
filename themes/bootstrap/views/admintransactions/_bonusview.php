@@ -7,20 +7,14 @@
 $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'bonus-grid',
         'type'=>'striped bordered condensed',
-        //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
         'htmlOptions'=>array('style'=>'font-size:12px'),
         'enablePagination' => true,
-        //'template'=>"{items}",
         'columns' => array(
-//                        array(
-//                            'header' => '',
-//                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
-//                            * $this->grid->dataProvider->pagination->pageSize + 1)',
-//                        ),
                         array(
                             'header' => '',
-                            'value' => '$row + 1',
+                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
+                            * $this->grid->dataProvider->pagination->pageSize + 1)',
                         ),
                         array('name'=>'promo_name',
                               'header'=>'Promo Name',
@@ -31,6 +25,8 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'header'=>'Member Name',
                             'htmlOptions' => array('style' => 'text-align:left'),  
                             'headerHtmlOptions' => array('style' => 'text-align:left'),
+//                            'footer'=>'<strong>Total Loans</strong>',
+//                            'footerHtmlOptions'=>array('style'=>'font-size:14px'),
                         ),
                         array('name'=>'ibo_count',
                             'header'=>'IBO Count',
@@ -67,12 +63,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'status',
                             'header'=>'Status',
-                            'value' => 'AdmintransactionsController::getStatus($data["status"], 1)',
+                            'value' => 'AdmintransactionsController::getStatus($data["status"], 4)',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}{claim}{print}',
+                            'template'=>'{approve}{claim}{download}',
                             'buttons'=>array
                             (
                                 'approve'=>array
@@ -93,6 +89,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                                 {
                                                     alert(data.result_msg);
                                                     $.fn.yiiGridView.update("bonus-grid");
+                                                    location.reload();
                                                 }
                                                 else
                                                     alert(data.result_msg);
@@ -129,11 +126,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     ),
                                     array('id' => 'send-link-'.uniqid())
                                 ),
-                                'print'=>array
+                                'download'=>array
                                 (
-                                    'label'=>'Print',
-                                    'icon'=>'icon-print',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfgoc", array("id" =>$data["promo_redemption_id"], "member_id" =>$data["member_id"], "member_name" =>$data["member_name"]))',
+                                    'label'=>'Download',
+                                    'icon'=>'icon-download-alt',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfbonus", array("id" =>$data["promo_redemption_id"], "member_id" =>$data["member_id"], "member_name" =>$data["member_name"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),

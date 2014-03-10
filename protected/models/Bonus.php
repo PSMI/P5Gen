@@ -150,9 +150,32 @@ class Bonus extends CFormModel
         {
             $trx->rollback();
             return false;
-        }
+        }       
+    }
+    
+    public function getPayeeDetails($member_id)
+    {
+        $conn = $this->_connection;
         
-            
+        $query = "SELECT
+                        m.username,
+                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        md.email,
+                        md.mobile_no,
+                        md.telephone_no,
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS endorser_name
+                    FROM members m
+                      INNER JOIN member_details md
+                        ON m.member_id = md.member_id
+                      LEFT OUTER JOIN member_details md2
+                        ON md2.member_id = m.endorser_id
+                    WHERE m.member_id = :member_id;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
     }
 }
 ?>

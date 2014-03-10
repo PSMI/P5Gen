@@ -267,7 +267,7 @@ class AdmintransactionsController extends Controller
         $dataProvider = new CArrayDataProvider($rawData, array(
                                                 'keyField' => false,
                                                 'pagination' => array(
-                                                'pageSize' => 10,
+                                                'pageSize' => 25,
                                             ),
                                 ));
 
@@ -688,24 +688,38 @@ class AdmintransactionsController extends Controller
     
     public function actionPdfBonus()
     {
+        $model = new Bonus();
+        $reference = new ReferenceModel();
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();
+        
         if(isset($_GET["id"]))
         {
-            $promo_redemption_id = $_GET["id"];
             $member_id = $_GET["member_id"];
             $member_name = $_GET["member_name"];
-
-            $content = "Bonus Payout for ".$promo_redemption_id." cut off";
-            $content .= "<br>";
-            $content .= "Member Name: ".$member_name;
+            $total_amount = 25000;
             
-            $html2pdf = Yii::app()->ePdf->HTML2PDF();
-            $html2pdf->WriteHTML($content);
-            $html2pdf->Output('Bonus_' . date('Y-m-d') . '.pdf', 'D'); 
+            $total['total_amount'] = $total_amount;
+            
+            //Get Payee Details
+            $payee = $model->getPayeeDetails($member_id);
+                
+            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $total_tax = $total_amount * ($tax_withheld/100);
+            
+            $total['tax_amount'] = $total_tax;
+            $total['net_amount'] = $total_amount - $total_tax;
         }
-        else
-        {
-            echo "id not set";
-        }
+     
+        $html2pdf->WriteHTML($this->renderPartial('_bonusreport', array(
+                'member_name'=>$member_name,
+                'payee'=>$payee,
+                'total'=>$total,
+            ), true
+         ));
+        
+        $html2pdf->Output('Bonus' . $member_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+        Yii::app()->end();
     }
     
     public function actionPdfDirect()
@@ -757,6 +771,6 @@ class AdmintransactionsController extends Controller
             $html2pdf->Output('DirectEndorsement_' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
             Yii::app()->end();
         }
-    }
+    }     
 }
 ?>

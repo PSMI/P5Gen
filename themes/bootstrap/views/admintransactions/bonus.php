@@ -6,14 +6,14 @@
 
 $this->breadcrumbs = array('Member Transactions'=>'#','Bonus');
 
-Yii::app()->user->setFlash('info', '<strong>Important!</strong> Please make sure that the date input is a valid cut-off.');
+Yii::app()->user->setFlash('info', '<strong>Note </strong> | All bonuses automatically becomes available once they are completed.');
 
 $this->widget('bootstrap.widgets.TbAlert', array(
         'block'=>true, // display a larger alert block?
         'fade'=>true, // use transitions?
         'closeText'=>'&times;', // close link text - if set to false, no close link is displayed
         'alerts'=>array( // configurations per alert type
-            'info'=>array('block'=>true, 'fade'=>true, 'closeText'=>'&times;'), // success, info, warning, error or danger
+            'info'//=>array('block'=>true, 'fade'=>true, 'closeText'=>'&times;'), // success, info, warning, error or danger
         ),
 ));
 ?>
