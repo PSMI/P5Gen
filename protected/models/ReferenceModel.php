@@ -215,5 +215,66 @@ class ReferenceModel extends CFormModel
          * 
          */
     }
+    
+    public function toggle_job_scheduler($status)
+    {
+        $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+        $query = "UPDATE ref_variables SET variable_value = :status
+                  WHERE variable_name = 'JOB_SCHEDULER';";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':status', $status);
+        $command->execute();
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
+    }
+    
+    public function get_schedule_variables()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT * FROM ref_variables WHERE variable_id > 5 AND variable_id < 10";
+        $command = $conn->createCommand($query);
+        $result = $command->queryAll();
+        return $result;
+    }
+    
+    public function get_rates_variables()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT * FROM ref_variables WHERE variable_id >= 10 AND variable_id <= 15";
+        $command = $conn->createCommand($query);
+        $result = $command->queryAll();
+        return $result;
+    }
+    
+    public function get_payout_rates()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT p.transaction_type_id,
+                        t.transaction_type_name,
+                        p.amount                        
+                    FROM ref_payout_rate p
+                    INNER JOIN ref_transaction_types t ON p.transaction_type_id = t.transaction_type_id
+                    WHERE p.status = 1";
+        $command = $conn->createCommand($query);
+        $result = $command->queryAll();
+        return $result;
+    }
+    
+    public function get_variables_by_id($variable_id)
+    {
+        $conn = $this->_connection;
+        $query = "SELECT * FROM ref_variables WHERE variable_id = :variable_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':variable_id', $variable_id);
+        $result = $command->queryRow();
+        return $result;
+    }
 }
 ?>

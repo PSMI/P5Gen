@@ -172,8 +172,8 @@ class PlacementModel extends CFormModel
                   ON m.member_id = md.member_id
                 LEFT JOIN pending_placements pp ON m.member_id = pp.member_id
               WHERE m.endorser_id = :endorser_id
-              AND m.upline_id IS NULL
-              AND m.placement_status = 0";
+              AND (m.upline_id IS NULL
+              OR m.placement_status = 0)";
         
         $command = $conn->createCommand($sql);
         $command->bindParam(":endorser_id", $this->endorser_id);

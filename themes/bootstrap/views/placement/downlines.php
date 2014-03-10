@@ -44,7 +44,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
     'type'=>'striped bordered condensed',
     'dataProvider'=>$gridDataProvider,
     'enablePagination' => true,
-    'template'=>"{items}",
+//    'template'=>"{items}",
     'columns'=>array(
         array('name'=>'member_id', 
                 'header'=>'ID',

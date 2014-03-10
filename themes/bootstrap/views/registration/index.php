@@ -44,16 +44,14 @@ function submitForm()
 
 <?php 
 
-//Yii::app()->user->setFlash('success', '<strong>Well done!</strong> You have successfully registered our new business partner.');
-//Yii::app()->user->setFlash('error', '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.');
-Yii::app()->user->setFlash('info', '<strong>Important!</strong> Please make sure to fill-up all required information specially the email address as this is required for the activation of the new partner\'s account.');
+Yii::app()->user->setFlash('danger', '<strong>Important!</strong> Please make sure to fill-up all required information specially the email address as this is required for the activation of the new partners\' account.');
 
 $this->widget('bootstrap.widgets.TbAlert', array(
         'block'=>true, // display a larger alert block?
         'fade'=>true, // use transitions?
-        'closeText'=>'X', // close link text - if set to false, no close link is displayed
+        'closeText'=>'&times;', // close link text - if set to false, no close link is displayed
         'alerts'=>array( // configurations per alert type
-            'info'=>array('block'=>true, 'fade'=>true, 'closeText'=>'X'), // success, info, warning, error or danger
+            'danger'//=>array('block'=>true, 'fade'=>true, 'closeText'=>'X'), // success, info, warning, error or danger
         ),
 )); ?>
 
@@ -113,7 +111,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     </div>    
 </div>
 
-<h5>Partner's Personal Information</h5>
+<h5>Partners' Personal Information</h5>
 <?php echo $form->textFieldRow($model,'last_name', array('class'=>'span3')); ?>
 <?php echo $form->textFieldRow($model,'first_name', array('class'=>'span3')); ?>
 <?php echo $form->textFieldRow($model,'middle_name', array('class'=>'span3')); ?>

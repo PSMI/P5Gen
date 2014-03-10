@@ -27,14 +27,14 @@
   </table>
 <?php $this->endWidget(); ?>
 <?php
-$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-    'id'=>'index-form',
-    'enableClientValidation' => true,
-    'clientOptions' => array(
-            'validateOnSubmit' => true,
-    ),
-    'htmlOptions'=>array('class'=>'well'),
-));
+//$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+//    'id'=>'index-form',
+//    'enableClientValidation' => true,
+//    'clientOptions' => array(
+//            'validateOnSubmit' => true,
+//    ),
+////    'htmlOptions'=>array('class'=>'well'),
+//));
 /*
 echo '<h3>Direct Endorsements</h3>';
 echo '<table>';
@@ -62,10 +62,17 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'dataProvider'=>$dataProvider,
         'enablePagination' => true,
         'columns' => array(
+                array(
+                    'header' => 'No',
+                    'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
+                    * $this->grid->dataProvider->pagination->pageSize + 1)',
+                    'htmlOptions' => array('style' => 'text-align:center'),
+                    'headerHtmlOptions' => array('style' => 'text-align:center'),
+                ),
                 array('name'=>'Name',
-                    'header'=>'Name',
+                    'header'=>'Member Name',
                     'type'=>'raw',
-                    'value'=>'CHtml::encode($data["first_name"] . " " . $data["middle_name"] . " " . $data["last_name"])', 
+                    'value'=>'CHtml::encode($data["last_name"] . ", " . $data["first_name"] . " " . $data["middle_name"])', 
                 ), 
                 array('name'=>'DateEnrolled',
                     'header'=>'Date Enrolled',
@@ -83,4 +90,4 @@ $this->widget('bootstrap.widgets.TbGridView', array(
     'htmlOptions'=>array('onclick'=>'history.back()'),
 )); ?>
    
-<?php $this->endWidget(); ?>
+<?php // $this->endWidget(); ?>
