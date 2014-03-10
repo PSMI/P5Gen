@@ -256,7 +256,8 @@ class ReferenceModel extends CFormModel
     public function get_payout_rates()
     {
         $conn = $this->_connection;
-        $query = "SELECT p.transaction_type_id,
+        $query = "SELECT p.payout_rate_id, 
+                        p.transaction_type_id,
                         t.transaction_type_name,
                         p.amount                        
                     FROM ref_payout_rate p
@@ -264,6 +265,22 @@ class ReferenceModel extends CFormModel
                     WHERE p.status = 1";
         $command = $conn->createCommand($query);
         $result = $command->queryAll();
+        return $result;
+    }
+    
+    public function get_payout_rates_by_id($id)
+    {
+        $conn = $this->_connection;
+        $query = "SELECT p.payout_rate_id, 
+                        p.transaction_type_id,
+                        t.transaction_type_name,
+                        p.amount                        
+                    FROM ref_payout_rate p
+                    INNER JOIN ref_transaction_types t ON p.transaction_type_id = t.transaction_type_id
+                    WHERE p.payout_rate_id = :payout_rate_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':payout_rate_id', $id);
+        $result = $command->queryRow();
         return $result;
     }
     
@@ -275,6 +292,82 @@ class ReferenceModel extends CFormModel
         $command->bindParam(':variable_id', $variable_id);
         $result = $command->queryRow();
         return $result;
+    }
+    
+    public function update_ref_variables($id,$value)
+    {
+        $conn = $this->_connection;        
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE ref_variables SET variable_value = :variable_value
+                    WHERE variable_id = :variable_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':variable_value', $value);
+        $command->bindParam(':variable_id', $id);
+        $command->execute();
+        
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
+    }
+    
+    public function update_payout_rate($id,$trans_type_id,$value)
+    {
+        $conn = $this->_connection;        
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE ref_payout_rate SET status = 2
+                    WHERE payout_rate_id = :payout_rate_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':payout_rate_id', $id);
+        $command->execute();
+        
+        try
+        {
+            if(!$this->hasErrors())
+            {
+                $query2 = "INSERT INTO ref_payout_rate (transaction_type_id, amount, created_by_id)
+                            VALUES (:transaction_type_id, :amount, :created_by_id)";
+                $command2 = $conn->createCommand($query2);
+                $command2->bindParam(':transaction_type_id', $trans_type_id);
+                $command2->bindParam(':amount', $value);
+                $command2->bindParam(':created_by_id', Yii::app()->user->getId());
+                $command2->execute();
+                
+                if(!$this->hasErrors())
+                    $trx->commit();
+                else
+                    $trx->rollback();
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
+    }
+    
+    public function verify_payout_rate($id,$trans_type_id,$amount)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM ref_payout_rate
+                    WHERE payout_rate_id = :payout_rate_id
+                        AND transaction_type_id = :trans_type_id
+                        AND amount = :amount";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':payout_rate_id', $id);
+        $command->bindParam(':trans_type_id', $trans_type_id);
+        $command->bindParam(':amount', $amount);
+        $result = $command->queryAll();
+        if(count($result)>0)
+            return true;
+        else
+            return false;
     }
 }
 ?>

@@ -10,11 +10,30 @@ Yii::app()->clientScript->registerScript('ui','
          
      var variable_id = $("#variable_id"),
          variable_value = $("#variable_value"),
-         variable_text = $("#variable_text");
+         variable_text = $("#variable_text"),
+         variable_sched = $("#schedule"),
+         new_value = $("#new_value"),
+         payout_rate_id = $("#payout_rate_id"),
+         transaction_text = $("#transaction_text"),
+         payout_amount = $("#payout_amount"),
+         trans_type_id = $("#transaction_type_id"),
+         new_payout_amount = $("#new_payout_amount");
          
  ', CClientScript::POS_END);
 ?>
 <h3>System Options</h3>
+
+<?php Yii::app()->user->setFlash('danger', '<strong>Warning!</strong> It is recommened that changing values below should be done only every after cutoff. If it is needed you can stop first the job scheduler in the Administration->Job Scheduler menu and make sure there are no more queued transactions before changing the current options values.');
+
+$this->widget('bootstrap.widgets.TbAlert', array(
+        'block'=>true, // display a larger alert block?
+        'fade'=>true, // use transitions?
+        'closeText'=>'&times;', // close link text - if set to false, no close link is displayed
+        'alerts'=>array( // configurations per alert type
+            'danger'=>array('block'=>true, 'fade'=>true, 'closeText'=>'&times'), // success, info, warning, error or danger
+        ),
+)); ?>
+
 <?php
 $this->widget('bootstrap.widgets.TbGridView', array(
     'id' => 'schedule-option-grid',
@@ -100,25 +119,24 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                     (
                     'label' => 'Modify values',
                     'icon' => 'icon-edit',
-                    'url' => 'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["direct_endorsement_id"], "status" => "1", "transtype" => "directendrse", "endorser_id" =>$data["endorser_id"], "cutoff_id" =>$data["cutoff_id"]))',
+                    'url' => 'Yii::app()->createUrl("/admin/getvariableoptions", array("id" =>$data["variable_id"]))',
                     'options' => array(
                         'class' => "btn btn-small",
-                        'confirm' => 'Are you sure you want to APPROVE?',
                         'ajax' => array(
-                            'type' => 'GET',
-                            'dataType' => 'json',
-                            'url' => 'js:$(this).attr("href")',
-                            'success' => 'function(data){
-                                    if(data.result_code == 0)
-                                    {
-                                        alert(data.result_msg);
-                                        $.fn.yiiGridView.update("directendrse-grid");
-                                        location.reload();
-                                    }
-                                    else
-                                        alert(data.result_msg);
+                                'type' => 'GET',
+                                'dataType'=>'json',
+                                'url' => 'js:$(this).attr("href")',
+                                'success' => 'function(data){                                   
+                                     $.each(data, function(name,val){
+                                        variable_text.text(val.text);
+                                        variable_value.val(val.value);
+                                        variable_id.val(val.id);
+                                        new_value.val(val.value);
+                                        variable_sched.remove();
+                                    });
+                                    $("#update-dialog").modal("show");
                                  }',
-                        ),
+                            ),
                     ),
                     array('id' => 'send-link-' . uniqid())
                 ),
@@ -154,25 +172,24 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                     (
                     'label' => 'Modify values',
                     'icon' => 'icon-edit',
-                    'url' => 'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["direct_endorsement_id"], "status" => "1", "transtype" => "directendrse", "endorser_id" =>$data["endorser_id"], "cutoff_id" =>$data["cutoff_id"]))',
+                    'url' => 'Yii::app()->createUrl("/admin/getpayoutrates", array("id" =>$data["payout_rate_id"]))',
                     'options' => array(
                         'class' => "btn btn-small",
-                        'confirm' => 'Are you sure you want to APPROVE?',
                         'ajax' => array(
-                            'type' => 'GET',
-                            'dataType' => 'json',
-                            'url' => 'js:$(this).attr("href")',
-                            'success' => 'function(data){
-                                    if(data.result_code == 0)
-                                    {
-                                        alert(data.result_msg);
-                                        $.fn.yiiGridView.update("directendrse-grid");
-                                        location.reload();
-                                    }
-                                    else
-                                        alert(data.result_msg);
+                                'type' => 'GET',
+                                'dataType'=>'json',
+                                'url' => 'js:$(this).attr("href")',
+                                'success' => 'function(data){                                   
+                                     $.each(data, function(name,val){
+                                       payout_rate_id.val(val.id);
+                                       trans_type_id.val(val.trans_type_id);
+                                       transaction_text.text(val.text);
+                                       payout_amount.val(val.value);
+                                       new_payout_amount.val(val.value);
+                                    });
+                                    $("#payout-rate-dialog").modal("show");
                                  }',
-                        ),
+                            ),
                     ),
                     array('id' => 'send-link-' . uniqid())
                 ),
@@ -184,7 +201,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
 ));
 ?>
 
-
+<form name="optionForm" id="optionForm" method="post">
 <!-- MESSAGE DIALOG -->
 <?php $this->beginWidget('bootstrap.widgets.TbModal', 
         array('id'=>'update-dialog',
@@ -197,31 +214,21 @@ $this->widget('bootstrap.widgets.TbGridView', array(
     <h4>Modify Option Values</h4>
 </div>
 
-<?php /** @var BootActiveForm $form */
-$form = $this->widget('bootstrap.widgets.TbActiveForm', array
-(
-    'id'=>'optionForm',
-    'inlineErrors'=>true,
-    'enableClientValidation'=>true,
-    'clientOptions'=>array(
-            'validateOnSubmit'=>true,
-        ),
-)); ?>
-
 <div class="modal-body">
+    
     <?php echo CHtml::hiddenField('variable_id'); ?>
     <table>
         <tr>
-            <th>Option Name</th>
-            <td><span id="variable_text"></span></td>
+            <th align="right">Option Name</th>
+            <td style="padding:2px 10px"><span id="variable_text"></span></td>
         </tr>
         <tr>
-            <th>Current Value</th>
-            <td><?php echo CHtml::textField('variable_value','',array('readonly'=>'readonly')); ?></td>
+            <th align="right">Current Value</th>
+            <td style="padding:2px 10px"><?php echo CHtml::textField('variable_value','',array('readonly'=>'readonly')); ?></td>
         </tr>
         <tr>
-            <th>New Value</th>
-            <td><?php echo CHtml::textField('new_value', 1,array('style'=>'width:20px')); ?> <?php echo CHtml::dropDownList('schedule', '', array('m'=>'MONTH','w'=>'WEEK','d'=>'DAY')) ?></td>
+            <th align="right">New Value</th>
+            <td style="padding:2px 10px"><?php echo CHtml::textField('new_value', 1,array('style'=>'width:80px')); ?> <?php echo CHtml::dropDownList('schedule', '', array('m'=>'MONTH','w'=>'WEEK','d'=>'DAY'),array('style'=>'width:120px')); ?></td>
         </tr>
     </table>
 </div>
@@ -230,8 +237,10 @@ $form = $this->widget('bootstrap.widgets.TbActiveForm', array
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'=>'submit',
         'label'=>'Update',
-        'url'=>array('admin/options'),
-        'htmlOptions'=>array('onclick'=>'$("#optionForm").submit()'),
+        'htmlOptions'=>array(
+            'onclick'=>'$("#optionForm").submit()',
+            'confirm'=>'Are you sure you want to continue updating the options values?'
+        ),
     )); ?>
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'label'=>'Close',
@@ -239,5 +248,84 @@ $form = $this->widget('bootstrap.widgets.TbActiveForm', array
         'htmlOptions'=>$this->errorCode > 0 ? array('data-dismiss'=>'modal') : "",
     )); ?>
 </div>
+</form>
+<?php $this->endWidget(); ?>
+
+<form name="payoutForm" id="optionForm" method="post">
+<!-- PAYOUT RATE DIALOG -->
+<?php $this->beginWidget('bootstrap.widgets.TbModal', 
+        array('id'=>'payout-rate-dialog',
+              'autoOpen'=>false,
+              'fade'=>true,
+)); ?>
  
+<div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h4>Payout Rate Values</h4>
+</div>
+
+<div class="modal-body">
+    
+    <?php echo CHtml::hiddenField('payout_rate_id'); ?>
+    <?php echo CHtml::hiddenField('transaction_type_id'); ?>
+    <table>
+        <tr>
+            <th align="right">Transaction</th>
+            <td style="padding:2px 10px"><span id="transaction_text"></span></td>
+        </tr>
+        <tr>
+            <th align="right">Current Payout Rate</th>
+            <td style="padding:2px 10px"><?php echo CHtml::textField('payout_amount','',array('readonly'=>'readonly')); ?></td>
+        </tr>
+        <tr>
+            <th align="right">New Payout Rate</th>
+            <td style="padding:2px 10px"><?php echo CHtml::textField('new_payout_amount', 1,array('style'=>'width:80px')); ?></td>
+        </tr>
+    </table>
+</div>
+ 
+<div class="modal-footer">
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'buttonType'=>'submit',
+        'label'=>'Update',
+        'htmlOptions'=>array(
+            'onclick'=>'$("#payoutForm").submit()',
+            'confirm'=>'Are you sure you want to continue updating the payout rates?'
+        ),
+    )); ?>
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'label'=>'Close',
+        'url'=>$this->errorCode > 0 ? '#' : array('admin/options'),
+        'htmlOptions'=>$this->errorCode > 0 ? array('data-dismiss'=>'modal') : "",
+    )); ?>
+</div>
+
+</form>
+<?php $this->endWidget(); ?>
+
+<!-- ALERT DIALOG -->
+<?php $this->beginWidget('bootstrap.widgets.TbModal', 
+        array('id'=>'alert-dialog',
+              'autoOpen'=>$this->alertDialog,
+              'fade'=>true,
+)); ?>
+ 
+<div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h4><?php echo $this->alertTitle; ?></h4>
+</div>
+
+<div class="modal-body">
+    <p><?php echo $this->alertMessage; ?></p>
+</div>
+ 
+<div class="modal-footer">
+   
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'label'=>'Close',
+        'url'=>$this->errorCode > 0 ? '#' : array('admin/options'),
+        'htmlOptions'=>$this->errorCode > 0 ? array('data-dismiss'=>'modal') : "",
+    )); ?>
+</div>
+</form>
 <?php $this->endWidget(); ?>
