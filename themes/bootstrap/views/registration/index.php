@@ -25,6 +25,12 @@ function validateUpline()
         hidden_upline.val("");
     }
 }
+
+function submitForm()
+{
+    $("#hidden_flag").val(1);
+    $("#verticalForm").submit();
+}
 </script>
 
 <?php Yii::app()->clientScript->registerScript('ui','
@@ -38,14 +44,16 @@ function validateUpline()
 
 <?php 
 
-Yii::app()->user->setFlash('danger', '<strong>Important!</strong> Please make sure to fill-up all required information specially the email address as this is required for the activation of the new partners\' account.');
+//Yii::app()->user->setFlash('success', '<strong>Well done!</strong> You have successfully registered our new business partner.');
+//Yii::app()->user->setFlash('error', '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.');
+Yii::app()->user->setFlash('info', '<strong>Important!</strong> Please make sure to fill-up all required information specially the email address as this is required for the activation of the new partner\'s account.');
 
 $this->widget('bootstrap.widgets.TbAlert', array(
         'block'=>true, // display a larger alert block?
         'fade'=>true, // use transitions?
-        'closeText'=>'&times;', // close link text - if set to false, no close link is displayed
+        'closeText'=>'X', // close link text - if set to false, no close link is displayed
         'alerts'=>array( // configurations per alert type
-            'danger'//=>array('block'=>true, 'fade'=>true, 'closeText'=>'X'), // success, info, warning, error or danger
+            'info'=>array('block'=>true, 'fade'=>true, 'closeText'=>'X'), // success, info, warning, error or danger
         ),
 )); ?>
 
@@ -88,13 +96,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                     'minLength'=>'2',
                     'showAnim'=>'fold',
                     'focus' => 'js:function(event, ui){upline_name.val(ui.item["value"])}',
-                    'select' => 'js:function(event, ui){
-                        var ans = confirm("Are you sure you want to place under "+ui.item["value"]+"?\n\nPlease NOTE that once your downline is approved by your \nassigned upline you will not be able to reassign it again.\n\nTo confirm your placement, click OK otherwise click Cancel \nand select the correct upline.");
-                        if(ans)
-                            upline_id.val(ui.item["id"]); 
-                        else
-                            upline_name.val("");
-                    }',
+                    'select' => 'js:function(event, ui){upline_id.val(ui.item["id"]); }',
                 ),
                 'htmlOptions'=>array(
                     'class'=>'span3',
@@ -111,7 +113,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     </div>    
 </div>
 
-<h5>Partners' Personal Information</h5>
+<h5>Partner's Personal Information</h5>
 <?php echo $form->textFieldRow($model,'last_name', array('class'=>'span3')); ?>
 <?php echo $form->textFieldRow($model,'first_name', array('class'=>'span3')); ?>
 <?php echo $form->textFieldRow($model,'middle_name', array('class'=>'span3')); ?>
@@ -142,6 +144,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 
 <?php //echo $form->passwordFieldRow($model, 'password', array('class'=>'span3')); ?>
 <?php //echo $form->checkboxRow($model, 'checkbox'); ?>
+<?php echo CHtml::hiddenField('hidden_flag'); ?>
 
 <!-- Button Group -->
 <?php $this->widget('bootstrap.widgets.TbButton', array(
@@ -152,14 +155,49 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 )); ?>
 
 <?php $this->widget('bootstrap.widgets.TbButton', array(
-    'buttonType'=>'submit', 
+    'buttonType'=>'submit',
     'label'=>'Register Business Partner',
     'type'=>'primary',
     'size'=>'large',
 )); ?>
 
-<?php $this->endWidget(); ?>
+<?php $this->beginWidget('bootstrap.widgets.TbModal', 
+        array('id'=>'confirm-dialog',
+              'autoOpen'=>$this->showConfirm,
+              'fade'=>true,
+)); ?>
+ 
+<!-- NETWORK CONFIRMATION DIALOG -->
+<div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h4>CONFIRMATION</h4>
+</div>
+ 
+<div id="cont-msg" class="modal-body"><p></p></div>
+<div id="confirm-msg" class="modal-body">
+</div>
+ 
+<div class="modal-footer">
+    <?php
+        $this->widget('bootstrap.widgets.TbButton', array(
+            'buttonType' => 'button',
+            'label' => 'YES',
+            'type' => 'default',
+            'htmlOptions'=>array('onclick'=>'submitForm()')
+        ));
+        $this->widget('bootstrap.widgets.TbButton', array(
+            'buttonType' => 'button',
+            'label' => 'NO',
+            'type' => 'default',
+            'htmlOptions'=>array('data-dismiss'=>'modal')
+        ));
+    ?>
+</div>
+<?php $this->endWidget(); // end of confirm dialog ?>
 
+<?php $this->endWidget(); // form end widget ?>
+
+<!-- AJAX LOADER -->
 <?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
         'id'=>'ajaxloader',
         'options'=>array(
@@ -176,6 +214,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 
 <?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
 
+<!-- MESSAGE DIALOG -->
 <?php $this->beginWidget('bootstrap.widgets.TbModal', 
         array('id'=>'message-dialog',
               'autoOpen'=>$this->showDialog,
@@ -200,3 +239,26 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 </div>
  
 <?php $this->endWidget(); ?>
+
+<?php if ($this->showConfirm): ?>
+<script type="text/javascript">
+    $.ajax({
+        url: 'confirm',
+        type: 'post',
+        data: { last_name: $("#RegistrationForm_last_name").val(),
+                first_name: $("#RegistrationForm_first_name").val(),
+                middle_name: $("#RegistrationForm_middle_name").val(),
+                upline_id: $("#RegistrationForm_upline_id").val()
+        },
+        success: function(data){
+            $("#cont-msg").html("Kindly check the table below to verify the \n\
+                    possible location of the new member. Once you proceed, it will\n\
+                    be FINAL. Do you wish to continue?");
+            $("#confirm-msg").html(data);
+        },
+        error: function(e){
+            alert("Error:" + e);
+        }
+    });
+</script>
+<?php endif; ?>

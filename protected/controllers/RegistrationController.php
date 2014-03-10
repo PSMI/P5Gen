@@ -12,6 +12,7 @@ class RegistrationController extends Controller
     public $dialogTitle;
     public $dialogMessage;
     public $showDialog = false;
+    public $showConfirm = false;
     public $alertType = 'info';
     public $errorCode;
     
@@ -20,7 +21,38 @@ class RegistrationController extends Controller
         $model = new RegistrationForm();
         $model->member_id = Yii::app()->session['member_id'];
         
-        if(isset($_POST['RegistrationForm']))
+        if ($_POST['hidden_flag'] == 1)
+        {
+            $model->attributes = $_POST['RegistrationForm'];
+            
+            //process registration
+            $retval = $model->register();                    
+            if($retval['result_code'] == 0)
+            {
+                //send email notification
+                $param['member_id'] = $model->new_member_id;
+                $param['plain_password'] = $model->plain_password;
+
+                Mailer::sendVerificationLink($param);
+
+                $param2['upline_id'] = $model->upline_id;
+                $param2['new_member_id'] = $model->new_member_id;
+                $param2['endorser_id'] = $model->member_id;                      
+
+                Mailer::sendUplineNotification($param2);
+
+                $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business partner.';
+            }
+            else
+            {
+                $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
+            }
+
+            $this->errorCode = $retval['result_code'];
+            $this->showDialog = true;
+        }
+        
+        else if(isset($_POST['RegistrationForm']))
         {
             $model->attributes = $_POST['RegistrationForm'];
             
@@ -38,35 +70,11 @@ class RegistrationController extends Controller
                     {
                         $this->dialogMessage = '<strong>Ooops!</strong> Member name already exist. Please use another name or append some characters you preferred to make it unique.';
                         $this->errorCode = 6;
+                        $this->showDialog = true;
                     }
                     else 
                     {
-                        //process registration
-                        $retval = $model->register();                    
-                        if($retval['result_code'] == 0)
-                        {
-                            //send email notification
-                            $param['member_id'] = $model->new_member_id;
-                            $param['plain_password'] = $model->plain_password;
-
-                            Mailer::sendVerificationLink($param);
-
-                            $param2['upline_id'] = $model->upline_id;
-                            $param2['new_member_id'] = $model->new_member_id;
-                            $param2['endorser_id'] = $model->member_id;                      
-
-                            Mailer::sendUplineNotification($param2);
-
-                            $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business partner.';
-
-                        }
-                        else
-                        {
-                            $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
-
-                        }
-
-                        $this->errorCode = $retval['result_code'];
+                        $this->showConfirm = true;
                     }
                     
                 }
@@ -74,12 +82,9 @@ class RegistrationController extends Controller
                 {
                     $this->dialogMessage = '<strong>Ooops!</strong> The activation code entered is invalid. Please make sure you have entered the code correctly.';
                     $this->errorCode = 6; //Activation code already in used.
-                    
-                }                
-                
+                    $this->showDialog = true;
+                }
                 $this->dialogTitle = 'IBP Registration';
-                $this->showDialog = true;
-                
             }
         }
         
@@ -110,6 +115,24 @@ class RegistrationController extends Controller
             }
             
         }
+    }
+    
+    public function actionConfirm()
+    {
+        $info = array();
+        
+        if (isset($_POST)) {
+            $info[0]["member_name"] = strtoupper($_POST["last_name"] . ", " . $_POST["first_name"] . " " . $_POST["middle_name"]);
+            $info[0]["upline_name"] = Networks::getMemberName($_POST["upline_id"]);
+            $info[0]["endorser_name"] = Networks::getMemberName(Yii::app()->user->getId());
+        }
+        
+        $dataProvider = new CArrayDataProvider($info, array(
+                        'keyField' => false,
+                        'pagination' => false
+        ));
+        
+        $this->renderPartial('_position', array('dataProvider'=>$dataProvider));
     }
     
 }
