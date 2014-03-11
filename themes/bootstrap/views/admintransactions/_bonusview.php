@@ -130,7 +130,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Download',
                                     'icon'=>'icon-download-alt',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfbonus", array("id" =>$data["promo_redemption_id"], "member_id" =>$data["member_id"], "member_name" =>$data["member_name"]))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfbonus", array("id" =>$data["promo_redemption_id"], "member_id" =>$data["member_id"], "member_name" =>$data["member_name"], "date_joined" =>$data["date_joined"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),

@@ -697,6 +697,7 @@ class AdmintransactionsController extends Controller
         {
             $member_id = $_GET["member_id"];
             $member_name = $_GET["member_name"];
+            $date_joined = $_GET["date_joined"];
             $total_amount = 25000;
             
             $total['total_amount'] = $total_amount;
@@ -709,12 +710,16 @@ class AdmintransactionsController extends Controller
             
             $total['tax_amount'] = $total_tax;
             $total['net_amount'] = $total_amount - $total_tax;
+            
+            //Get downlines
+            $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $date_joined);
         }
      
         $html2pdf->WriteHTML($this->renderPartial('_bonusreport', array(
                 'member_name'=>$member_name,
                 'payee'=>$payee,
                 'total'=>$total,
+                'direct_downlines'=>$direct_downlines,
             ), true
          ));
         

@@ -30,12 +30,15 @@ class Bonus extends CFormModel
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     pr.status,
-                    pr.member_id
+                    pr.member_id,
+                    mm.date_joined
                   FROM promo_redemption pr
                     INNER JOIN promos p
                       ON pr.promo_id = p.promo_id
                     LEFT OUTER JOIN member_details m
                       ON pr.member_id = m.member_id
+                    LEFT OUTER JOIN members mm
+                      ON pr.member_id = mm.member_id
                     LEFT OUTER JOIN member_details md
                       ON pr.approved_by_id = md.member_id
                     LEFT OUTER JOIN member_details md2
@@ -173,6 +176,32 @@ class Bonus extends CFormModel
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function getLoanDirectEndorsementDownlines($member_id, $date_joined)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS upline_name
+                    FROM members m
+                        INNER JOIN member_details md
+                        ON m.member_id = md.member_id
+                        LEFT OUTER JOIN member_details md2
+                        ON md2.member_id = m.upline_id
+                    WHERE m.endorser_id = :member_id
+                    AND m.placement_date <= DATE_ADD(:date_joined, INTERVAL 3 MONTH)
+                    AND placement_status = 1
+                    ORDER BY placement_date ASC;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':date_joined', $date_joined);
         $result = $command->queryAll();
         
         return $result;
