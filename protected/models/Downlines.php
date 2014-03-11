@@ -57,9 +57,10 @@ class Downlines extends CFormModel
         
         $query = "SELECT
                     member_id AS downline
-                  FROM members m
-                  WHERE m.upline_id = :member_id
-                  AND placement_status = 1;";
+                  FROM members
+                  WHERE upline_id = :member_id
+                  AND placement_status = 1
+                  ORDER BY placement_date ASC;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
@@ -252,7 +253,8 @@ class Downlines extends CFormModel
         $query = "SELECT
                     member_id AS downline
                   FROM members m
-                  WHERE m.endorser_id = :member_id AND placement_status = 1;";
+                  WHERE m.endorser_id = :member_id AND placement_status = 1
+                  ORDER BY placement_date ASC;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
