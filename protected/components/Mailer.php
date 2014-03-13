@@ -177,7 +177,7 @@ class Mailer
         $downline_name = $downline_info['first_name'] . ' ' . $downline_info['last_name'];
         $endorser_name = $endorser_info['first_name'] . ' ' . $endorser_info['last_name'];
         $endorser_email = $endorser_info['email'];
-        $curdate = date('Y-m-d H:i:s');
+        $curdate = date('M d Y');
         
         $placeholders = array('UPLINE_NAME'=>$upline_name, 
                               'ENDORSER_NAME'=>$endorser_name,
@@ -219,7 +219,7 @@ class Mailer
         $downline_name = $downline_info['first_name'] . ' ' . $downline_info['last_name'];
         $endorser_name = $endorser_info['first_name'] . ' ' . $endorser_info['last_name'];
         $endorser_email = $endorser_info['email'];
-        $curdate = date('Y-m-d H:i:s');
+        $curdate = date('M d Y');
         
         $placeholders = array('UPLINE_NAME'=>$upline_name, 
                               'ENDORSER_NAME'=>$endorser_name,
@@ -260,7 +260,7 @@ class Mailer
         $downline_name = $downline_info['first_name'] . ' ' . $downline_info['last_name'];
         $endorser_name = $endorser_info['first_name'] . ' ' . $endorser_info['last_name'];
         $downline_email = $downline_info['email'];
-        $curdate = date('Y-m-d H:i:s');
+        $curdate = date('M d Y');
         
         $placeholders = array('UPLINE_NAME'=>$upline_name, 
                               'ENDORSER_NAME'=>$endorser_name,

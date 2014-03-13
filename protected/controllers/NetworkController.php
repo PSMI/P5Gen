@@ -78,7 +78,7 @@ class NetworkController extends Controller
         $genealogy['endorser'] = Networks::getMemberName($endorser_id);
         $genealogy['upline'] = Networks::getMemberName($upline_id);
         
-        $rawData = Networks::getUnilevel($member_id);
+        $rawData = Networks::getUnilevel10thLevel($member_id);
         $final = Networks::arrangeLevel($rawData);
         $genealogy['total'] = $final['total'];
         

@@ -77,7 +77,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                 array('name'=>'DateEnrolled',
                     'header'=>'Date Enrolled',
                     'type'=>'raw',
-                    'value'=>'CHtml::encode(date("m-d-Y", strtotime($data["date_created"])))', 
+                    'value'=>'CHtml::encode(date("M d Y", strtotime($data["date_created"])))', 
                 ),
         ),
 ));

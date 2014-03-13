@@ -161,12 +161,46 @@ class Networks extends Controller
         
         $i = 0;
         $level++;
-        $downlines = $model->directEndorse($member_id);
-        foreach ($downlines as $key => $val)
+            $downlines = $model->directEndorse($member_id);
+            foreach ($downlines as $key => $val)
+            {
+                $parent[$i][$level] = $downlines[$key]["downline"];
+                $children = array_merge($children, Networks::getUnilevel($downlines[$key]["downline"], $level));
+                $i++;
+            }
+        
+        $finalTree = array_merge($parent, $children);
+        
+        return $finalTree;
+    }
+    
+    /**
+     * This function is used to retrieve the member's direct endorsements
+     * to be used for unilevel genealogy up to 10th level only.
+     * @author Noel Antonio
+     * @date 02/7/2014
+     * @param int $member_id id of the logged-in member
+     * @param int $level level of genealogy; default is 0.
+     * @return array $finalTree
+     */
+    public function getUnilevel10thLevel($member_id, $level = 0)
+    {
+        $model = new Downlines();
+        $parent = array();
+        $children = array();
+        
+        $i = 0;
+        $level++;
+        
+        if ($level <= 10)
         {
-            $parent[$i][$level] = $downlines[$key]["downline"];
-            $children = array_merge($children, Networks::getUnilevel($downlines[$key]["downline"], $level));
-            $i++;
+            $downlines = $model->directEndorse($member_id);
+            foreach ($downlines as $key => $val)
+            {
+                $parent[$i][$level] = $downlines[$key]["downline"];
+                $children = array_merge($children, Networks::getUnilevel10thLevel($downlines[$key]["downline"], $level));
+                $i++;
+            }
         }
         
         $finalTree = array_merge($parent, $children);
@@ -230,7 +264,7 @@ class Networks extends Controller
             $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-            $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
+            $temp["DateEnrolled"] = date("M d Y", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
@@ -254,7 +288,7 @@ class Networks extends Controller
             $temp["Count"] = $count;
             $temp["Placement_Date"] = $val['placement_date'];
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-            $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
+            $temp["DateEnrolled"] = date("M d Y", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
@@ -382,7 +416,7 @@ class Networks extends Controller
         $rawData = $model->downlineInfo($member_ids);
         foreach ($rawData as $key => $val)
         {
-            $placement_date = date('Y-m-d',strtotime($val['placement_date']));
+            $placement_date = date('M d Y',strtotime($val['placement_date']));
             if($placement_date > $date_from && $placement_date <= $date_to)
             {
                 $count = $model->getUnilevelCount($val["member_id"]);
@@ -390,7 +424,7 @@ class Networks extends Controller
                 $temp["Count"] = $count;
                 $temp["Placement_Date"] = $val['placement_date'];
                 $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
-                $temp["DateEnrolled"] = date("Y M d", strtotime($val["date_enrolled"]));
+                $temp["DateEnrolled"] = date("M d Y", strtotime($val["date_enrolled"]));
                 $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
                 $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
                 $array[] = $temp;

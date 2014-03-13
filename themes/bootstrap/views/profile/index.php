@@ -20,7 +20,7 @@
 
 <table>
     <tr>
-        <th>Date Enrolled:</th><td><?php echo date('m-d-Y', strtotime($data["date_created"])); ?></td>
+        <th>Date Enrolled:</th><td><?php echo date('M d Y', strtotime($data["date_created"])); ?></td>
     </tr>
     <tr>
         <th>Username:</th><td><?php echo $data["username"]; ?></td>
@@ -75,7 +75,7 @@
         <th>Email Address:</th><td><?php echo $data["email"]; ?></td>
     </tr>
     <tr>
-        <th>Address:</th><td colspan="2"><?php echo $data["address1"]; ?></td>
+        <th>Address:</th><td colspan="2"><?php echo CHtml::textArea('taAddress', $data["address1"], array('readonly'=>true, 'style'=>'resize: none;')); ?></td>
     </tr>
     <tr>
         <th>Telephone Number:</th><td><?php echo $data["telephone_no"]; ?></td>
