@@ -622,61 +622,42 @@ class AdmintransactionsController extends Controller
             
             //Cut-Off Dates
             $cutoff = $reference->get_cutoff_by_id($cutoff_id);
-            $date_from = $cutoff['last_cutoff_date'];
-            $date_to = $cutoff['next_cutoff_date'];
+            $date_from = date('Y-m-d',strtotime($cutoff['last_cutoff_date']));
+            $date_to = date('Y-m-d',strtotime($cutoff['next_cutoff_date']));
               
             $downline = Networks::getUnilevel($member_id);
-            //$downline = Networks::getUnilevelByCutOff($member_id,$date_from, $date_to);            
+            //$downline = Networks::getDownlines($member_id);
             $unilevels = Networks::arrangeLevel($downline, 'ASC');
                 
-            $first_cutoff = $reference->is_first_cutoff(TransactionTypes::UNILEVEL);
-            
-            //Check if current cutoff is the first cutoff
-            if($cutoff_id == $first_cutoff || $model->is_first_transaction())
-            {
-                $first_trx = true;
-
-                foreach($unilevels['network'] as $level)
-                {
-                    $unilevel['level'] = $level['Level'];
-                    $unilevel['downlines'] = Networks::getUnilevelDownlines($level['Members']);
-                    $unilevel_downlines[] = $unilevel;
-                }
-            }
-            else
-            {
-                $first_trx = false;
-
-                //Next transactions
-                foreach($unilevels['network'] as $level)
-                {
-                    $unilevel['level'] = $level['Level'];
-                    $unilevel['downlines'] = Networks::getUnilevelDownlines($level['Members']);
-                    $unilevel_downlines[] = $unilevel;
-                }
-
-                foreach($unilevel_downlines as $rows)
-                {
-                    $new['level'] = $rows['level'];
-                    foreach($rows['downlines'] as $row)
-                    {
-                        $placement_date = date('Y-m-d',strtotime($row['Placement_Date']));
-                        if($placement_date > $date_from && $placement_date <= $date_to)
-                            $new_row[] = $row;
-                    }
-                    $new['downlines'] = $new_row;
-
-                } 
-
-                $new_rows[] = $new;
-            }
+            foreach($unilevels['network'] as $level)
+            {                    
                 
-            //var_dump($unilevel_downlines); exit;
+                $levels = $level['Level'];
+                 if($levels < 11)
+                 {
+                    if($model->is_first_transaction())
+                        $downlines = Networks::getUnilevelDownlines($level['Members']);
+                    else
+                        $downlines = Networks::getUnilevelDownlinesByCutOff($level['Members'],$date_from,$date_to);
+                    
+                    if(!is_null($downlines))
+                    {
+                        $unilevel['member_id'] = $member_id;
+                        $total =+ count($downlines);
+                        $unilevel['total'] = $total;
+                        $unilevel['level'] = $levels;                     
+                        $unilevel['downlines'] = $downlines;
+
+                        $unilevel_downlines[] = $unilevel;
+                    }
+                 }
+            }
+            
             $html2pdf = Yii::app()->ePdf->HTML2PDF();
             $html2pdf->WriteHTML($this->renderPartial('_unilevelreport', array(
                     'payee'=>$payee,
                     'endorser'=>$endorser,
-                    'downlines'=>($first_trx === false) ? $new_rows : $unilevel_downlines,
+                    'downlines'=>$unilevel_downlines,
                     'cutoff'=>$cutoff,
                     'payout'=>$payout,
                 ), true
@@ -697,7 +678,6 @@ class AdmintransactionsController extends Controller
         {
             $member_id = $_GET["member_id"];
             $member_name = $_GET["member_name"];
-            $date_joined = $_GET["date_joined"];
             $total_amount = 25000;
             
             $total['total_amount'] = $total_amount;
@@ -710,16 +690,12 @@ class AdmintransactionsController extends Controller
             
             $total['tax_amount'] = $total_tax;
             $total['net_amount'] = $total_amount - $total_tax;
-            
-            //Get downlines
-            $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $date_joined);
         }
      
         $html2pdf->WriteHTML($this->renderPartial('_bonusreport', array(
                 'member_name'=>$member_name,
                 'payee'=>$payee,
                 'total'=>$total,
-                'direct_downlines'=>$direct_downlines,
             ), true
          ));
         

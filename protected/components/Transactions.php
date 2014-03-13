@@ -201,11 +201,16 @@ class Transactions extends Controller
                 {
                     //Check existing active transaction for current cutoff
                     $trans = $model->check_transaction();
+                    $level = Networks::getLevel($upline, $member_id);
                     
-                    if(count($trans) > 0)
+                    if(count($trans) > 0 && $level < 11)
+                    {
                         $model->update_transaction();
+                    }
                     else
+                    {
                         $model->new_transaction();
+                    }
                 }
                 else //First transaction
                 {
