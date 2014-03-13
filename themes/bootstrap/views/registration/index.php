@@ -122,7 +122,39 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <?php echo $form->textFieldRow($model,'zip_code', array('class'=>'span1')); ?><br />
 <?php echo $form->dropDownListRow($model,'gender', array(''=>Yii::t('none','Select gender')) + array(1=>'Male',2=>'Female'), array('class'=>'span2')); ?>
 <?php echo $form->dropDownListRow($model,'civil_status', array(''=>Yii::t('none','Select civil status')) + array(1=>'Single',2=>'Married',3=>'Divorced',4=>'Separated'), array('class'=>'span2')); ?>
-<?php echo $form->textFieldRow($model,'birth_date', array('class'=>'span2','rel'=>'tooltip','title'=>'yyyy-mm-dd')); ?>
+<div class="control-group">
+<?php echo CHtml::label('Birth Date '. '<span class="required">*</span>', 'RegistrationForm_birth_date',array('class'=>'control-label required')) ?>
+    <div class="controls">  
+    <?php 
+        // echo $form->textFieldRow($model,'birth_date', array('class'=>'span2','rel'=>'tooltip','title'=>'yyyy-mm-dd'));
+        $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            'model' => $model,
+            'attribute' => 'birth_date',
+            'htmlOptions' => array(
+                'size' => '10',
+                'maxlength' => '10',
+                'readonly' => true,
+                'value'=>date('Y-m-d'),
+            ),
+            'options' => array(
+                'showOn'=>'button',
+                'buttonImageOnly' => true,
+                'changeMonth' => true,
+                'changeYear' => true,
+                'buttonText'=> 'Select Birth Date',
+                'buttonImage'=>Yii::app()->request->baseUrl.'/images/calendar.png',
+                'dateFormat'=>'yy-mm-dd',
+                'maxDate' =>'0',
+                'yearRange'=>'1990:2014',
+                'minDate' => '1990-01-01',      // minimum date
+                'maxDate' => '2014-12-31',
+            )
+        ));
+        
+        echo $form->error($model, 'birth_date');
+    ?>
+    </div>    
+</div>
 <?php echo $form->textFieldRow($model,'mobile_no', array('class'=>'span2')); ?>
 <?php echo $form->textFieldRow($model,'telephone_no', array('class'=>'span2')); ?>
 <?php echo $form->textFieldRow($model,'email', array('class'=>'span3')); ?>
@@ -137,7 +169,40 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <h5>Purchased Production Information</h5>
 <?php echo $form->textFieldRow($model,'product_code', array('class'=>'span2')); ?>
 <?php echo $form->textFieldRow($model,'product_name', array('class'=>'span3')); ?>
-<?php echo $form->textFieldRow($model,'date_purchased', array('class'=>'span2')); ?>
+<?php // echo $form->textFieldRow($model,'date_purchased', array('class'=>'span2')); ?>
+<div class="control-group">
+<?php echo CHtml::label('Date Purchased '. '<span class="required">*</span>', 'RegistrationForm_date_purchased',array('class'=>'control-label required')) ?>
+    <div class="controls">  
+    <?php 
+        // echo $form->textFieldRow($model,'birth_date', array('class'=>'span2','rel'=>'tooltip','title'=>'yyyy-mm-dd'));
+        $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            'model' => $model,
+            'attribute' => 'date_purchased',
+            'htmlOptions' => array(
+                'size' => '10',         // textField size
+                'maxlength' => '10',    // textField maxlength
+                'readonly' => true,
+                'value'=>date('Y-m-d'),
+            ),
+            'options' => array(
+                'showOn'=>'button',
+                'buttonImageOnly' => true,
+                'changeMonth' => true,
+                'changeYear' => true,
+                'buttonText'=> 'Select Date Purchased',
+                'buttonImage'=>Yii::app()->request->baseUrl.'/images/calendar.png',
+                'dateFormat'=>'yy-mm-dd',
+                'maxDate' =>'0',
+                'yearRange'=>'1990:2014',
+                'minDate' => '1990-01-01',      // minimum date
+                'maxDate' => '2014-12-31',
+            )
+        ));
+        
+        echo $form->error($model, 'birth_date');
+    ?>
+    </div>    
+</div>
 <?php echo $form->dropDownListRow($model,'payment_mode_id', array(''=>Yii::t('none','Select payment type')) + $model->listPaymentTypes(), array('class'=>'span2')); ?>
 
 <?php //echo $form->passwordFieldRow($model, 'password', array('class'=>'span3')); ?>
