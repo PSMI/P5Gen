@@ -261,10 +261,11 @@ class Networks extends Controller
         foreach ($rawData as $key => $val)
         {
             $count = $model->getDownlineCount($val["member_id"]);
-            $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
+            $temp["ID"] = $val["member_id"];
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
             $temp["DateEnrolled"] = date("M d Y", strtotime($val["date_enrolled"]));
+            $temp["Placement_Date"] = date("M d Y", strtotime($val["placement_date"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
             $array[] = $temp;
@@ -284,9 +285,9 @@ class Networks extends Controller
         foreach ($rawData as $key => $val)
         {
             $count = $model->getUnilevelCount($val["member_id"]);
-            $temp["ID"] = $val["member_id"];
             $temp["Count"] = $count;
-            $temp["Placement_Date"] = $val['placement_date'];
+            $temp["ID"] = $val["member_id"];
+            $temp["Placement_Date"] = date("M d Y", strtotime($val["placement_date"]));
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
             $temp["DateEnrolled"] = date("M d Y", strtotime($val["date_enrolled"]));
             $temp["Upline"] = Networks::getMemberName($val["upline_id"]);

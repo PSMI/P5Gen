@@ -22,10 +22,16 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                     'value'=>'CHtml::link($data["Name"], "", array("class"=>"downline_id", "downline_attr"=>$data["ID"], "style"=>"cursor: pointer"))',                    
                     'htmlOptions' => array('style' => 'text-align:left'),  
                 ), 
-                array('name'=>'DateEnrolled',
+                array('name'=>'DateJoined',
                     'header'=>'Date Joined',
                     'type'=>'raw',
                     'value'=>'CHtml::encode($data["DateEnrolled"])',                    
+                    'htmlOptions' => array('style' => 'text-align:left'),  
+                ), 
+                array('name'=>'DateApproved',
+                    'header'=>'Date Approved',
+                    'type'=>'raw',
+                    'value'=>'CHtml::encode($data["Placement_Date"])',                    
                     'htmlOptions' => array('style' => 'text-align:left'),  
                 ), 
                 array('name'=>'EndorsedBy',
@@ -40,12 +46,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                     'value'=>'CHtml::encode($data["Upline"])',                    
                     'htmlOptions' => array('style' => 'text-align:left'),  
                 ),               
-                array('name'=>'IBOCount',
-                    'header'=>'<center>IBO Count</center>',
+                /*array('name'=>'IBO',
+                    'header'=>'IBO',
                     'type'=>'raw',
                     'value'=>'CHtml::encode($data["Count"])',
                     'htmlOptions' => array('style' => 'text-align:center'),    
-                ),
+                ),*/
         )
 ));
 ?>
