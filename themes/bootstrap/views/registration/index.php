@@ -145,9 +145,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'buttonImage'=>Yii::app()->request->baseUrl.'/images/calendar.png',
                 'dateFormat'=>'yy-mm-dd',
                 'maxDate' =>'0',
-                'yearRange'=>'1990:2014',
-                'minDate' => '1990-01-01',      // minimum date
-                'maxDate' => '2014-12-31',
+                'yearRange'=>'1900:' . date('Y'),
+                //'minDate' => '1990-01-01',
+                //'maxDate' => '2014-12-31',
             )
         ));
         
@@ -179,8 +179,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'model' => $model,
             'attribute' => 'date_purchased',
             'htmlOptions' => array(
-                'size' => '10',         // textField size
-                'maxlength' => '10',    // textField maxlength
+                'size' => '10',
+                'maxlength' => '10',
                 'readonly' => true,
                 'value'=>date('Y-m-d'),
             ),
@@ -193,13 +193,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'buttonImage'=>Yii::app()->request->baseUrl.'/images/calendar.png',
                 'dateFormat'=>'yy-mm-dd',
                 'maxDate' =>'0',
-                'yearRange'=>'1990:2014',
-                'minDate' => '1990-01-01',      // minimum date
-                'maxDate' => '2014-12-31',
+                'yearRange'=>'1900:' . date('Y'),
+                //'minDate' => '1990-01-01',
+                //'maxDate' => '2014-12-31',
             )
         ));
         
-        echo $form->error($model, 'birth_date');
+        echo $form->error($model, 'date_purchased');
     ?>
     </div>    
 </div>
