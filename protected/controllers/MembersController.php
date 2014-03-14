@@ -261,5 +261,21 @@ class MembersController extends Controller
 
         $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
     }
+    
+    public function actionPendingPlacements()
+    {
+        $model = new PlacementModel();
+        
+        $rawData = $model->selectAllPendingPlacements();
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                        'pageSize' => 25,
+                    ),
+        ));
+        
+        $this->render('_pendingplacements', array('dataProvider'=>$dataProvider));
+    }
 }
 ?>

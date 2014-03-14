@@ -69,6 +69,29 @@ class PlacementModel extends CFormModel
         return $result;
     }
     
+    public function selectAllPendingPlacements()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                        m.member_id,
+                        CONCAT(COALESCE(md.last_name), ', ', COALESCE(md.first_name,''), ' ', COALESCE(md.middle_name,'')) as member_name,
+                        CONCAT(COALESCE(md1.last_name), ', ', COALESCE(md1.first_name,''), ' ', COALESCE(md1.middle_name,'')) AS endorser,
+                        CONCAT(COALESCE(md2.last_name), ', ', COALESCE(md2.first_name,''), ' ', COALESCE(md2.middle_name,'')) AS upline,
+                        date_format(m.date_created,'%M %d, %Y') as date_joined
+                FROM members m
+                INNER JOIN pending_placements pp ON m.member_id = pp.member_id
+                INNER JOIN member_details md ON m.member_id = md.member_id
+                LEFT JOIN member_details md1 ON pp.endorser_id = md1.member_id
+                LEFT JOIN member_details md2 ON pp.upline_id = md2.member_id
+                WHERE m.account_type_id = 3;";
+        
+        $command = $conn->createCommand($query);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
     public function placeUnder()
     {
         $conn = $this->_connection;
