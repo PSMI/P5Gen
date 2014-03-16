@@ -238,7 +238,7 @@ class ReferenceModel extends CFormModel
     public function get_schedule_variables()
     {
         $conn = $this->_connection;
-        $query = "SELECT * FROM ref_variables WHERE variable_id > 5 AND variable_id < 10";
+        $query = "SELECT * FROM ref_variables WHERE (variable_id > 5 AND variable_id < 10) OR variable_id = 16";
         $command = $conn->createCommand($query);
         $result = $command->queryAll();
         return $result;

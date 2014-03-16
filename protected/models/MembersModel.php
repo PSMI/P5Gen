@@ -246,7 +246,7 @@ class MembersModel extends CFormModel
                     CONCAT(COALESCE(md.last_name, ''), ' ', COALESCE(md.first_name, ''), ' ', COALESCE(md.middle_name, '')) AS member_name,
                     ra.total_member,
                     m.date_created AS date_joined,
-                    DATE_ADD(m.date_created, INTERVAL ".$interval." MONTH) AS promo_end_date,
+                    DATE_ADD(m.date_created, INTERVAL :interval MONTH) AS promo_end_date,
                     ra.date_last_updated AS date_completed
                   FROM members m
                     INNER JOIN member_details md
@@ -254,25 +254,30 @@ class MembersModel extends CFormModel
                     INNER JOIN running_accounts ra
                       ON m.member_id = ra.member_id
                   WHERE ra.direct_endorse >= :min_member_count
-                  AND ra.date_last_updated <= DATE_ADD(m.date_created, INTERVAL ".$interval." MONTH);";
+                  AND ra.date_last_updated <= DATE_ADD(m.date_created, INTERVAL :interval MONTH);";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':min_member_count', $min_count);
+        $command->bindParam(':interval', $interval);
         $result = $command->queryAll();
         return $result;
     }
     
     public function get_count_with_flush_out()
     {
+        $reference = new ReferenceModel();
+        $interval = $reference->get_variable_value('UNILEVEL_FLUSHOUT_INTERVAL');
+        
         $conn = $this->_connection;
         
         $query = "SELECT
                     count(*) as total_direct_endorse
                   FROM members m
                   WHERE m.endorser_id = :member_id
-                  AND m.date_joined > DATE_ADD(m.date_joined, INTERVAL 3 MONTH);";
+                  AND m.date_joined > DATE_ADD(m.date_joined, INTERVAL :interval);";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':interval', $interval);
         $result = $command->queryRow();
         return $result;
     }

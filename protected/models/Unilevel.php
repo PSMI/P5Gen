@@ -12,6 +12,7 @@ class Unilevel extends CFormModel
     public $upline_id;
     public $cutoff_id;
     public $total_direct_endorse;
+    public $total_members;
     public $next_cutoff_date;
     public $last_cutoff_date;
     
@@ -256,15 +257,16 @@ class Unilevel extends CFormModel
         
         $payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
         
-        $payout = $this->total_direct_endorse * $payout_rate;
+        $total_ibo = $this->total_direct_endorse + $this->total_members;
+        $payout = $total_ibo * $payout_rate;
         
         $query = "INSERT INTO unilevel (member_id, cutoff_id, ibo_count, amount)
-                   VALUES (:member_id, :cutoff_id, :total_direct_endorse, :payout_rate)";
+                   VALUES (:member_id, :cutoff_id, :total_ibo, :payout_rate)";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->upline_id);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
-        $command->bindParam(':total_direct_endorse', $this->total_direct_endorse);
+        $command->bindParam(':total_ibo', $total_ibo);
         $command->bindParam(':payout', $payout);
         $result = $command->execute();        
         

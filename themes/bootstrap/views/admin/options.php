@@ -155,7 +155,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
     'enablePagination' => true,
     'columns' => array(
         array('name' => 'transaction_type_name',
-            'header' => 'Transaction Type',
+            'header' => 'Transaction Payout Rates',
             'htmlOptions' => array('style' => 'text-align:left'),
             'headerHtmlOptions' => array('style' => 'text-align:left'),
         ),
