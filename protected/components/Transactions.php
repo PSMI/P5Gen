@@ -203,9 +203,9 @@ class Transactions extends Controller
                     $trans = $model->check_transaction();
                     $level = Networks::getLevel($upline, $member_id);
                     
-                    if(count($trans) > 0 && $level < 11)
+                    if(count($trans) > 0)
                     {
-                        $model->update_transaction();
+                        if($level < 11) $model->update_transaction();
                     }
                     else
                     {

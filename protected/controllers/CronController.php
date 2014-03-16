@@ -725,7 +725,8 @@ class CronController extends Controller
                 foreach($unapproved_members as $row)
                 {
                     $model->member_id = $row['member_id'];
-                    $model->upline_id = $row['upline_id'];                    
+                    $model->upline_id = $row['upline_id'];    
+                    $model->endorser_id = $row['endorser_id'];
                     $model->placeUnder();
                     if(!$model->hasErrors())
                     {

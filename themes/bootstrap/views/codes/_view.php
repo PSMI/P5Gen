@@ -43,7 +43,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         array('name'=>'DateGenerated',
                             'header'=>'Date Generated',
                             'type'=>'raw',
-                            'value'=>'CHtml::encode(date("M d Y", strtotime($data["date_generated"])))',  
+                            'value'=>'CHtml::encode(date("M d, Y h:i a", strtotime($data["date_generated"])))',  
                         ),
                         array('name'=>'IPAddress',
                             'header'=>'IP Address',

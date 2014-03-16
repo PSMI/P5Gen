@@ -161,13 +161,13 @@ class Networks extends Controller
         
         $i = 0;
         $level++;
-            $downlines = $model->directEndorse($member_id);
-            foreach ($downlines as $key => $val)
-            {
-                $parent[$i][$level] = $downlines[$key]["downline"];
-                $children = array_merge($children, Networks::getUnilevel($downlines[$key]["downline"], $level));
-                $i++;
-            }
+        $downlines = $model->directEndorse($member_id);
+        foreach ($downlines as $key => $val)
+        {
+            $parent[$i][$level] = $downlines[$key]["downline"];
+            $children = array_merge($children, Networks::getUnilevel($downlines[$key]["downline"], $level));
+            $i++;
+        }
         
         $finalTree = array_merge($parent, $children);
         
@@ -392,7 +392,7 @@ class Networks extends Controller
     public function getLevel($member_id, $downline_id)
     {
                 
-       $rawData = Networks::getDownlines($member_id);
+       $rawData = Networks::getUnilevel($member_id);
        $levels = Networks::arrangeLevel($rawData,'ASC');
        
         if (count($levels['network']) > 0)
@@ -417,7 +417,8 @@ class Networks extends Controller
         $rawData = $model->downlineInfo($member_ids);
         foreach ($rawData as $key => $val)
         {
-            $placement_date = date('M d Y',strtotime($val['placement_date']));
+            
+            $placement_date = date('Y-m-d',strtotime($val['placement_date']));
             if($placement_date > $date_from && $placement_date <= $date_to)
             {
                 $count = $model->getUnilevelCount($val["member_id"]);

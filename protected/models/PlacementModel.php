@@ -102,13 +102,15 @@ class PlacementModel extends CFormModel
         $query = "UPDATE members
                     SET placement_status = :status,
                         placement_date = NOW(),
-                        upline_id = :upline_id
+                        upline_id = :upline_id,
+                        endorser_id = :endorser_id
                     WHERE member_id = :member_id";
         
         $status = 1;
         
         $command = $conn->createCommand($query);
-        $command->bindParam('upline_id', $this->upline_id);
+        $command->bindParam(':endorser_id', $this->endorser_id);
+        $command->bindParam(':upline_id', $this->upline_id);
         $command->bindParam(':member_id', $this->member_id);
         $command->bindParam(':status', $status);
         $result = $command->execute();
