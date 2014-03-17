@@ -50,6 +50,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'htmlOptions' => array('style' => 'text-align:center'), 
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
+                        array('name'=>'date_filed',
+                            'header'=>'Date Filed',
+                            //'value'=>'TransactionController::dateFormat($data["date_completed"])',
+                            'htmlOptions' => array('style' => 'text-align:center'), 
+                            'headerHtmlOptions' => array('style' => 'text-align:center'),
+                        ),
                         array('name'=>'date_approved',
                             'header'=>'Date Approved',
                             //'value'=>'TransactionController::dateFormat($data["date_approved"])',
@@ -79,17 +85,45 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{download}',
+                            'template'=>'{file}{download}',
                             'buttons'=>array
                             (
                                 'download'=>array
                                 (
                                     'label'=>'Download',
                                     'icon'=>'icon-download-alt',
-                                    'visible'=>'$data["loan_type_id"] == 1 ? true : false',
+                                    'visible'=>'TransactionController::getStatusForButtonDisplayLoan($data["status"], 4)',
                                     'url'=>'Yii::app()->createUrl("/transaction/pdfloans", array("id" =>$data["loan_id"], "member_id" =>$data["member_id"], "loan_type_id" =>$data["loan_type_id"], "level_no" =>$data["level_no"], "member_name" =>$data["member_name"], "loan_amount" =>$data["loan_amount"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
+                                    ),
+                                    array('id' => 'send-link-'.uniqid())
+                                ),
+                                'file'=>array
+                                (
+                                    'label'=>'File Loan',
+                                    'icon'=>'ok-sign',
+                                    'url'=>'Yii::app()->createUrl("/transaction/processtransaction", array("id" =>$data["loan_id"], "status" => "2"))',
+                                    'visible'=>'TransactionController::getStatusForButtonDisplayLoan($data["status"], 3)',
+                                    'options' => array(
+                                        'class'=>"btn btn-small",
+                                        'confirm'=>'Are you sure you want to FILE LOAN?',
+                                        'ajax' => array(
+                                            'type' => 'GET',
+                                            'dataType'=>'json',
+                                            'url' => 'js:$(this).attr("href")',
+                                            'success' => 'function(data){
+                                                if(data.result_code == 0)
+                                                {
+                                                    alert(data.result_msg);
+                                                    $.fn.yiiGridView.update("loans-grid");
+                                                    location.reload();
+                                                }
+                                                else
+                                                    alert(data.result_msg);
+                                             }',
+                                        ),
+
                                     ),
                                     array('id' => 'send-link-'.uniqid())
                                 ),

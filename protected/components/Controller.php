@@ -55,6 +55,10 @@ class Controller extends CController
                 }
                 else if($status_id == 2)
                 {
+                    return "Filed";
+                }
+                else if($status_id == 3)
+                {
                     return "Approved";
                 }
                 else

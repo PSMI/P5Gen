@@ -82,7 +82,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Approve',
                                     'icon'=>'ok-sign',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["loan_id"], "status" => "2", "transtype" => "loan"))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["loan_id"], "status" => "3", "transtype" => "loan"))',
                                     'visible'=>'AdmintransactionsController::getStatusForButtonDisplayLoan($data["status"], 1)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
@@ -110,7 +110,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Claim',
                                     'icon'=>'ok-sign',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["loan_id"], "status" => "3", "transtype" => "loan"))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["loan_id"], "status" => "4", "transtype" => "loan"))',
                                     'visible'=>'AdmintransactionsController::getStatusForButtonDisplayLoan($data["status"], 2)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
@@ -146,7 +146,15 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             ),
                             'header'=>'Action',
                             'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
-                        ),
+                            ),
         )
         ));
+
+$this->widget("bootstrap.widgets.TbButton", array(
+                                            "label"=>"Export to PDF",
+                                            //"icon"=>"icon-chevron-left",
+                                            "type"=>"info",
+                                            'url'=>'pdfloansummary',
+                                            //"htmlOptions"=>array("onclick"=>"admintransactions/pdfloans', array()"),
+                                        ));
 ?>

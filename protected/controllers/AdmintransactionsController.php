@@ -312,32 +312,24 @@ class AdmintransactionsController extends Controller
     {
         if ($status_type == 1)
         {
-            //approve button
-            if ($status_id == 1)
+            //approve button (admin)
+            if ($status_id == 2)
             {
                 return true;
             }
-            else if($status_id == 3)
-            {
-                return false;
-            }
-            else if($status_id == 2)
+            else
             {
                 return false;
             }
         }
         else if ($status_type == 2)
         {
-            //claim button
-            if ($status_id == 1)
-            {
-                return false;
-            }
-            else if($status_id == 2)
+            //claim button (admin)
+            if ($status_id == 3)
             {
                 return true;
             }
-            else if($status_id == 3)
+            else
             {
                 return false;
             }
@@ -557,8 +549,8 @@ class AdmintransactionsController extends Controller
             $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
             $amount['total_commission'] = $commission_amount;
             $previous_loan = $total_previous_loan;
-            $commission_amount = $commission_amount - $previous_loan;
             $total_tax = $commission_amount * ($tax_withheld/100);
+            $commission_amount = $commission_amount - $previous_loan;
             $net_commission = $commission_amount - $total_tax;
             $amount['tax'] = $total_tax;
             $amount['net_commission'] = $net_commission;
@@ -678,6 +670,7 @@ class AdmintransactionsController extends Controller
         {
             $member_id = $_GET["member_id"];
             $member_name = $_GET["member_name"];
+            $date_joined = $_GET["date_joined"];
             $total_amount = 25000;
             
             $total['total_amount'] = $total_amount;
@@ -690,12 +683,16 @@ class AdmintransactionsController extends Controller
             
             $total['tax_amount'] = $total_tax;
             $total['net_amount'] = $total_amount - $total_tax;
+            
+            //Get downlines
+            $direct_downlines = $model->getLoanDirectEndorsementDownlines($member_id, $date_joined);
         }
      
         $html2pdf->WriteHTML($this->renderPartial('_bonusreport', array(
                 'member_name'=>$member_name,
                 'payee'=>$payee,
                 'total'=>$total,
+                'direct_downlines'=>$direct_downlines,
             ), true
          ));
         
@@ -752,6 +749,22 @@ class AdmintransactionsController extends Controller
             $html2pdf->Output('DirectEndorsement_' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
             Yii::app()->end();
         }
-    }     
+    }
+    
+    public function actionPdfLoanSummary()
+    {
+        $model = new Loan();
+        $loan_details = $model->getLoanApplications();
+        $total = $model->getTotalLoans();
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+        $html2pdf->WriteHTML($this->renderPartial('_loansummaryreport', array(
+                'loan_details'=>$loan_details,
+                'total'=>$total,
+            ), true
+         ));
+        $html2pdf->Output('Loan_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
+        Yii::app()->end();
+    }
 }
 ?>

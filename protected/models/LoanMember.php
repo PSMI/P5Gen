@@ -31,7 +31,8 @@ class LoanMember extends CFormModel
                     DATE_FORMAT(l.date_claimed,'%d-%m-%Y') AS date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     l.status,
-                    l.member_id
+                    l.member_id,
+                    DATE_FORMAT(l.date_filed,'%d-%m-%Y') AS date_filed
                   FROM loans l
                     INNER JOIN member_details m
                       ON l.member_id = m.member_id
@@ -40,6 +41,7 @@ class LoanMember extends CFormModel
                     LEFT OUTER JOIN member_details md2
                       ON l.claimed_by_id = md2.member_id
                   WHERE l.member_id = :member_id
+                  AND l.level_no < 7
                   ORDER BY l.date_completed DESC, l.level_no;";
         
         $command =  $conn->createCommand($query);
@@ -122,6 +124,44 @@ class LoanMember extends CFormModel
         $result = $command->queryAll();
         
         return $result;
+    }
+    
+    public function updateLoanStatus($loan_id, $status)
+    {
+        $conn = $this->_connection;
+        
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE loans
+                    SET date_filed = NOW(),
+                    status = :status
+                    WHERE loan_id = :loan_id;";
+        
+        $command = $conn->createCommand($query);
+        
+        $command->bindParam(':loan_id', $loan_id);
+        $command->bindParam(':status', $status);
+
+        $result = $command->execute();
+        
+        try
+        {
+            if(count($result)>0)
+            {
+                $trx->commit();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            return false;
+        }
     }
 }
 ?>

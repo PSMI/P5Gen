@@ -116,29 +116,40 @@ class TransactionController extends Controller
         $this->render('unilevel', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff));
     }
     
-    
     public function getStatusForButtonDisplayLoan($status_id, $status_type)
     {
-        if ($status_type == 1)
+        if ($status_type == 3)
         {
-            //approve button
-            if ($status_id == 1)
+            //file loan button (member)
+            if ($status_id == 0)
+            {
+                return false;
+            }
+            else if($status_id == 1)
             {
                 return true;
+            }
+            else if($status_id == 2)
+            {
+                return false;
             }
             else if($status_id == 3)
             {
                 return false;
             }
-            else if($status_id == 2)
+            else if($status_id == 4)
             {
                 return false;
             }
         }
-        else if ($status_type == 2)
+        else if ($status_type == 4)
         {
-            //claim button
-            if ($status_id == 1)
+            //download button (member)
+            if ($status_id == 0)
+            {
+                return false;
+            }
+            else if($status_id == 1)
             {
                 return false;
             }
@@ -147,6 +158,10 @@ class TransactionController extends Controller
                 return true;
             }
             else if($status_id == 3)
+            {
+                return false;
+            }
+            else if($status_id == 4)
             {
                 return false;
             }
@@ -247,5 +262,40 @@ class TransactionController extends Controller
         {
             echo "id not set";
         }
+    }
+    
+    public function actionProcessTransaction()
+    {
+        if(!Yii::app()->request->isAjaxRequest)
+        {
+            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        }
+        
+        if(isset($_GET["id"]))
+        {
+            $status = $_GET["status"];
+            $loan_id = $_GET["id"];
+                
+            $model = new LoanMember();
+            $result = $model->updateLoanStatus($loan_id, $status);
+
+            if (count($result) > 0)
+            {
+                $result_code = 0;
+                $result_msg = "Loan Filed.";
+            }
+            else
+            {
+                $result_code = 1;
+                $result_msg = "An error occured. Please try again.";
+            }
+        }
+        else
+        {
+            $result_code = 2;
+            $result_msg = "An error occured. Please try again.";
+        }
+        
+        echo CJSON::encode(array('result_code'=>$result_code, 'result_msg'=>$result_msg));
     }
 }

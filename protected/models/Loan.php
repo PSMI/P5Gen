@@ -37,7 +37,9 @@ class Loan extends CFormModel
                       ON l.member_id = m.member_id
                     LEFT OUTER JOIN member_details md ON l.approved_by_id = md.member_id
                     LEFT OUTER JOIN member_details md2 ON l.claimed_by_id = md2.member_id
-                  WHERE l.status IN (1, 2, 3) ORDER BY m.last_name;";
+                  WHERE l.status <> 0
+                  AND l.level_no <= 6
+                  ORDER BY m.last_name;";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryAll();
@@ -66,7 +68,7 @@ class Loan extends CFormModel
         
         $trx = $conn->beginTransaction();
         
-        if ($status == 2)
+        if ($status == 3)
         {
             $query = "UPDATE loans
                         SET date_approved = NOW(),
@@ -74,7 +76,7 @@ class Loan extends CFormModel
                             approved_by_id = :userid
                         WHERE loan_id = :loan_id;";
         }
-        else if ($status == 3)
+        else if ($status == 4)
         {
             $query = "UPDATE loans
                         SET date_claimed = NOW(),
