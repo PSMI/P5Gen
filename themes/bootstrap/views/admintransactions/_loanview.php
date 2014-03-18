@@ -149,12 +149,4 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             ),
         )
         ));
-
-$this->widget("bootstrap.widgets.TbButton", array(
-                                            "label"=>"Export to PDF",
-                                            //"icon"=>"icon-chevron-left",
-                                            "type"=>"info",
-                                            'url'=>'pdfloansummary',
-                                            //"htmlOptions"=>array("onclick"=>"admintransactions/pdfloans', array()"),
-                                        ));
 ?>

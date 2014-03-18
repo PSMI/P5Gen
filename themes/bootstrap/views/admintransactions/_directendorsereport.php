@@ -14,13 +14,13 @@ $curdate = date('M d, Y h:ia');
 <page>
     <div id="header" align="center">
         <div class="logo">&nbsp;</div>
-        <p class="address">Unit 6 2nd Flr. Maclane Centre, Nat’l Hi-way<br />
+        <p class="address">Unit 6 2nd Flr. Maclane Centre, Natï¿½l Hi-way<br />
         San Antonio, San Pedro, Laguna<br />
         www.p5partners.com<br />
         (02)553-68-19
         </p>
     </div>
-    <h4>Direct Endorsement Payout Summary</h4>
+    <h4>Direct Endorsement Payout Details</h4>
     <table id="tbl-summary">
         <tr>
             <th>Name of Payee</th>
@@ -93,7 +93,7 @@ $curdate = date('M d, Y h:ia');
         </tr>
     </table>
     <div id="footer">
-        <div class="slogan" align="center">“Finding ways in helping others is our top priority.”</div>
+        <div class="slogan" align="center">ï¿½Finding ways in helping others is our top priority.ï¿½</div>
     </div>
 </page>
 <page>

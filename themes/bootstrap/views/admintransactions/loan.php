@@ -20,6 +20,19 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 
 <h3>Loan Payout</h3>
 
+
+<?php
+    $this->widget("bootstrap.widgets.TbButton", array(
+                                        "label"=>"Export to PDF",
+                                        //"icon"=>"icon-chevron-left",
+                                        "type"=>"info",
+                                        'url'=>'pdfloansummary',
+                                        "htmlOptions"=>array("style"=>"float: right;"),
+                                    ));
+?>
+
+<br><br>
+
 <?php
 //display table
 if (isset($dataProvider))

@@ -18,7 +18,7 @@ $curdate = date('M d, Y h:ia');
         (02)553-68-19
         </p>
     </div>
-    <h4>Group Override Commission Payout Summary</h4>
+    <h4>Group Override Commission Payout Details</h4>
     <table id="tbl-summary">
         <tr>
             <th>Name of Payee</th>

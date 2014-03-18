@@ -54,11 +54,11 @@ class AdmintransactionsController extends Controller
                 {
                     $result_code = 0;
                     
-                    if ($status == 2)
+                    if ($status == 3)
                     {
                         $result_msg = "Loan Approved.";
                     }
-                    else
+                    else if ($status == 4)
                     {
                         $result_msg = "Loan Claimed.";
                     }
@@ -764,6 +764,78 @@ class AdmintransactionsController extends Controller
             ), true
          ));
         $html2pdf->Output('Loan_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
+        Yii::app()->end();
+    }
+    
+    public function actionPdfGocSummary()
+    {
+        $model = new GroupOverrideCommission();
+        
+        $model->cutoff_id = $_GET['cutoff_id'];
+        $goc_details = $model->getComissions();
+        $total_goc_arr = $model->getCommissionsTotal();
+        $total_goc_ibo = $total_goc_arr['total_ibo'];
+        $total_goc = $total_goc_arr['total_amount'];
+        $cutoff_arr = ReferenceModel::get_cutoff_by_id($_GET['cutoff_id']);
+        $cutoff = $cutoff_arr['cutoff_date'];
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+        $html2pdf->WriteHTML($this->renderPartial('_gocsummaryreport', array(
+                'goc_details'=>$goc_details,
+                'total_goc'=>$total_goc,
+                'total_goc_ibo'=>$total_goc_ibo,
+                'cutoff'=>$cutoff,
+            ), true
+         ));
+        $html2pdf->Output('GOC_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
+        Yii::app()->end();
+    }
+    
+    public function actionPdfUnilevelSummary()
+    {
+        $model = new Unilevel();
+        
+        $model->cutoff_id = $_GET['cutoff_id'];
+        $unilvl_details = $model->getUnilevel();
+        $total_unilvl_arr = $model->getPayoutTotal();
+        $total_unilvl_ibo = $total_unilvl_arr['total_ibo'];
+        $total_unilvl = $total_unilvl_arr['total_amount'];
+        $cutoff_unilvl_arr = ReferenceModel::get_cutoff_by_id($_GET['cutoff_id']);
+        $cutoff_unilvl = $cutoff_unilvl_arr['cutoff_date'];
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+        $html2pdf->WriteHTML($this->renderPartial('_unilevelsummaryreport', array(
+                'unilvl_details'=>$unilvl_details,
+                'total_unilvl'=>$total_unilvl,
+                'total_unilvl_ibo'=>$total_unilvl_ibo,
+                'cutoff_unilvl'=>$cutoff_unilvl,
+            ), true
+         ));
+        $html2pdf->Output('Unilevel_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
+        Yii::app()->end();
+    }
+    
+    public function actionPdfDirectSummary()
+    {
+        $model = new DirectEndorsement();
+        
+        $model->cutoff_id = $_GET['cutoff_id'];
+        $direct_details = $model->getDirectEndorsement();
+        $total_direct_arr = $model->getPayoutTotal();
+        $total_direct_ibo = $total_direct_arr['total_ibo'];
+        $total_direct = $total_direct_arr['total_amount'];
+        $cutoff_direct_arr = ReferenceModel::get_cutoff_by_id($_GET['cutoff_id']);
+        $cutoff_direct = $cutoff_direct_arr['cutoff_date'];
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+        $html2pdf->WriteHTML($this->renderPartial('_directsummaryreport', array(
+                'direct_details'=>$direct_details,
+                'total_direct'=>$total_direct,
+                'total_direct_ibo'=>$total_direct_ibo,
+                'cutoff_direct'=>$cutoff_direct,
+            ), true
+         ));
+        $html2pdf->Output('Direct_Endorsement_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
         Yii::app()->end();
     }
 }

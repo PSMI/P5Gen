@@ -140,24 +140,9 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'header'=>'Action',
                             'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
                         ),
-//                        array('class'=>'bootstrap.widgets.TbButtonColumn',
-//                            'template'=>'{print}',
-//                            'buttons'=>array
-//                            (
-//                                'print'=>array
-//                                (
-//                                    'label'=>'Print',
-//                                    'icon'=>'icon-print',
-//                                    //'url'=>'Yii::app()->createUrl("/admintransactions/pdf", array())',
-//                                    'options' => array(
-//                                        'class'=>"btn btn-small",
-//                                    ),
-//                                    array('id' => 'send-link-'.uniqid())
-//                                ),
-//                            ),
-//                            'header'=>'Print',
-//                            'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
-//                        ),
         )
         ));
+
+
+
 ?>
