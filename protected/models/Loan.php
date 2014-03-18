@@ -8,10 +8,23 @@ class Loan extends CFormModel
 {   
     public $_connection;
     public $loan_id;
-    
+    public $status;
+
     public function __construct() 
     {
         $this->_connection = Yii::app()->db;
+    }
+    
+    public function rules()
+    {
+        return array(
+            array('status','required'),
+        );
+    }
+
+    public function attributeLabels() 
+    {
+        return array('status'=>'Cut-Off Date&nbsp;', 'date_from'=>'From:');
     }
     
     public function getLoanApplications()
@@ -37,7 +50,7 @@ class Loan extends CFormModel
                       ON l.member_id = m.member_id
                     LEFT OUTER JOIN member_details md ON l.approved_by_id = md.member_id
                     LEFT OUTER JOIN member_details md2 ON l.claimed_by_id = md2.member_id
-                  WHERE l.status <> 0
+                  WHERE l.status IN ($this->status)
                   AND l.level_no <= 6
                   ORDER BY m.last_name;";
         
@@ -54,7 +67,7 @@ class Loan extends CFormModel
         $query = "SELECT
                     sum(l.loan_amount) as total_loans                    
                   FROM loans l
-                  WHERE l.status IN (1, 2, 3);";
+                  WHERE l.status IN ($this->status);";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryRow();

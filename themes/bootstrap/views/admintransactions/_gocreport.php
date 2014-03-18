@@ -65,8 +65,12 @@ $curdate = date('M d, Y h:ia');
             <th colspan="2">Deductions</th>
         </tr>
         <tr>
-            <th>Previous Loan</th>
+            <th>Loan Grant</th>
             <td align="right">(<?php echo number_format($amount['previous_loan'], 2); ?>)</td>
+        </tr>
+        <tr>
+            <th>Loan Balance</th>
+            <td align="right">(<?php echo number_format($loan_balance, 2); ?>)</td>
         </tr>
         <tr>
             <th>Total Tax Withheld</th>
@@ -171,8 +175,12 @@ $curdate = date('M d, Y h:ia');
             <th colspan="2">Deductions</th>
         </tr>
         <tr>
-            <th>Previous Loan</th>
+            <th>Loan Grant</th>
             <td width="100" align="right">(<?php echo number_format($amount['previous_loan'], 2); ?>)</td>
+        </tr>
+        <tr>
+            <th>Loan Balance</th>
+            <td align="right">(<?php echo number_format($loan_balance, 2); ?>)</td>
         </tr>
         <tr>
             <th>Total Tax Withheld</th>

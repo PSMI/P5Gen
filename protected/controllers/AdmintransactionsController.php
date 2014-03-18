@@ -13,6 +13,18 @@ class AdmintransactionsController extends Controller
     {
         $model = new Loan();
             
+        if (isset($_POST["Loan"]))
+        {   
+            unset(Yii::app()->session['statusid']);
+            $model->attributes = $_POST['Loan'];
+            Yii::app()->session['statusid'] = $model->attributes;
+        }
+        else
+        {
+            $model->status = "1, 2, 3, 4";
+            $model->attributes = Yii::app()->session['statusid'];
+        }
+        
         $rawData = $model->getLoanApplications();
         $total = $model->getTotalLoans();
 
@@ -25,7 +37,8 @@ class AdmintransactionsController extends Controller
 
         $this->render('loan', array(
             'dataProvider' => $dataProvider,
-            'total'=>$total
+            'total'=>$total,
+            'model'=>$model
         ));  
     }
     
@@ -500,6 +513,10 @@ class AdmintransactionsController extends Controller
             //Get Payee Details
             $payee = $model->getPayeeDetails($member_id);
             
+            //Get Payee loan balance
+            $loan_balance_arr = $model->getLoanBalance($member_id);
+            $loan_balance = $loan_balance_arr['loan_balance'];
+            
             //Get names of endorsed IBO
             $rawData = Networks::getDownlines($member_id);
             $final = Networks::arrangeLevel($rawData,'ASC');
@@ -566,7 +583,7 @@ class AdmintransactionsController extends Controller
                             'amount'=>$amount,
                             'downlines'=>$dt,
                             'ibo_count'=>$ibo_count,
-                            //'previous_loan'=>$previous_loan,
+                            'loan_balance'=>$loan_balance,
                         ), true
                      ));
             

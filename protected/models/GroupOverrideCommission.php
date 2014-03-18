@@ -317,5 +317,22 @@ class GroupOverrideCommission extends CFormModel
         
         return $result;
     }
+    
+    public function getLoanBalance($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    loan_balance                    
+                  FROM loans l
+                  WHERE l.member_id = :member_id
+                  ORDER BY loan_id DESC limit 1;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result['loan_balance'];
+    }
 }
 ?>

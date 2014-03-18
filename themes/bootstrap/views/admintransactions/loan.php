@@ -29,6 +29,68 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                                         'url'=>'pdfloansummary',
                                         "htmlOptions"=>array("style"=>"float: right;"),
                                     ));
+    
+    
+    
+    Yii::import('application.extensions.CJuiDateTimePicker.CJuiDateTimePicker');
+
+    /** @var BootActiveForm $form */
+    $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+        'id'=>'searchForm',
+        'type'=>'search',
+        'htmlOptions'=>array('class'=>'well'),
+    ));
+
+    echo CHtml::label('From: ','lblFrom');
+
+    //date from
+    $this->widget('CJuiDateTimePicker',array(
+                    'name'=>'calDateFrom',
+                    'id'=>'calDateFrom',
+                    'value'=>date('Y-m-d'),
+                    'mode'=>'date', //use "time","date" or "datetime" (default)
+                    'options'=>array(
+                        'dateFormat'=>'yy-mm-dd',
+                        'timeFormat'=> 'hh:mm',
+                        'showAnim'=>'fold', // 'show' (the default), 'slideDown', 'fadeIn', 'fold'
+                        'showOn'=>'button', // 'focus', 'button', 'both'
+                        'buttonText'=>Yii::t('ui','Date'), 
+                        'buttonImage'=>Yii::app()->request->baseUrl.'/images/calendar.png', 
+                        'buttonImageOnly'=>true,
+                    ),// jquery plugin options
+                    'htmlOptions'=>array('readonly'=>'readonly', 'class'=>'input-medium'),
+                    'language'=>'',
+                ));
+
+    echo CHtml::label('To: ','lblTo', array('style' => 'margin-left: 20px;'));
+
+    //date to
+    $this->widget('CJuiDateTimePicker',array(
+                    'name'=>'calDateTo',
+                    'id'=>'calDateTo',
+                    'value'=>date('Y-m-d'),
+                    'mode'=>'date', //use "time","date" or "datetime" (default)
+                    'options'=>array(
+                        'dateFormat'=>'yy-mm-dd',
+                        'timeFormat'=> 'hh:mm',
+                        'showAnim'=>'fold', // 'show' (the default), 'slideDown', 'fadeIn', 'fold'
+                        'showOn'=>'button', // 'focus', 'button', 'both'
+                        'buttonText'=>Yii::t('ui','Date'), 
+                        'buttonImage'=>Yii::app()->request->baseUrl.'/images/calendar.png', 
+                        'buttonImageOnly'=>true,
+                    ),// jquery plugin options
+                    'htmlOptions'=>array('readonly'=>'readonly', 'class'=>'input-medium'),
+                    'language'=>'',
+                ));
+
+    echo CHtml::label('Status:', 'lblStatus', array('style'=>'margin-left: 20px;'));
+    $options = array('1, 2, 3, 4'=>'All', '1'=>'Completed', '2'=>'Filed', '3'=>'Approved', '4'=>'Claimed');
+    echo $form->dropDownList($model, 'status', $options, array('style'=>'width: 120px;'));
+    
+    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Search', 'htmlOptions' => array('style' => 'margin-left: 10px;')));
+
+    $this->endWidget();
+    
 ?>
 
 <br><br>
