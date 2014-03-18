@@ -27,6 +27,7 @@ class LoginForm extends CFormModel
 			array('username, password', 'required'),
 			// rememberMe needs to be a boolean
 			array('rememberMe', 'boolean'),
+                    
 			// password needs to be authenticated
 			array('password', 'authenticate'),
                     
@@ -58,10 +59,12 @@ class LoginForm extends CFormModel
 			$this->_identity=new UserIdentity($this->username,$this->password);
 			if(!$this->_identity->authenticate())
                         {
-                            if($this->_identity->errorCode == UserIdentity::ERROR_USER_INACTIVE)
-                                $this->addError('password','This account is deactivated.');
-                            else
+                            if ($this->_identity->errorCode == UserIdentity::ERROR_USER_INACTIVE) {
+                                $this->addError('password','This account is inactive.');
+                            } else if($this->_identity->errorCode == UserIdentity::ERROR_PASSWORD_INVALID || 
+                                    $this->_identity->errorCode == UserIdentity::ERROR_USERNAME_INVALID) {
 				$this->addError('password','Incorrect username or password.');
+                            }
                         }
                         
 		}
@@ -91,14 +94,8 @@ class LoginForm extends CFormModel
                         Yii::app()->session['account_type_id'] = $member->account_type_id;
                         Yii::app()->session['member_id'] = $member->member_id;
                         
-                        //AuditLog::logTransactions(1, Yii::app()->user->getId());
-                        
-			return true;
-                        
 		}
-		else
-			return false;
-                
-                
+
+                return $this->_identity->errorCode;
 	}
 }

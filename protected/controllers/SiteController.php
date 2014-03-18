@@ -107,11 +107,35 @@ class SiteController extends Controller
 		if(isset($_POST['LoginForm']))
 		{
 			$model->attributes=$_POST['LoginForm'];
+                        
 			// validate user input and redirect to the previous page if valid
-			if($model->validate() && $model->login())
+			if ($model->validate())
                         {
+                            $err_code = $model->login();
                             
-                            $this->redirect(array("site/index"));
+                            if ($err_code == 0) {
+                                $this->redirect(array("site/index"));
+                            } else if ($err_code == 4) {
+                                $members = new Members();
+                                $result = $members->getUplineDetailsByUserName($model->username);
+                                
+                                $table = '<br/><br/><table border="1" style="font-size: 0.8em; width: 100%; text-align: center;">
+                                            <tr>
+                                                <th>Upline Name</th>
+                                                <th>Mobile Number</th>
+                                                <th>Telephone Number</th>
+                                            </tr>
+                                            <tr>
+                                                <td>'.$result["upline_name"].'</td>
+                                                <td>'.$result["mobile_no"].'</td>
+                                                <td>'.$result["telephone_no"].'</td>
+                                            </tr>
+                                        </table>';
+                                
+                                Helpers::commonModal("MEMBERSHIP APPROVAL", "Your membership needs to be approved
+                                    by your upline before you can login to the system. Kindly contact your upline for approval.
+                                    Thank you! Here are the following details of your upline:" . $table);
+                            }
                         }
 		}
 		// display the login form

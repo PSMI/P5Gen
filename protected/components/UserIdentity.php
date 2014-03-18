@@ -7,6 +7,8 @@
  */
 class UserIdentity extends CUserIdentity
 {
+        const ERROR_PENDING_PLACEMENT=4; // additional constant for pending placement.
+        
 	/**
 	 * Authenticates a user.
 	 * The example implementation makes sure if the username and password
@@ -19,9 +21,6 @@ class UserIdentity extends CUserIdentity
 	{
                         
                 $members = Members::model()->findByAttributes(array('username'=>$this->username));
-                
-                //Get user status
-                $status = Members::getUserStatus($this->username);
             		
                 if($members===null)
                 {
@@ -33,10 +32,21 @@ class UserIdentity extends CUserIdentity
                         $this->errorCode=self::ERROR_PASSWORD_INVALID;
                     else
                     {
-                        if($status == 1)
-                            $this->errorCode=self::ERROR_NONE;
-                        else
+                        // Get user status
+                        $status = Members::getUserStatus($this->username);
+                        
+                        if ($status == 1) {
+                            // Get placement status
+                            $placement_status = Members::getPlacementStatus($this->username);
+                            
+                            if ($placement_status == 0)
+                                $this->errorCode=self::ERROR_PENDING_PLACEMENT;
+                            else
+                                $this->errorCode=self::ERROR_NONE;
+                        }
+                        else {
                             $this->errorCode=self::ERROR_USER_INACTIVE;
+                        }
                     }
                 }
                    

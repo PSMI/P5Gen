@@ -73,5 +73,38 @@ class Members extends CActiveRecord
         return $result['member_name'];
     }
     
+    
+    public function getPlacementStatus($username)
+    {
+        $query = "SELECT placement_status FROM members 
+                  WHERE username = :username";
+        $sql = Yii::app()->db->createCommand($query);
+        $sql->bindParam(":username",$username);
+        $result = $sql->queryRow();
+        
+        if(count($result)> 0)
+        {
+            return $result['placement_status'];
+        }
+    }
+    
+    
+    public function getUplineDetailsByUserName($username)
+    {
+        $query = "SELECT
+                        m.member_id,
+                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) as upline_name,
+                        md.mobile_no, md.telephone_no
+                FROM members m
+                INNER JOIN pending_placements pp ON m.member_id = pp.member_id
+                INNER JOIN member_details md ON pp.upline_id = md.member_id
+                WHERE m.username = :username";
+        $command = Yii::app()->db->createCommand($query);
+        $command->bindParam(':username', $username);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
+    
 }
 ?>

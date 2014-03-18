@@ -60,6 +60,41 @@ class Helpers extends Controller
         return array('arrayList'=>$items,
                      'listItem'=>$listItems);
     }
+    
+    /**
+     * A general purpose modal form.
+     * @param type $title
+     * @param type $message
+     */
+    public function commonModal($title, $message)
+    {
+        $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+  	            'id' => 'displaypopup',
+  	            'options' => array(
+  	                'show' => 'explode',
+  	                'hide' => 'explode',
+  	                'title' => $title,
+  	                'scrolling' => 'No',
+  	                'width' => 500,
+  	                'height' => 'auto',
+  	                'modal' => true,
+  	                'overlay' => array(
+  	                    'backgroundColor' => '#FFFFFF',
+  	                    'opacity' => '0'
+  	                ),
+  	                'closeOnEscape' => false,
+  	                'resizable' => false,
+  	                'autoOpen'=> true,
+  	                'open' => 'js:function(event, ui) { $(".ui-dialog-titlebar-close").hide(); }',
+  	                'draggable' => false,
+  	                'buttons' => array('OK' => 'js:function(){location.href="site/login";}')
+                    ))
+        );
+  	
+        echo "<p>". $message ."</p>";
+  	
+        $this->endWidget('zii.widgets.jui.CJuiDialog');
+    }
    
 }
 ?>
