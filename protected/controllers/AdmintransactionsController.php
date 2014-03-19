@@ -21,6 +21,8 @@ class AdmintransactionsController extends Controller
         }
         else
         {
+            $model->date_from2 = date('Y-m-d');
+            $model->date_to = date('Y-m-d');
             $model->status = "1, 2, 3, 4";
             $model->attributes = Yii::app()->session['statusid'];
         }
@@ -771,6 +773,9 @@ class AdmintransactionsController extends Controller
     public function actionPdfLoanSummary()
     {
         $model = new Loan();
+        $model->status = $_GET['status'];
+        $model->date_from2 = $_GET['date_from2'];
+        $model->date_to = $_GET['date_to'];
         $loan_details = $model->getLoanApplications();
         $total = $model->getTotalLoans();
         

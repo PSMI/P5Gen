@@ -163,5 +163,22 @@ class LoanMember extends CFormModel
             return false;
         }
     }
+    public function getLoanCompletionDownlines($downline_ids)
+    {
+        $conn = $this->_connection;
+        $query = "SELECT
+                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS upline_name
+                    FROM members m
+                        INNER JOIN member_details md
+                        ON m.member_id = md.member_id
+                        LEFT OUTER JOIN member_details md2
+                        ON md2.member_id = m.upline_id
+                    WHERE m.member_id IN ($downline_ids);";
+        $command =  $conn->createCommand($query);
+        $result = $command->queryAll();
+        return $result;
+    }
 }
 ?>

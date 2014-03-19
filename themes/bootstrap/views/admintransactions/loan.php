@@ -22,13 +22,6 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 
 
 <?php
-    $this->widget("bootstrap.widgets.TbButton", array(
-                                        "label"=>"Export to PDF",
-                                        //"icon"=>"icon-chevron-left",
-                                        "type"=>"info",
-                                        'url'=>'pdfloansummary',
-                                        "htmlOptions"=>array("style"=>"float: right;"),
-                                    ));
     
     
     
@@ -41,13 +34,16 @@ $this->widget('bootstrap.widgets.TbAlert', array(
         'htmlOptions'=>array('class'=>'well'),
     ));
 
-    echo CHtml::label('From: ','lblFrom');
+    echo CHtml::label('From &nbsp;','lblFrom');
 
     //date from
     $this->widget('CJuiDateTimePicker',array(
-                    'name'=>'calDateFrom',
-                    'id'=>'calDateFrom',
-                    'value'=>date('Y-m-d'),
+                    'model' => $model,
+                    'attribute' => 'date_from2',
+                    //'name'=>'calDateFrom',
+                    //'id'=>'calDateFrom',
+                    //'value'=>date('Y-m-d'),
+                    'value'=> $model->date_from2,
                     'mode'=>'date', //use "time","date" or "datetime" (default)
                     'options'=>array(
                         'dateFormat'=>'yy-mm-dd',
@@ -62,13 +58,16 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                     'language'=>'',
                 ));
 
-    echo CHtml::label('To: ','lblTo', array('style' => 'margin-left: 20px;'));
+    echo CHtml::label('To  &nbsp;','lblTo', array('style' => 'margin-left: 20px;'));
 
     //date to
     $this->widget('CJuiDateTimePicker',array(
-                    'name'=>'calDateTo',
-                    'id'=>'calDateTo',
-                    'value'=>date('Y-m-d'),
+                    'model' => $model,
+                    'attribute' => 'date_to',
+                    //'name'=>'calDateTo',
+                    //'id'=>'calDateTo',
+                    //'value'=>date('Y-m-d'),
+                    'value'=> $model->date_to,
                     'mode'=>'date', //use "time","date" or "datetime" (default)
                     'options'=>array(
                         'dateFormat'=>'yy-mm-dd',
@@ -83,17 +82,23 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                     'language'=>'',
                 ));
 
-    echo CHtml::label('Status:', 'lblStatus', array('style'=>'margin-left: 20px;'));
+    echo CHtml::label('Status  &nbsp;', 'lblStatus', array('style'=>'margin-left: 20px;'));
     $options = array('1, 2, 3, 4'=>'All', '1'=>'Completed', '2'=>'Filed', '3'=>'Approved', '4'=>'Claimed');
     echo $form->dropDownList($model, 'status', $options, array('style'=>'width: 120px;'));
     
     $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Search', 'htmlOptions' => array('style' => 'margin-left: 10px;')));
 
+    $this->widget("bootstrap.widgets.TbButton", array(
+                                        "label"=>"Export to PDF",
+                                        //"icon"=>"icon-chevron-left",
+                                        "type"=>"info",
+                                        'url'=>'pdfloansummary?status='.$model->status.'&date_from2='.$model->date_from2.'&date_to='.$model->date_to,
+                                        "htmlOptions"=>array("style"=>"float: right;"),
+                                    ));
     $this->endWidget();
     
 ?>
 
-<br><br>
 
 <?php
 //display table

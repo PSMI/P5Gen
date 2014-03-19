@@ -9,6 +9,8 @@ class Loan extends CFormModel
     public $_connection;
     public $loan_id;
     public $status;
+    public $date_from2;
+    public $date_to;
 
     public function __construct() 
     {
@@ -19,18 +21,22 @@ class Loan extends CFormModel
     {
         return array(
             array('status','required'),
+            array('date_from2','required'),
+            array('date_to','required'),
         );
     }
 
     public function attributeLabels() 
     {
-        return array('status'=>'Cut-Off Date&nbsp;', 'date_from'=>'From:');
+        return array('status'=>'Cut-Off Date&nbsp;', 'date_from2'=>'From', 'date_to'=>'To');
     }
     
     public function getLoanApplications()
     {
         $conn = $this->_connection;
-        
+        //$this->status == "1, 2, 3, 4"
+        if ($this->status == "1" || $this->status == "1, 2, 3, 4")
+        {
         $query = "SELECT
                     l.loan_id,
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
@@ -52,9 +58,40 @@ class Loan extends CFormModel
                     LEFT OUTER JOIN member_details md2 ON l.claimed_by_id = md2.member_id
                   WHERE l.status IN ($this->status)
                   AND l.level_no <= 6
+                      AND l.date_completed >= :date_from2 AND l.date_completed <= :date_to
                   ORDER BY m.last_name;";
+        }
+        else
+        {
+            $query = "SELECT
+                        l.loan_id,
+                        CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
+                        l.loan_type_id,
+                        l.level_no,
+                        l.loan_amount,
+                        DATE_FORMAT(l.date_created,'%d-%m-%Y') AS date_created,
+                        DATE_FORMAT(l.date_completed,'%d-%m-%Y') AS date_completed,
+                        DATE_FORMAT(l.date_approved,'%d-%m-%Y') AS date_approved,
+                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
+                        DATE_FORMAT(l.date_claimed,'%d-%m-%Y') AS date_claimed,
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                        l.status,
+                        l.member_id
+                      FROM loans l
+                        INNER JOIN member_details m
+                          ON l.member_id = m.member_id
+                        LEFT OUTER JOIN member_details md ON l.approved_by_id = md.member_id
+                        LEFT OUTER JOIN member_details md2 ON l.claimed_by_id = md2.member_id
+                      WHERE l.status IN ($this->status)
+                      AND l.level_no <= 6
+                      AND l.date_filed >= :date_from2 AND l.date_filed <= :date_to
+                      ORDER BY m.last_name;";
+        }
         
+        $date_to = date('Y-m-d', strtotime('+1 day', strtotime($this->date_to)));
         $command =  $conn->createCommand($query);
+        $command->bindParam(':date_from2', $this->date_from2);
+        $command->bindParam(':date_to', $date_to);
         $result = $command->queryAll();
         
         return $result;
@@ -64,12 +101,27 @@ class Loan extends CFormModel
     {
         $conn = $this->_connection;
         
+        if ($this->status == "1" || $this->status == "1, 2, 3, 4")
+        {
         $query = "SELECT
                     sum(l.loan_amount) as total_loans                    
                   FROM loans l
-                  WHERE l.status IN ($this->status);";
+                      WHERE l.status IN ($this->status)
+                      AND l.date_completed >= :date_from2 AND l.date_completed <= :date_to;";
+        }
+        else
+        {
+            $query = "SELECT
+                        sum(l.loan_amount) as total_loans                    
+                      FROM loans l
+                      WHERE l.status IN ($this->status)
+                      AND l.date_filed >= :date_from2 AND l.date_filed <= :date_to;";
+        }
+        $date_to = date('Y-m-d', strtotime('+1 day', strtotime($this->date_to)));
         
         $command =  $conn->createCommand($query);
+        $command->bindParam(':date_from2', $this->date_from2);
+        $command->bindParam(':date_to', $date_to);
         $result = $command->queryRow();
         
         return $result['total_loans'];

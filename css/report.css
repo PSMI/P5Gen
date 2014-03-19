@@ -41,6 +41,9 @@ page
 #tbl-lists2 th.ctr, #tbl-lists2 td.ctr {width:12px; padding:2px 2px; text-align:center}
 #tbl-lists2 th.name, #tbl-lists2 td.name {width:170px; padding:2px 0px 2px 10px;}
 #tbl-lists2 th.date, #tbl-lists2 td.date {width:104px; padding:2px 0px 2px 10px;}
+#tbl-lists2 th.amount, #tbl-lists2 td.amount {width:100px; padding:2px 2px 2px 10px; text-align:  right;}
+#tbl-lists2 th.total, #tbl-lists2 td.total {width:40px; padding:2px 2px 2px 10px; text-align:  right;}
+#tbl-lists2 th.status, #tbl-lists2 td.status {width:100px; padding:2px 2px 2px 10px;}
 
 /* GOC */
 #tbl-lists3 th.ctr, #tbl-lists3 td.ctr {width:13px; padding:2px 2px; text-align:center}

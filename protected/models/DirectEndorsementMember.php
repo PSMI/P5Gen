@@ -42,5 +42,19 @@ class DirectEndorsementMember extends CFormModel
         
         return $result;
     }
+    public function getMemberName($member_id)
+    {
+        $conn = $this->_connection;
+        $query = "SELECT
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name
+                  FROM members m
+                    INNER JOIN member_details md
+                        ON m.member_id = md.member_id
+                  WHERE m.member_id = :member_id;";
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        return $result;
+    }
 }
 ?>

@@ -63,6 +63,24 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
+                        array('class'=>'bootstrap.widgets.TbButtonColumn',
+                            'template'=>'{download}',
+                            'buttons'=>array
+                            (
+                                'download'=>array
+                                (
+                                    'label'=>'Download',
+                                    'icon'=>'icon-download-alt',
+                                    'url'=>'Yii::app()->createUrl("/transaction/pdfunilevel", array("id" =>$data["member_id"], "cutoff_id" =>$data["cutoff_id"]))',
+                                    'options' => array(
+                                        'class'=>"btn btn-small",
+                                    ),
+                                    array('id' => 'send-link-'.uniqid())
+                                ),
+                            ),
+                            'header'=>'Action',
+                            'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
+                        ),
         )
         ));
 ?>
