@@ -73,6 +73,8 @@ class MembersController extends Controller
         $id = $_GET["id"];
         $rawData = $model->selectMemberById($id);
         $activationCode = $membersModel->getActivationCode($id);
+        $member = $membersModel->selectMemberDetails($id);
+        $model->date_joined = $member['date_joined'];
         $model->attributes = $rawData;
 
         if (isset($_POST["MemberDetailsModel"])) 

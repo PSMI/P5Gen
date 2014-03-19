@@ -32,8 +32,8 @@ class DirectEndorsement extends CFormModel
     
     public function getDirectEndorsement()
     {
-        $model = new ReferenceModel();
-        $payout_rate = $model->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
+//        $model = new ReferenceModel();
+//        $payout_rate = $model->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
         
         $conn = $this->_connection;
         
@@ -49,7 +49,7 @@ class DirectEndorsement extends CFormModel
                     CONCAT(md3.last_name, ', ', md3.first_name) AS claimed_by,
                     CONCAT(md4.last_name, ', ', md4.first_name) AS endorser_name,                    
                     COUNT(d.endorser_id) AS ibo_count,
-                    FORMAT(COUNT(d.endorser_id) * :payout_rate,2) AS total_payout,
+                    FORMAT(SUM(d.amount),2) AS total_payout,
                     d.status
                   FROM direct_endorsements d
                     LEFT OUTER JOIN member_details md
@@ -67,7 +67,7 @@ class DirectEndorsement extends CFormModel
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
-        $command->bindParam(':payout_rate', $payout_rate);
+//        $command->bindParam(':payout_rate', $payout_rate);
         $result = $command->queryAll();
         
         return $result;

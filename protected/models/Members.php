@@ -106,5 +106,19 @@ class Members extends CActiveRecord
         return $result;
     }
     
+    public function getAccountType($username)
+    {
+        $query = "SELECT account_type_id FROM members 
+                  WHERE username = :username";
+        $sql = Yii::app()->db->createCommand($query);
+        $sql->bindParam(":username",$username);
+        $result = $sql->queryRow();
+        
+        if(count($result)> 0)
+        {
+            return $result['account_type_id'];
+        }
+    }
+    
 }
 ?>

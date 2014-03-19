@@ -63,15 +63,36 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td><?php echo $form->dropDownListRow($model, 'civil_status', array('-- Please Select --', 'Single', 'Married', 'Divorced', 'Separated')); ?></td>
     </tr>
     <tr>
-        <td><?php echo $form->textFieldRow($model,'birth_date', array('id'=>'birth_date','readonly'=>'true', 'style'=>'width: 120px; text-align: center;')).
-                  CHtml::image(Yii::app()->request->baseUrl."/images/calendar.png","calendar", array("id"=>"calbutton","class"=>"pointer","style"=>"cursor: pointer;"));
-                  $this->widget('application.extensions.calendar.SCalendar',
-                  array(
-                    'inputField'=>'birth_date',
-                    'button'=>'calbutton',
-                    'showsTime'=>false,
-                    'ifFormat'=>'%Y-%m-%d',
-                  )); ?>
+        <td> 
+        <div class="control-group">
+            <?php echo CHtml::label('Birth Date '. '<span class="required">*</span>', 'MemberDetailsModel_birth_date',array('class'=>'control-label required')) ?>
+                <div class="controls">  
+                <?php 
+                    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+                        'model' => $model,
+                        'attribute' => 'birth_date',
+                        'htmlOptions' => array(
+                            'size' => '10',
+                            'maxlength' => '10',
+                            'readonly' => true,
+                            'value'=>$model->birth_date,
+                        ),
+                        'options' => array(
+                            'showOn'=>'button',
+                            'buttonImageOnly' => true,
+                            'changeMonth' => true,
+                            'changeYear' => true,
+                            'buttonText'=> 'Select Birth Date',
+                            'buttonImage'=>Yii::app()->request->baseUrl.'/images/calendar.png',
+                            'dateFormat'=>'yy-mm-dd',
+                            'maxDate' =>'0',
+                            'yearRange'=>'1900:' . date('Y'),
+                        )
+                    ));
+                    echo $form->error($model, 'birth_date');
+                ?>
+                </div>    
+            </div>
         </td>
         <td><?php echo $form->textFieldRow($model, 'mobile_no', array('value'=>$data["mobile_no"])); ?></td>
         <td><?php echo $form->textFieldRow($model, 'telephone_no', array('value'=>$data["telephone_no"])); ?></td>
@@ -89,6 +110,37 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <tr>
         <td><?php echo $form->textFieldRow($model, 'beneficiary_name', array('value'=>$data["beneficiary_name"])); ?></td>
         <td><?php echo $form->textFieldRow($model, 'relationship', array('value'=>$data["relationship"])); ?></td>
+        <td>
+        <div class="control-group">
+            <?php echo CHtml::label('Date Joined '. '<span class="required">*</span>', 'MemberDetailsModel_date_joined',array('class'=>'control-label required')) ?>
+                <div class="controls">  
+                <?php 
+                    $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+                        'model' => $model,
+                        'attribute' => 'date_joined',
+                        'htmlOptions' => array(
+                            'size' => '10',
+                            'maxlength' => '10',
+                            'readonly' => true,
+                            'value'=>$model->date_joined,
+                        ),
+                        'options' => array(
+                            'showOn'=>'button',
+                            'buttonImageOnly' => true,
+                            'changeMonth' => true,
+                            'changeYear' => true,
+                            'buttonText'=> 'Select Birth Date',
+                            'buttonImage'=>Yii::app()->request->baseUrl.'/images/calendar.png',
+                            'dateFormat'=>'yy-mm-dd',
+                            'maxDate' =>'0',
+                            'yearRange'=>'1900:' . date('Y'),
+                        )
+                    ));
+                    echo $form->error($model, 'date_joined');
+                ?>
+                </div>    
+            </div>    
+        </td>
     </tr>
     <tr>
         <td>

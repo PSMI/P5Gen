@@ -36,11 +36,20 @@ class UserIdentity extends CUserIdentity
                         $status = Members::getUserStatus($this->username);
                         
                         if ($status == 1) {
-                            // Get placement status
-                            $placement_status = Members::getPlacementStatus($this->username);
                             
-                            if ($placement_status == 0)
-                                $this->errorCode=self::ERROR_PENDING_PLACEMENT;
+                            //Check account type
+                            $account_type = Members::getAccountType($this->username);
+                            
+                            if($account_type == 3)//Member only
+                            {
+                                // Get placement status
+                                $placement_status = Members::getPlacementStatus($this->username);
+                                
+                                if ($placement_status == 0)
+                                    $this->errorCode=self::ERROR_PENDING_PLACEMENT;
+                                else
+                                    $this->errorCode=self::ERROR_NONE;
+                            }
                             else
                                 $this->errorCode=self::ERROR_NONE;
                         }

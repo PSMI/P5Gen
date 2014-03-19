@@ -102,12 +102,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 'file'=>array
                                 (
                                     'label'=>'File Loan',
-                                    'icon'=>'ok-sign',
+                                    'icon'=>'icon-share',
                                     'url'=>'Yii::app()->createUrl("/transaction/processtransaction", array("id" =>$data["loan_id"], "status" => "2"))',
                                     'visible'=>'TransactionController::getStatusForButtonDisplayLoan($data["status"], 3)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
-                                        'confirm'=>'Are you sure you want to FILE LOAN?',
+                                        'confirm'=>'Are you sure you want to file this loan?',
                                         'ajax' => array(
                                             'type' => 'GET',
                                             'dataType'=>'json',

@@ -13,7 +13,7 @@ $curdate = date('M d, Y h:ia');
     <div id="header" align="center">
         <div class="logo2">&nbsp;</div>
     </div>
-    <h4>Loan Completion Payout Details</h4>
+    <h4>Loan Completion Payout Summary</h4>
     <table id="tbl-summary">
         <tr>
             <th>Name of Payee</th>

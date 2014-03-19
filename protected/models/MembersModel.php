@@ -271,7 +271,7 @@ class MembersModel extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT
-                    count(*) as total_direct_endorse
+                    count(*) as total
                   FROM members m
                   WHERE m.endorser_id = :member_id
                   AND m.date_joined > DATE_ADD(m.date_joined, INTERVAL :interval);";
@@ -413,5 +413,32 @@ class MembersModel extends CFormModel
             $trx->rollback();
         }
     }
+    
+    /*
+    public function getAllMembers()
+    {
+        $connection = $this->_connection;
+        
+        $query = "SELECT m.member_id 
+                FROM members m
+                WHERE m.account_type_id = 3";
+        $command = $connection->createCommand($query);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function insertToTmp($member_id, $total, $level, $cutoff_id)
+    {
+        $conn = $this->_connection;
+        $query = "INSERT INTO tmp (member_id, total, level, cutoff_id) values(:member_id, :total, :level, :cutoff_id)";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $command->bindParam(':total', $total);
+        $command->bindParam(':level', $level);
+        $command->bindParam(':cutoff_id', $cutoff_id);
+        $command->execute();
+    }
+    */
 }
 ?>

@@ -29,6 +29,7 @@ class MemberDetailsModel extends CFormModel
     public $beneficiary_name;
     public $relationship;
     public $autocomplete_name;
+    public $date_joined;
     
     
     public function __construct() {
@@ -40,7 +41,7 @@ class MemberDetailsModel extends CFormModel
         return array(
                 array('last_name, first_name, middle_name
                         address1, civil_status
-                        mobile_no, email, gender, birth_date', 'required'),
+                        mobile_no, email, gender, birth_date, date_joined', 'required'),
             
                 array('member_id, address2, address3, zip_code, telephone_no, tin_no
                         company, occupation, 
@@ -75,7 +76,8 @@ class MemberDetailsModel extends CFormModel
                 'spouse_contact_no'=>'Spouse Contact Number',
                 'beneficiary_name'=>'Beneficiary',
                 'relationship'=>'Relationship',
-                'status'=>'Status'
+                'status'=>'Status',
+                'date_joined'=>'Date Joined'
         );
     }
     
@@ -178,11 +180,20 @@ class MemberDetailsModel extends CFormModel
             $command->bindValue(':spouse_contact_no', $this->spouse_contact_no);
             $command->bindValue(':beneficiary_name', $this->beneficiary_name);
             $command->bindValue(':relationship', $this->relationship);
-            $rowCount = $command->execute();
+            $command->execute();
             
-            if ($rowCount > 0) {
-                    $beginTrans->commit();
-                    return true;
+            $sql2 = "UPDATE members SET date_joined = :date_joined WHERE member_id = :member_id";
+            $command2 = $connection->createCommand($sql2);
+            $command2->bindParam(':date_joined', $this->date_joined);
+            $command2->bindParam(':member_id', $this->member_id);
+            $command2->execute();
+            
+            //if ($rowCount > 0) {
+            if(!$this->hasErrors())    
+            {
+                $beginTrans->commit();
+                return true;
+                
             } else {
                 $beginTrans->rollback();  
                 return false;

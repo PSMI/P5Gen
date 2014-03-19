@@ -233,8 +233,9 @@ class Transactions extends Controller
 
                             $member->member_id = $upline;
                             $row = $member->get_count_with_flush_out();
-                            $model->total_direct_endorse = $row['total_direct_endorse'];
-                            $model->total_members = $account['total_member'];
+                            $flush_count = $account['direct_endorse'] - $row['total'];
+                            $valid_ibo_count = $account['total_member'] - $flush_count;
+                            $model->total_members = $valid_ibo_count;                            
                             $retval = $model->insert_first_transaction_with_flushout();
 
                         }

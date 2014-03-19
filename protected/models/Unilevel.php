@@ -256,9 +256,8 @@ class Unilevel extends CFormModel
         $conn = $this->_connection;
         
         $payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
-        
-        $total_ibo = $this->total_direct_endorse + $this->total_members;
-        $payout = $total_ibo * $payout_rate;
+          
+        $payout = $this->total_members * $payout_rate;
         
         $query = "INSERT INTO unilevel (member_id, cutoff_id, ibo_count, amount)
                    VALUES (:member_id, :cutoff_id, :total_ibo, :payout_rate)";
@@ -266,7 +265,7 @@ class Unilevel extends CFormModel
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->upline_id);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
-        $command->bindParam(':total_ibo', $total_ibo);
+        $command->bindParam(':total_ibo', $this->total_members);
         $command->bindParam(':payout', $payout);
         $result = $command->execute();        
         
