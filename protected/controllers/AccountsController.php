@@ -59,6 +59,7 @@ class AccountsController extends Controller
             $logged_in_id = Yii::app()->user->getId();
             $model->member_id = $id;
             $model->attributes = $_POST["MemberDetailsModel"];
+            $model->date_joined = date('Y-m-d'); // force a value in date_joined attribute to escape required field.
              
             if ($model->validate())
             {
