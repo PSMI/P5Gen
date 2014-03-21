@@ -24,9 +24,9 @@ class Bonus extends CFormModel
                     p.promo_name,
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
                     pr.ibo_count,
-                    DATE_FORMAT(pr.date_approved,'%d-%m-%Y') AS date_approved,
-                    DATE_FORMAT(pr.date_claimed,'%d-%m-%Y') AS date_claimed,
-                    DATE_FORMAT(pr.date_completed,'%d-%m-%Y') AS date_completed,
+                    DATE_FORMAT(pr.date_approved,'%M %d, %Y') AS date_approved,
+                    DATE_FORMAT(pr.date_claimed,'%M %d, %Y') AS date_claimed,
+                    DATE_FORMAT(pr.date_completed,'%M %d, %Y') AS date_completed,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     pr.status,
@@ -162,7 +162,7 @@ class Bonus extends CFormModel
         
         $query = "SELECT
                         m.username,
-                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        DATE_FORMAT(m.date_joined,'%M %d, %Y') AS date_joined,
                         md.email,
                         md.mobile_no,
                         md.telephone_no,
@@ -187,7 +187,7 @@ class Bonus extends CFormModel
         
         $query = "SELECT
                         CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        DATE_FORMAT(m.date_joined,'%M %d, %Y') AS date_joined,
                         CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS upline_name
                     FROM members m
                         INNER JOIN member_details md

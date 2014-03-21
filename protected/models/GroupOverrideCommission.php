@@ -39,9 +39,9 @@ class GroupOverrideCommission extends CFormModel
                     c.ibo_count,
                     c.amount,
                     c.date_created,
-                    DATE_FORMAT(c.date_approved,'%d-%m-%Y') AS date_approved,
+                    DATE_FORMAT(c.date_approved,'%M %d, %Y') AS date_approved,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
-                    DATE_FORMAT(c.date_claimed,'%d-%m-%Y') AS date_claimed,
+                    DATE_FORMAT(c.date_claimed,'%M %d, %Y') AS date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     c.status,
                     c.member_id,
@@ -238,7 +238,7 @@ class GroupOverrideCommission extends CFormModel
         
         $query = "SELECT
                         m.username,
-                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        DATE_FORMAT(m.date_joined,'%M %d, %Y') AS date_joined,
                         md.email,
                         md.mobile_no,
                         md.telephone_no,
@@ -263,7 +263,7 @@ class GroupOverrideCommission extends CFormModel
         
         $query = "SELECT
                         CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        DATE_FORMAT(m.date_joined,'%M %d, %Y') AS date_joined,
                         CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS upline_name
                     FROM members m
                         INNER JOIN member_details md

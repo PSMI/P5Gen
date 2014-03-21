@@ -29,10 +29,10 @@ class UnilevelMember extends CFormModel
                     CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
                     u.ibo_count,
                     u.amount,
-                    DATE_FORMAT(u.date_created, '%d-%m-%Y') AS date_created,
-                    DATE_FORMAT(u.date_approved,'%d-%m-%Y') AS date_approved,
+                    DATE_FORMAT(u.date_created, '%M %d, %Y') AS date_created,
+                    DATE_FORMAT(u.date_approved,'%M %d, %Y') AS date_approved,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
-                    DATE_FORMAT(u.date_claimed,'%d-%m-%Y') AS date_claimed,
+                    DATE_FORMAT(u.date_claimed,'%M %d, %Y') AS date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     u.status
                   FROM unilevel u
@@ -61,9 +61,9 @@ class UnilevelMember extends CFormModel
                     u.ibo_count,
                     u.amount,
                     u.date_created,
-                    DATE_FORMAT(u.date_approved, '%d-%m-%Y') AS date_approved,
+                    DATE_FORMAT(u.date_approved, '%M %d, %Y') AS date_approved,
                     CONCAT(md1.last_name, ', ', md1.first_name, ' ', md1.middle_name) AS approved_by,
-                    DATE_FORMAT(u.date_claimed, '%d-%m-%Y') AS date_claimed,
+                    DATE_FORMAT(u.date_claimed, '%M %d, %Y') AS date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     u.status
                   FROM unilevel u

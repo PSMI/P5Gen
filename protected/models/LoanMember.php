@@ -24,15 +24,15 @@ class LoanMember extends CFormModel
                     l.level_no,
                     l.ibo_count,
                     l.loan_amount,
-                    DATE_FORMAT(l.date_created,'%d-%m-%Y') AS date_created,
-                    DATE_FORMAT(l.date_completed,'%d-%m-%Y') AS date_completed,
-                    DATE_FORMAT(l.date_approved,'%d-%m-%Y') AS date_approved,
+                    DATE_FORMAT(l.date_created,'%M %d, %Y') AS date_created,
+                    DATE_FORMAT(l.date_completed,'%M %d, %Y') AS date_completed,
+                    DATE_FORMAT(l.date_approved,'%M %d, %Y') AS date_approved,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
-                    DATE_FORMAT(l.date_claimed,'%d-%m-%Y') AS date_claimed,
+                    DATE_FORMAT(l.date_claimed,'%M %d, %Y') AS date_claimed,
                     CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                     l.status,
                     l.member_id,
-                    DATE_FORMAT(l.date_filed,'%d-%m-%Y') AS date_filed
+                    DATE_FORMAT(l.date_filed,'%M %d, %Y') AS date_filed
                   FROM loans l
                     INNER JOIN member_details m
                       ON l.member_id = m.member_id
@@ -57,7 +57,7 @@ class LoanMember extends CFormModel
         
         $query = "SELECT
                         m.username,
-                        DATE_FORMAT(m.date_created,'%d-%m-%Y') AS date_joined,
+                        DATE_FORMAT(m.date_created,'%M %d, %Y') AS date_joined,
                         md.email,
                         md.mobile_no,
                         md.telephone_no,
@@ -66,7 +66,7 @@ class LoanMember extends CFormModel
                         md.zip_code,
                         md.gender,
                         md.civil_status,
-                        DATE_FORMAT(md.birth_date,'%d-%m-%Y') AS birth_date,
+                        DATE_FORMAT(md.birth_date,'%M %d, %Y') AS birth_date,
                         md.tin_no
                     FROM members m
                       INNER JOIN member_details md
@@ -107,7 +107,7 @@ class LoanMember extends CFormModel
         
         $query = "SELECT
                         CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        DATE_FORMAT(m.date_joined,'%M %d, %Y') AS date_joined,
                         CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS upline_name
                     FROM members m
                         INNER JOIN member_details md
@@ -168,7 +168,7 @@ class LoanMember extends CFormModel
         $conn = $this->_connection;
         $query = "SELECT
                         CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                        DATE_FORMAT(m.date_joined,'%d-%m-%Y') AS date_joined,
+                        DATE_FORMAT(m.date_joined,'%M %d, %Y') AS date_joined,
                         CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS upline_name
                     FROM members m
                         INNER JOIN member_details md

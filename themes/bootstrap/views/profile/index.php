@@ -20,7 +20,7 @@
 
 <table>
     <tr>
-        <th>Date Enrolled:</th><td><?php echo date('M d Y', strtotime($data["date_created"])); ?></td>
+        <th>Date Enrolled:</th><td><?php echo date('F d, Y', strtotime($data["date_created"])); ?></td>
     </tr>
     <tr>
         <th>Username:</th><td><?php echo $data["username"]; ?></td>
