@@ -19,6 +19,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td><?php echo $form->textFieldRow($model, 'spouse_contact_no', array('value'=>$data["spouse_contact_no"])); ?></td>
     </tr>
     <tr>
+        <td><?php echo $form->textFieldRow($model, 'beneficiary_name', array('value'=>$data["beneficiary_name"])); ?></td>
+        <td><?php echo $form->textFieldRow($model, 'relationship', array('value'=>$data["relationship"])); ?></td>
+    </tr>
+    <tr>
+        <td><?php echo $form->textFieldRow($model, 'tin_no', array('value'=>$data["tin_no"])); ?></td>
+    </tr>
+    <tr>
         <td colspan="5"><?php 
                 $model->address1 = $data['address1'];
                 echo $form->textAreaRow($model, 'address1', array('class'=>'span5', 'rows'=>'5')); ?></td>

@@ -16,6 +16,22 @@
     'Profile Information'
 );
 ?>
+<div style="padding-top: 2%">
+    <?php 
+        echo CHtml::hiddenField('member_id', $data['member_id']);
+        echo CHtml::ajaxLink('[Edit Information]', 
+            Yii::app()->createUrl('profile/info'),
+            array(
+                'type'=>'post',
+                'data'=>array('id' => 'js:$("#member_id").val()'),
+                'success'=>'function(data){
+                    $("#div-update").html(data);
+                    $("#update-profile").dialog("open");
+                }',
+                'error'=>'function(e){ alert(e); }'
+            )); ?>
+</div>
+
 <h3>I. Personal Information</h3>
 
 <table>
@@ -54,22 +70,6 @@
 <br/>
 
 <h3 style="float: left">II. Contact Information</h3>
-<div style="padding-top: 2%">
-    <?php 
-        echo CHtml::hiddenField('member_id', $data['member_id']);
-        echo CHtml::ajaxLink('[Edit]', 
-            Yii::app()->createUrl('profile/info'),
-            array(
-                'type'=>'post',
-                'data'=>array('id' => 'js:$("#member_id").val()'),
-                'success'=>'function(data){
-                    $("#div-update").html(data);
-                    $("#update-profile").dialog("open");
-                }',
-                'error'=>'function(e){ alert(e); }'
-            )); ?>
-</div>
-
 <table style="clear: both">
     <tr>
         <th>Email Address:</th><td><?php echo $data["email"]; ?></td>
@@ -198,7 +198,7 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
 $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
         'id'=>'update-dialog-box',
         'options'=>array(
-            'title'=>'Contact Information',
+            'title'=>'Edit Information',
             'modal'=>true,
             'width'=>'350',
             'height'=>'auto',
@@ -220,7 +220,7 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
 $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
         'id'=>'update-redirect-box',
         'options'=>array(
-            'title'=>'Contact Information',
+            'title'=>'Edit Information',
             'modal'=>true,
             'width'=>'350',
             'height'=>'auto',
