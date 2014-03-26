@@ -378,6 +378,7 @@ class Networks extends Controller
             $member_name = 'None';
         else
             $member_name = $info["last_name"] . ", " . $info["first_name"] . " " . $info["middle_name"];
+        
         $member_name = strtoupper($member_name);
         
         return $member_name;
@@ -434,6 +435,26 @@ class Networks extends Controller
         }
         
         return $array;
+    }
+    
+    /**
+     * This function is used to get the distributor name of a particular
+     * member id param.
+     * @param type $member_id
+     * @return string member name
+     */
+    public function getDistributorName($member_id)
+    {
+        $model = new DistributorForm();
+        $info = $model->selectDistributorName($member_id);
+        if(empty($info['last_name']) && empty($info['first_name']) && empty($info['middle_name'])) 
+            $distributor_name = 'None';
+        else
+            $distributor_name = $info["last_name"] . ", " . $info["first_name"] . " " . $info["middle_name"];
+        
+        $distributor_name = strtoupper($distributor_name);
+        
+        return $distributor_name;
     }
 }
 ?>

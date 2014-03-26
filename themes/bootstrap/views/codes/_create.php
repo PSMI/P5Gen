@@ -23,6 +23,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 ?>
 
 <div id="form-details">
+    <?php echo $form->dropDownListRow($model, 'distribution_tag_id', $distribution_type, array('autocomplete'=>'off', 'empty'=>'-- Please Select --')); ?>
     <?php echo $form->textFieldRow($model, 'quantity', array('autocomplete'=>'off')); ?>
 </div>
 
@@ -89,6 +90,7 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
             'autoOpen'=>$this->showConfirm,
             'buttons'=>array(
                 'Yes'=>'js:function(){
+                    $("#hiddenTag").val($("#ActivationCodeModel_distribution_tag_id").val());
                     $("#hiddenQty").val($("#ActivationCodeModel_quantity").val());
                     $("#generate-form").submit();
                     $(this).dialog("close");
@@ -108,6 +110,7 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
 <?php echo CHtml::beginForm(array('codes/create'), 'POST', array(
         'id'=>'generate-form',
         'name'=>'generate-form')); 
+      echo CHtml::hiddenField('hiddenTag');
       echo CHtml::hiddenField('hiddenQty');
       echo CHtml::endForm(); 
       

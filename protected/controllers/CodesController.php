@@ -38,6 +38,8 @@ class CodesController extends Controller
     {
         $model = new ActivationCodeModel();
         
+        $distribution_type = array('1'=>'IBO', '2'=>'IPD');
+        
         if (isset($_POST["ActivationCodeModel"]))
         { 
             $model->attributes = $_POST["ActivationCodeModel"];
@@ -65,11 +67,12 @@ class CodesController extends Controller
         }
         else if (isset($_POST["hiddenQty"]))
         {
+            $distribution_tag_id = $_POST["hiddenTag"];
             $quantity = $_POST["hiddenQty"];
             $aid = Yii::app()->user->getId();;
             $ipaddr = $_SERVER['REMOTE_ADDR'];
 
-            $retval = $model->generateActivationCodes($quantity, $aid, $ipaddr);
+            $retval = $model->generateActivationCodes($distribution_tag_id, $quantity, $aid, $ipaddr);
 
             if ($retval) {
                 $this->title = "SUCCESSFUL";
@@ -83,7 +86,7 @@ class CodesController extends Controller
             $this->showRedirect = true;
         }
 
-        $this->render('_create', array('model'=>$model));
+        $this->render('_create', array('model'=>$model, 'distribution_type'=>$distribution_type));
     }
     
     public function actionCodes()
