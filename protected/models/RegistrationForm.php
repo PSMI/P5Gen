@@ -170,6 +170,11 @@ class RegistrationForm extends CFormModel
     {
         return CHtml::listData($this->paymentTypes(), 'payment_type_id', 'payment_type_name');
     }
+
+    public function listProducts()
+    {
+        return CHtml::listData(ProductsForm::selectAll(), 'product_id', 'product_name');
+    }
     
     public function selectDownlines($filter)
     {
@@ -309,7 +314,7 @@ class RegistrationForm extends CFormModel
                             {
                                 //Instantiate Activation Code Model
                                 $activation = new ActivationCodeModel();
-                                $result5 = $activation->updateActivationCodeStatus($this->activation_code);
+                                $result5 = $activation->updateActivationCodeStatus($this->activation_code, 1);
                                 
                                 if(count($result5) > 0)
                                 {
@@ -520,6 +525,192 @@ class RegistrationForm extends CFormModel
         $command->bindParam(':email_subject', $subject);
         $command->bindParam(':message_body', $message_body);
         $command->execute();
+    }
+    
+    /**
+     * This function is used to register an IPD distributor.
+     * @author Noel Antonio
+     * @return boolean TRUE - commit, FALSE - rollback
+     */
+    public function registerIPD()
+    {
+        $conn = $this->_connection;        
+        $trx = $conn->beginTransaction();
+        
+        $account_type_id = 5;
+        $activation_code = $this->activation_code;
+        $endorser_id = $this->member_id;
+        $date_joined = $this->date_purchased;
+               
+        /* Insert distributor account info */
+        
+        $query = "INSERT INTO distributors (account_type_id, activation_code, endorser_id, date_joined)
+                  VALUES (:account_type_id, :activation_code, :endorser_id, :date_joined)";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':account_type_id', $account_type_id);
+        $command->bindParam(':activation_code', $activation_code);
+        $command->bindParam(':endorser_id', $endorser_id);
+        $command->bindParam(':date_joined', $date_joined);
+        
+        $result = $command->execute();
+        
+        // Get the new member_id
+        $member_id = $conn->getLastInsertID();
+        $this->new_member_id = $member_id;
+        
+        try 
+        {
+            if(count($result) > 0)
+            {
+                /* Insert distributor_details */
+                
+                $query2 = "INSERT INTO distributor_details 
+                                   (distributor_id, last_name, first_name, middle_name, address1, address2, address3, country_id, 
+                                    zip_code, gender, civil_status, birth_date, mobile_no, telephone_no, email, tin_no, company, 
+                                    occupation, spouse_name, spouse_contact_no, beneficiary_name, relationship)
+                            VALUES (:member_id, :last_name, :first_name, :middle_name, :address1, :address2, :address3, :country_id,
+                                    :zip_code, :gender, :civil_status, :birth_date, :mobile_no, :telephone_no, :email, :tin_no, :company,
+                                    :occupation, :spouse_name, :spouse_contact_no, :beneficiary_name, :relationship)";
+                
+                $command2 = $conn->createCommand($query2);
+                $command2->bindParam(':member_id', $member_id);
+                $command2->bindParam(':last_name', $this->last_name);
+                $command2->bindParam(':first_name', $this->first_name);
+                $command2->bindParam(':middle_name', $this->middle_name);
+                $command2->bindParam(':address1', $this->address1);
+                $command2->bindParam(':address2', $this->address2);
+                $command2->bindParam(':address3', $this->address3);
+                $command2->bindParam(':country_id', $this->country_id);
+                $command2->bindParam(':zip_code', $this->zip_code);
+                $command2->bindParam(':gender', $this->gender);
+                $command2->bindParam(':civil_status', $this->civil_status);
+                $command2->bindParam(':birth_date', $this->birth_date);
+                $command2->bindParam(':mobile_no', $this->mobile_no);
+                $command2->bindParam(':telephone_no', $this->telephone_no);
+                $command2->bindParam(':email', $this->email);
+                $command2->bindParam(':tin_no', $this->tin_no);
+                $command2->bindParam(':company', $this->company);
+                $command2->bindParam(':occupation', $this->occupation);
+                $command2->bindParam(':spouse_name', $this->spouse_name);
+                $command2->bindParam(':spouse_contact_no', $this->spouse_contact_no);
+                $command2->bindParam(':beneficiary_name', $this->beneficiary_name);
+                $command2->bindParam(':relationship', $this->relationship);
+                
+                $result2 = $command2->execute();
+                
+                try
+                {
+                    if(count($result2) > 0)
+                    {
+                        // Instantiate purchases model
+                        $purchase = new PurchasesModel();
+                        
+                        // Retrieve product info
+                        $product_info = ProductsForm::selectProductById($this->product_name);
+                        
+                        $product['distributor_id'] = $this->new_member_id;
+                        $product['product_id'] = $this->product_name;
+                        $product['amount'] = $product_info['amount'];
+                        $product['date_purchased'] = $this->date_purchased;
+                        $product['payment_mode_id'] = $this->payment_mode_id;
+        
+                        $result3 = $purchase->insertIPDPurchased($product);
+                        
+                        if(count($result3) > 0)
+                        {
+                            $username = Helpers::generate($this->new_member_id, $this->first_name, $this->last_name);
+        
+                            $reference = new ReferenceModel();
+                            
+                            // get reference variables for maximum random password
+                            $max_rand_lenth = $reference->get_variable_value('MAX_RAND_PASSWORD');
+                            $password = Helpers::randomPassword($max_rand_lenth);
+                            $this->plain_password = $password;
+                            
+                            $hashed_password = md5($password);
+
+                            $query4 = "UPDATE distributors SET username = :username, `password` = :password
+                                       WHERE distributor_id = :distributor_id";
+
+                            $command4 = $conn->createCommand($query4);
+                            $command4->bindParam(':username', $username);
+                            $command4->bindParam(':password', $hashed_password);
+                            $command4->bindParam(':distributor_id', $member_id);
+
+                            $result4 = $command4->execute();
+                            
+                            if(count($result4) > 0)
+                            {
+                                // Instantiate Activation Code Model
+                                $activation = new ActivationCodeModel();
+                                $result5 = $activation->updateActivationCodeStatus($this->activation_code, 2);
+                                
+                                if(count($result5) > 0)
+                                {
+                                    $membersModel = new MembersModel();
+                                    $member_info = $membersModel->selectMemberDetails($endorser_id);
+                                    $has_ipd = $member_info["has_ipd"];
+                                    $has_ipd += 1;
+                                    
+                                    $query5 = "UPDATE members SET has_ipd = :has_ipd WHERE member_id = :endorser_id";
+                                    $command5 = $conn->createCommand($query5);
+                                    $command5->bindParam(':endorser_id', $endorser_id);
+                                    $command5->bindParam(':has_ipd', $has_ipd);
+                                    $result6 = $command5->execute();
+                                    
+                                    if(count($result6) > 0)
+                                    {
+                                        $trx->commit();
+                                        return array('result_code'=>0,
+                                                     'result_msg'=>'Registration successful');
+                                    }
+                                    else
+                                    {
+                                        $trx->rollback();
+                                        return array('result_code'=>6,
+                                                     'result_msg'=>'Registration failed (Errcode:05)');
+                                    }
+                                }
+                                else
+                                {
+                                    $trx->rollback();
+                                    return array('result_code'=>5,
+                                                 'result_msg'=>'Registration failed (Errcode:05)');
+                                }
+                                
+                            }
+                            else
+                            {
+                                $trx->rollback();
+                                return array('result_code'=>4,
+                                             'result_msg'=>'Registration failed (Errcode:04)'); 
+                            }
+        
+                            
+                        }
+                        else
+                        {
+                            $trx->rollback();
+                            return array('result_code'=>3,
+                                         'result_msg'=>'Registration failed (Errcode:03)');
+                        }
+                    }
+                }
+                catch(PDOException $exc)
+                {
+                    $trx->rollback();
+                    return array('result_code'=>2,
+                                 'result_msg'=>'Registration failed (Errcode:02)');
+                }
+            }
+        } 
+        catch (PDOException $exc) 
+        {
+            $trx->rollback();
+            return array('result_code'=>1,
+                         'result_msg'=>'Registration failed (Errcode:x01)');
+        }
     }
     
 }

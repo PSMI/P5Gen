@@ -133,5 +133,21 @@ class NetworksModel extends CFormModel
         
         return $result;
     }
+    
+    public function getIPDDirectEndorse($member_id)
+    {
+        $connection = $this->_connection;
+        
+        $sql = "SELECT a.distributor_id, b.last_name, b.first_name, b.middle_name, a.date_created
+                FROM distributors a
+                INNER JOIN distributor_details b ON a.distributor_id = b.distributor_id
+                WHERE a.endorser_id = :member_id
+                ORDER BY b.last_name";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
 }
 ?>

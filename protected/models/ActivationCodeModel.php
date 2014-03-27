@@ -121,16 +121,19 @@ class ActivationCodeModel extends CFormModel
         return $result;
     }
     
-    public function updateActivationCodeStatus($activation_code)
+    public function updateActivationCodeStatus($activation_code, $distribution_tag_id)
     {
         $conn = $this->_connection;
         
-        $query = "UPDATE activation_codes SET status = 1
-                  WHERE activation_code = :activation_code
-                        AND status = 0";
+        $query = "UPDATE activation_codes a 
+                  INNER JOIN activation_code_batch b ON a.activation_code_batch_id = b.activation_code_batch_id
+                  SET a.status = 1
+                  WHERE a.activation_code = :activation_code
+                        AND a.status = 0 AND b.distribution_tag_id = :distribution_tag_id";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':activation_code', $activation_code);        
+        $command->bindParam(':activation_code', $activation_code);  
+        $command->bindParam(':distribution_tag_id', $distribution_tag_id);
         $result = $command->execute();
         return $result;
         
