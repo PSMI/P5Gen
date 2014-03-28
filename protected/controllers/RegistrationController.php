@@ -60,7 +60,7 @@ class RegistrationController extends Controller
             {
                 $activation = new ActivationCodeModel();
                 //Validate activation code
-                $result = $activation->validateActivationCode($model->activation_code);
+                $result = $activation->validateActivationCode($model->activation_code, 1);
                 
                 if(count($result) > 0)
                 {
@@ -80,7 +80,7 @@ class RegistrationController extends Controller
                 }
                 else
                 {
-                    $this->dialogMessage = '<strong>Ooops!</strong> The activation code entered is invalid. Please make sure you have entered the code correctly.';
+                    $this->dialogMessage = '<strong>Ooops!</strong> The activation code entered is invalid. Please make sure you have entered the code correctly or the code given to you is valid.';
                     $this->errorCode = 6; //Activation code already in used.
                     $this->showDialog = true;
                 }
@@ -133,6 +133,101 @@ class RegistrationController extends Controller
         ));
         
         $this->renderPartial('_position', array('dataProvider'=>$dataProvider));
+    }
+    
+    
+    public function actionIpdIndex()
+    {
+        $model = new RegistrationForm();
+        $model->member_id = Yii::app()->session['member_id'];
+        
+        if ($_POST['hidden_flag'] == 1)
+        {
+            $model->attributes = $_POST['RegistrationForm'];
+            
+            $retval = $model->registerIPD();                    
+            if($retval['result_code'] == 0)
+            {
+                $param['distributor_id'] = $model->new_member_id;
+                $param['plain_password'] = $model->plain_password;
+                
+                Mailer::sendIPDVerificationLink($param);
+
+                $param2['new_member_id'] = $model->new_member_id;
+                $param2['endorser_id'] = $model->member_id;
+                
+                Mailer::sendIPDEndorserNotification($param2);
+
+                $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business distributor.';
+            }
+            else
+            {
+                $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
+            }
+
+            $this->errorCode = $retval['result_code'];
+            $this->showDialog = true;
+        }
+        
+        else if(isset($_POST['RegistrationForm']))
+        {
+            $model->attributes = $_POST['RegistrationForm'];
+            
+            // force required fields
+            $model->upline_id = 1;
+            $model->upline_name = 'Default Upline';
+            $model->product_code = 'Default Product Code';
+            
+            if ($model->validate())
+            {
+                $activation = new ActivationCodeModel();
+
+                $result = $activation->validateActivationCode($model->activation_code, 2);
+                
+                if(count($result) > 0)
+                {
+                    $retname = $model->validateMemberName();
+                    
+                    if (is_array($retname)) 
+                    {
+                        $this->dialogMessage = '<strong>Ooops!</strong> Member name already exist. Please use another name or append some characters you preferred to make it unique.';
+                        $this->errorCode = 6;
+                        $this->showDialog = true;
+                    }
+                    else 
+                    {
+                        $this->showConfirm = true;
+                    }
+                    
+                }
+                else
+                {
+                    $this->dialogMessage = '<strong>Ooops!</strong> The activation code entered is invalid. Please make sure you have entered the code correctly or the code given to you is valid.';
+                    $this->errorCode = 6;
+                    $this->showDialog = true;
+                }
+                $this->dialogTitle = 'IBP Registration';
+            }
+        }
+        
+        $this->render('_ipdindex',array('model'=>$model));
+    }
+    
+    public function actionIpdConfirm()
+    {
+        $info = array();
+        
+        if (isset($_POST)) {
+            $info[0]["member_name"] = strtoupper($_POST["last_name"] . ", " . $_POST["first_name"] . " " . $_POST["middle_name"]);
+            $info[0]["endorser_name"] = Networks::getMemberName(Yii::app()->user->getId());
+        }
+        
+        $dataProvider = new CArrayDataProvider($info, array(
+                        'keyField' => false,
+                        'pagination' => false
+        ));
+        
+        $this->renderPartial('_ipdposition', array('dataProvider'=>$dataProvider));
     }
     
 }

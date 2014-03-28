@@ -28,5 +28,20 @@ class DistributorForm extends CFormModel
         
         return $result;
     }
+    
+    public function selectDistributorDetails($id)
+    {
+        $connection = $this->_connection;
+        
+        $sql = "SELECT *
+                FROM distributors a 
+                INNER JOIN distributor_details b ON a.distributor_id = b.distributor_id
+                WHERE a.distributor_id = :distributor_id";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":distributor_id", $id);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
 }
 ?>
