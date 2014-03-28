@@ -651,7 +651,7 @@ class RegistrationForm extends CFormModel
                                     $has_ipd = $member_info["has_ipd"];
                                     $has_ipd += 1;
                                     
-                                    $query5 = "UPDATE members SET has_ipd = :has_ipd WHERE member_id = :endorser_id";
+                                    $query5 = "UPDATE members SET has_ipd = :has_ipd, placement_status = 1, placement_date = NOW() WHERE member_id = :endorser_id";
                                     $command5 = $conn->createCommand($query5);
                                     $command5->bindParam(':endorser_id', $endorser_id);
                                     $command5->bindParam(':has_ipd', $has_ipd);

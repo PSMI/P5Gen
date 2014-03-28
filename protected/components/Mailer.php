@@ -359,9 +359,9 @@ class Mailer
         
         $reference = new ReferenceModel();
         $message_template = $reference->get_message_template(self::IPD_VERIFY_ACCOUNT_TMPL);
-                
-        $distributorForm = new DistributorForm();
-        $result = $distributorForm->selectDistributorDetails($member_id);        
+
+        $members = new MembersModel();
+        $result = $members->selectMemberDetails($member_id);        
 
         $email = $result['email'];
         $member_name = $result['first_name'] . ' ' . $result['last_name'];
@@ -412,9 +412,7 @@ class Mailer
         $message_template = $reference->get_message_template(self::IPD_ENDORSER_NOTIFY);
                 
         $members = new MembersModel();
-        $distributors = new DistributorForm();
-        
-        $distributor_info = $distributors->selectDistributorDetails($downline_id); 
+        $distributor_info = $members->selectMemberDetails($downline_id); 
         $endorser_info = $members->selectMemberDetails($endorser_id);
                 
         $endorser_email = $endorser_info['email'];
