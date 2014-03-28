@@ -110,8 +110,6 @@ class RegistrationForm extends CFormModel
             );
     }
     
-    
-    
     public function countries()
     {
         $conn = $this->_connection;
@@ -121,6 +119,7 @@ class RegistrationForm extends CFormModel
         $result = $command->queryAll();        
         return $result;
     }
+    
     public function listCountries()
     {       
         return CHtml::listData($this->countries(), 'country_id', 'country_name');
@@ -210,7 +209,7 @@ class RegistrationForm extends CFormModel
         $conn = $this->_connection;        
         $trx = $conn->beginTransaction();
         
-        $account_type_id = $this->account_type_id;
+        $account_type_id = 3; //$this->account_type_id;
         $activation_code = $this->activation_code;
         $endorser_id = $this->member_id;
         $upline_id = $this->upline_id;
@@ -325,10 +324,9 @@ class RegistrationForm extends CFormModel
                                     $command5->bindParam(':member_id', $this->new_member_id);
                                     $command5->bindParam(':endorser_id', $this->member_id);
                                     $command5->bindParam(':upline_id', $this->upline_id);
+                                    $result6 = $command5->execute();
                                     
-                                    $result5 = $command5->execute();
-                                    
-                                    if(count($result5) > 0)
+                                    if(count($result6) > 0)
                                     {
                                         $trx->commit();
                                         return array('result_code'=>0,
@@ -544,7 +542,7 @@ class RegistrationForm extends CFormModel
                
         /* Insert distributor account info */
         
-        $query = "INSERT INTO distributors (account_type_id, activation_code, endorser_id, date_joined)
+        $query = "INSERT INTO members (account_type_id, activation_code, endorser_id, date_joined)
                   VALUES (:account_type_id, :activation_code, :endorser_id, :date_joined)";
         
         $command = $conn->createCommand($query);
@@ -565,8 +563,8 @@ class RegistrationForm extends CFormModel
             {
                 /* Insert distributor_details */
                 
-                $query2 = "INSERT INTO distributor_details 
-                                   (distributor_id, last_name, first_name, middle_name, address1, address2, address3, country_id, 
+                $query2 = "INSERT INTO member_details 
+                                   (member_id, last_name, first_name, middle_name, address1, address2, address3, country_id, 
                                     zip_code, gender, civil_status, birth_date, mobile_no, telephone_no, email, tin_no, company, 
                                     occupation, spouse_name, spouse_contact_no, beneficiary_name, relationship)
                             VALUES (:member_id, :last_name, :first_name, :middle_name, :address1, :address2, :address3, :country_id,
@@ -607,10 +605,10 @@ class RegistrationForm extends CFormModel
                         $purchase = new PurchasesModel();
                         
                         // Retrieve product info
-                        $product_info = ProductsForm::selectProductById($this->product_name);
+                        $product_info = ProductsForm::selectProductById($this->product_code);
                         
-                        $product['distributor_id'] = $this->new_member_id;
-                        $product['product_id'] = $this->product_name;
+                        $product['member_id'] = $this->new_member_id;
+                        $product['product_id'] = $this->product_code;
                         $product['amount'] = $product_info['amount'];
                         $product['date_purchased'] = $this->date_purchased;
                         $product['payment_mode_id'] = $this->payment_mode_id;
@@ -630,13 +628,13 @@ class RegistrationForm extends CFormModel
                             
                             $hashed_password = md5($password);
 
-                            $query4 = "UPDATE distributors SET username = :username, `password` = :password
-                                       WHERE distributor_id = :distributor_id";
+                            $query4 = "UPDATE members SET username = :username, `password` = :password
+                                       WHERE member_id = :member_id";
 
                             $command4 = $conn->createCommand($query4);
                             $command4->bindParam(':username', $username);
                             $command4->bindParam(':password', $hashed_password);
-                            $command4->bindParam(':distributor_id', $member_id);
+                            $command4->bindParam(':member_id', $member_id);
 
                             $result4 = $command4->execute();
                             

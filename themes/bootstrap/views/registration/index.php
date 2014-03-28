@@ -167,8 +167,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <?php echo $form->textFieldRow($model,'relationship', array('class'=>'span4')); ?>
 
 <h5>Purchased Production Information</h5>
-<?php echo $form->textFieldRow($model,'product_code', array('class'=>'span2')); ?>
-<?php echo $form->textFieldRow($model,'product_name', array('class'=>'span3')); ?>
+<?php // echo $form->textFieldRow($model,'product_code', array('class'=>'span2')); ?>
+<?php // echo $form->textFieldRow($model,'product_name', array('class'=>'span3')); ?>
+<?php echo $form->dropDownListRow($model,'product_code', array(''=>Yii::t('none','Select product')) + $model->listProducts(), array('class'=>'span2')); ?>
 <?php // echo $form->textFieldRow($model,'date_purchased', array('class'=>'span2')); ?>
 <div class="control-group">
 <?php echo CHtml::label('Date Purchased '. '<span class="required">*</span>', 'RegistrationForm_date_purchased',array('class'=>'control-label required')) ?>
