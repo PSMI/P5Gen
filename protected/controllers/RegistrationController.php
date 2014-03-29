@@ -17,7 +17,6 @@ class RegistrationController extends Controller
     public $errorCode;
     
     /* ------------------------------------------ IBO REGISTRATION ------------------------------------------ */
-    
     public function actionIndex()
     {
         $model = new RegistrationForm();
@@ -28,14 +27,19 @@ class RegistrationController extends Controller
             $model->attributes = $_POST['RegistrationForm'];
             
             // force required fields.
+
             $model->product_name = 'Default: P5 Water Purifier';
+
+
+
+        
             
             if($model->validate())
             {
                 $activation = new ActivationCodeModel();
-                
-                // Validate activation code
+                //Validate activation code
                 $result = $activation->validateActivationCode($model->activation_code, 1);
+                
                 if(count($result) > 0)
                 {
                     $retname = $model->validateMemberName();
@@ -64,7 +68,6 @@ class RegistrationController extends Controller
         else if ($_POST['hidden_flag'] == 1)
         {
             $model->attributes = $_POST['RegistrationForm'];
-            
             // process registration
             $retval = $model->register();                    
             if($retval['result_code'] == 0)
@@ -72,22 +75,17 @@ class RegistrationController extends Controller
                 // send email notification
                 $param['member_id'] = $model->new_member_id;
                 $param['plain_password'] = $model->plain_password;
-
                 Mailer::sendVerificationLink($param);
-
                 $param2['upline_id'] = $model->upline_id;
                 $param2['new_member_id'] = $model->new_member_id;
                 $param2['endorser_id'] = $model->member_id;                      
-
                 Mailer::sendUplineNotification($param2);
-
                 $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business partner.';
             }
             else
             {
                 $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
             }
-
             $this->errorCode = $retval['result_code'];
             $this->showDialog = true;
         }
@@ -139,33 +137,25 @@ class RegistrationController extends Controller
         $this->renderPartial('_position', array('dataProvider'=>$dataProvider));
     }
     
-    
     /* ------------------------------------------ IPD REGISTRATION ------------------------------------------ */
-    
     public function actionIpdIndex()
     {
         $model = new RegistrationForm();
         $model->member_id = Yii::app()->session['member_id'];
-        
         if (isset($_POST['RegistrationForm']) && $_POST['hidden_flag'] != 1)
         {
             $model->attributes = $_POST['RegistrationForm'];
-            
             // force required fields
             $model->upline_id = 1;
             $model->upline_name = 'Default: P5 ADMIN';
             $model->product_name = 'Default: P5 Water Purifier';
-            
             if ($model->validate())
             {
                 $activation = new ActivationCodeModel();
-
                 $result = $activation->validateActivationCode($model->activation_code, 2);
-                
                 if(count($result) > 0)
                 {
                     $retname = $model->validateMemberName();
-                    
                     if (is_array($retname)) 
                     {
                         $this->dialogMessage = '<strong>Ooops!</strong> Member name already exist. Please use another name or append some characters you preferred to make it unique.';
@@ -176,7 +166,6 @@ class RegistrationController extends Controller
                     {
                         $this->showConfirm = true;
                     }
-                    
                 }
                 else
                 {
@@ -190,50 +179,38 @@ class RegistrationController extends Controller
         else if ($_POST['hidden_flag'] == 1)
         {
             $model->attributes = $_POST['RegistrationForm'];
-            
             $retval = $model->registerIPD();                    
             if($retval['result_code'] == 0)
             {
                 $param['distributor_id'] = $model->new_member_id;
                 $param['plain_password'] = $model->plain_password;
-                
                 Mailer::sendIPDVerificationLink($param);
-
                 $param2['new_member_id'] = $model->new_member_id;
                 $param2['endorser_id'] = $model->member_id;
-                
                 Mailer::sendIPDEndorserNotification($param2);
-
                 $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business distributor.';
             }
             else
             {
                 $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
             }
-
             $this->errorCode = $retval['result_code'];
             $this->showDialog = true;
         }
-        
         $this->render('_ipdindex',array('model'=>$model));
     }
-    
     public function actionIpdConfirm()
     {
         $info = array();
-        
         if (isset($_POST)) {
             $info[0]["member_name"] = strtoupper($_POST["last_name"] . ", " . $_POST["first_name"] . " " . $_POST["middle_name"]);
             $info[0]["endorser_name"] = Networks::getMemberName(Yii::app()->user->getId());
         }
-        
         $dataProvider = new CArrayDataProvider($info, array(
                         'keyField' => false,
                         'pagination' => false
         ));
-        
         $this->renderPartial('_ipdposition', array('dataProvider'=>$dataProvider));
     }
-    
 }
 ?>

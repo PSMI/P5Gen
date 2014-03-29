@@ -168,10 +168,10 @@ class AdmintransactionsController extends Controller
                 $direct_endorsement_id = $_GET["id"];
                 $endorser_id = $_GET["endorser_id"];
                 $cutoff_id = $_GET["cutoff_id"];
-                
+                $date_claimed = $_GET['date_claimed'];
                 
                 $model = new DirectEndorsement();
-                $result = $model->updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid);
+                $result = $model->updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid, $date_claimed);
                 
                 if (count($result) > 0)
                 {
@@ -292,7 +292,8 @@ class AdmintransactionsController extends Controller
     //For Direct Endorsement
     public function actionDirectendorse()
     {
-        $model = new DirectEndorsement();       
+        $model = new DirectEndorsement();      
+        $model->date_claimed = date('Y-m-d');
         
         if (isset($_POST["DirectEndorsement"]))
         {
@@ -387,6 +388,22 @@ class AdmintransactionsController extends Controller
             else if($status_id == 2)
             {
                 return false;
+            }
+        }
+        else if ($status_type == 3)
+        {
+            //claim button
+            if ($status_id == 0)
+            {
+                return false;
+            }
+            else if($status_id == 1)
+            {
+                return false;
+            }
+            else if($status_id == 2)
+            {
+                return true;
             }
         }
         else

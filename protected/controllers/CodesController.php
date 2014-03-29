@@ -39,7 +39,6 @@ class CodesController extends Controller
         $model = new ActivationCodeModel();
         
         $distribution_type = array('1'=>'IBO', '2'=>'IPD');
-        
         if (isset($_POST["ActivationCodeModel"]))
         { 
             $model->attributes = $_POST["ActivationCodeModel"];

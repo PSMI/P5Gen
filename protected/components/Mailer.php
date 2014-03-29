@@ -346,7 +346,6 @@ class Mailer
         Yii::app()->mailer->ClearAddresses();
     }
     
-    
     /**
      * Send verification link to new distributor
      * @param type $param
@@ -354,49 +353,36 @@ class Mailer
     public function sendIPDVerificationLink($param)
     {
         $model = new RegistrationForm();
-        
         $member_id = $param['distributor_id'];
-        
         $reference = new ReferenceModel();
         $message_template = $reference->get_message_template(self::IPD_VERIFY_ACCOUNT_TMPL);
-
         $members = new MembersModel();
         $result = $members->selectMemberDetails($member_id);        
-
         $email = $result['email'];
         $member_name = $result['first_name'] . ' ' . $result['last_name'];
         $activation_code = $result['activation_code'];
         $username = $result['username'];
         $password = $param['plain_password'];
-        
         $params = array('email'=>$email,
                         'code'=>$activation_code);
-        
         $verification_link = 'https://'. Yii::app()->params['distributor_url'] .  Yii::app()->createUrl('activation/verify', $params);
         $link = '<a href="'.$verification_link.'">'.$verification_link.'</a>';
-        
         $placeholders = array('MEMBER_NAME'=>$member_name, 
                               'VERIFICATION_LINK'=>$link,
                               'USERNAME'=>$username,
                               'PASSWORD'=>$password);
-        
         foreach($placeholders as $key => $value){
             $message_template = str_replace('{'.$key.'}', $value, $message_template);
         }
-        
         if(count($result) > 0)
         {
             $sender = 'noreply@p5partners.com';
             $sender_name = 'P5 Marketing Incorporated';
             $recipient = $email;
             $subject = 'Important:P5 Distributor Activation Required';
-                        
             $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
-            
         }                
     }
-    
-    
     /**
      * Send notification to endorser upon successful IPD registration
      * @param type $param
@@ -404,35 +390,26 @@ class Mailer
     public function sendIPDEndorserNotification($param)
     {
         $model = new RegistrationForm();
-                    
         $downline_id = $param['new_member_id'];
         $endorser_id = $param['endorser_id'];
-        
         $reference = new ReferenceModel();
         $message_template = $reference->get_message_template(self::IPD_ENDORSER_NOTIFY);
-                
         $members = new MembersModel();
         $distributor_info = $members->selectMemberDetails($downline_id); 
         $endorser_info = $members->selectMemberDetails($endorser_id);
-                
         $endorser_email = $endorser_info['email'];
         $distributor_name = $distributor_info['first_name'] . ' ' . $distributor_info['last_name'];
         $endorser_name = $endorser_info['first_name'] . ' ' . $endorser_info['last_name'];
-        
         $placeholders = array('ENDORSER_NAME'=>$endorser_name,
                               'DISTRIBUTOR_NAME'=>$distributor_name);
-        
         foreach($placeholders as $key => $value){
             $message_template = str_replace('{'.$key.'}', $value, $message_template);
         }
-        
         $sender = 'noreply@p5partners.com';
         $sender_name = 'P5 Marketing Incorporated';
         $recipient = $endorser_email;
         $subject = 'Important: New Distributor Registration Successful!';
- 
         $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
-                
     }
 }
 ?>

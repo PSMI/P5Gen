@@ -52,7 +52,7 @@ class AccessRights extends CFormModel
                     INNER JOIN menus m ON ar.menu_id = m.menu_id
                     WHERE ar.account_type_id = :account_type_id 
                         AND m.status = 1                         
-                    ORDER BY ar.sort_order;";
+                    ORDER BY ar.menu_order;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(":account_type_id", $account_type_id);

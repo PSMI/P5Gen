@@ -157,7 +157,6 @@ class NetworkController extends Controller
 
         $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
     }
-    
     public function actionIpdUnilevel()
     {
         if (isset($_POST["hidden_member_id"])) {
@@ -170,48 +169,38 @@ class NetworkController extends Controller
         else {
             $member_id = Yii::app()->user->getId();
         }
-        
         $model = new MembersModel();        
         $member = $model->selectMemberDetails($member_id);
         $endorser_id = $member['endorser_id'];
         $upline_id = $member['upline_id'];
-        
         $genealogy['member'] = Networks::getMemberName($member_id);
         $genealogy['endorser'] = Networks::getMemberName($endorser_id);
         $genealogy['upline'] = Networks::getMemberName($upline_id);
-        
         $rawData = Networks::getUnilevel10thLevel($member_id);
         $final = Networks::arrangeLevel($rawData);
         $genealogy['total'] = $final['total'];
-        
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,
                         'pagination' => array(
                             'pageSize' => 1000,
                         ),
         ));
-        
         $this->render('_ipdunilevel', array('dataProvider'=>$dataProvider, 'genealogy'=>$genealogy));
     }
-    
     public function actionIpdDirectEndorse()
     {
         $model = new NetworksModel();
         $reference = new ReferenceModel();
         $member_id = Yii::app()->user->getId();
-        
         $rawData = $model->getIPDDirectEndorse($member_id);
-        
         $count = count($rawData);
         $direct_payout = $reference->get_payout_rate(TransactionTypes::DIRECT_ENDORSE);
-        
         $dataProvider = new CArrayDataProvider($rawData, array(
                         'keyField' => false,
                         'pagination' => array(
                         'pageSize' => 25,
                     ),
         ));
-        
         $this->render('_ipddirectendorse', array('dataProvider'=>$dataProvider, 'counter'=>$count,'payout'=>$direct_payout));
     }
 }

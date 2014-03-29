@@ -66,6 +66,8 @@ class UserMenu extends Controller
                             'label' => $submenu['submenu_name'],
                             'url'   => array($submenu['submenu_link']),
                         );
+                        if(in_array($submenu['submenu_id'],array(20,11,7)))
+                            $sub_items[] .= array('options'=>array('class'=>'divider'));
                     }
 
                 }

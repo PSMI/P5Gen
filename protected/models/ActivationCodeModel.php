@@ -19,7 +19,6 @@ class ActivationCodeModel extends CFormModel
             array('quantity', 'numerical', 'integerOnly'=>true)
         );
     }
-    
     public function attributeLabels()
     {
         return array('distribution_tag_id'=>'Distribution Tag');
@@ -132,7 +131,7 @@ class ActivationCodeModel extends CFormModel
                         AND a.status = 0 AND b.distribution_tag_id = :distribution_tag_id";
         
         $command = $conn->createCommand($query);
-        $command->bindParam(':activation_code', $activation_code);  
+        $command->bindParam(':activation_code', $activation_code);        
         $command->bindParam(':distribution_tag_id', $distribution_tag_id);
         $result = $command->execute();
         return $result;

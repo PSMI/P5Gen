@@ -48,6 +48,7 @@ if (isset($dataProvider))
     $this->renderPartial('_directendorseview', array(
                 'dataProvider'=>$dataProvider,
                 'total'=>$total,
+                'model'=>$model
         ));
     
 }

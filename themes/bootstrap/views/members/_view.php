@@ -11,10 +11,17 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         'dataProvider'=>$dataProvider,
         'enablePagination' => true,
         'columns' => array(
-                        array(
-                            'header' => '',
-                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
-                            * $this->grid->dataProvider->pagination->pageSize + 1)',
+//                        array(
+//                            'header' => '',
+//                            'value' => '$row + ($this->grid->dataProvider->pagination->currentPage
+//                            * $this->grid->dataProvider->pagination->pageSize + 1)',
+//                        ),
+                        array('name'=>'member_id',
+                            'header'=>'MID',
+                            'type'=>'raw',
+//                            'value'=>'CHtml::encode($data["username"])',
+                            'htmlOptions' => array('style' => 'text-align:left'),  
+                            'headerHtmlOptions' => array('style' => 'text-align:left'),  
                         ),
                         array('name'=>'Username',
                             'header'=>'User Name',

@@ -31,7 +31,6 @@
                 'error'=>'function(e){ alert(e); }'
             )); ?>
 </div>
-
 <h3>I. Personal Information</h3>
 
 <table>
@@ -70,6 +69,7 @@
 <br/>
 
 <h3 style="float: left">II. Contact Information</h3>
+
 <table style="clear: both">
     <tr>
         <th>Email Address:</th><td><?php echo $data["email"]; ?></td>

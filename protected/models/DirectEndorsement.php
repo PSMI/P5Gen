@@ -11,6 +11,8 @@ class DirectEndorsement extends CFormModel
     public $endorser_id;
     public $cutoff_id;
     public $payout_rate;
+    public $date_claimed;
+    public $direct_endorsement_id;
     
     public function __construct()
     {
@@ -27,7 +29,8 @@ class DirectEndorsement extends CFormModel
 
     
     public function attributeLabels() {
-        return array('cutoff_id'=>'Cut-Off Date&nbsp;');
+        return array('cutoff_id'=>'Cut-Off Date&nbsp;',
+                     'date_claimed'=>'Date Claimed');
     }
     
     public function getDirectEndorsement()
@@ -136,7 +139,7 @@ class DirectEndorsement extends CFormModel
         return $result;
     }
     
-    public function updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid)
+    public function updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid, $date_claimed=null)
     {
         $conn = $this->_connection;
         
@@ -153,7 +156,15 @@ class DirectEndorsement extends CFormModel
         }
         else if ($status == 2)
         {
-            $query = "UPDATE direct_endorsements
+            if($date_claimed != null)
+                $query = "UPDATE direct_endorsements
+                            SET date_claimed = '$date_claimed',
+                                status = :status,
+                                claimed_by_id = :userid
+                            WHERE endorser_id = :endorser_id 
+                            AND cutoff_id = :cutoff_id;";
+            else
+                $query = "UPDATE direct_endorsements
                         SET date_claimed = NOW(),
                             status = :status,
                             claimed_by_id = :userid

@@ -378,7 +378,6 @@ class Networks extends Controller
             $member_name = 'None';
         else
             $member_name = $info["last_name"] . ", " . $info["first_name"] . " " . $info["middle_name"];
-        
         $member_name = strtoupper($member_name);
         
         return $member_name;
@@ -436,7 +435,6 @@ class Networks extends Controller
         
         return $array;
     }
-    
     /**
      * This function is used to get the distributor name of a particular
      * member id param.
@@ -451,9 +449,7 @@ class Networks extends Controller
             $distributor_name = 'None';
         else
             $distributor_name = $info["last_name"] . ", " . $info["first_name"] . " " . $info["middle_name"];
-        
         $distributor_name = strtoupper($distributor_name);
-        
         return $distributor_name;
     }
 }
