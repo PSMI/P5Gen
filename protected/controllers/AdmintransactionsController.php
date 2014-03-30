@@ -877,5 +877,13 @@ class AdmintransactionsController extends Controller
         $html2pdf->Output('Direct_Endorsement_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
         Yii::app()->end();
     }
+    public function actionGetTransaction()
+    {
+        if(Yii::app()->request->isAjaxRequest)
+        {            
+            $details[] = array('direct_endorsement_id'=>$_GET['id'],'endorser_id'=>$_GET['endorser_id'],'cutoff_id'=>$_GET['cutoff_id']);
+            echo CJSON::encode($details);
+        }
+    }
 }
 ?>

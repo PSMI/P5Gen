@@ -60,7 +60,7 @@ class LoginForm extends CFormModel
 			if(!$this->_identity->authenticate())
                         {
                             if ($this->_identity->errorCode == UserIdentity::ERROR_USER_INACTIVE) {
-                                $this->addError('password','This account is inactive.');
+                                $this->addError('password','The account is inactive or invalid.');
                             } else if($this->_identity->errorCode == UserIdentity::ERROR_PASSWORD_INVALID || 
                                     $this->_identity->errorCode == UserIdentity::ERROR_USERNAME_INVALID) {
 				$this->addError('password','Incorrect username or password.');
