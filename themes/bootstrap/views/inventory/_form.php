@@ -12,7 +12,7 @@
          discount_amount = $("#Inventory_discount_amount"),
          discount_percent = $("#Inventory_discount_percent");
      
-    $("#Inventory_discount_type").change(function() {
+   $("#Inventory_discount_type").change(function() {
         if(discount_type.val() == 1)
         {
             discount_amount.attr("readonly", true);
@@ -25,7 +25,7 @@
         }
             
     });
-     
+        
     
  ', CClientScript::POS_END);
  ?>

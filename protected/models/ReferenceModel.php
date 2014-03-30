@@ -369,5 +369,17 @@ class ReferenceModel extends CFormModel
         else
             return false;
     }
+    public function select_payment_types()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT * FROM ref_paymenttypes WHERE status = 1";
+        $command = $conn->createCommand($query);
+        return $command->queryAll();
+    }
+    public function list_payment_types()
+    {
+        $model = new ReferenceModel();
+        return CHtml::listData($model->select_payment_types(), 'payment_type_id', 'payment_type_name');
+    }
 }
 ?>

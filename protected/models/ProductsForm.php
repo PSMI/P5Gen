@@ -8,6 +8,7 @@
 class ProductsForm extends CFormModel
 {
     public $_connection;
+    public $product_id;
     
     public function __construct() {
         $this->_connection = Yii::app()->db;
@@ -34,6 +35,11 @@ class ProductsForm extends CFormModel
         $result = $command->queryRow();
         
         return $result;
+    }
+    public function listProducts()
+    {
+        $model = new ProductsForm();
+        return CHtml::listData($model->selectAll(), 'product_id', 'product_name');
     }
 }
 ?>
