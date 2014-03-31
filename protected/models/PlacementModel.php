@@ -331,5 +331,29 @@ class PlacementModel extends CFormModel
         
     }
     
+    public function getUnassignedDownlines2()
+    {
+        $conn = $this->_connection;
+        
+        $sql = "SELECT
+                m.member_id,
+                CONCAT(md.last_name, ', ', COALESCE(md.first_name, ''), ' ', COALESCE(md.middle_name, '')) AS member_name,
+                DATE_FORMAT(m.date_created, '%M %d, %Y') AS date_joined,
+                (SELECT CONCAT(md1.last_name,' ',md1.first_name) FROM member_details md1 WHERE md1.member_id = pp.upline_id) AS upline_name,
+                m.upline_id
+              FROM members m
+                INNER JOIN member_details md
+                  ON m.member_id = md.member_id
+                LEFT JOIN pending_placements pp ON m.member_id = pp.member_id
+              WHERE m.endorser_id = :endorser_id
+              AND m.placement_status = 0";
+        
+        $command = $conn->createCommand($sql);
+        $command->bindParam(":endorser_id", $this->endorser_id);
+        $result = $command->queryAll();
+
+        return $result;
+    }
+    
 }
 ?>

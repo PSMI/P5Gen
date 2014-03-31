@@ -452,5 +452,36 @@ class Networks extends Controller
         $distributor_name = strtoupper($distributor_name);
         return $distributor_name;
     }
+    
+    /**
+     * This fucntion is used to retrieve the unilevel network of a member up to 10th level.
+     * @param type $member_id
+     * @param type $level
+     * @return type
+     */
+    public function getIPDUnilevel10thLevel($member_id, $level = 0)
+    {
+        $model = new Downlines();
+        $parent = array();
+        $children = array();
+        
+        $i = 0;
+        $level++;
+        
+        if ($level <= 10)
+        {
+            $downlines = $model->getIPDDirectEndorse($member_id);
+            foreach ($downlines as $key => $val)
+            {
+                $parent[$i][$level] = $downlines[$key]["downline"];
+                $children = array_merge($children, Networks::getIPDUnilevel10thLevel($downlines[$key]["downline"], $level));
+                $i++;
+            }
+        }
+        
+        $finalTree = array_merge($parent, $children);
+        
+        return $finalTree;
+    }
 }
 ?>

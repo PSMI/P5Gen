@@ -173,11 +173,14 @@ class NetworkController extends Controller
         $member = $model->selectMemberDetails($member_id);
         $endorser_id = $member['endorser_id'];
         $upline_id = $member['upline_id'];
+        
         $genealogy['member'] = Networks::getMemberName($member_id);
         $genealogy['endorser'] = Networks::getMemberName($endorser_id);
         $genealogy['upline'] = Networks::getMemberName($upline_id);
-        $rawData = Networks::getUnilevel10thLevel($member_id);
+        
+        $rawData = Networks::getIPDUnilevel10thLevel($member_id);
         $final = Networks::arrangeLevel($rawData);
+        
         $genealogy['total'] = $final['total'];
         $dataProvider = new CArrayDataProvider($final['network'], array(
                         'keyField' => false,

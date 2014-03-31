@@ -541,8 +541,8 @@ class RegistrationForm extends CFormModel
         $endorser_id = $this->member_id;
         $date_joined = $this->date_purchased;
         /* Insert distributor account info */
-        $query = "INSERT INTO members (account_type_id, activation_code, endorser_id, date_joined)
-                  VALUES (:account_type_id, :activation_code, :endorser_id, :date_joined)";
+        $query = "INSERT INTO members (account_type_id, activation_code, endorser_id, date_joined, placement_status, placement_date)
+                  VALUES (:account_type_id, :activation_code, :endorser_id, :date_joined, 1, NOW())";
         $command = $conn->createCommand($query);
         $command->bindParam(':account_type_id', $account_type_id);
         $command->bindParam(':activation_code', $activation_code);
@@ -603,7 +603,7 @@ class RegistrationForm extends CFormModel
                         $product['payment_mode_id'] = $this->payment_mode_id;
                         $result3 = $purchase->insertIPDPurchased($product);
                         if(count($result3) > 0)
-    {
+                        {
                             $username = Helpers::generate($this->new_member_id, $this->first_name, $this->last_name);
         
                             $reference = new ReferenceModel();
@@ -613,8 +613,7 @@ class RegistrationForm extends CFormModel
                             $this->plain_password = $password;
                             $hashed_password = md5($password);
 
-                            $query4 = "UPDATE members SET username = :username, `password` = :password
-                    WHERE member_id = :member_id";
+                            $query4 = "UPDATE members SET username = :username, `password` = :password WHERE member_id = :member_id";
                             $command4 = $conn->createCommand($query4);
                             $command4->bindParam(':username', $username);
                             $command4->bindParam(':password', $hashed_password);
@@ -631,7 +630,7 @@ class RegistrationForm extends CFormModel
                                     $member_info = $membersModel->selectMemberDetails($endorser_id);
                                     $has_ipd = $member_info["has_ipd"];
                                     $has_ipd += 1;
-                                    $query5 = "UPDATE members SET has_ipd = :has_ipd, placement_status = 1, placement_date = NOW() WHERE member_id = :endorser_id";
+                                    $query5 = "UPDATE members SET has_ipd = :has_ipd WHERE member_id = :endorser_id";
                                     $command5 = $conn->createCommand($query5);
                                     $command5->bindParam(':endorser_id', $endorser_id);
                                     $command5->bindParam(':has_ipd', $has_ipd);

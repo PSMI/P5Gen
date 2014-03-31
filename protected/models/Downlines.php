@@ -286,5 +286,32 @@ class Downlines extends CFormModel
         return $result;
         
     }
+    
+    /**
+     * This model function is used to retrieve all direct endorsements
+     * entry of the member.
+     * @author Noel Antonio
+     * @date 02/11/2014
+     * @param int $member_id
+     * @return array resultset
+     */
+    public function getIPDDirectEndorse($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    member_id AS downline
+                  FROM members m
+                  WHERE m.endorser_id = :member_id AND placement_status = 1
+                  AND m.account_type_id = 5
+                  ORDER BY placement_date ASC;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+        
+    }
 }
 ?>

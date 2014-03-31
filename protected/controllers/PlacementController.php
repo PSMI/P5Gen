@@ -66,7 +66,7 @@ class PlacementController extends Controller
             Yii::app()->end();
         }
                         
-        $result = $model->getUnassignedDownlines();
+        $result = $model->getUnassignedDownlines2();
         
         $gridDataProvider = new CArrayDataProvider($result,array(
                                 'keyField'=>'member_id',

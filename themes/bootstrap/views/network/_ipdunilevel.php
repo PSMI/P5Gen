@@ -28,7 +28,7 @@
     To qualify in Unilevel Bonus, you must complete Five (5) direct endorsements.</p>
   <table with="100%" id="summary">
       <tr>
-          <td width="15%" align="right">Unilevel of</td>
+          <td width="15%" align="right">IPD Unilevel of</td>
           <td width="75%" class="data"><?php echo $genealogy['member']; ?></td>
       </tr>
       <tr>
