@@ -1,8 +1,8 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @author Noel Antonio
+ * @date 01-30-2014
  */
 
 Yii::app()->clientScript->registerScript('ui','

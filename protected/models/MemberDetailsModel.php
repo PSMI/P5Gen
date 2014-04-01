@@ -269,6 +269,44 @@ class MemberDetailsModel extends CFormModel
         $command->bindParam(':filter', $filter);
         $result = $command->queryAll();        
         return $result;
-    }  
+    }
+    
+    public function selectDistributorDetailsBySearchField($searchField)
+    {
+        $connection = $this->_connection;
+        
+        $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
+                a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id, b.username,
+                CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
+                WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
+                FROM member_details a
+                INNER JOIN members b ON a.member_id = b.member_id
+                WHERE b.member_id = :member_id AND b.account_type_id = 5
+                ORDER BY a.last_name";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":member_id", $searchField);
+        
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function selectAllDistributorDetails()
+    {
+        $connection = $this->_connection;
+        
+        $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
+                a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id, b.username,
+                CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
+                WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
+                FROM member_details a
+                INNER JOIN members b ON a.member_id = b.member_id
+                WHERE b.account_type_id = 5
+                ORDER BY a.last_name";
+        $command = $connection->createCommand($sql);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
 }
 ?>

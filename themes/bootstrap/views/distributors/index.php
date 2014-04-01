@@ -5,8 +5,8 @@
  * @date 04-01-2014
  */
 ?>
-<?php $this->breadcrumbs = array('Members'=>'#','Member Management'); ?>
-<h3>Member Management</h3>
+<?php $this->breadcrumbs = array('Distributors'=>'#','Distributor Management'); ?>
+<h3>Distributor Management</h3>
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'id' => 'index-form',

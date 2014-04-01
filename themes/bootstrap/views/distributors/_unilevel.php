@@ -11,7 +11,7 @@
     table#summary, table#summary th, table#summary td{border:1px solid #e1e1e1; border-collapse: collapse; padding: 2px 10px 2px 10px}
     table#summary td.data{color:#0088cc}
 </style>
-<?php $this->breadcrumbs = array('Members'=>'#','Member Genealogy'); ?>
+<?php $this->breadcrumbs = array('Distributors'=>'#','IPD Unilevel'); ?>
 <?php Yii::app()->clientScript->registerScript('ui','
             function goto_data(id){
                     $("html,body").animate({scrollTop: $("#"+id).offset().top},"slow");
@@ -30,7 +30,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 ?>
 <table with="100%" id="summary">
     <tr>
-        <td width="15%" align="right">Genealogy of</td>
+        <td width="15%" align="right">IPD Unilevel of</td>
         <td width="75%" class="data"><?php echo $member_name; ?></td>
     </tr>
     <tr>
@@ -38,7 +38,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <td class="data"><?php echo $counter; ?></td>
     </tr>
 </table>
-<?php
+<?php 
 $this->widget('bootstrap.widgets.TbGridView', array(
         'id'=>'genealogy-grid',
         'type'=>'striped bordered condensed',
@@ -55,7 +55,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                     'header'=>'<center>IBO Count</center>',
                     'type'=>'raw',
                     'value'=>'CHtml::ajaxLink($data["Total"],
-                              Yii::app()->createUrl("members/genealogyDownlines"), 
+                              Yii::app()->createUrl("distributors/unilevelDownlines"), 
                               array(
                                     "type"=>"post",
                                     "data" => array("postData"=>$data["Members"]),
@@ -80,7 +80,7 @@ echo CHtml::hiddenField('hidden_member_id', '', array('id'=>'hidden_member_id'))
     'type'=>'info',
     'label'=>'Go to Parent Network', 
     'htmlOptions'=>array(
-        'onclick'=>'location.href = "'.Yii::app()->createUrl('members/index').'";'))); ?>
+        'onclick'=>'location.href = "'.Yii::app()->createUrl('distributors/index').'";'))); ?>
 </div>    
 
 <?php

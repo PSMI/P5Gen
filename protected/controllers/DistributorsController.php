@@ -7,6 +7,139 @@
 
 class DistributorsController extends Controller
 {
+    public $msg = '';
+    public $title = '';
+    public $showDialog = false;
+    public $showConfirm = false;
+    
+    public $layout = 'column2';
+    
+    public function actionIndex()
+    {   
+        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
+                $this->redirect(array('site/404'));
+        
+        $model = new MemberDetailsModel();
+        $members = new MembersModel();
+
+        if ($_POST["MemberDetailsModel"])
+        {
+            $searchField = $_POST["member_id"];
+            $rawData = $model->selectDistributorDetailsBySearchField($searchField);
+        }
+        else
+        {
+            $rawData = $model->selectAllDistributorDetails();
+        }
+        
+        // get upline and endorser
+        foreach ($rawData as $key => $value) {
+            $uplineInfo = $members->selectMemberName($value["upline_id"]);
+            $endorserInfo = $members->selectMemberName($value["endorser_id"]);
+            
+            if (is_array($endorserInfo) && count($endorserInfo) > 0) {
+                $endorser = $endorserInfo["last_name"] . ", " . $endorserInfo["first_name"] . " " . $endorserInfo["middle_name"];
+            } else {
+                $endorser = '';
+            }
+            $rawData[$key]["endorser"] = $endorser;
+
+            if (is_array($uplineInfo) && count($uplineInfo) > 0) {
+                $upline = $uplineInfo["last_name"] . ", " . $uplineInfo["first_name"] . " " . $uplineInfo["middle_name"];
+            } else {
+                $upline = '';
+            }
+            $rawData[$key]["upline"] = $upline;
+        }
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                        'pageSize' => 25,
+                    ),
+        ));
+        
+        $this->render('index', array('model'=>$model,'dataProvider'=>$dataProvider));
+    }
+    
+    public function actionUpdate()
+    {
+        $model = new MemberDetailsModel();
+        $membersModel = new MembersModel();
+        
+        if (!isset($_GET["id"])) {
+            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        }
+        
+        $id = $_GET["id"];
+        $rawData = $model->selectMemberById($id);
+        $activationCode = $membersModel->getActivationCode($id);
+        $member = $membersModel->selectMemberDetails($id);
+        $model->date_joined = $member['date_joined'];
+        $model->attributes = $rawData;
+
+        if (isset($_POST["MemberDetailsModel"])) 
+        {
+            $model->member_id = $id;
+            $model->attributes = $_POST["MemberDetailsModel"];
+
+            if ($model->validate())
+            {
+                $this->title = "CONFIRMATION";
+                $this->msg = "Are you sure you want to modify this information?";
+                $this->showConfirm = true;
+            }
+            else
+            {
+                $this->title = "NOTIFICATION";
+                $this->msg = "Please fill-up the required fields.";
+                $this->showDialog = true;
+            }
+        }
+                
+        $this->render('_update', array('model'=>$model, 'activationCode'=>$activationCode));
+    }
+    
+    public function actionTerminate()
+    {
+        $model = new MembersModel();
+        
+        if (!isset($_GET["id"])) {
+            throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+        }
+        
+        $id = $_GET["id"];
+        $rawData = $model->selectMemberName($id);
+        $model->attributes = $rawData;
+        
+        $fullName = $rawData["first_name"] . " " . $rawData["middle_name"] . " " . $rawData["last_name"];
+
+        $status_list = array ('1'=>'Active', '2'=>'Inactive', '3'=>'Terminated', '4'=>'Banned');
+        $currentStatus = $status_list[$rawData["status"]];
+        unset($status_list[$rawData["status"]]);
+        
+        if (isset($_POST["MembersModel"]))
+        {
+            $model->member_id = $id;
+            $model->attributes = $_POST["MembersModel"];
+            
+            if ($model->status == "")
+            {
+                $this->title = "NOTIFICATION";
+                $this->msg = "Please select a status.";
+                $this->showDialog = true;
+            }
+            else
+            {
+                $this->title = "CONFIRMATION";
+                $this->msg = "Are you sure you want to change the status of this account?";
+                $this->showConfirm = true;
+            }
+        }
+
+        $this->render('_terminate', array('model'=>$model, 'fullName'=>$fullName, 'status'=>$currentStatus, 'list'=>$status_list));
+    }
+    
     public function actionSearch()
     {
         if(Yii::app()->request->isAjaxRequest && isset($_GET['term']))
@@ -31,6 +164,93 @@ class DistributorsController extends Controller
             }
             
         }
+    }
+    
+    public function actionUpdateSuccess()
+    {
+        $model = new MemberDetailsModel();
+        
+        $model->attributes = $_POST["MemberDetailsModel"];        
+        $retval = $model->updateMemberDetails();
+
+        if ($retval)
+        {
+            $msg = "Distributor information successfully modified.";
+        }
+        else
+        {
+            $msg = "No changes made on the distributor's info.";
+        }
+        
+        echo $msg;
+    }
+    
+    public function actionTerminateSuccess()
+    {
+        $model = new MembersModel();
+        
+        $model->attributes = $_POST["MembersModel"]; 
+        $retval = $model->updateMemberStatus();
+        if ($retval)
+        {
+            $msg = "Distributor status successfully modified.";
+        }
+        else
+        {
+            $msg = "No changes made on the distributor's info.";
+        }
+        
+        echo $msg;
+    }
+    
+    public function actionUnilevel()
+    {
+        if (isset($_POST["hidden_member_id"])) {
+            $member_id = $_POST["hidden_member_id"];
+        }
+        else 
+        {
+            $member_id = $_GET["id"];
+        }
+        
+        $member_name = Networks::getMemberName($member_id);
+        
+        $rawData = Networks::getIPDUnilevel10thLevel($member_id);
+        $final = Networks::arrangeLevel($rawData);
+        $count = $final['total'];       
+        
+        $dataProvider = new CArrayDataProvider($final['network'], array(
+                        'keyField' => false,
+                        'pagination' => array(
+                            'pageSize' => 1000,
+                        ),
+
+        ));
+        
+        $this->render('_unilevel', array('dataProvider'=>$dataProvider, 'member_name'=>$member_name, 'counter'=>$count));
+    }
+    
+    public function actionUnilevelDownlines()
+    {
+        if (isset($_POST["postData"])) 
+        {
+            $member_ids = $_POST["postData"];
+            Yii::app()->session['ids'] = $member_ids;
+        }
+        else if (Yii::app()->request->isAjaxRequest) {
+            $member_ids = Yii::app()->session['ids'];
+        }
+        
+        $array = Networks::getUnilevelDownlines($member_ids);
+
+        $dataProvider = new CArrayDataProvider($array, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                            'pageSize' => 25,
+                        ),
+        ));
+
+        $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
     }
 }
 ?>
