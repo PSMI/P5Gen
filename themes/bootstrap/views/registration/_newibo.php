@@ -11,15 +11,38 @@ $this->breadcrumbs = array('IPD to IBO Registration');
 <script type="text/javascript">
 function submitForm()
 {
-    $("#hidden_flag").val(1);
+    $("#DistributorForm_hidden_flag").val(1);
     $("#verticalForm").submit();
+}
+
+function confirmFinalNetwork()
+{
+    $.ajax({
+        url: 'confirm2',
+        type: 'post',
+        data: { distributor_name: $("#DistributorForm_distributor_name").val(),
+                upline_id: $("#DistributorForm_upline_id").val(),
+                ibo_endorser_id: $("#DistributorForm_ibo_endorser_id").val()
+        },
+        success: function(data){
+            $("#cont-msg").html("Kindly check the table below to verify the \n\
+                    possible location of the new member. Once you proceed, it will\n\
+                    be FINAL. Do you wish to continue?");
+            $("#confirm-msg").html(data);
+        },
+        error: function(e){
+            alert("Error:" + e);
+        }
+    });
 }
 </script>
 <?php Yii::app()->clientScript->registerScript('ui','
          
      $(\'input[rel="tooltip"]\').tooltip();     
      var distributor_id = $("#DistributorForm_distributor_id"),
-         distributor_name = $("#DistributorForm[distributor_name]");', 
+         distributor_name = $("#DistributorForm[distributor_name]"),
+         upline_id = $("#DistributorForm_upline_id"),
+         upline_name = $("#DistributorForm[upline_name]");', 
         
     CClientScript::POS_END);
 
@@ -35,11 +58,11 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 )); ?>
 
 <h3>IPD to IBO Registration</h3>
-<p class="note">Please take note all fields with <span class="required">*</span> are required.</p>
+
 <?php
-$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-    'id'=>'verticalForm',
-    'type'=>'horizontal', //vertical, horizontal, inline, search
+$form1 = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+    'id'=>'defaultForm',
+    'type'=>'horizontal',
     'inlineErrors'=>false,
     'enableClientValidation'=>true,
     'clientOptions'=>array(
@@ -48,11 +71,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 )); ?>
 
-<?php echo $form->hiddenField($model, 'distributor_id'); ?>
-
 <h5>Distributor List</h5>
 <div class="control-group">
-<?php echo CHtml::label('Type a Distributor', 'DistributorForm_distributor_id',array('class'=>'control-label required')) ?>
+<?php echo CHtml::label('Qualified Distributor', 'DistributorForm_distributor_id',array('class'=>'control-label required')) ?>
     <div class="controls">   
         <?php
         
@@ -74,12 +95,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 ),        
             ));
         
-        
-        ?>
-        <?php echo $form->error($model, 'distributor_name'); ?>
-        
-        <?php $this->widget('bootstrap.widgets.TbButton', array(
-            'buttonType'=>'ajaxSubmit',
+        $this->widget('bootstrap.widgets.TbButton', array(
+            'buttonType'=>'ajaxButton',
             'label'=>'View Profile',
             'type'=>'primary',
             'url'=>'viewprofile',
@@ -88,8 +105,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'data'=>'js:{ "member_id": $("#DistributorForm_distributor_id").val()}',
                 'success'=>'function(data){
                     $("#data").html(data);
-                    $("#data").show();
-                    $("#reg_input").show();
+                    $("#displayDiv").show();
                 }',
                 'error'=>'function(e){
                     alert(e);
@@ -98,134 +114,205 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         )); ?>
     </div>
 </div>
+<?php $this->endWidget(); // first form end ?>
 
-<div id="data" style="display: none"></div>
-
-<div id="reg_input" style="display: none">
-    <h5>Activation Information</h5>
-    <?php echo $form->textFieldRow($model,'activation_code', array(
-            'class'=>'span3',
-            'rel'=>'tooltip',
-            'title'=>'Important: Please enter the 20 alphanumeric activation codes provided.',
-    )); ?>
-
-    <?php echo CHtml::hiddenField('hidden_flag'); ?>
-
-    <!-- Button Group -->
-    <?php $this->widget('bootstrap.widgets.TbButton', array(
-        'buttonType'=>'reset',
-        'label'=>'Reset Information',
-        'type'=>'danger',
-        'size'=>'large'
-    )); ?>
-
-    <?php $this->widget('bootstrap.widgets.TbButton', array(
-        'buttonType'=>'submit',
-        'label'=>'Register Business Partner',
-        'type'=>'primary',
-        'size'=>'large'
-    )); ?>
-</div>
-
-
-<?php $this->beginWidget('bootstrap.widgets.TbModal', 
-        array('id'=>'confirm-dialog',
-              'autoOpen'=>$this->showConfirm,
-              'fade'=>true,
+<div id="displayDiv" style="display: none">
+<?php
+$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+    'id'=>'verticalForm',
+    'type'=>'horizontal',
+    'inlineErrors'=>false,
+    'enableClientValidation'=>true,
+    'clientOptions'=>array(
+            'validateOnSubmit'=>true,
+        ),
+    'htmlOptions'=>array('class'=>'well'),
 )); ?>
- 
-<!-- NETWORK CONFIRMATION DIALOG -->
-<div class="modal-header">
-    <a class="close" data-dismiss="modal">&times;</a>
-    <h4>CONFIRMATION</h4>
-</div>
- 
-<div id="cont-msg" class="modal-body"><p></p></div>
-<div id="confirm-msg" class="modal-body">
-</div>
- 
-<div class="modal-footer">
-    <?php
-        $this->widget('bootstrap.widgets.TbButton', array(
-            'buttonType' => 'button',
-            'label' => 'YES',
-            'type' => 'default',
-            'htmlOptions'=>array('onclick'=>'submitForm()')
-        ));
-        $this->widget('bootstrap.widgets.TbButton', array(
-            'buttonType' => 'button',
-            'label' => 'NO',
-            'type' => 'default',
-            'htmlOptions'=>array('data-dismiss'=>'modal')
-        ));
-    ?>
-</div>
-<?php $this->endWidget(); // end of confirm dialog ?>
 
-<?php $this->endWidget(); // form end widget ?>
 
-<!-- AJAX LOADER -->
-<?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
-        'id'=>'ajaxloader',
+<div id="data"></div>
+
+
+<?php echo $form->hiddenField($model, 'distributor_id'); ?>
+<?php echo $form->hiddenField($model, 'upline_id'); ?>
+<?php echo $form->hiddenField($model, 'hidden_flag'); ?>
+
+<h5>Activation Information</h5>
+<?php echo $form->textFieldRow($model,'activation_code', array(
+        'class'=>'span3',
+        'rel'=>'tooltip',
+        'title'=>'Important: Please enter the 20 alphanumeric activation codes provided.',
+)); ?>
+
+<h5>Placement Information</h5>
+<div class="control-group">
+<?php echo CHtml::label('Place Under'. '<span class="required">*</span>', 'DistributorForm_upline_id',array('class'=>'control-label required')) ?>
+    <div class="controls">   
+        <?php
+
+        $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
+                'model'=>$model,
+                'attribute'=>'upline_name',
+                'source'=>'js: function(request, response) {
+                    $.ajax({
+                        url: "'.Yii::app()->createUrl('registration/downlinesOfImmediateIBO').'",
+                        dataType: "json",
+                        data: {
+                            term: request.term,
+                            ibo: $("#DistributorForm_ibo_endorser_id").val()
+                        },
+                        success: function (data) {
+                                response(data);
+                        },
+                        error: function (e) {
+                                alert(e);
+                        }
+                    })
+                 }',
+                'options'=>array(
+                    'minLength'=>'2',
+                    'showAnim'=>'fold',
+                    'focus' => 'js:function(event, ui){upline_name.val(ui.item["value"])}',
+                    'select' => 'js:function(event, ui){upline_id.val(ui.item["id"]); }',
+                ),
+                'htmlOptions'=>array(
+                    'class'=>'span3',
+                    'rel'=>'tooltip',
+                    'title'=>'Please type your downline\'s name.',
+                    'autocomplete'=>'off',
+                ),        
+            ));
+
+
+        ?>
+        <?php echo $form->error($model, 'upline_name'); ?>
+    </div>    
+</div>
+
+<!-- Button Group -->
+<?php $this->widget('bootstrap.widgets.TbButton', array(
+    'buttonType'=>'button',
+    'label'=>'Reset Information',
+    'type'=>'danger',
+    'size'=>'large',
+    'htmlOptions'=>array('onclick'=>'location.href = "'.Yii::app()->createUrl('registration/new').'";')
+)); ?>
+
+<?php $this->widget('bootstrap.widgets.TbButton', array(
+    'buttonType'=>'ajaxButton',
+    'label'=>'Register Business Partner',
+    'type'=>'primary',
+    'size'=>'large',
+    'url'=>'ajaxRegister',
+    'ajaxOptions'=>array(
+        'type'=>'POST',
+        'dataType'=>'json',
+        'data'=>'js:$("#verticalForm").serialize()',
+        'success'=>'function(data){
+            if (data.code == 0)
+            {
+                confirmFinalNetwork();
+                $("#confirm-dialog").dialog("open");
+            }
+            else
+            {
+                $("#msg").html(data.message);
+                $("#message-dialog").dialog("open");
+            }
+        }',
+        'error'=>'function(e){
+            alert(e);
+        }'
+    )
+)); ?>
+    
+
+<!-- MESSAGE DIALOG -->
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'message-dialog',
         'options'=>array(
-            'title'=>'Loading',
+            'title'=>'NOTIFICATION',
             'modal'=>true,
-            'width'=>'200',
-            'height'=>'45',
+            'width'=>'500',
+            'height'=>'auto',
+            'resizable'=>false,
+            'autoOpen'=>false,
+            'buttons'=>array(
+                'OK'=>'js:function(){
+                    $(this).dialog("close");
+                }'
+            )
+        ),
+)); ?>
+<br />
+<div id="msg"></div>
+<br />
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+<!-- MESSAGE DIALOG -->
+
+<!-- NETWORK CONFIRMATION DIALOG -->
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'confirm-dialog',
+        'options'=>array(
+            'title'=>'CONFIRMATION',
+            'modal'=>true,
+            'width'=>'700',
+            'height'=>'auto',
             'resizable'=>false,
             'autoOpen'=>false,
         ),
 )); ?>
-
-<div class="loading"></div><div class="loadingtext">Loading, please wait...</div>
-
+<br />
+<div id="cont-msg"></div>
+<div id="confirm-msg"></div>
+<br/>
+<div style="text-align: right">
+<?php
+    $this->widget('bootstrap.widgets.TbButton', array(
+        'buttonType' => 'button',
+        'label' => 'YES',
+        'type' => 'primary',
+        'htmlOptions'=>array('onclick'=>'submitForm()')
+    ));
+    echo '&nbsp;&nbsp;';
+    $this->widget('bootstrap.widgets.TbButton', array(
+        'buttonType' => 'button',
+        'label' => 'NO',
+        'type' => 'primary',
+        'htmlOptions'=>array('onclick'=>'$("#confirm-dialog").dialog("close")')
+    ));
+?>
+</div>
+<br />
 <?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+<!-- NETWORK CONFIRMATION DIALOG -->
 
-<!-- MESSAGE DIALOG -->
-<?php $this->beginWidget('bootstrap.widgets.TbModal', 
-        array('id'=>'message-dialog',
-              'autoOpen'=>$this->showDialog,
-              'fade'=>true,
+
+<!-- SUCCESS MESSAGE DIALOG -->
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id'=>'success-dialog',
+        'options'=>array(
+            'title'=>$this->dialogTitle,
+            'modal'=>true,
+            'width'=>'500',
+            'height'=>'auto',
+            'resizable'=>false,
+            'autoOpen'=>$this->showDialog,
+            'buttons'=>array(
+                'OK'=>'js:function(){
+                    location.href = "'.Yii::app()->createUrl('registration/new').'";
+                }'
+            )
+        ),
 )); ?>
- 
-<div class="modal-header">
-    <a class="close" data-dismiss="modal">&times;</a>
-    <h4><?php echo $this->dialogTitle; ?></h4>
-</div>
- 
-<div class="modal-body">
-    <p><?php echo $this->dialogMessage; ?></p>
-</div>
- 
-<div class="modal-footer">
-    <?php $this->widget('bootstrap.widgets.TbButton', array(
-        'label'=>'Close',
-        'url'=>$this->errorCode > 0 ? '#' : array('registration/index'),
-        'htmlOptions'=>$this->errorCode > 0 ? array('data-dismiss'=>'modal') : "",
-    )); ?>
-</div>
- 
-<?php $this->endWidget(); ?>
+<br />
+<?php echo $this->dialogMessage; ?>
+<br />
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+<!-- SUCCESS MESSAGE DIALOG -->
 
-<?php if ($this->showConfirm): ?>
-<script type="text/javascript">
-    $.ajax({
-        url: 'confirm',
-        type: 'post',
-        data: { last_name: $("#RegistrationForm_last_name").val(),
-                first_name: $("#RegistrationForm_first_name").val(),
-                middle_name: $("#RegistrationForm_middle_name").val(),
-                upline_id: $("#RegistrationForm_upline_id").val()
-        },
-        success: function(data){
-            $("#cont-msg").html("Kindly check the table below to verify the \n\
-                    possible location of the new member. Once you proceed, it will\n\
-                    be FINAL. Do you wish to continue?");
-            $("#confirm-msg").html(data);
-        },
-        error: function(e){
-            alert("Error:" + e);
-        }
-    });
-</script>
-<?php endif; ?>
+<?php $this->endWidget(); // form end widget ?>
+</div>

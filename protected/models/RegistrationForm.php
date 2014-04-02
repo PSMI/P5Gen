@@ -361,8 +361,6 @@ class RegistrationForm extends CFormModel
                                 return array('result_code'=>4,
                                              'result_msg'=>'Registration failed (Errcode:04)'); 
                             }
-        
-                            
                         }
                         else
                         {
@@ -720,6 +718,74 @@ class RegistrationForm extends CFormModel
         $command->bindParam(':filter', $filter);
         $result = $command->queryAll();        
         return $result;
+    }
+    
+    public function selectDownlinesOfImmediateIBO($filter, $ibo_id)
+    {
+        $conn = $this->_connection;        
+        $filter = "%".$filter."%";
+        
+        $model = new Downlines(); 
+        
+        $model->member_id = $ibo_id;
+        
+        $placeUnder = Networks::getPlaceUnder($ibo_id);
+        $downline_lists = Networks::autoComplete($placeUnder);
+        
+        $query = "SELECT
+                    m.member_id,
+                    CONCAT(COALESCE(md.last_name,' '), ', ', COALESCE(md.first_name,' '), ' ', COALESCE(md.middle_name,' ')) AS member_name
+                  FROM members m
+                    INNER JOIN member_details md ON m.member_id = md.member_id
+                  WHERE (md.last_name LIKE :filter
+                    OR md.first_name LIKE :filter
+                    OR md.middle_name LIKE :filter)
+                    AND m.member_id IN ($downline_lists)
+                  ORDER BY md.last_name";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':filter', $filter);
+        $result = $command->queryAll();        
+        return $result;
+    }
+    
+    
+    /**
+     * This function is used to register an IPD distributor to IBO member.
+     * @author Noel Antonio
+     * @return boolean TRUE - commit, FALSE - rollback
+     */
+    public function registerIPDtoIBO($member_id, $upline_id, $endorser_id)
+    {
+        $connection = $this->_connection;
+        $beginTrans = $connection->beginTransaction();
+        
+        try
+        {
+            $sql = "UPDATE members 
+                    SET account_type_id = 3,
+                        upline_id = :upline_id,
+                        endorser_id = :endorser_id
+                    WHERE member_id = :member_id";
+            $command = $connection->createCommand($sql);
+            $command->bindValue(':member_id', $member_id);
+            $command->bindValue(':upline_id', $upline_id);
+            $command->bindValue(':endorser_id', $endorser_id);
+            $rowCount = $command->execute();
+            
+            if ($rowCount > 0) {
+                    $beginTrans->commit();
+                    return true;
+            } else {
+                $beginTrans->rollback();  
+                return false;
+            }
+        }
+        catch (CDbException $e)
+        {
+            $beginTrans->rollback();  
+            return false;
+        }
     }
     
 }

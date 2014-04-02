@@ -216,9 +216,40 @@ class RegistrationController extends Controller
     {
         $model = new DistributorForm();
         
+        $model_attr = $_POST['DistributorForm'];
+        $hidden_flag = $model_attr['hidden_flag'];
+        
+        if ($hidden_flag == 1)
+        {
+            $member_id = $model_attr['distributor_id'];
+            $activation_code = $model_attr['activation_code'];
+            $upline_id = $model_attr['upline_id'];
+            $ibo_endorser_id = $model_attr['ibo_endorser_id'];
+            
+            $registration = new RegistrationForm();
+            
+            $retval = $registration->registerIPDtoIBO($member_id, $upline_id, $ibo_endorser_id);
+            if ($retval)
+            {
+                $this->dialogTitle = 'SUCCESSFUL!';
+                $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business partner.';
+            }
+            else
+            {
+                $this->dialogTitle = 'ERROR!';
+                $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
+            }
+            
+            $this->showDialog = true;
+        }
+        
         $this->render('_newibo', array('model'=>$model));
     }
     
+    /**
+     * This function is used to view the profile of the 
+     * particular distributor selected.
+     */
     public function actionViewProfile()
     {
         $networksModel = new NetworksModel();
@@ -278,11 +309,16 @@ class RegistrationController extends Controller
                             <td width="20%" align="right">Beneficiary Name</td>
                             <td width="75%" class="data">'.$rawData["beneficiary_name"].'</td>
                         </tr>
-                    </table>';
+                    </table>
+                    <input type="hidden" id="DistributorForm_ibo_endorser_id" name="DistributorForm[ibo_endorser_id]" value="'.$immediate_ibo_id.'" />';
         
         echo $content;
     }
     
+    /**
+     * This function is used for autocomplete search of 
+     * all qualified distributors
+     */
     public function actionDistributor()
     {
         if(Yii::app()->request->isAjaxRequest && isset($_GET['term']))
@@ -307,6 +343,84 @@ class RegistrationController extends Controller
             }
             
         }
+    }
+    
+    /**
+     * This function is used to retrieve the immediate IBO of 
+     * the particular IPD distributor selected.
+     */
+    public function actionDownlinesOfImmediateIBO()
+    {
+        if(Yii::app()->request->isAjaxRequest && isset($_GET['term']))
+        {
+            $model = new RegistrationForm();
+
+            $result = $model->selectDownlinesOfImmediateIBO($_GET['term'], $_GET['ibo']);
+
+            if(count($result)>0)
+            {
+                foreach($result as $row)
+                {
+                    $arr[] = array(
+                        'id'=>$row['member_id'],
+                        'value'=>$row['member_name'],
+                        'label'=>$row['member_name'],
+                    );
+                }
+
+                echo CJSON::encode($arr);
+                Yii::app()->end();
+            }
+            
+        }
+    }
+    
+    /**
+     * This function is used for registration of IPD to IBO
+     */
+    public function actionAjaxRegister()
+    {
+        if (isset($_POST['DistributorForm']))
+        {
+            $model_attr = $_POST['DistributorForm'];
+            
+            $activation_code = $model_attr['activation_code'];
+            
+            $activation = new ActivationCodeModel();
+            $result = $activation->validateActivationCode($activation_code, 1);
+            if(count($result) > 0)
+            {
+                $retval = array('code'=>0, 'message'=>'');
+            }
+            else
+            {
+                $retval = array('code'=>1, 'message'=>'<strong>Ooops!</strong> The activation code entered is invalid. Please make sure you have entered the code correctly or the code given to you is valid.');
+            }
+            
+            echo json_encode($retval);
+        }
+    }
+    
+    /**
+     * This function is used by admin registration only for confirmation 
+     * of possible network before registration.
+     */
+    public function actionConfirm2()
+    {
+        $info = array();
+        
+        if (isset($_POST)) {
+            $info[0]["member_name"] = strtoupper($_POST["distributor_name"]);
+            $info[0]["upline_name"] = Networks::getMemberName($_POST["upline_id"]);
+            $info[0]["endorser_name"] = Networks::getMemberName($_POST["ibo_endorser_id"]);
+        }
+        
+        $dataProvider = new CArrayDataProvider($info, array(
+                        'keyField' => false,
+                        'pagination' => false
+        ));
+        
+        $this->renderPartial('_position', array('dataProvider'=>$dataProvider));
     }
 }
 ?>
