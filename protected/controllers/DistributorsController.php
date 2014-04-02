@@ -241,7 +241,7 @@ class DistributorsController extends Controller
             $member_ids = Yii::app()->session['ids'];
         }
         
-        $array = Networks::getUnilevelDownlines($member_ids);
+        $array = Networks::getIPDUnilevelDownlines($member_ids);
 
         $dataProvider = new CArrayDataProvider($array, array(
                         'keyField' => false,
