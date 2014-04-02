@@ -330,7 +330,7 @@ class Downlines extends CFormModel
         return $result;
     }
     
-    public function countEndorsement($member_id)
+    public function countIPDEndorsement($member_id)
     {
         $conn = $this->_connection;
         
@@ -338,7 +338,7 @@ class Downlines extends CFormModel
                     count(member_id) AS count
                   FROM members m
                   WHERE m.account_type_id = 5
-                  AND endorser_id = :member_id;";
+                  AND ipd_endorser_id = :member_id;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
@@ -359,6 +359,21 @@ class Downlines extends CFormModel
         $result = $command->queryRow();
         
         return $result["count"];
+    }
+    
+    
+    public function findImmediateIBO($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT account_type_id,member_id,endorser_id,ipd_endorser_id 
+            FROM netmarketing.members WHERE member_id = :member_id;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result;
     }
     
 }

@@ -227,6 +227,9 @@ class RegistrationController extends Controller
         
         $rawData = $networksModel->getProfileInfo($member_id);
         $fullname = $rawData["last_name"] . ", " . $rawData["first_name"] . " " . $rawData["middle_name"];
+        $endorser = Networks::getMemberName($rawData["ipd_endorser_id"]);
+        $immediate_ibo_id = Networks::getImmediateIBOEndorser($rawData["ipd_endorser_id"]);
+        $immediate_ibo_endorser = Networks::getMemberName($immediate_ibo_id);
         
         $content .= '<style type="text/css">
                         table#summary{font-size:14px; width:100%;}
@@ -236,39 +239,43 @@ class RegistrationController extends Controller
         
         $content .= '<table with="100%" id="summary">
                         <tr>
-                            <td width="15%" align="right">Username</td>
+                            <td width="20%" align="right">Username</td>
                             <td width="75%" class="data">'.$rawData["username"].'</td>
                         </tr>
                         <tr>
-                            <td width="15%" align="right">Full Name</td>
+                            <td width="20%" align="right">Full Name</td>
                             <td width="75%" class="data">'.$fullname.'</td>
                         </tr>
                         <tr>
-                            <td width="15%" align="right">Date Joined</td>
+                            <td width="20%" align="right">Date Joined</td>
                             <td width="75%" class="data">'.date("F d, Y ", strtotime($rawData["date_joined"])).'</td>
                         </tr>
                         <tr>
-                            <td width="15%" align="right">Endorser</td>
-                            <td width="75%" class="data"><?php echo $genealogy["upline"]; ?></td>
+                            <td width="20%" align="right">Endorsed By</td>
+                            <td width="75%" class="data">'.$endorser.'</td>
                         </tr>
                         <tr>
-                            <td width="15%" align="right">Address</td>
+                            <td width="20%" align="right">Immediate IBO Endorser</td>
+                            <td width="75%" class="data">'.$immediate_ibo_endorser.'</td>
+                        </tr>
+                        <tr>
+                            <td width="20%" align="right">Address</td>
                             <td width="75%" class="data">'.$rawData["address1"].'</td>
                         </tr>
                         <tr>
-                            <td width="15%" align="right">Birth Date</td>
+                            <td width="20%" align="right">Birth Date</td>
                             <td width="75%" class="data">'.date("F d, Y ", strtotime($rawData["birth_date"])).'</td>
                         </tr>
                         <tr>
-                            <td width="15%" align="right">Contact Number</td>
+                            <td width="20%" align="right">Contact Number</td>
                             <td width="75%" class="data">'.$rawData["mobile_no"].'</td>
                         </tr>
                         <tr>
-                            <td width="15%" align="right">Email</td>
+                            <td width="20%" align="right">Email</td>
                             <td width="75%" class="data">'.$rawData["email"].'</td>
                         </tr>
                         <tr>
-                            <td width="15%" align="right">Beneficiary Name</td>
+                            <td width="20%" align="right">Beneficiary Name</td>
                             <td width="75%" class="data">'.$rawData["beneficiary_name"].'</td>
                         </tr>
                     </table>';

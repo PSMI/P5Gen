@@ -496,7 +496,7 @@ class Networks extends Controller
         for ($a = 0; $a < count($ipd_list); $a++)
         {
             $ipd_id = $ipd_list[$a]["member_id"];
-            $count = $model->countEndorsement($ipd_id);
+            $count = $model->countIPDEndorsement($ipd_id);
             if ($count >= 5)
             {
                 $temp_array[] = $ipd_id;
@@ -528,6 +528,24 @@ class Networks extends Controller
         }
         
         return $array;
+    }
+    
+    public function getImmediateIBOEndorser($member_id)
+    {
+        $model = new Downlines();
+        
+        $rawData = $model->findImmediateIBO($member_id);
+        $account_type = $rawData["account_type_id"];
+        
+        if ($account_type == 3)
+        {
+            return $rawData["member_id"];
+            Yii::app()->end();
+        }
+        else
+        {
+            return Networks::getImmediateIBOEndorser($rawData["ipd_endorser_id"]);
+        }
     }
 }
 ?>

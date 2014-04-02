@@ -51,7 +51,7 @@ class NetworksModel extends CFormModel
                 WHEN 4 THEN 'Separated' WHEN 5 THEN 'Widow' END AS civil_status,
                 b.birth_date, b.spouse_name, b.spouse_contact_no, b.beneficiary_name,
                 b.company, b.tin_no, b.email, b.address1, b.telephone_no, b.mobile_no, b.occupation,
-                b.relationship, a.endorser_id, a.upline_id, a.date_joined
+                b.relationship, a.endorser_id, a.upline_id, a.date_joined, a.ipd_endorser_id
                 FROM members a
                 INNER JOIN member_details b ON a.member_id = b.member_id
                 WHERE a.member_id = :member_id";
