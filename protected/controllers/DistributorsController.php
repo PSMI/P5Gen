@@ -35,7 +35,7 @@ class DistributorsController extends Controller
         // get upline and endorser
         foreach ($rawData as $key => $value) {
             $uplineInfo = $members->selectMemberName($value["upline_id"]);
-            $endorserInfo = $members->selectMemberName($value["endorser_id"]);
+            $endorserInfo = $members->selectMemberName($value["ipd_endorser_id"]);
             
             if (is_array($endorserInfo) && count($endorserInfo) > 0) {
                 $endorser = $endorserInfo["last_name"] . ", " . $endorserInfo["first_name"] . " " . $endorserInfo["middle_name"];
