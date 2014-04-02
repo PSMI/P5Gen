@@ -48,6 +48,10 @@ class RegistrationForm extends CFormModel
     
     public $plain_password;
     
+    // these (2) attributes will be used for Admin registration of IPD to IBO.
+//    public $distributor_id;
+//    public $distributor_name;
+    
     public function __construct() {
         $this->_connection = Yii::app()->db;
         
@@ -74,6 +78,8 @@ class RegistrationForm extends CFormModel
             //Not required but should be inserted
             array('zip_code,telephone_no,tin_no,company,occupation,
                   spouse_name,spouse_contact_no,beneficiary_name,relationship','safe'),
+            
+            array('distributor_id, distributor_name','safe'),
         );
     }
             
@@ -202,7 +208,7 @@ class RegistrationForm extends CFormModel
         $command->bindParam(':filter', $filter);
         $result = $command->queryAll();        
         return $result;
-    }    
+    }
     
     public function register()
     {
@@ -541,12 +547,12 @@ class RegistrationForm extends CFormModel
         $endorser_id = $this->member_id;
         $date_joined = $this->date_purchased;
         /* Insert distributor account info */
-        $query = "INSERT INTO members (account_type_id, activation_code, endorser_id, date_joined, placement_status, placement_date)
-                  VALUES (:account_type_id, :activation_code, :endorser_id, :date_joined, 1, NOW())";
+        $query = "INSERT INTO members (account_type_id, activation_code, ipd_endorser_id, date_joined, placement_status, placement_date)
+                  VALUES (:account_type_id, :activation_code, :ipd_endorser_id, :date_joined, 1, NOW())";
         $command = $conn->createCommand($query);
         $command->bindParam(':account_type_id', $account_type_id);
         $command->bindParam(':activation_code', $activation_code);
-        $command->bindParam(':endorser_id', $endorser_id);
+        $command->bindParam(':ipd_endorser_id', $endorser_id);
         $command->bindParam(':date_joined', $date_joined);
         $result = $command->execute();
         // Get the new member_id
@@ -684,6 +690,36 @@ class RegistrationForm extends CFormModel
             return array('result_code'=>1,
                          'result_msg'=>'Registration failed (Errcode:x01)');
         }
+    }
+    
+    
+    public function selectDistributors($filter)
+    {
+        $conn = $this->_connection;        
+        $filter = "%".$filter."%";
+        
+        $model = new Downlines(); 
+        
+        $model->member_id = Yii::app()->user->getId();
+        
+        $ipd = Networks::getQualifiedIPD();
+        $downline_lists = Networks::autoComplete($ipd);
+        
+        $query = "SELECT
+                    m.member_id,
+                    CONCAT(COALESCE(md.last_name,' '), ', ', COALESCE(md.first_name,' '), ' ', COALESCE(md.middle_name,' ')) AS member_name
+                  FROM members m
+                    INNER JOIN member_details md ON m.member_id = md.member_id
+                  WHERE (md.last_name LIKE :filter
+                    OR md.first_name LIKE :filter
+                    OR md.middle_name LIKE :filter)
+                    AND m.member_id IN ($downline_lists)
+                  ORDER BY md.last_name";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':filter', $filter);
+        $result = $command->queryAll();        
+        return $result;
     }
     
 }

@@ -483,5 +483,51 @@ class Networks extends Controller
         
         return $finalTree;
     }
+    
+    /**
+     * This function is used to get the qualified IPD.
+     */
+    public function getQualifiedIPD()
+    {
+        $model = new Downlines();
+        $temp_array = array();
+        
+        $ipd_list = $model->getAllIPD();
+        for ($a = 0; $a < count($ipd_list); $a++)
+        {
+            $ipd_id = $ipd_list[$a]["member_id"];
+            $count = $model->countEndorsement($ipd_id);
+            if ($count >= 5)
+            {
+                $temp_array[] = $ipd_id;
+            }
+        }
+        
+        return $temp_array;
+    }
+    
+    /**
+     * @author Noel Antonio
+     * @date 02/12/2014
+     */
+    public function getIPDUnilevelDownlines($member_ids)
+    {
+        $model = new Downlines();
+        $rawData = $model->downlineInfo($member_ids);
+        foreach ($rawData as $key => $val)
+        {
+            $count = $model->getIPDUnilevelCount($val["member_id"]);
+            $temp["Count"] = $count;
+            $temp["ID"] = $val["member_id"];
+            $temp["Placement_Date"] = date("F d, Y", strtotime($val["placement_date"]));
+            $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
+            $temp["DateEnrolled"] = date("F d, Y", strtotime($val["date_enrolled"]));
+            $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
+            $temp["Endorser"] = Networks::getMemberName($val["ipd_endorser_id"]);
+            $array[] = $temp;
+        }
+        
+        return $array;
+    }
 }
 ?>

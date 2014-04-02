@@ -51,7 +51,7 @@ class NetworksModel extends CFormModel
                 WHEN 4 THEN 'Separated' WHEN 5 THEN 'Widow' END AS civil_status,
                 b.birth_date, b.spouse_name, b.spouse_contact_no, b.beneficiary_name,
                 b.company, b.tin_no, b.email, b.address1, b.telephone_no, b.mobile_no, b.occupation,
-                b.relationship, a.endorser_id, a.upline_id
+                b.relationship, a.endorser_id, a.upline_id, a.date_joined
                 FROM members a
                 INNER JOIN member_details b ON a.member_id = b.member_id
                 WHERE a.member_id = :member_id";
@@ -132,13 +132,14 @@ class NetworksModel extends CFormModel
         $result = $command->queryAll();
         return $result;
     }
+    
     public function getIPDDirectEndorse($member_id)
     {
         $connection = $this->_connection;
         $sql = "SELECT a.member_id, b.last_name, b.first_name, b.middle_name, a.date_created
                 FROM members a
                 INNER JOIN member_details b ON a.member_id = b.member_id
-                WHERE a.endorser_id = :member_id AND a.account_type_id = 5
+                WHERE a.ipd_endorser_id = :member_id AND a.account_type_id = 5
                 ORDER BY b.last_name";
         $command = $connection->createCommand($sql);
         $command->bindParam(':member_id', $member_id);

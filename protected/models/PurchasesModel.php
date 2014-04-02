@@ -59,7 +59,7 @@ class PurchasesModel extends CFormModel
         $date_purchase = $product['date_purchased'];
         $payment_mode = $product['payment_mode_id'];
         /* Insert purchased products */
-        $query = "INSERT INTO distributor_purchased_items (distributor_id, product_id, amount, date_purchased, payment_type_id)
+        $query = "INSERT INTO distributor_purchased_items (distributor_id, product_id, srp, date_purchased, payment_type_id)
                     VALUES (:distributor_id, :product_id, :amount, :date_purchased, :payment_mode_id)";
         $command = $conn->createCommand($query);
         $command->bindParam(':distributor_id', $distributor_id);

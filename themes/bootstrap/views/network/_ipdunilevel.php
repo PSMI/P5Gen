@@ -24,8 +24,6 @@
     'headingOptions'=>array('style'=>'font-size:200%')
 )); ?>
 
-<p style="font-size:14px"> All your direct endorsements will become your first level and the direct endorsements of your first level will become your second level and so on and so forth. 
-    To qualify in Unilevel Bonus, you must complete Five (5) direct endorsements.</p>
   <table with="100%" id="summary">
       <tr>
           <td width="15%" align="right">IPD Unilevel of</td>
@@ -71,7 +69,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                     'header'=>'<center>IBO Count</center>',
                     'type'=>'raw',
                     'value'=>'CHtml::ajaxLink($data["Total"],
-                              Yii::app()->createUrl("network/unilevelDownlines"), 
+                              Yii::app()->createUrl("network/IPDUnilevelDownlines"), 
                               array(
                                     "type"=>"post",
                                     "data" => array("postData"=>$data["Members"]),

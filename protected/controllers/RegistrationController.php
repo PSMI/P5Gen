@@ -30,10 +30,6 @@ class RegistrationController extends Controller
 
             $model->product_name = 'Default: P5 Water Purifier';
 
-
-
-        
-            
             if($model->validate())
             {
                 $activation = new ActivationCodeModel();
@@ -199,6 +195,7 @@ class RegistrationController extends Controller
         }
         $this->render('_ipdindex',array('model'=>$model));
     }
+    
     public function actionIpdConfirm()
     {
         $info = array();
@@ -211,6 +208,98 @@ class RegistrationController extends Controller
                         'pagination' => false
         ));
         $this->renderPartial('_ipdposition', array('dataProvider'=>$dataProvider));
+    }
+    
+    /* ------------------------------------------ IPD TO IBO REGISTRATION (ADMIN) ------------------------------------------ */
+    
+    public function actionNew()
+    {
+        $model = new DistributorForm();
+        
+        $this->render('_newibo', array('model'=>$model));
+    }
+    
+    public function actionViewProfile()
+    {
+        $networksModel = new NetworksModel();
+        
+        $member_id = $_POST["member_id"];
+        
+        $rawData = $networksModel->getProfileInfo($member_id);
+        $fullname = $rawData["last_name"] . ", " . $rawData["first_name"] . " " . $rawData["middle_name"];
+        
+        $content .= '<style type="text/css">
+                        table#summary{font-size:14px; width:100%;}
+                        table#summary, table#summary th, table#summary td{border:1px solid #e1e1e1; border-collapse: collapse; padding: 2px 10px 2px 10px}
+                        table#summary td.data{color:#0088cc}
+                    </style>';
+        
+        $content .= '<table with="100%" id="summary">
+                        <tr>
+                            <td width="15%" align="right">Username</td>
+                            <td width="75%" class="data">'.$rawData["username"].'</td>
+                        </tr>
+                        <tr>
+                            <td width="15%" align="right">Full Name</td>
+                            <td width="75%" class="data">'.$fullname.'</td>
+                        </tr>
+                        <tr>
+                            <td width="15%" align="right">Date Joined</td>
+                            <td width="75%" class="data">'.date("F d, Y ", strtotime($rawData["date_joined"])).'</td>
+                        </tr>
+                        <tr>
+                            <td width="15%" align="right">Endorser</td>
+                            <td width="75%" class="data"><?php echo $genealogy["upline"]; ?></td>
+                        </tr>
+                        <tr>
+                            <td width="15%" align="right">Address</td>
+                            <td width="75%" class="data">'.$rawData["address1"].'</td>
+                        </tr>
+                        <tr>
+                            <td width="15%" align="right">Birth Date</td>
+                            <td width="75%" class="data">'.date("F d, Y ", strtotime($rawData["birth_date"])).'</td>
+                        </tr>
+                        <tr>
+                            <td width="15%" align="right">Contact Number</td>
+                            <td width="75%" class="data">'.$rawData["mobile_no"].'</td>
+                        </tr>
+                        <tr>
+                            <td width="15%" align="right">Email</td>
+                            <td width="75%" class="data">'.$rawData["email"].'</td>
+                        </tr>
+                        <tr>
+                            <td width="15%" align="right">Beneficiary Name</td>
+                            <td width="75%" class="data">'.$rawData["beneficiary_name"].'</td>
+                        </tr>
+                    </table>';
+        
+        echo $content;
+    }
+    
+    public function actionDistributor()
+    {
+        if(Yii::app()->request->isAjaxRequest && isset($_GET['term']))
+        {
+            $model = new RegistrationForm();
+
+            $result = $model->selectDistributors($_GET['term']);
+
+            if(count($result)>0)
+            {
+                foreach($result as $row)
+                {
+                    $arr[] = array(
+                        'id'=>$row['member_id'],
+                        'value'=>$row['member_name'],
+                        'label'=>$row['member_name'],
+                    );
+                }
+
+                echo CJSON::encode($arr);
+                Yii::app()->end();
+            }
+            
+        }
     }
 }
 ?>

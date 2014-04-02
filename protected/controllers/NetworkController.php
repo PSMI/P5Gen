@@ -157,6 +157,7 @@ class NetworkController extends Controller
 
         $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
     }
+    
     public function actionIpdUnilevel()
     {
         if (isset($_POST["hidden_member_id"])) {
@@ -190,6 +191,7 @@ class NetworkController extends Controller
         ));
         $this->render('_ipdunilevel', array('dataProvider'=>$dataProvider, 'genealogy'=>$genealogy));
     }
+    
     public function actionIpdDirectEndorse()
     {
         $model = new NetworksModel();
@@ -205,6 +207,29 @@ class NetworkController extends Controller
                     ),
         ));
         $this->render('_ipddirectendorse', array('dataProvider'=>$dataProvider, 'counter'=>$count,'payout'=>$direct_payout));
+    }
+    
+    public function actionIPDUnilevelDownlines()
+    {
+        if (isset($_POST["postData"])) 
+        {
+            $member_ids = $_POST["postData"];
+            Yii::app()->session['ids'] = $member_ids;
+        }
+        else if (Yii::app()->request->isAjaxRequest) {
+            $member_ids = Yii::app()->session['ids'];
+        }
+        
+        $array = Networks::getIPDUnilevelDownlines($member_ids);
+
+        $dataProvider = new CArrayDataProvider($array, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                            'pageSize' => 25,
+                        ),
+        ));
+
+        $this->renderPartial('_downlines', array('dataProvider'=>$dataProvider));
     }
 }
 ?>

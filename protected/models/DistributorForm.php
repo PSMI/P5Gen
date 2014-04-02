@@ -9,6 +9,8 @@ class DistributorForm extends CFormModel
 {
     public $_connection;
     public $distributor_id;
+    public $distributor_name;
+    public $activation_code;
     
     public function __construct() {
         $this->_connection = Yii::app()->db;
