@@ -228,7 +228,7 @@ class RegistrationController extends Controller
             
             $registration = new RegistrationForm();
             
-            $retval = $registration->registerIPDtoIBO($member_id, $upline_id, $ibo_endorser_id);
+            $retval = $registration->registerIPDtoIBO($member_id, $upline_id, $ibo_endorser_id, $activation_code);
             if ($retval)
             {
                 $this->dialogTitle = 'SUCCESSFUL!';

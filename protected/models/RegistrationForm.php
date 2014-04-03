@@ -634,22 +634,38 @@ class RegistrationForm extends CFormModel
                                     $member_info = $membersModel->selectMemberDetails($endorser_id);
                                     $has_ipd = $member_info["has_ipd"];
                                     $has_ipd += 1;
-                                    $query5 = "UPDATE members SET has_ipd = :has_ipd WHERE member_id = :endorser_id";
-                                    $command5 = $conn->createCommand($query5);
-                                    $command5->bindParam(':endorser_id', $endorser_id);
-                                    $command5->bindParam(':has_ipd', $has_ipd);
-                                    $result6 = $command5->execute();
+                                    $query6 = "UPDATE members SET has_ipd = :has_ipd WHERE member_id = :endorser_id";
+                                    $command6 = $conn->createCommand($query6);
+                                    $command6->bindParam(':endorser_id', $endorser_id);
+                                    $command6->bindParam(':has_ipd', $has_ipd);
+                                    $result6 = $command6->execute();
                                     if(count($result6) > 0)
                                     {
-                                        $trx->commit();
-                                        return array('result_code'=>0,
-                                                     'result_msg'=>'Registration successful');
+                                        $query7 = "INSERT INTO unprocessed_distributors (member_id, endorser_id)
+                                                    VALUES (:member_id, :ipd_endorser_id)";
+                                        $command7 = $conn->createCommand($query7);
+                                        $command7->bindParam(':member_id', $member_id);
+                                        $command7->bindParam(':ipd_endorser_id', $endorser_id);
+                                        $result7 = $command7->execute();
+                                        
+                                        if (count($result7) > 0)
+                                        {
+                                            $trx->commit();
+                                            return array('result_code'=>0,
+                                                         'result_msg'=>'Registration successful');
+                                        }
+                                        else
+                                        {
+                                            $trx->rollback();
+                                            return array('result_code'=>7,
+                                                     'result_msg'=>'Registration failed (Errcode:07)');
+                                        }
                                     }
                                     else
                                     {
                                         $trx->rollback();
                                         return array('result_code'=>6,
-                                                     'result_msg'=>'Registration failed (Errcode:05)');
+                                                     'result_msg'=>'Registration failed (Errcode:06)');
                                     }
                                 }
                                 else
@@ -755,28 +771,53 @@ class RegistrationForm extends CFormModel
      * @author Noel Antonio
      * @return boolean TRUE - commit, FALSE - rollback
      */
-    public function registerIPDtoIBO($member_id, $upline_id, $endorser_id)
+    public function registerIPDtoIBO($member_id, $upline_id, $endorser_id, $new_activation_code)
     {
         $connection = $this->_connection;
         $beginTrans = $connection->beginTransaction();
+        
+        $old_activation_code = $this->selectActivationCodeById($member_id);
         
         try
         {
             $sql = "UPDATE members 
                     SET account_type_id = 3,
                         upline_id = :upline_id,
-                        endorser_id = :endorser_id
+                        endorser_id = :endorser_id,
+                        activation_code = :activation_code
                     WHERE member_id = :member_id";
             $command = $connection->createCommand($sql);
             $command->bindValue(':member_id', $member_id);
             $command->bindValue(':upline_id', $upline_id);
             $command->bindValue(':endorser_id', $endorser_id);
+            $command->bindValue(':activation_code', $new_activation_code);
             $rowCount = $command->execute();
             
-            if ($rowCount > 0) {
+            if ($rowCount > 0) 
+            {
+                $sql2 = "INSERT INTO member_migration_logs (member_id, from_account_type_id, to_account_type_id, old_activation_code, new_activation_code)
+                        VALUES (:member_id, :from_account_type_id, :to_account_type_id, :old_activation_code, :new_activation_code)";
+                $command2 = $connection->createCommand($sql2);
+                $command2->bindValue(':member_id', $member_id);
+                $command2->bindValue(':from_account_type_id', 5);
+                $command2->bindValue(':to_account_type_id', 3);
+                $command2->bindValue(':old_activation_code', $old_activation_code);
+                $command2->bindValue(':new_activation_code', $new_activation_code);
+                $rowCount2 = $command2->execute();
+                
+                if ($rowCount2 > 0)
+                {
                     $beginTrans->commit();
                     return true;
-            } else {
+                }
+                else
+                {
+                    $beginTrans->rollback();  
+                    return false;
+                }
+            } 
+            else
+            {
                 $beginTrans->rollback();  
                 return false;
             }
@@ -786,6 +827,26 @@ class RegistrationForm extends CFormModel
             $beginTrans->rollback();  
             return false;
         }
+    }
+    
+    /**
+     * This function is used to retrieve activation code
+     * of a particular member
+     * @param type $member_id
+     * @return type
+     */
+    public function selectActivationCodeById($member_id)
+    {
+        $conn = $this->_connection;
+                
+        $query = "SELECT activation_code FROM members
+                    WHERE member_id = :member_id";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result['activation_code'];
     }
     
 }
