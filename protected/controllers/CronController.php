@@ -37,7 +37,9 @@ class CronController extends Controller
     const JOB_LOAN_DIRECT = 4;
     const JOB_LOAN_COMPLETION = 5;
     const JOB_PROMO = 6;
-    const JOB_CLEAN_UP = 7;
+    const JOB_REPEAT_PURCHASE = 7;
+    const JOB_IPD_DIRECT = 8;
+    const JOB_IPD_UNILEVEL = 9;
     
     public $PID;
     public $PIDFile;
@@ -785,6 +787,84 @@ class CronController extends Controller
             echo 'Log rotation completed';
         else
             echo $model->getErrors ();
+    }
+    
+    public function actionRepeatPurchase()
+    {
+        if($this->job_enabled())
+        {
+            $model = new PurchasesModel();
+            $audit = new AuditLog();
+            
+            $this->PIDFile = 'RepeatPurchase.pid';
+            $audit->job_id = self::JOB_REPEAT_PURCHASE;
+
+            if(!$this->PID_exists())
+            {
+                               
+                //add to auditlogs
+                $audit->log_message = 'Started processing repeat purchase commission.';
+                $audit->log_cron();
+
+                //Create pid file      
+                $this->createPID();
+                $audit->log_message = 'Created '.$this->PIDFile.' file';
+                $audit->log_cron();
+                
+                $lists = $model->get_unprocessed_purchases();
+                if(count($lists)>0)
+                {
+                    foreach($lists as $list)
+                    {
+                        $distributor_purchases['distributor_id'] = $list['distributor_id'];   
+                        $distributor_purchases['total'] = $list['total'];
+                        $distributor_purchases['purchase_id'] = $list['purchase_id'];
+                        
+                        $retval = Transactions::process_repeat_purchase_commission($distributor_purchases);
+                        
+                        if(!$retval)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'Repeat purchase commission processing successful.';
+
+                        }
+                        else
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'Repeat purchase commission processing failed.';
+                            $audit->status = 2;
+                        }
+                    }
+                    
+                    //Delete process id
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                }
+                else
+                {
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                    
+                }
+           
+            }
+            else
+            {
+                
+                $audit->log_message = 'Repeat purchase PID file still exist. Please wait current process to finish. ';
+                echo $audit->log_message;
+            }
+            
+            $audit->log_message = 'Repeat purchase processing job has ended.';
+
+        }
+        else
+        {
+            echo 'Job scheduler is disabled.';
+        }
+        
+        $audit->log_cron();
+        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
     }
     
 }

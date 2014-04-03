@@ -69,5 +69,31 @@ class DistributorForm extends CFormModel
         $result = $command->queryAll();        
         return $result;
     }
+    
+    public function getUnprocessedDistributors()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT * 
+                  FROM unprocessed_distributors
+                  WHERE status = :status
+                  LIMIT 25";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':status', $this->status);
+        return $command->queryAll();
+    }
+    
+    public function updateUnprocessedDistributors()
+    {
+
+        $conn = $this->_connection;
+        $query = "UPDATE unprocessed_distributors
+                    SET status = :status
+                  WHERE member_id = :member_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':status', $this->status);
+        $result = $command->execute();
+        return $result;
+    }
 }
 ?>

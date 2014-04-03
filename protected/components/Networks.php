@@ -547,5 +547,28 @@ class Networks extends Controller
             return Networks::getImmediateIBOEndorser($rawData["ipd_endorser_id"]);
         }
     }
+    
+    public function getIPDEndorser($member_id)
+    {
+        $endorser = array();
+        $model = new Endorser();
+        do
+        {
+             $result = $model->getIPDEndorsers($member_id);    
+             $member_id = $result['endorser'];
+             
+             if(!is_null($member_id)) $endorser[] = $member_id;
+             
+        }while(!is_null($member_id));
+            
+        return $endorser;
+    }
+    
+    public function getIPDDirectCount($member_id)
+    {
+        $model = new Endorser();
+        $count = $model->getIPDEndorserCount($member_id);
+        return $count;
+    }
 }
 ?>

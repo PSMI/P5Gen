@@ -219,8 +219,8 @@ class Transactions extends Controller
                     {
                         $model->total_direct_endorse = $account['total_member'];
                         
-                        //Check direct endorse count if >= 5 date and if no. of month < 3 months
-                        if($account['num_of_months'] < 3)
+                        //Check direct endorse count if >= 5 date and if no. of month < 4 months
+                        if($account['num_of_months'] < 4)
                         {                            
                             //Insert first payout
                             $retval = $model->insert_first_transaction();
@@ -583,6 +583,80 @@ class Transactions extends Controller
         }
         
         return $level;
+    }
+    
+    public function process_repeat_purchase_commission($distributor_purchases)
+    {
+        $model = new PurchasesModel();
+        $reference = new ReferenceModel();
+                                
+        $distributor_id = $distributor_purchases['distributor_id'];
+        $total_purchase = $distributor_purchases['total'];
+        $model->purchase_id = $distributor_purchases['purchase_id'];
+        
+        $endorsers = Networks::getIPDEndorser($distributor_id);
+        
+        if(is_null($endorsers))//root record
+            $endorsers = array($distributor_id);
+        
+        $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_REPEAT_PURCHASE_COMMISSION); 
+        $model->cutoff_id = $cutoff_id;      
+        
+        $conn = $model->_connection;
+        $trx = $conn->beginTransaction();
+        
+        try
+        {
+            foreach($endorsers as $endorser)
+            {
+                $level = Networks::getLevel($endorser, $distributor_id);
+                $direct_count = Networks::getIPDDirectCount($endorser);
+                $model->endorser_id = $endorser;
+                
+                if($level > 1 && $level <= 10 && $direct_count >=1)
+                {
+
+                    if($direct_count >=1 && $direct_count <10 && $level <=5 )
+                        $rate = $reference->get_variable_value ('IPD_REPEAT_PURCHASE_COMMISSION_5_2ND_5TH');
+                    elseif($direct_count >=10 && $direct_count <15 && $level <=7 )
+                        $rate = $reference->get_variable_value ('IPD_REPEAT_PURCHASE_COMMISSION_10_2ND_7TH');
+                    elseif($direct_count >=15 && $level <=10 )
+                        $rate = $reference->get_variable_value ('IPD_REPEAT_PURCHASE_COMMISSION_15_2ND_10TH');
+                    
+                    $commission = $total_purchase * ($rate / 100);
+                    $model->commission = $commission;
+                    
+                    
+                    //Check if transaction exists for current cutoff
+                    //If exist, update else insert new transaction
+                    if($model->has_transaction())
+                        //Update
+                        $model->update_commission_transaction();
+                    else
+                        //Insert
+                        $model->insert_commission_transaction();
+                }
+            }//foreach
+            
+            $model->delete_processed_purchases();
+                        
+            if(!$model->hasErrors())
+            {
+                //$model->update_repeat_purchase();
+                $trx->commit();
+                return array('result_code'=>0, 'result_msg'=>'Successfully process repeat purchase transactions');
+            }
+            else
+            {
+                $trx->rollback();
+                return array('result_code'=>1, 'result_msg'=>$model->getErrors());
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            return array('result_code'=>3, 'result_msg'=>$e->getMessage());
+        }
     }
     
 }
