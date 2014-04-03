@@ -122,5 +122,21 @@ class Members extends CActiveRecord
         }
     }
     
+    public function getMembershipType($member_id)
+    {
+        
+        $query = "SELECT account_type_id FROM members 
+                  WHERE member_id = :member_id";
+        $sql = Yii::app()->db->createCommand($query);
+        $sql->bindParam(":member_id",$member_id);
+        $result = $sql->queryRow();
+        
+        if($result['account_type_id'] == 3)
+            return 'member';
+        
+        if($result['account_type_id'] == 5)
+            return 'distributor';
+    }
+    
 }
 ?>

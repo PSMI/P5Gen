@@ -132,7 +132,6 @@ class NetworksModel extends CFormModel
         $result = $command->queryAll();
         return $result;
     }
-    
     public function getIPDDirectEndorse($member_id)
     {
         $connection = $this->_connection;

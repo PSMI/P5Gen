@@ -266,7 +266,7 @@ class Unilevel extends CFormModel
         $command->bindParam(':member_id', $this->upline_id);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->bindParam(':total_ibo', $this->total_members);
-        $command->bindParam(':payout', $payout);
+        $command->bindParam(':payout_rate', $payout);
         $result = $command->execute();        
         
         if(count($result)>0)

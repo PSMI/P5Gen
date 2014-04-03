@@ -13,9 +13,8 @@ class Inventory extends CFormModel
     public $product_code;
     public $product_name;
     public $amount = '0.00';
-    public $discount_amount = '0.00';
-    public $discount_percent = 0;
-    public $discount_type;
+    public $ibo_discount = '0.00';
+    public $ipd_discount = '0.00';
     public $status;
     
     public function __construct() {
@@ -26,8 +25,8 @@ class Inventory extends CFormModel
     {
         return array(
             array('search','safe'),
-            array('product_code, product_name, amount, discount_type','required'),
-            array('discount_amount, discount_percent','safe'),
+            array('product_code, product_name, amount','required'),
+            array('ibo_discount, ipd_discount','safe'),
         );
     }
     
@@ -37,9 +36,8 @@ class Inventory extends CFormModel
             'product_code'=>'Product Code',
             'product_name'=>'Product Name',
             'amount'=>'Amount',
-            'discount_type'=>'Discount Type',
-            'discount_amount'=>'Discount (Amt)',
-            'discount_percent'=>'Discount (%)',
+            'ibo_discount'=>'IBO Discount (%)',
+            'ipd_discount'=>'IPD Discount (%)',
         );
     }
     
@@ -52,12 +50,8 @@ class Inventory extends CFormModel
                     product_code,
                     product_name,
                     FORMAT(amount,2) AS amount,
-                    discount_amount,
-                    concat(discount_percent,'%') AS discount_percent,
-                    CASE discount_type 
-                      WHEN 1 THEN 'By Percentage'
-                      WHEN 2 THEN 'By fixed amount'
-                    END discount_type,
+                    ibo_discount,
+                    ipd_discount,
                     CASE `status`
                       WHEN 1 THEN 'Active'
                       WHEN 2 THEN 'Inactive'
@@ -77,12 +71,8 @@ class Inventory extends CFormModel
                     product_code,
                     product_name,
                     FORMAT(amount,2) AS amount,
-                    discount_amount,
-                    concat(discount_percent,'%') AS discount_percent,
-                    CASE discount_type 
-                      WHEN 1 THEN 'By Percentage'
-                      WHEN 2 THEN 'By fixed amount'
-                    END discount_type,
+                    ibo_discount,
+                    ipd_discount,
                     CASE `status`
                       WHEN 1 THEN 'Active'
                       WHEN 2 THEN 'Inactive'
@@ -101,17 +91,15 @@ class Inventory extends CFormModel
         $conn = $this->_connection;
         $trx = $conn->beginTransaction();
         
-        $query = "INSERT INTO products (product_code, product_name, amount, discount_amount, discount_percent, discount_type, status)
-                    VALUES (:product_code, :product_name, :amount, :discount_amount, :discount_percent, :discount_type, :status)";
+        $query = "INSERT INTO products (product_code, product_name, amount, ibo_discount, ipd_discount)
+                    VALUES (:product_code, :product_name, :amount, :ibo_discount, :ipd_discount)";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':product_code', $this->product_code);
         $command->bindParam(':product_name', $this->product_name);
         $command->bindParam(':amount', $this->amount);
-        $command->bindParam(':discount_amount', $this->discount_amount);
-        $command->bindParam(':discount_percent', $this->discount_percent);
-        $command->bindParam(':discount_type', $this->discount_type);
-        $command->bindParam(':status', $this->status);
+        $command->bindParam(':ibo_discount', $this->ibo_discount);
+        $command->bindParam(':ipd_discount', $this->ipd_discount);
         $command->execute();
         
         try
@@ -147,9 +135,8 @@ class Inventory extends CFormModel
                     product_code = :product_code,
                     product_name = :product_name,
                     amount = :amount,
-                    discount_amount = :discount_amount,
-                    discount_percent = :discount_percent,
-                    discount_type = :discount_type,
+                    ibo_discount = :ibo_discount,
+                    ipd_discount = :ipd_discount,
                     status = :status
                   WHERE product_id = :product_id";
         
@@ -158,9 +145,8 @@ class Inventory extends CFormModel
         $command->bindParam(':product_code', $this->product_code);
         $command->bindParam(':product_name', $this->product_name);
         $command->bindParam(':amount', $this->amount);
-        $command->bindParam(':discount_amount', $this->discount_amount);
-        $command->bindParam(':discount_percent', $this->discount_percent);
-        $command->bindParam(':discount_type', $this->discount_type);
+        $command->bindParam(':ibo_discount', $this->ibo_discount);
+        $command->bindParam(':ipd_discount', $this->ipd_discount);
         $command->bindParam(':status', $this->status);
         $command->execute();
         

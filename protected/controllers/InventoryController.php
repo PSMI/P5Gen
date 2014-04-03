@@ -34,9 +34,8 @@ class InventoryController extends Controller
                 $model->product_code = $_POST['product_code'];
                 $model->product_name = $_POST['product_name'];
                 $model->amount = $_POST['amount'];
-                $model->discount_amount = $_POST['discount_amount'];
-                $model->discount_percent = $_POST['discount_percent'];
-                $model->discount_type = $_POST['discount_type'];
+                $model->ibo_discount = $_POST['ibo_discount'];
+                $model->ipd_discount = $_POST['ipd_discount'];
                 $model->status = $_POST['status'];
 
                 $model->update_product();
@@ -86,13 +85,13 @@ class InventoryController extends Controller
                 
                 if(!$model->hasErrors())
                 {
-                    $model->dialog_message = 'New product was successfully added.';
-                    $model->show_dialog = true;
+                    $this->dialog_message = 'New product was successfully added.';
+                    $this->show_dialog = true;
                 }
                 else
                 {
-                    $model->dialog_message = 'An error encountered while adding new product.';
-                    $model->show_dialog = true;
+                    $this->dialog_message = 'An error encountered while adding new product.';
+                    $this->show_dialog = true;
                 }
                 
             }

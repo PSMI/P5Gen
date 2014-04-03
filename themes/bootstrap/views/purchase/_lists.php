@@ -32,16 +32,31 @@
                 'header'=>'Product Name',
                 'htmlOptions'=>array('style'=>'text-align:left'),
                 'headerHtmlOptions' => array('style' => 'text-align:left'),
-            ),
-        array('name'=>'amount', 
-                'header'=>'Amount',
-                'htmlOptions'=>array('style'=>'text-align:right'),
-                'headerHtmlOptions' => array('style' => 'text-align:right'),
-            ),
+            ),        
         array('name'=>'quantity', 
                 'header'=>'Quantity',
                 'htmlOptions'=>array('style'=>'text-align:center'),
                 'headerHtmlOptions' => array('style' => 'text-align:center'),
+            ),
+        array('name'=>'srp', 
+                'header'=>'SRP',
+                'htmlOptions'=>array('style'=>'text-align:right'),
+                'headerHtmlOptions' => array('style' => 'text-align:right'),
+            ),
+        array('name'=>'discount', 
+                'header'=>'Discount (%)',
+                'htmlOptions'=>array('style'=>'text-align:right'),
+                'headerHtmlOptions' => array('style' => 'text-align:right'),
+            ),
+        array('name'=>'net_price', 
+                'header'=>'Net Price',
+                'htmlOptions'=>array('style'=>'text-align:right'),
+                'headerHtmlOptions' => array('style' => 'text-align:right'),
+            ),
+        array('name'=>'savings', 
+                'header'=>'Savings',
+                'htmlOptions'=>array('style'=>'text-align:right'),
+                'headerHtmlOptions' => array('style' => 'text-align:right'),
             ),
         array('name'=>'total', 
                 'header'=>'Total',
@@ -56,7 +71,7 @@
                     (
                         'label'=>'Update Item',
                         'icon'=>'icon-edit',
-                        'url'=>'Yii::app()->createUrl("/inventory/getvalues", array("id" =>$data["product_id"]))',
+                        'url'=>'Yii::app()->createUrl("/purchase/getvalues", array("id" =>$data["purchase_id"]))',
                         'options' => array(
                             'class'=>"btn btn-small",
                             'ajax' => array(
@@ -64,7 +79,15 @@
                                 'dataType'=>'json',
                                 'url' => 'js:$(this).attr("href")',
                                 'success' => 'function(data){
-                                    alert(data);
+                                    $.each(data, function(name,val){
+                                       $("#Update_distributor_id").val(val.distributor_id);
+                                       $("#Update_purchase_id").val(val.purchase_id);
+                                       $("#Update_product_id").val(val.product_id);
+                                       $("#Update_products").val(val.product_id);
+                                       $("#Update_qty").val(val.quantity);
+                                       $("#Update_payment_type_id").val(val.payment_type_id);
+                                    });
+                                    $("#purchase-update-modal").modal("show");
                                  }',
                             ),
 
@@ -75,7 +98,8 @@
                     (
                         'label'=>'Delete Item',
                         'icon'=>'icon-remove-sign',
-                        'url'=>'Yii::app()->createUrl("/inventory/deleteitem", array("id" =>$data["product_id"]))',
+                        'url'=>'Yii::app()->createUrl("/purchase/removeitem", array("id" =>$data["purchase_id"]))',
+                        'confirm'=>'Are you sure you want to remove this item?',
                         'options' => array(
                             'class'=>"btn btn-small",
                             'ajax' => array(
@@ -83,7 +107,7 @@
                                 'dataType'=>'json',
                                 'url' => 'js:$(this).attr("href")',
                                 'success' => 'function(data){
-                                    alert(data);
+                                    $("#search-form").submit();
                                  }',
                             ),
 
@@ -98,3 +122,4 @@
 )); ?>
 
 <?php $this->endWidget(); ?>
+

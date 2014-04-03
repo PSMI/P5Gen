@@ -10,11 +10,11 @@ Yii::app()->clientScript->registerScript('ui','
          
      $(\'input[rel="tooltip"]\').tooltip();     
      var quantity = $("#quantity"),
-         product_id = $("#product_id").
+         product_id = $("#product_id"),
          distributor_id = $("#distributor_id"),
          payment_type_id = $("#payment_type_id");
              
- ', CClientScript::POS_BEGIN);
+ ', CClientScript::POS_END);
 ?>
 
 <?php $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'purchase-modal')); ?>
@@ -27,7 +27,7 @@ Yii::app()->clientScript->registerScript('ui','
 <div class="modal-body">
     <?php echo CHtml::hiddenField('distributor_id',  Yii::app()->session['distributor_id']); ?>
     <?php echo CHtml::label('Product', 'product_id'); ?>
-    <?php echo CHtml::dropDownList('product_id', '',ProductsForm::listProducts(), array('class'=>'span2')); ?>
+    <?php echo CHtml::dropDownList('product_id', '',ProductsForm::listProducts(), array('class'=>'span3')); ?>
     <?php echo CHtml::label('Quantity', 'quantity'); ?>
     <?php echo CHtml::textField('quantity',1,array('style'=>'text-align:right','class'=>'span1','tooltip'=>'Quantity')); ?>
     <?php echo CHtml::label('Payment Type', 'payment_type'); ?>

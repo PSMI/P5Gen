@@ -76,18 +76,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'htmlOptions'=>array('style'=>'text-align:right'),
                 'headerHtmlOptions' => array('style' => 'text-align:right'),
             ),
-        array('name'=>'discount_amount', 
-                'header'=>'Discount (Amt)',
+        array('name'=>'ibo_discount', 
+                'header'=>'IBO Discount (%)',
                 'htmlOptions'=>array('style'=>'text-align:right'),
                 'headerHtmlOptions' => array('style' => 'text-align:right'),
             ),
-        array('name'=>'discount_percent', 
-                'header'=>'Discount (%)',
-                'htmlOptions'=>array('style'=>'text-align:center'),
-                'headerHtmlOptions' => array('style' => 'text-align:center'),
-            ),
-        array('name'=>'discount_type', 
-                'header'=>'Discount Type',
+        array('name'=>'ipd_discount', 
+                'header'=>'IPD Discount (%)',
                 'htmlOptions'=>array('style'=>'text-align:center'),
                 'headerHtmlOptions' => array('style' => 'text-align:center'),
             ),
@@ -117,9 +112,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                                        $("#product_code").val(val.product_code);
                                        $("#product_name").val(val.product_name);
                                        $("#amount").val(val.amount);
-                                       $("#discount_type").val(val.discount_type);
-                                       $("#discount_amount").val(val.discount_amount);
-                                       $("#discount_percent").val(val.discount_percent);
+                                       $("#ibo_discount").val(val.ibo_discount);
+                                       $("#ipd_discount").val(val.ipd_discount);
                                        $("#status").val(val.status);
                                     });
                                     $("#product-update-dialog").modal("show");
@@ -158,12 +152,10 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <?php echo CHtml::textField('product_name'); ?>
     <?php echo CHtml::label('Amount', 'amount') ?>
     <?php echo CHtml::textField('amount','',array('class'=>'span2','style'=>'text-align:right')); ?>
-    <?php echo CHtml::label('Discount Type', 'discount_type') ?>
-    <?php echo CHtml::dropDownList('discount_type','',array('1'=>'By percentage','2'=>'By fixed amount')); ?>
-    <?php echo CHtml::label('Discount (Amt)', 'discount_amount') ?>
-    <?php echo CHtml::textField('discount_amount','',array('class'=>'span2','style'=>'text-align:right')); ?>
-    <?php echo CHtml::label('Discount (%)', 'discount_percent') ?>
-    <?php echo CHtml::textField('discount_percent','',array('class'=>'span2','style'=>'text-align:right')); ?>
+    <?php echo CHtml::label('IBO Discount (%)', 'ibo_discount') ?>
+    <?php echo CHtml::textField('ibo_discount','',array('class'=>'span2','style'=>'text-align:right')); ?>
+    <?php echo CHtml::label('IPD Discount (%)', 'ipd_discount') ?>
+    <?php echo CHtml::textField('ipd_discount','',array('class'=>'span2','style'=>'text-align:right')); ?>
     <?php echo CHtml::label('Status', 'status') ?>
     <?php echo CHtml::dropDownList('status','',array('1'=>'Active','2'=>'Inactive')); ?>
 </div>

@@ -43,5 +43,6 @@ class UserRights extends CWebUser
         $member_name = $model->getMemberName($this->getId());
         return $member_name;
     }
+    
 }
 ?>

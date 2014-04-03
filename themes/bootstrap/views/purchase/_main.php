@@ -5,7 +5,7 @@
  * @date : 2014-03-30
  */
 ?>
-    
+
 <?php
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'type'=>'horizontal',
@@ -17,7 +17,28 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'htmlOptions'=>array('class'=>'well')
     ));
 ?>
+<?php echo CHtml::hiddenField('distributor_id'); ?>
+<div class="span9">
+    <div class="pull-left">
 <?php echo '<h4>'.$distributor['last_name'] . ', ' . $distributor['first_name'] . ' ' . $distributor['middle_name'] . '</h4>'; ?>
+    </div>
+    <div class="pull-right">
+        <table class="items table table-bordered table-condensed">
+            <tr>
+                <td style="text-align:right">Total Amount</td>
+                <td style="text-align:right; font-size:20px;"><?php echo $totals['total_amount']; ?></td>
+            </tr>
+            <tr>
+                <td style="text-align:right">Total Savings</td>
+                <td style="text-align:right; font-size:20px;"><?php echo $totals['total_savings']; ?></td>
+            </tr>
+            <tr>
+                <td style="text-align:right">Quantity</td>
+                <td style="text-align:right; font-size:20px;"><?php echo $totals['total_quantity']; ?></td>
+            </tr>
+        </table>
+    </div>
+</div>
 <?php $this->widget('bootstrap.widgets.TbButtonGroup', array(
     'buttons'=>array(
         array(
@@ -42,13 +63,31 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'buttons'=>array(
         array(
             'label'=>'Checkout',
-            'url'=>'#',
+            'url'=>  Yii::app()->createUrl('purchase/checkout',array(
+                'distributor_id'=>'js:function(){return distributor_id.val()}',
+            )),
             'type'=>'primary',
+            'buttonType'=>'ajaxButton',
             'icon'=>'icon-check',            
             'htmlOptions'=>array(
                 'confirm'=>'Are you sure you want continue purchasing?',
-                'data-toggle'=>'modal',
-                'data-target'=>'#purchase-modal',
+            ),
+            'ajaxOptions'=>array(
+                'type' => 'GET',
+                'dataType'=>'json',
+                'url' => 'js:$(this).attr("href")',
+                'success' => 'function(data){
+                    if(data["result_code"] == 0)
+                    {
+                        $("#result_title").html("Checkout");
+                        $("#result_msg").html(data["result_msg"]);
+                        $("#message-modal").modal("show");   
+                    }
+                    else
+                    {
+                        alert(data["result_msg"]);
+                    }
+                 }',
             ),
         ),
         array(
@@ -57,12 +96,109 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'icon'=>'icon-trash',
             'htmlOptions'=>array(
                 'confirm'=>'Are you sure you want cancel purchasing?',
-                'data-toggle'=>'modal',
-                'data-target'=>'#purchase-modal',
             ),
         ),
     ),
 )); ?>
+<?php $this->endWidget(); ?>
+
+<!-- Message Dialog -->
+<?php $this->beginWidget('bootstrap.widgets.TbModal', array(
+        'id'=>'message-modal',
+        'autoOpen'=>false,
+        'fade'=>true
+     )); ?>
+ 
+<div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h4 id="result_title"></h4>
+</div>
+ 
+<div class="modal-body">
+    <p id="result_msg"></p>
+</div>
+ 
+<div class="modal-footer">
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'label'=>'Close',
+        'url'=>'#',
+        'htmlOptions'=>array(
+            'onclick'=>'$("#search-form").submit();'
+        ),
+    )); ?>
+</div> 
+<?php $this->endWidget(); ?>
+
+<?php
+Yii::app()->clientScript->registerScript('ui','
+         
+     var distributor_id = $("#Update_distributor_id"),
+         purchase_id = $("#Update_purchase_id"),
+         product_id = $("#Update_product_id"),
+         qty = $("#Update_qty"),
+         payment_type_id = $("#Update_payment_type_id");
+             
+ ', CClientScript::POS_END);
+?>
+
+<?php $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'purchase-update-modal')); ?>
+ 
+<div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h4>Update Item</h4>
+</div>
+ 
+<div class="modal-body">
+    <?php echo CHtml::hiddenField('Update_distributor_id'); ?>
+    <?php echo CHtml::hiddenField('Update_purchase_id'); ?>
+    <?php echo CHtml::hiddenField('Update_product_id'); ?>
+    <?php echo CHtml::label('Product', 'Update_products'); ?>
+    <?php echo CHtml::dropDownList('Update_products', '',ProductsForm::listProducts(), array('class'=>'span3','disabled'=>'disabled')); ?>
+    <?php echo CHtml::label('Quantity', 'Update_qty'); ?>
+    <?php echo CHtml::textField('Update_qty','',array('style'=>'text-align:right','class'=>'span1','tooltip'=>'Quantity')); ?>
+    <?php echo CHtml::label('Payment Type', 'Update_payment_type_id'); ?>
+    <?php echo CHtml::dropDownList('Update_payment_type_id', '',  ReferenceModel::list_payment_types(), array('class'=>'span2')); ?>
+</div>
+ 
+<div class="modal-footer">
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'buttonType'=>'ajaxButton',
+        'type'=>'primary',
+        'label'=>'Update Item',
+        'url'=>  Yii::app()->createUrl('purchase/updateitem'),
+        'ajaxOptions'=>array(
+            'type' => 'GET',
+            'data'=>array(
+                'purchase_id'=>'js:function(){return purchase_id.val()}',
+                'product_id'=>'js:function(){return product_id.val()}',
+                'quantity'=>'js:function(){return qty.val()}',
+                'distributor_id'=>'js:function(){return distributor_id.val()}',
+                'payment_type_id'=>'js:function(){return payment_type_id.val()}'
+            ),
+            'dataType'=>'json',
+            'url' => 'js:$(this).attr("href")',
+            'success' => 'function(data){
+                if(data["result_code"] == 0)
+                {
+                    $("#purchase-update-modal").modal("hide");     
+                    $("#result_title").html("Update Item");
+                    $("#result_msg").html(data["result_msg"]);
+                    $("#message-modal").modal("show"); 
+                }
+                else
+                {
+                    alert(data["result_msg"]);
+                }
+             }',
+        ),
+    )); ?>
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'label'=>'Cancel',
+        'url'=>'#',
+        'htmlOptions'=>array('data-dismiss'=>'modal'),
+    )); ?>
+</div>
+ 
 <?php $this->endWidget(); ?>
 
 

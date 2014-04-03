@@ -274,10 +274,10 @@ class MembersModel extends CFormModel
                     count(*) as total
                   FROM members m
                   WHERE m.endorser_id = :member_id
-                  AND m.date_joined > DATE_ADD(m.date_joined, INTERVAL :interval);";
+                  AND m.date_joined > DATE_ADD(m.date_joined, INTERVAL $interval);";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
-        $command->bindParam(':interval', $interval);
+        //$command->bindParam(':interval', $interval);
         $result = $command->queryRow();
         return $result;
     }
