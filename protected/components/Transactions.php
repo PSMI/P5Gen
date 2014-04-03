@@ -164,6 +164,79 @@ class Transactions extends Controller
     }
     
     /**
+     * Process IPD Direct Endorsement transactions
+     * @param type $member_id
+     * @param type $endorser_id
+     * @return boolean
+     * @author jopormento
+     */
+    public function process_ipd_direct_endorsement($member_id, $endorser_id)
+    {
+        $model = new IpdDirectEndorsement();
+        $reference = new ReferenceModel();
+        $member = new MembersModel();
+        
+        $member->member_id = $member_id;        
+        $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_DIRECT_ENDORSE);
+        
+        //Get payout
+        $account = $model->get_running_account($endorser_id);
+        
+        if ($account['account_type_id'] == 5)
+        {
+            $payout = Transactions::getIpdDirectEndorseRateByDirectEndorseCount($account['direct_endorse'], $reference);
+        }
+        else
+        {
+            $payout = 100;
+        }        
+        
+        $model->member_id = $member_id;
+        $model->endorser_id = $endorser_id;
+        $model->cutoff_id = $cutoff_id;
+        $model->payout_rate = $payout;
+
+        $retval = $model->add_transactions();
+        
+        if($retval)
+        {
+            $member->status = 2; //Processed by direct endorsement
+            $result = $member->updateUnprocessedAgents();
+            
+            if(count($result)>0)
+                return true;
+            else
+                return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    public function getIpdDirectEndorseRateByDirectEndorseCount($direct_endorse_count, $reference)
+    {
+        if($direct_endorse_count < 5)
+        {
+            $payout = $reference->get_variables_by_id(21);
+        }
+        else if (($direct_endorse_count > 4) && ($direct_endorse_count < 10))
+        {
+            $payout = $reference->get_variables_by_id(22);
+        }
+        else if (($direct_endorse_count > 9) && ($direct_endorse_count < 15))
+        {
+            $payout = $reference->get_variables_by_id(23);
+        }
+        else
+        {
+            $payout = $reference->get_variables_by_id(24);
+        }
+        
+        return $payout['variable_value'];
+    }
+    
+    /**
      * Process unilevel transactions
      * @param type $member_id
      * @return type
@@ -265,6 +338,164 @@ class Transactions extends Controller
         }
         
         
+    }
+    
+    /**
+     * Process ipdunilevel transactions
+     * @param type $member_id
+     * @return type
+     * @author jopormento
+     */
+    public function process_ipdunilevel($member_id)
+    {
+        $model = new IpdUnilevel();
+        $reference = new ReferenceModel();
+        $member = new MembersModel();
+        
+        $member->member_id = $member_id;
+        
+        $uplines = Networks::getEndorser($member_id);
+        
+        if(is_null($uplines))//root record
+            $uplines = array($member_id);
+        
+        $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_UNILEVEL); 
+        $model->cutoff_id = $cutoff_id;
+        
+        $conn = $model->_connection;
+        $trx = $conn->beginTransaction();
+        
+        try
+        {
+            foreach($uplines as $upline)
+            {
+                //Check each upline running account
+                $model->upline_id = $upline;
+                $account = $model->get_running_account();
+                
+//                //Check if upline has total purchase amounting to a minimum of 250 per month
+//                $total_purchase_amt = $model->getTotalPurchaseAmount();
+//                
+//                if (!$total_purchase_amt)
+//                {
+//                    echo "pAmEnTz";
+//                }
+//                else
+//                {
+//                    echo "TRUE";
+//                }
+
+                // If member has already unilevel transaction
+                if($account['with_unilevel_trx'] == 1)
+                {
+                    //Check existing active transaction for current cutoff
+                    $trans = $model->check_transaction();
+                    $level = Networks::getLevel($upline, $member_id);
+                    
+                    //Get payout
+                    if ($account['account_type_id'] == 5)
+                    {
+                        $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($account['direct_endorse'], $reference);
+                    }
+                    else
+                    {
+                        $payout = 50;
+                    }
+                    
+                    if(count($trans) > 0)
+                    {
+                        if($level < 11) $model->update_transaction($payout);
+                    }
+                    else
+                    {
+                        $model->new_transaction($payout);
+                    }
+                }
+                else //First transaction
+                {
+                    $level = Networks::getLevel($upline, $member_id);
+                    
+                    if ($account['account_type_id'] == 5)
+                    {
+                        $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($account['direct_endorse'], $reference, $level);
+                    }
+                    else
+                    {
+                        if($level < 11)
+                        {
+                            $payout = 50;
+                        }
+                    }
+                    
+                    $model->total_direct_endorse = $account['total_member'];
+                    
+                    $retval = $model->insert_first_transaction($payout);
+                }
+            }
+            
+            $member->status = 3; //Processed by unilevel endorsement
+            $member->updateUnprocessedAgents();
+                        
+            if(!$model->hasErrors() && !$member->hasErrors())
+            {
+                
+                $trx->commit();
+                return array('result_code'=>0, 'result_msg'=>'Successfully process unilevel transactions');
+            }
+            else
+            {
+                $trx->rollback();
+                return array('result_code'=>1, 'result_msg'=>$model->getErrors() . ' /' . $member->getErrors());
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            return array('result_code'=>3, 'result_msg'=>$e->getMessage());
+        }
+    }
+    
+    public function getIpdUnilevelBonusByDirectEndorseCount($direct_endorse_count, $reference, $level)
+    {
+        if($direct_endorse_count < 5)
+        {
+            $payout = $reference->get_variables_by_id(25);
+        }
+        else if (($direct_endorse_count > 4) && ($direct_endorse_count < 10))
+        {
+            if ($level < 6)
+            {
+                $payout = $reference->get_variables_by_id(26);
+            }
+            else
+            {
+                $payout['variable_value'] = 0;
+            }
+        }
+        else if (($direct_endorse_count > 9) && ($direct_endorse_count < 15))
+        {
+            if ($level < 8)
+            {
+                $payout = $reference->get_variables_by_id(27);
+            }
+            else
+            {
+                $payout['variable_value'] = 0;
+            }
+        }
+        else
+        {
+            if ($level < 11)
+            {
+                $payout = $reference->get_variables_by_id(28);
+            }
+            else
+            {
+                $payout['variable_value'] = 0;
+            }
+        }
+        
+        return $payout['variable_value'];
     }
     
     /**

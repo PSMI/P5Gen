@@ -38,8 +38,8 @@ class CronController extends Controller
     const JOB_LOAN_COMPLETION = 5;
     const JOB_PROMO = 6;
     const JOB_REPEAT_PURCHASE = 7;
-    const JOB_IPD_DIRECT = 8;
-    const JOB_IPD_UNILEVEL = 9;
+    const JOB_IPDUNILEVEL = 8;
+    const JOB_IPDDIRECT_ENDORSEMENT = 9;
     
     public $PID;
     public $PIDFile;
@@ -328,6 +328,80 @@ class CronController extends Controller
         
     }
     
+    public function actionIpdDirectEndorse()
+    {
+        if($this->job_enabled())
+        {
+            $model = new MembersModel();
+            $audit = new AuditLog();
+            
+            $this->PIDFile = 'IpdDirectEndorse.pid';
+            $audit->job_id = self::JOB_IPDDIRECT_ENDORSEMENT;
+
+            if(!$this->PID_exists())
+            {
+                //add to auditlogs
+                $audit->log_message = 'Started processing IPD Direct Endorsement job.';
+                $audit->log_cron();
+
+                //Create pid file      
+                $this->createPID();
+                $audit->log_message = 'Created '.$this->PIDFile.' file';
+                $audit->log_cron();
+                
+                $model->status = 1; //Processed by GOC
+                $lists = $model->getUnprocessedAgents();
+                
+                if(count($lists)>0)
+                {
+                    foreach($lists as $list)
+                    {
+                        $member_id = $list['member_id'];         
+                        $endorser_id = $list['endorser_id'];
+                        
+                        $retval = Transactions::process_ipd_direct_endorsement($member_id,$endorser_id);
+
+                        if($retval)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'IPD Direct endorsement processing  successful for MID '.$member_id.' EID '.$endorser_id;
+                        }
+                        else
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'IPD Direct endorsement processing failed for MID '.$member_id.' EID '.$endorser_id;
+                            $audit->status = 2;
+                        }
+                    }
+                    
+                    //Delete process id
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                }
+                else
+                {
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                }
+           
+            }
+            else
+            {
+                
+                $audit->log_message = 'IPD Direct endorsement process PID file still exist. Please wait current process to finish. ';
+            }
+            
+            $audit->log_message = 'IPD Direct endorse job process has ended.';
+        }
+        else
+        {
+            $audit->log_message = 'Job scheduler is disabled.';
+        }
+        
+        $audit->log_cron();
+        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+    }
+    
     public function actionUnilevel()
     {
         if($this->job_enabled())
@@ -412,7 +486,89 @@ class CronController extends Controller
         $audit->log_cron();
         echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
     }
+    
+    public function actionIpdUnilevel()
+    {
+        if($this->job_enabled())
+        {
+            $model = new MembersModel();
+            $audit = new AuditLog();
+            
+            $this->PIDFile = 'IpdUnilevel.pid';
+            $audit->job_id = self::JOB_IPDUNILEVEL;
+
+            if(!$this->PID_exists())
+            {
+                //add to auditlogs
+                $audit->log_message = 'Started processing IpdUnilevel job.';
+                $audit->log_cron();
+
+                //Create pid file      
+                $this->createPID();
+                $audit->log_message = 'Created '.$this->PIDFile.' file';
+                $audit->log_cron();
+                
+                $model->status = 2; //Processed by Direct Endorse
+                $lists = $model->getUnprocessedAgents();
+                
+                if(count($lists)>0)
+                {
+                    foreach($lists as $list)
+                    {
+                        $member_id = $list['member_id'];   
+                        
+                        $retval = Transactions::process_ipdunilevel($member_id);
+
+                        if($retval['result_code'] == 0)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'IpdUnilevel processing  successful for member '.$member_id.' uplines.';
+                        }
+                        elseif($retval['result_code'] == 1)
+                        {
+                            //add to auditlogs
+                            $audit->log_message = 'IpdUnilevel processing failed for member '.$member_id.' uplines.';
+                            $audit->status = 2;
+                        }
+                        elseif($retval['result_code'] == 2)
+                        {
+                            $audit->log_message = 'Direct endorse count for member '.$member_id. ' is not valid for ipdunilevel entry.';
+                            $audit->status = 2;
+                        }
+                        elseif($retval['result_code'] == 3)
+                        {
+                            $audit->log_message = $retval['result_msg'];
+                            $audit->status = 2;
+                        }
+                    }
+                    
+                    //Delete process id
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                }
+                else
+                {
+                    $this->PID->delete();
+                    $audit->log_message = 'Deleted '.$this->PIDFile.' file';
+                }
+           
+            }
+            else
+            {
+                $audit->log_message = 'IpdUnilevel process PID file still exist. Please wait current process to finish. ';
+            }
+            
+            $audit->log_message = 'IpdUnilevel job process has ended.';
+        }
+        else
+        {
+            $audit->log_message = 'Job scheduler is disabled.';
+        }
         
+        $audit->log_cron();
+        echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
+    }
+    
     public function actionLoanDirect()
     {
         if($this->job_enabled())

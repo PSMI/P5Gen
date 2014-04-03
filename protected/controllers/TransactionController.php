@@ -99,7 +99,7 @@ class TransactionController extends Controller
         $model = new IpdDirectEndorsementMember();
         $reference = new ReferenceModel();
         
-        $cutoff = $reference->get_cutoff_dates(TransactionTypes::DIRECT_ENDORSE);
+        $cutoff = $reference->get_cutoff_dates(TransactionTypes::IPD_DIRECT_ENDORSE);
         $next_cutoff = date('M d Y',strtotime($cutoff['next_cutoff_date']));
 
         $member_id = Yii::app()->user->getId();
@@ -145,7 +145,7 @@ class TransactionController extends Controller
         $model = new IpdUnilevelMember();
         $reference = new ReferenceModel();
         
-        $cutoff = $reference->get_cutoff_dates(TransactionTypes::UNILEVEL);
+        $cutoff = $reference->get_cutoff_dates(TransactionTypes::IPD_UNILEVEL);
         $next_cutoff = date('M d Y',strtotime($cutoff['next_cutoff_date']));
         
         $member_id = Yii::app()->user->getId();
@@ -165,25 +165,24 @@ class TransactionController extends Controller
     //For IPD Commission
     public function actionIpdCommission()
     {
-//        $model = new IpdCommissionMember();
-//        $reference = new ReferenceModel();
-//        
-//        $cutoff = $reference->get_cutoff_dates(TransactionTypes::UNILEVEL);
-//        $next_cutoff = date('M d Y',strtotime($cutoff['next_cutoff_date']));
-//        
-//        $member_id = Yii::app()->user->getId();
-//
-//        $rawData = $model->getUnilevel($member_id);
-//
-//        $dataProvider = new CArrayDataProvider($rawData, array(
-//                                                'keyField' => false,
-//                                                'pagination' => array(
-//                                                'pageSize' => 10,
-//                                            ),
-//                                ));
-//
-//        $this->render('ipdunilevel', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff));
-        $this->render('ipdcommission');
+        $model = new CommissionMember();
+        $reference = new ReferenceModel();
+        
+        $cutoff = $reference->get_cutoff_dates(TransactionTypes::UNILEVEL);
+        $next_cutoff = date('M d Y',strtotime($cutoff['next_cutoff_date']));
+        
+        $member_id = Yii::app()->user->getId();
+
+        $rawData = $model->getUnilevel($member_id);
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                'pageSize' => 10,
+                                            ),
+                                ));
+
+        $this->render('ipdcommission', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff));
     }
     
     public function getStatusForButtonDisplayLoan($status_id, $status_type)

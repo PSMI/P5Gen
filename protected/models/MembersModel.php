@@ -237,6 +237,31 @@ class MembersModel extends CFormModel
         return $result;
     }
     
+    public function getUnprocessedAgents()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT * 
+                  FROM unprocessed_distributors 
+                  WHERE status = :status
+                  LIMIT 50";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':status', $this->status);
+        return $command->queryAll();
+    }
+    
+    public function updateUnprocessedAgents()
+    {
+        $conn = $this->_connection;
+        $query = "UPDATE unprocessed_distributors
+                    SET status = :status
+                  WHERE member_id = :member_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':status', $this->status);
+        $result = $command->execute();
+        return $result;
+    }
+    
     public function getMemberNetworkCount($interval,$min_count)
     {
         $conn = $this->_connection;
