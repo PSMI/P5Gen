@@ -44,46 +44,109 @@ class ActivationCodeModel extends CFormModel
     {
         $connection = $this->_connection;
         $beginTrans = $connection->beginTransaction();
-        $codes = array();
             
         try 
         {
-                // insert into activation_code_batch
-                $sql = "INSERT INTO activation_code_batch (batch_quantity, distribution_tag_id, generated_by_id, generated_from_ip) VALUES (:qty, :tag, :aid, :ip);";
-                $command = $connection->createCommand($sql);
-                $command->bindValue(':qty', $quantity);
-                $command->bindValue(':tag', $distribution_tag_id);
-                $command->bindValue(':aid', $aid);
-                $command->bindValue(':ip', $ipaddr);
-                $rowCount = $command->execute();            
+            // insert into activation_code_batch
+            $sql = "INSERT INTO activation_code_batch (batch_quantity, distribution_tag_id, generated_by_id, generated_from_ip) VALUES (:qty, :tag, :aid, :ip);";
+            $command = $connection->createCommand($sql);
+            $command->bindValue(':qty', $quantity);
+            $command->bindValue(':tag', $distribution_tag_id);
+            $command->bindValue(':aid', $aid);
+            $command->bindValue(':ip', $ipaddr);
+            $rowCount = $command->execute();
+
+            if ($rowCount > 0)
+            {
                 $last_inserted_id = $connection->getLastInsertId();
 
-                // generate the codes
-                $activationCodes = CodeGenerator::generateCode(19, $quantity);
-                for($i = 0; $i < $quantity; $i++)
-                {
-                    $codes[] = "('".$activationCodes[$i]."'," . $last_inserted_id . ")";
-                }
-                $finalCodes = implode(",", $codes); 
+                $finalCodes = CodeGenerator::generate_str_codes($last_inserted_id, $quantity);
 
                 // insert into activation_codes
-                $sql2 = "INSERT INTO activation_codes (activation_code, activation_code_batch_id) VALUES " . $finalCodes;
+                $sql2 = "INSERT IGNORE INTO activation_codes (activation_code, activation_code_batch_id) VALUES " . $finalCodes;
                 $command2 = $connection->createCommand($sql2);
                 $rowCount2 = $command2->execute();
 
-                if ($rowCount > 0 && $rowCount2 > 0) {
-                    $beginTrans->commit();
-                    return true;
-                } else {
-                    $beginTrans->rollback();  
-                    return false;
+                // if there are duplicate codes, generate the remaining codes
+                if ($rowCount2 < $quantity)
+                {
+                    $remaining_qty = $quantity - $rowCount2;
+                    $retval = $this->regenerate_codes($last_inserted_id, $remaining_qty);
+                    
+                    if ($retval)
+                    {
+                        $beginTrans->commit();
+                        return true;
+                    }
+                    else
+                    {
+                        $beginTrans->rollback();  
+                        return false;
+                    }
                 }
+                else
+                {
+                    if ($rowCount2 > 0) 
+                    {
+                        $beginTrans->commit();
+                        return true;
+                    } 
+                    else
+                    {
+                        $beginTrans->rollback();  
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                $beginTrans->rollback();  
+                return false;
+            }
         } 
         catch (CDbException $e) 
         {
                 $beginTrans->rollback();            
                 return $e->getMessage();
         }
+    }
+    
+    public function regenerate_codes($last_inserted_id, $remaining_qty)
+    {
+        $connection = $this->_connection;
+        $beginTrans = $connection->beginTransaction();
+        
+        $finalCodes = CodeGenerator::generate_str_codes($last_inserted_id, $remaining_qty);
+        
+        try
+        {
+            $sql2 = "INSERT IGNORE INTO activation_codes (activation_code, activation_code_batch_id) VALUES " . $finalCodes;
+            $command2 = $connection->createCommand($sql2);
+            $rowCount2 = $command2->execute();
+            
+            if ($rowCount2 < $remaining_qty && $rowCount2 != 0)
+            {
+                $remaining_qty = $remaining_qty - $rowCount2;
+                $this->regenerate_codes($last_inserted_id, $remaining_qty);
+            }
+            else if ($rowCount2 == $remaining_qty)
+            {
+                $beginTrans->commit();
+                $retval = true;
+            }
+            else if ($rowCount2 == 0)
+            {
+                $beginTrans->rollback();
+                $retval = false;            
+            }
+        }
+        catch (CDbException $e)
+        {
+            $beginTrans->rollback();
+            $retval = false;     
+        }
+        
+        return $retval;
     }
     
     
