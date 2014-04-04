@@ -36,10 +36,25 @@ class ProductsForm extends CFormModel
         
         return $result;
     }
+    
     public function listProducts()
     {
         $model = new ProductsForm();
         return CHtml::listData($model->selectAll(), 'product_id', 'product_name');
+    }
+    
+    public function selectProductByPackageType($package_type_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM products a 
+                INNER JOIN product_groups b ON a.product_group_id = b.product_group_id
+                WHERE b.product_group_id = :product_group_id AND a.status = 1";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':product_group_id', $package_type_id);
+        $result = $command->queryAll();
+        
+        return $result;
     }
 }
 ?>

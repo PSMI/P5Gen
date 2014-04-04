@@ -109,14 +109,12 @@ class RegistrationForm extends CFormModel
                 'spouse_contact_no'=>'Spouse Contact No',
                 'beneficiary_name'=>'Beneficiary Name',
                 'relationship'=>'Relationship',
-                'product_code'=>'Product Code',
+                'product_code'=>'Product Code/Set',
                 'product_name'=>'Product Name',
                 'date_purchased'=>'Date Purchased',
                 'payment_mode_id'=>'Payment Mode',
             );
     }
-    
-    
     
     public function countries()
     {
@@ -127,6 +125,7 @@ class RegistrationForm extends CFormModel
         $result = $command->queryAll();        
         return $result;
     }
+    
     public function listCountries()
     {       
         return CHtml::listData($this->countries(), 'country_id', 'country_name');
@@ -176,9 +175,10 @@ class RegistrationForm extends CFormModel
     {
         return CHtml::listData($this->paymentTypes(), 'payment_type_id', 'payment_type_name');
     }
-    public function listProducts()
+    
+    public function listProductsByPackage($package_type_id)
     {
-        return CHtml::listData(ProductsForm::selectAll(), 'product_id', 'product_name');
+        return CHtml::listData(ProductsForm::selectProductByPackageType($package_type_id), 'product_id', 'product_name');
     }
     
     public function selectDownlines($filter)

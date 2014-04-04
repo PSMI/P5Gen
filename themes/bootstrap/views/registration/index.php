@@ -169,7 +169,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <h5>Purchased Production Information</h5>
 <?php // echo $form->textFieldRow($model,'product_code', array('class'=>'span2')); ?>
 <?php // echo $form->textFieldRow($model,'product_name', array('class'=>'span3')); ?>
-<?php echo $form->dropDownListRow($model,'product_code', array(''=>Yii::t('none','Select product')) + $model->listProducts(), array('class'=>'span2')); ?>
+<?php echo $form->dropDownListRow($model,'product_code', array(''=>Yii::t('none','Select product')) + $model->listProductsByPackage(1), array('class'=>'span2')); ?>
 <?php // echo $form->textFieldRow($model,'date_purchased', array('class'=>'span2')); ?>
 <div class="control-group">
 <?php echo CHtml::label('Date Purchased '. '<span class="required">*</span>', 'RegistrationForm_date_purchased',array('class'=>'control-label required')) ?>
