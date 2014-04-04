@@ -51,6 +51,8 @@ class CodeGenerator extends Controller
     
     public function generate_str_codes($id, $qty)
     {
+        $codes = array();
+        
         // generate the codes
         $activationCodes = CodeGenerator::generateCode(19, $qty);
         for($i = 0; $i < $qty; $i++)
