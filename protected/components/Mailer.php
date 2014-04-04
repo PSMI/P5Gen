@@ -16,6 +16,7 @@ class Mailer
     CONST ACCOUNT_CREATION = 7;
     CONST IPD_VERIFY_ACCOUNT_TMPL = 8;
     CONST IPD_ENDORSER_NOTIFY = 9;
+    CONST IPD_TO_IBO_NOTIFICATION = 10;
     
     /**
      * Send verification link to new member
@@ -409,6 +410,36 @@ class Mailer
         $sender_name = 'P5 Marketing Incorporated';
         $recipient = $endorser_email;
         $subject = 'Important: New Distributor Registration Successful!';
+        $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
+    }
+    
+    /**
+     * This function is used to send notification to the previous IPD that
+     * he/she is now an IBO member.
+     * @param array $param
+     */
+    public function sendIPDtoIBONotification($param)
+    {
+        $model = new RegistrationForm();
+        $downline_id = $param['member_id'];
+
+        $reference = new ReferenceModel();
+        $message_template = $reference->get_message_template(self::IPD_TO_IBO_NOTIFICATION);
+        
+        $members = new MembersModel();
+        $member_info = $members->selectMemberDetails($downline_id); 
+
+        $member_email = $member_info['email'];
+        $member_name = $member_info['first_name'] . ' ' . $member_info['last_name'];
+
+        $placeholders = array('MEMBER_NAME'=>$member_name);
+        foreach($placeholders as $key => $value){
+            $message_template = str_replace('{'.$key.'}', $value, $message_template);
+        }
+        $sender = 'noreply@p5partners.com';
+        $sender_name = 'P5 Marketing Incorporated';
+        $recipient = $member_email;
+        $subject = 'Important: You are now an IBO Member!';
         $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
     }
 }

@@ -546,12 +546,12 @@ class RegistrationForm extends CFormModel
         $endorser_id = $this->member_id;
         $date_joined = $this->date_purchased;
         /* Insert distributor account info */
-        $query = "INSERT INTO members (account_type_id, activation_code, upline_id, ipd_endorser_id, date_joined, placement_status, placement_date)
-                  VALUES (:account_type_id, :activation_code, :ipd_endorser_id, :date_joined, 1, NOW())";
+        $query = "INSERT INTO members (account_type_id, activation_code, ipd_upline_id, ipd_endorser_id, date_joined, placement_status, placement_date)
+                  VALUES (:account_type_id, :activation_code, :ipd_upline_id, :ipd_endorser_id, :date_joined, 1, NOW())";
         $command = $conn->createCommand($query);
         $command->bindParam(':account_type_id', $account_type_id);
         $command->bindParam(':activation_code', $activation_code);
-        $command->bindParam(':upline_id', $upline_id);
+        $command->bindParam(':ipd_upline_id', $upline_id);
         $command->bindParam(':ipd_endorser_id', $endorser_id);
         $command->bindParam(':date_joined', $date_joined);
         $result = $command->execute();

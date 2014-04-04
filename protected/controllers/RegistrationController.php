@@ -258,8 +258,16 @@ class RegistrationController extends Controller
             $retval = $registration->registerIPDtoIBO($member_id, $upline_id, $ibo_endorser_id, $activation_code);
             if ($retval)
             {
+                $param['member_id'] = $member_id;
+                Mailer::sendIPDtoIBONotification($param);
+                
+                $param2['upline_id'] = $upline_id;
+                $param2['new_member_id'] = $member_id;
+                $param2['endorser_id'] = $ibo_endorser_id;                      
+                Mailer::sendUplineNotification($param2);
+                
                 $this->dialogTitle = 'SUCCESSFUL!';
-                $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our new business partner.';
+                $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our distributor as a new member.';
             }
             else
             {
