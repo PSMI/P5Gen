@@ -59,6 +59,7 @@ class Downlines extends CFormModel
                     member_id AS downline
                   FROM members
                   WHERE upline_id = :member_id
+                  AND account_type_id = 3
                   AND placement_status = 1
                   ORDER BY placement_date ASC;";
         
@@ -314,6 +315,10 @@ class Downlines extends CFormModel
         
     }
     
+    /**
+     * This function is used to get all distributors.
+     * @return type
+     */
     public function getAllIPD()
     {
         $conn = $this->_connection;
@@ -329,6 +334,11 @@ class Downlines extends CFormModel
         return $result;
     }
     
+    /**
+     * This function is used to get the total count of IPD endorsement.
+     * @param type $member_id
+     * @return type
+     */
     public function countIPDEndorsement($member_id)
     {
         $conn = $this->_connection;
@@ -346,6 +356,11 @@ class Downlines extends CFormModel
         return $result["count"];
     }
     
+    /**
+     * This function is used to get the total IPD unilevel count.
+     * @param type $member_id
+     * @return type
+     */
     public function getIPDUnilevelCount($member_id)
     {
         $conn = $this->_connection;
@@ -360,7 +375,12 @@ class Downlines extends CFormModel
         return $result["count"];
     }
     
-    
+    /**
+     * This function is used to locate the immediate IBO of a particular IPD.
+     * Used in Admin Registration of IPD to IBO.
+     * @param type $member_id
+     * @return type
+     */
     public function findImmediateIBO($member_id)
     {
         $conn = $this->_connection;
@@ -373,6 +393,29 @@ class Downlines extends CFormModel
         $result = $command->queryRow();
         
         return $result;
+    }
+    
+    /**
+     * This function will be used for getting the IPD accounts for registration
+     * place under.
+     * @return type
+     */
+    public function selectIPDforPlaceUnder()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    member_id AS downline
+                  FROM members
+                  WHERE ipd_endorser_id = :member_id
+                  AND placement_status = 1
+                  ORDER BY placement_date ASC;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $result = $command->queryAll();
+        
+        return $result;  
     }
     
 }

@@ -281,7 +281,7 @@ class MemberDetailsModel extends CFormModel
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
-                WHERE b.member_id = :member_id AND b.account_type_id = 5
+                WHERE b.member_id = :member_id AND b.ipd_endorser_id IS NOT NULL
                 ORDER BY a.last_name";
         $command = $connection->createCommand($sql);
         $command->bindParam(":member_id", $searchField);
@@ -301,7 +301,7 @@ class MemberDetailsModel extends CFormModel
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
-                WHERE b.account_type_id = 5
+                WHERE b.ipd_endorser_id IS NOT NULL
                 ORDER BY a.last_name";
         $command = $connection->createCommand($sql);
         $result = $command->queryAll();

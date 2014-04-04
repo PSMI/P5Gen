@@ -496,11 +496,11 @@ class Networks extends Controller
         for ($a = 0; $a < count($ipd_list); $a++)
         {
             $ipd_id = $ipd_list[$a]["member_id"];
-            $count = $model->countIPDEndorsement($ipd_id);
-            if ($count >= 5)
-            {
+//            $count = $model->countIPDEndorsement($ipd_id);
+//            if ($count >= 5)
+//            {
                 $temp_array[] = $ipd_id;
-            }
+//            }
         }
         
         return $temp_array;
@@ -530,6 +530,11 @@ class Networks extends Controller
         return $array;
     }
     
+    /**
+     * This is a recursive function in locating the immediate IBO
+     * @param type $member_id
+     * @return type
+     */
     public function getImmediateIBOEndorser($member_id)
     {
         $model = new Downlines();
@@ -569,6 +574,29 @@ class Networks extends Controller
         $model = new Endorser();
         $count = $model->getIPDEndorserCount($member_id);
         return $count;
+    }
+    
+    /**
+     * This function is used to get the placed under of the member
+     * @param type $member_id
+     * @return type
+     */
+    public function getPlaceUnderIPD($member_id)
+    {
+        $model = new Downlines();
+        $model->member_id = $member_id;
+        $member_array = array();
+        
+        $member_array[] = $member_id;
+        
+        $downlines = $model->selectIPDforPlaceUnder();
+        for ($i = 0; $i < count($downlines); $i++)
+        {
+            $downline_id = $downlines[$i]["downline"];
+            $member_array = array_merge($member_array, Networks::getPlaceUnderIPD($downline_id));
+        }
+        
+        return $member_array;
     }
 }
 ?>
