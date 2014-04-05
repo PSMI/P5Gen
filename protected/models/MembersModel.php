@@ -248,7 +248,6 @@ class MembersModel extends CFormModel
         $command->bindParam(':status', $this->status);
         return $command->queryAll();
     }
-    
     public function updateUnprocessedAgents()
     {
         $conn = $this->_connection;
@@ -261,7 +260,6 @@ class MembersModel extends CFormModel
         $result = $command->execute();
         return $result;
     }
-    
     public function getMemberNetworkCount($interval,$min_count)
     {
         $conn = $this->_connection;

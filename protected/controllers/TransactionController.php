@@ -280,16 +280,7 @@ class TransactionController extends Controller
             return false;
         }
     }
-    
         
-        
-            
-            
-
-
-
-
-    
     public function actionProcessTransaction()
     {
         if(!Yii::app()->request->isAjaxRequest)

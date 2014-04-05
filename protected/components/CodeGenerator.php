@@ -48,11 +48,9 @@ class CodeGenerator extends Controller
     {
         return substr($code_sets, mt_rand(0, $num_length - 1), 1);
     }
-    
     public function generate_str_codes($id, $qty)
     {
         $codes = array();
-        
         // generate the codes
         $activationCodes = CodeGenerator::generateCode(19, $qty);
         for($i = 0; $i < $qty; $i++)
@@ -60,7 +58,6 @@ class CodeGenerator extends Controller
             $codes[] = "('".$activationCodes[$i]."'," . $id . ")";
         }
         $final = implode(",", $codes); 
-        
         return $final;
     }
 }
