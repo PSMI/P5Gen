@@ -315,17 +315,20 @@ class IpdUnilevel extends CFormModel
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->upline_id);
-        
         $result = $command->queryRow();
-
-        if ($result['total'] > 251)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        
+        return $result;
+        
+//        $result = $command->queryRow();
+//
+//        if ($result['total'] > 251)
+//        {
+//            return true;
+//        }
+//        else
+//        {
+//            return false;
+//        }
     }
 }
 ?>

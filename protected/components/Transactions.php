@@ -345,12 +345,16 @@ class Transactions extends Controller
         $member = new MembersModel();
         $member->member_id = $member_id;
         $uplines = Networks::getEndorser($member_id);
+        
         if(is_null($uplines))//root record
             $uplines = array($member_id);
+        
         $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_UNILEVEL); 
         $model->cutoff_id = $cutoff_id;
+        
         $conn = $model->_connection;
         $trx = $conn->beginTransaction();
+        
         try
         {
             foreach($uplines as $upline)
@@ -358,50 +362,78 @@ class Transactions extends Controller
                 //Check each upline running account
                 $model->upline_id = $upline;
                 $account = $model->get_running_account();
-                // If member has already unilevel transaction
-                if($account['with_unilevel_trx'] == 1)
+                
+                //Get Total Purchased Amount w/in a month
+                $purchased_amount = 0;
+                $purchased = $model->getTotalPurchaseAmount();
+                $purchased_amount = $purchased_amount + $purchased['total'];
+                
+                //Get Product Maintenance Value
+                $product_maintenance = $reference->get_variables_by_id(30);
+                $product_maintenance_value = $product_maintenance['variable_value'];
+                
+                if ($purchased_amount > $product_maintenance_value)
                 {
-                    //Check existing active transaction for current cutoff
-                    $trans = $model->check_transaction();
-                    $level = Networks::getLevel($upline, $member_id);
-                    //Get payout
-                    if ($account['account_type_id'] == 5)
+                    //Check if endorsed atleast 1 direct endorse
+                    if ($account['direct_endorse'] > 0)
                     {
-                        $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($account['direct_endorse'], $reference);
+                        $payout = 5;
                     }
-                    else
+                    else 
                     {
-                        $payout = 50;
+                        $payout = 0;
                     }
-                    if(count($trans) > 0)
+
+                    // If member has already unilevel transaction
+                    if($account['with_unilevel_trx'] == 1)
                     {
-                        if($level < 11) $model->update_transaction($payout);
-                    }
-                    else
-                    {
-                        $model->new_transaction($payout);
-                    }
-                }
-                else //First transaction
-                {
-                    $level = Networks::getLevel($upline, $member_id);
-                    if ($account['account_type_id'] == 5)
-                    {
-                        $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($account['direct_endorse'], $reference, $level);
-                    }
-                    else
-                    {
-                        if($level < 11)
+                        //Check existing active transaction for current cutoff
+                        $trans = $model->check_transaction();
+                        $level = Networks::getLevelIpd($upline, $member_id);
+
+                        //Get payout
+                        if ($account['account_type_id'] == 5)
                         {
-                            $payout = 50;
+                            $payout = $payout + Transactions::getIpdUnilevelBonusByDirectEndorseCount($account['direct_endorse'], $reference, $level);
+                        }
+                        else
+                        {
+                            $payout = $payout + 50;
+                        }
+
+                        if(count($trans) > 0)
+                        {
+                            if($level < 11) $model->update_transaction($payout);
+                        }
+                        else
+                        {
+                            $model->new_transaction($payout);
                         }
                     }
-                    $model->total_direct_endorse = $account['total_member'];
-                    $retval = $model->insert_first_transaction($payout);
+                    else //First transaction
+                    {
+                        $level = Networks::getLevel($upline, $member_id);
+                        if ($account['account_type_id'] == 5)
+                        {
+                            $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($account['direct_endorse'], $reference, $level);
+                        }
+                        else
+                        {
+                            if($level < 11)
+                            {
+                                $payout = 50;
+                            }
+                        }
+                        
+                        $model->total_direct_endorse = $account['total_member'];
+                        $retval = $model->insert_first_transaction($payout);
+                    }
                 }
             }
+            
             $member->status = 3; //Processed by unilevel endorsement
             $member->updateUnprocessedAgents();
+            
             if(!$model->hasErrors() && !$member->hasErrors())
             {
                 $trx->commit();

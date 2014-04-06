@@ -492,6 +492,7 @@ class CronController extends Controller
                 $audit->log_cron();
                 $model->status = 2; //Processed by Direct Endorse
                 $lists = $model->getUnprocessedAgents();
+                
                 if(count($lists)>0)
                 {
                     foreach($lists as $list)

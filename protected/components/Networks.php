@@ -411,6 +411,33 @@ class Networks extends Controller
         
     }
     
+    /**
+     * @author jopormento
+     * @param type $member_id
+     * @param type $downline_id
+     * @return type
+     */
+    public function getLevelIpd($member_id, $downline_id)
+    {
+       $rawData = Networks::getIPDUnilevel10thLevel($member_id);
+       $levels = Networks::arrangeLevel($rawData,'ASC');
+       
+        if (count($levels['network']) > 0)
+        {
+            foreach ($levels['network'] as $row)
+            {
+                $arr_ids = explode(",", $row['Members']);
+                
+                if(in_array($downline_id,$arr_ids))
+                {
+                    return $row['Level'];
+                }
+                
+            }
+        }
+        
+    }
+    
     public function getUnilevelDownlinesByCutOff($member_ids,$date_from,$date_to)
     {
         $model = new Downlines();
