@@ -140,8 +140,10 @@ class AdmintransactionsController extends Controller
             else if($transtype == 'ipdunilvl')
             {
                 $unilevel_id = $_GET["id"];
+                
                 $model = new IpdUnilevel();
                 $result = $model->updateUnilevelStatus($unilevel_id, $status, $userid);
+                
                 if (count($result) > 0)
                 {
                     $result_code = 0;
@@ -194,6 +196,35 @@ class AdmintransactionsController extends Controller
                 $date_claimed = $_GET['date_claimed'];
                 
                 $model = new DirectEndorsement();
+                $result = $model->updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid, $date_claimed);
+                
+                if (count($result) > 0)
+                {
+                    $result_code = 0;
+                    
+                    if ($status == 1)
+                    {
+                        $result_msg = "Direct Endorsement Approved.";
+                    }
+                    else
+                    {
+                        $result_msg = "Direct Endorsement Claimed.";
+                    }
+                }
+                else
+                {
+                    $result_code = 1;
+                    $result_msg = "An error occured. Please try again.";
+                }
+            }
+            else if($transtype == 'ipddirectendrse')
+            {
+                $direct_endorsement_id = $_GET["id"];
+                $endorser_id = $_GET["endorser_id"];
+                $cutoff_id = $_GET["cutoff_id"];
+                $date_claimed = $_GET['date_claimed'];
+                
+                $model = new IpdDirectEndorsement();
                 $result = $model->updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid, $date_claimed);
                 
                 if (count($result) > 0)

@@ -81,7 +81,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Approve',
                                     'icon'=>'ok-sign',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["direct_endorsement_id"], "status" => "1", "transtype" => "directendrse", "endorser_id" =>$data["endorser_id"], "cutoff_id" =>$data["cutoff_id"]))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["direct_endorsement_id"], "status" => "1", "transtype" => "ipddirectendrse", "endorser_id" =>$data["endorser_id"], "cutoff_id" =>$data["cutoff_id"]))',
                                     'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 1)',
                                     'options' => array(
                                         'class'=>"btn btn-small",
@@ -109,7 +109,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Claim',
                                     'icon'=>'ok-sign',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["direct_endorsement_id"], "status" => "2", "transtype" => "directendrse", "endorser_id" =>$data["endorser_id"], "cutoff_id" =>$data["cutoff_id"]))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["direct_endorsement_id"], "status" => "2", "transtype" => "ipddirectendrse", "endorser_id" =>$data["endorser_id"], "cutoff_id" =>$data["cutoff_id"]))',
                                     'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 2)',
                                     'options' => array(
                                         'class'=>"btn btn-small",

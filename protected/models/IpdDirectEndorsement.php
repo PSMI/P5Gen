@@ -147,7 +147,7 @@ class IpdDirectEndorsement extends CFormModel
         
         if ($status == 1)
         {
-            $query = "UPDATE direct_endorsements
+            $query = "UPDATE distributor_endorsements
                         SET date_approved = NOW(),
                             status = :status,
                             approved_by_id = :userid
@@ -157,14 +157,14 @@ class IpdDirectEndorsement extends CFormModel
         else if ($status == 2)
         {
             if($date_claimed != null)
-                $query = "UPDATE direct_endorsements
+                $query = "UPDATE distributor_endorsements
                             SET date_claimed = '$date_claimed',
                                 status = :status,
                                 claimed_by_id = :userid
                             WHERE endorser_id = :endorser_id 
                             AND cutoff_id = :cutoff_id;";
             else
-                $query = "UPDATE direct_endorsements
+                $query = "UPDATE distributor_endorsements
                         SET date_claimed = NOW(),
                             status = :status,
                             claimed_by_id = :userid
