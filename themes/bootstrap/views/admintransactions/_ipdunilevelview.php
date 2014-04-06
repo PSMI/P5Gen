@@ -17,7 +17,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             * $this->grid->dataProvider->pagination->pageSize + 1)',
                         ),
                         array('name'=>'member_name',
-                              'header'=>'Agent Name',
+                              'header'=>'Distributor Name',
                               'htmlOptions' => array('style' => 'text-align:left'),
                               'headerHtmlOptions' => array('style' => 'text-align:center'),
                               'footer'=>'<strong>Total Payout</strong>',

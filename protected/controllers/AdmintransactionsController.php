@@ -409,6 +409,110 @@ class AdmintransactionsController extends Controller
          ));
     }
     
+    //For Ipd Retention
+    public function actionIpdRetention()
+    {
+        $model = new IpdRetention();
+                
+        if (isset($_POST['IpdRetention']))
+        {            
+            if(isset(Yii::app()->session['ipdretention']))
+                unset(Yii::app()->session['ipdretention']);
+        
+            $model->attributes = $_POST['IpdRetention'];
+            Yii::app()->session['ipdretention'] = $model->attributes;
+        }
+        else
+        {
+            $model->attributes = Yii::app()->session['ipdretention'];
+        }
+        
+        $rawData = $model->getIpdRetentionMoney();
+        $total = $model->getPayoutTotal();
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                    'pageSize' => 25,
+                                                ),
+                                ));
+
+        $this->render('ipdretention', array(
+                'dataProvider' => $dataProvider,
+                'model'=>$model,
+                'total'=>$total,
+            ));
+    }
+    
+    //For IDP RP Commission
+    public function actionIpdRpCommission()
+    {
+        $model = new IpdRpCommission();
+                
+        if (isset($_POST['IpdRpCommission']))
+        {            
+            if(isset(Yii::app()->session['ipdrpcommission']))
+                unset(Yii::app()->session['ipdrpcommission']);
+        
+            $model->attributes = $_POST['IpdRpCommission'];
+            Yii::app()->session['ipdrpcommission'] = $model->attributes;
+        }
+        else
+        {
+            $model->attributes = Yii::app()->session['ipdrpcommission'];
+        }
+        
+        $rawData = $model->getIpdRpCommission();
+        $total = $model->getPayoutTotal();
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                    'pageSize' => 25,
+                                                ),
+                                ));
+
+        $this->render('ipdrpcommission', array(
+                'dataProvider' => $dataProvider,
+                'model'=>$model,
+                'total'=>$total,
+            ));
+    }
+    
+    //For IBO RP Commission
+    public function actionIboRpCommission()
+    {
+        $model = new IboRpCommission();
+                
+        if (isset($_POST['IboRpCommission']))
+        {            
+            if(isset(Yii::app()->session['iborpcommission']))
+                unset(Yii::app()->session['iborpcommission']);
+        
+            $model->attributes = $_POST['IboRpCommission'];
+            Yii::app()->session['iborpcommission'] = $model->attributes;
+        }
+        else
+        {
+            $model->attributes = Yii::app()->session['iborpcommission'];
+        }
+        
+        $rawData = $model->getIboRpCommission();
+        $total = $model->getPayoutTotal();
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                                                'keyField' => false,
+                                                'pagination' => array(
+                                                    'pageSize' => 25,
+                                                ),
+                                ));
+
+        $this->render('iborpcommission', array(
+                'dataProvider' => $dataProvider,
+                'model'=>$model,
+                'total'=>$total,
+            ));
+    }
+    
     public function getStatusForButtonDisplayLoan($status_id, $status_type)
     {
         if ($status_type == 1)

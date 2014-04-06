@@ -29,7 +29,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         array('name'=>'endorser_name',
                               'header'=>'Endorser Name',
                               'htmlOptions' => array('style' => 'text-align:left'),
-                              'headerHtmlOptions' => array('style' => 'text-align:left'),
+                              'headerHtmlOptions' => array('style' => 'text-align:center'),
                               'footer'=>'<strong>Total Payout</strong>',
                               'footerHtmlOptions'=>array('style'=>'font-size:14px'),
                         ),   
