@@ -25,6 +25,8 @@ class PurchasesModel extends CFormModel
     public $is_repeat;
     public $cutoff_id;
     public $commission;
+    public $date_from;
+    public $date_to;
         
     public function __construct() {
         $this->_connection = Yii::app()->db;
@@ -34,7 +36,7 @@ class PurchasesModel extends CFormModel
     {
         return array(
             array('autocomplete_name','required'),
-            array('distributor_id','safe'),
+            array('distributor_id,date_from,date_to','safe'),
         );
     }
     public function insertPurchased($product)
@@ -69,8 +71,8 @@ class PurchasesModel extends CFormModel
         $date_purchase = $product['date_purchased'];
         $payment_mode = $product['payment_mode_id'];
         /* Insert purchased products */
-        $query = "INSERT INTO distributor_purchased_items (distributor_id, product_id, srp, date_purchased, payment_type_id)
-                    VALUES (:distributor_id, :product_id, :amount, :date_purchased, :payment_mode_id)";
+        $query = "INSERT INTO distributor_purchased_items (distributor_id, product_id, srp, date_purchased, quantity, payment_type_id, status)
+                    VALUES (:distributor_id, :product_id, :amount, :date_purchased, 1, :payment_mode_id, 1)";
         $command = $conn->createCommand($query);
         $command->bindParam(':distributor_id', $distributor_id);
         $command->bindParam(':product_id', $product_id);
@@ -96,13 +98,95 @@ class PurchasesModel extends CFormModel
                          pi.quantity,
                          format(total,2) as total
                     FROM distributor_purchased_items pi
-                    INNER JOIN products p ON pi.product_id = p.product_id
-                        WHERE pi.status = 0;";
+                        INNER JOIN products p ON pi.product_id = p.product_id
+                    WHERE pi.distributor_id = :distributor_id
+                        AND pi.status = 0;";
         $command = $conn->createCommand($query);
+        $command->bindParam(':distributor_id', $this->distributor_id);
         $result = $command->queryAll();
         return $result;
     }
     
+    public function selectByDate()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT pi.purchase_id,
+                         p.product_code,
+                         p.product_name,                         
+                         date_format(pi.date_purchased,'%b %d, %Y') AS date_purchased,
+                         sum(pi.quantity) AS quantity,
+                         format(sum(total),2) as total
+                    FROM distributor_purchased_items pi
+                        INNER JOIN products p ON pi.product_id = p.product_id
+                    WHERE pi.date_purchased >= :date_from 
+                        AND pi.date_purchased <= :date_to
+                        AND pi.status = 1
+                    GROUP BY pi.date_purchased,pi.product_id
+                    ORDER BY pi.date_purchased;";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':date_from', $this->date_from);
+        $command->bindParam(':date_to', $this->date_to);
+        $result = $command->queryAll();
+        return $result;
+    }
+    
+    public function selectByDateTotal()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT sum(pi.quantity) AS total_quantity,
+                         format(sum(total),2) as total_amount
+                    FROM distributor_purchased_items pi
+                    WHERE pi.date_purchased >= :date_from 
+                        AND pi.date_purchased <= :date_to
+                        AND pi.status = 1;";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':date_from', $this->date_from);
+        $command->bindParam(':date_to', $this->date_to);
+        $result = $command->queryRow();
+        return $result;
+    }
+    
+    public function selectByID()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT pi.purchase_id,
+                         p.product_code,
+                         p.product_name,                         
+                         date_format(pi.date_purchased,'%b %d, %Y') AS date_purchased,
+                         format(pi.srp,2) as srp,
+                         pi.discount,
+                         format(pi.net_price,2) as net_price,
+                         format(sum(pi.savings),2) as savings,
+                         sum(pi.quantity) as quantity,
+                         format(sum(total),2) as total
+                    FROM distributor_purchased_items pi
+                        INNER JOIN products p ON pi.product_id = p.product_id
+                    WHERE pi.distributor_id = :distributor_id
+                        AND pi.status = 1
+                    GROUP BY pi.date_purchased,pi.product_id
+                    ORDER BY pi.date_purchased;";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':distributor_id', $this->distributor_id);
+        $result = $command->queryAll();
+        return $result;
+    }
+    
+    public function selectByIDTotal()
+    {
+        $conn = $this->_connection;
+        $query = "SELECT sum(pi.savings) as total_savings,
+                         sum(pi.quantity) as total_quantity,
+                         sum(total) as total_amount
+                    FROM distributor_purchased_items pi
+                    WHERE pi.distributor_id = :distributor_id
+                        AND pi.status = 1;";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':distributor_id', $this->distributor_id);
+        $result = $command->queryRow();
+        return $result;
+    }
+    
+        
     public function getItemTotal()
     {
         $conn = $this->_connection;
@@ -111,10 +195,12 @@ class PurchasesModel extends CFormModel
                          format(sum(pi.savings),2) as total_savings,
                          sum(pi.quantity) as total_quantity
                     FROM distributor_purchased_items pi
-                    INNER JOIN products p ON pi.product_id = p.product_id
-                        WHERE pi.status = 0
+                        INNER JOIN products p ON pi.product_id = p.product_id
+                    WHERE pi.distributor_id = :distributor_id
+                        AND pi.status = 0
                     GROUP BY pi.distributor_id;";
         $command = $conn->createCommand($query);
+        $command->bindParam(':distributor_id', $this->distributor_id);
         $result = $command->queryRow();
         if(!empty($result))
             return $result;
@@ -147,20 +233,10 @@ class PurchasesModel extends CFormModel
             $rp_commission = $reference->get_variable_value('IBO_REPEAT_PURCHASE_COMMISSION');
         }
         
-        if($this->is_repeat)
-        {
-            $discount_price = ($srp * $discount) / 100;
-            $net_price = $srp - $discount_price;
-            $total_net_price = $this->quantity * $net_price;
-            $savings =  ($srp - $net_price) * $this->quantity; //($total_net_price * $rp_commission) / 100;
-        }
-        else
-        {
-            $discount = 0;
-            $net_price = 0;
-            $savings = 0;
-            $total_net_price = $srp;
-        }
+        $discount_price = $srp * ($discount / 100);
+        $net_price = $srp - $discount_price;
+        $total_net_price = $this->quantity * $net_price;
+        $savings = $total_net_price * ($rp_commission / 100);
           
         $query = "INSERT INTO distributor_purchased_items (distributor_id, product_id, srp, discount, net_price, total, savings, date_purchased, quantity, payment_type_id)
                     VALUES (:distributor_id, :product_id, :srp, :discount, :net_price, :total, :savings,  now(), :quantity, :payment_type_id)";
@@ -209,19 +285,18 @@ class PurchasesModel extends CFormModel
             $rp_commission = $reference->get_variable_value('IBO_REPEAT_PURCHASE_COMMISSION');
         }
         
-        $discount_price = ($srp * $discount) / 100;
+        $discount_price = $srp * ($discount / 100);
         $net_price = $srp - $discount_price;
         $total_net_price = $this->quantity * $net_price;
-        $savings = ($total_net_price * $rp_commission) / 100;
+        $savings = $total_net_price * ($rp_commission / 100);
         
         $query = "UPDATE distributor_purchased_items 
                     SET quantity = quantity + :quantity,
                         payment_type_id = :payment_type_id,
                         srp = :srp,
                         discount = :discount,
-                        net_price = srp - ((srp * discount) / 100),
                         total = total + :total,
-                        savings = quantity  * ((srp * discount) / 100)
+                        savings = savings + :savings
                    WHERE distributor_id = :distributor_id
                     AND purchase_id = :purchase_id
                     AND product_id = :product_id";
@@ -232,6 +307,7 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':product_id', $this->product_id);
         $command->bindParam(':srp', $srp);
         $command->bindParam(':discount', $discount);
+        $command->bindParam(':savings', $savings);
         $command->bindParam(':total', $total_net_price);
         $command->bindParam(':quantity', $this->quantity);
         $command->bindParam(':payment_type_id', $this->payment_type_id);
@@ -270,9 +346,7 @@ class PurchasesModel extends CFormModel
         $query = "UPDATE distributor_purchased_items 
                     SET quantity = :quantity,
                         payment_type_id = :payment_type_id,
-                        srp = :srp,
-                        net_price = srp - ((srp * discount) / 100),
-                        savings = :quantity * ((srp * discount) / 100),
+                        savings = (:quantity * (srp - (srp * discount / 100))) * (:rp_commission / 100),
                         total = :quantity * (srp - ((srp * discount) / 100))
                    WHERE distributor_id = :distributor_id
                     AND purchase_id = :purchase_id
@@ -327,6 +401,25 @@ class PurchasesModel extends CFormModel
         $query = "DELETE FROM distributor_purchased_items WHERE purchase_id = :purchase_id AND status = 0";
         $command = $conn->createCommand($query);
         $command->bindParam(':purchase_id', $this->purchase_id);
+        $command->execute();
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
+    }
+    
+    public function cancel_items()
+    {
+        $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+        
+        $query = "DELETE FROM distributor_purchased_items WHERE distributor_id = :distributor_id AND status = 0";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':distributor_id', $this->distributor_id);
         $command->execute();
         try
         {

@@ -427,6 +427,7 @@ class AdmintransactionsController extends Controller
         }
         $rawData = $model->getDirectEndorsement();
         $total = $model->getPayoutTotal();
+        
         $dataProvider = new CArrayDataProvider($rawData, array(
                     'keyField' => false, //'direct_endorsement_id',
                     'pagination' => array(
@@ -459,7 +460,7 @@ class AdmintransactionsController extends Controller
         }
         
         $rawData = $model->getIpdRetentionMoney();
-        $total = $model->getPayoutTotal();
+        $total = $model->getTotalSavings();
         $dataProvider = new CArrayDataProvider($rawData, array(
                                                 'keyField' => false,
                                                 'pagination' => array(
@@ -931,12 +932,12 @@ class AdmintransactionsController extends Controller
             $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
             $total_tax = $total_amount * ($tax_withheld/100);
             $payout['total_amount'] = $total_amount;
-            $payout['ibo_count'] = $result['ibo_count'];
+            $payout['ipd_count'] = $result['ipd_count'];
             $payout['tax_amount'] = $total_tax;
             $payout['net_amount'] = $total_amount - $total_tax;
             //Payee Information
             $payee = $member->selectMemberDetails($member_id);
-            $payee_endorser_id = $payee['endorser_id'];
+            $payee_endorser_id = $payee['ipd_endorser_id'];
             $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
             //Endorser Information
             $endorser = $member->selectMemberDetails($payee_endorser_id);
@@ -944,7 +945,8 @@ class AdmintransactionsController extends Controller
             $cutoff = $reference->get_cutoff_by_id($cutoff_id);
             $date_from = date('Y-m-d',strtotime($cutoff['last_cutoff_date']));
             $date_to = date('Y-m-d',strtotime($cutoff['next_cutoff_date']));
-            $downline = Networks::getUnilevel($member_id);
+            
+            $downline = Networks::getIPDUnilevel10thLevel($member_id);
             //$downline = Networks::getDownlines($member_id);
             $unilevels = Networks::arrangeLevel($downline, 'ASC');
             foreach($unilevels['network'] as $level)
@@ -953,9 +955,9 @@ class AdmintransactionsController extends Controller
                  if($levels < 11)
                  {
                     if($model->is_first_transaction())
-                        $downlines = Networks::getUnilevelDownlines($level['Members']);
+                        $downlines = Networks::getIPDUnilevelDownlines($level['Members']);
                     else
-                        $downlines = Networks::getUnilevelDownlinesByCutOff($level['Members'],$date_from,$date_to);
+                        $downlines = Networks::getIPDUnilevelDownlinesByCutOff($level['Members'],$date_from,$date_to);
                     if(!is_null($downlines))
                     {
                         $unilevel['member_id'] = $member_id;
@@ -968,7 +970,7 @@ class AdmintransactionsController extends Controller
                  }
             }
             $html2pdf = Yii::app()->ePdf->HTML2PDF();
-            $html2pdf->WriteHTML($this->renderPartial('_unilevelreport', array(
+            $html2pdf->WriteHTML($this->renderPartial('_ipdunilevelreport', array(
                     'payee'=>$payee,
                     'endorser'=>$endorser,
                     'downlines'=>$unilevel_downlines,
@@ -976,7 +978,7 @@ class AdmintransactionsController extends Controller
                     'payout'=>$payout,
                 ), true
              ));
-            $html2pdf->Output('Unilevel_' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+            $html2pdf->Output('IPD_Unilevel_' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
         }
     }
     public function actionPdfBonus()
@@ -1188,7 +1190,7 @@ class AdmintransactionsController extends Controller
         $model->cutoff_id = $_GET['cutoff_id'];
         $direct_details = $model->getDirectEndorsement();
         $total_direct_arr = $model->getPayoutTotal();
-        $total_direct_ibo = $total_direct_arr['total_ibo'];
+        $total_direct_ibo = $total_direct_arr['total_ipd'];
         $total_direct = $total_direct_arr['total_amount'];
         $cutoff_direct_arr = ReferenceModel::get_cutoff_by_id($_GET['cutoff_id']);
         $cutoff_direct = $cutoff_direct_arr['cutoff_date'];
@@ -1200,7 +1202,7 @@ class AdmintransactionsController extends Controller
                 'cutoff_direct'=>$cutoff_direct,
             ), true
          ));
-        $html2pdf->Output('IPD Direct_Endorsement_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
+        $html2pdf->Output('IPD_Direct_Endorsement_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
         Yii::app()->end();
     }
     public function actionGetTransaction()

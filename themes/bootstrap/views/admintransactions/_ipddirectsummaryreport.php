@@ -21,7 +21,7 @@
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
                 <td class="name"><?php echo $row['endorser_name']; ?></td>
-                <td class="total"><?php echo $row['ibo_count']; ?></td>
+                <td class="ctr"><?php echo $row['ipd_count']; ?></td>
                 <td class="amount"><?php echo $row['total_payout']; ?></td>
            <?php /*     <td><?php echo $row['date_approved']; ?></td>
                 <td><?php echo $row['approved_by']; ?></td>
@@ -35,7 +35,7 @@
         ?>
         <tr>
             <th align="center" colspan="2">Total Payout</th>
-            <td class="total"><strong><?php echo number_format($total_direct_ibo, 0); ?></strong></td>
+            <td class="ctr"><strong><?php echo number_format($total_direct_ibo, 0); ?></strong></td>
             <td class="amount"><strong><?php echo AdmintransactionsController::numberFormat($total_direct); ?></strong></td>
             <td>&nbsp;</td>
         </tr>

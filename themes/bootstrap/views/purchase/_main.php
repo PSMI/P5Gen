@@ -17,7 +17,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'htmlOptions'=>array('class'=>'well')
     ));
 ?>
-<?php echo CHtml::hiddenField('distributor_id'); ?>
+
 <div class="span9">
     <div class="pull-left">
 <?php echo '<h4>'.$distributor['last_name'] . ', ' . $distributor['first_name'] . ' ' . $distributor['middle_name'] . '</h4>'; ?>
@@ -52,8 +52,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         ),
         array(
             'label'=>'Purchase History', 
-            'url'=>'#',
-            'icon'=>'icon-shopping-cart'
+            'url'=>  Yii::app()->createUrl('purchase/history',array('id'=>Yii::app()->session['distributor_id'])),
+            'icon'=>'icon-shopping-cart',
+            'buttonType'=>'link',
         ),
     ),
 )); ?>
@@ -91,11 +92,31 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             ),
         ),
         array(
-            'label'=>'Cancel Purchase', 
-            'url'=>'#',
-            'icon'=>'icon-trash',
+            'buttonType'=>'ajaxButton',
+            'label'=>'Cancel Cart',
+            'icon'=>'icon-shopping-cart',
             'htmlOptions'=>array(
-                'confirm'=>'Are you sure you want cancel purchasing?',
+                'confirm'=>'Are you sure you want cancel?',
+            ),
+            'url'=>  Yii::app()->createUrl('purchase/cancelcart',array(
+                'distributor_id'=>'js:function(){return distributor_id.val()}',
+            )),
+            'ajaxOptions'=>array(
+                'type' => 'GET',
+                'dataType'=>'json',
+                'url' => 'js:$(this).attr("href")',
+                'success' => 'function(data){
+                    if(data["result_code"] == 0)
+                    {
+                        $("#result_title").html("Cancel Cart");
+                        $("#result_msg").html(data["result_msg"]);
+                        $("#message-modal").modal("show"); 
+                    }
+                    else
+                    {
+                        alert(data["result_msg"]);
+                    }
+                 }',
             ),
         ),
     ),
@@ -145,7 +166,7 @@ Yii::app()->clientScript->registerScript('ui','
  
 <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h4>Update Item</h4>
+    <h4>Update Cart</h4>
 </div>
  
 <div class="modal-body">
@@ -164,8 +185,9 @@ Yii::app()->clientScript->registerScript('ui','
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'=>'ajaxButton',
         'type'=>'primary',
-        'label'=>'Update Item',
-        'url'=>  Yii::app()->createUrl('purchase/updateitem'),
+        'label'=>'Update Cart',
+        'icon'=>'icon-shopping-cart',
+        'url'=>  Yii::app()->createUrl('purchase/updatecart'),
         'ajaxOptions'=>array(
             'type' => 'GET',
             'data'=>array(

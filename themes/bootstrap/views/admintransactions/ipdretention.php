@@ -18,7 +18,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 ?>
 
-<h3>IPD Retention Money</h3>
+<h3>Distributor Retention Money</h3>
 
 <?php
 //display table

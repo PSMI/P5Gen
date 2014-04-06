@@ -168,7 +168,7 @@ class TransactionController extends Controller
         $model = new IpdRpCommissionMember();
         $reference = new ReferenceModel();
         
-        $cutoff = $reference->get_cutoff_dates(TransactionTypes::IPD_REPEAT_PURCHASE_COMMISSION);
+        $cutoff = $reference->get_cutoff_dates(TransactionTypes::REPEAT_PURCHASE_COMMISSION);
         $next_cutoff = date('M d Y',strtotime($cutoff['next_cutoff_date']));
         
         $member_id = Yii::app()->user->getId();

@@ -5,7 +5,8 @@
  * @date : 2014-03-30
  */
 ?>
-
+<h3>Purchase History</h3>
+<h4>Distributor : <?php echo $info['last_name'] . ', ' . $info['first_name']; ?></h4>
 <?php $this->beginWidget('bootstrap.widgets.TbGridView', array(
     'id'=>'product-grid',
     'type'=>'striped bordered condensed',
@@ -23,6 +24,8 @@
                 'header'=>'Date Purchased',
                 'htmlOptions'=>array('style'=>'text-align:center'),
                 'headerHtmlOptions' => array('style' => 'text-align:center'),
+                'footer'=>'<strong>Total Purchase</strong>',
+                'footerHtmlOptions'=>array('style'=>'font-size:14px'),
             ),
         array('name'=>'product_code', 
                 'header'=>'Product Code',
@@ -38,6 +41,8 @@
                 'header'=>'Quantity',
                 'htmlOptions'=>array('style'=>'text-align:center'),
                 'headerHtmlOptions' => array('style' => 'text-align:center'),
+                'footer'=>'<strong>'.number_format($total['total_quantity'],0).'</strong>',
+                'footerHtmlOptions'=>array('style'=>'text-align:center; font-size:14px'),
             ),
         array('name'=>'srp', 
                 'header'=>'SRP',
@@ -58,66 +63,15 @@
                 'header'=>'Savings',
                 'htmlOptions'=>array('style'=>'text-align:right'),
                 'headerHtmlOptions' => array('style' => 'text-align:right'),
+                'footer'=>'<strong>'.number_format($total['total_savings'],2).'</strong>',
+                'footerHtmlOptions'=>array('style'=>'text-align:right; font-size:14px'),
             ),
         array('name'=>'total', 
                 'header'=>'Total',
                 'htmlOptions'=>array('style'=>'text-align:right'),
                 'headerHtmlOptions' => array('style' => 'text-align:right'),
-            ),
-        array('class'=>'bootstrap.widgets.TbButtonColumn',
-                'template'=>'{update}{delete}',
-                'buttons'=>array
-                (
-                    'update'=>array
-                    (
-                        'label'=>'Update Item',
-                        'icon'=>'icon-edit',
-                        'url'=>'Yii::app()->createUrl("/purchase/getvalues", array("id" =>$data["purchase_id"]))',
-                        'options' => array(
-                            'class'=>"btn btn-small",
-                            'ajax' => array(
-                                'type' => 'GET',
-                                'dataType'=>'json',
-                                'url' => 'js:$(this).attr("href")',
-                                'success' => 'function(data){
-                                    $.each(data, function(name,val){
-                                       $("#Update_distributor_id").val(val.distributor_id);
-                                       $("#Update_purchase_id").val(val.purchase_id);
-                                       $("#Update_product_id").val(val.product_id);
-                                       $("#Update_products").val(val.product_id);
-                                       $("#Update_qty").val(val.quantity);
-                                       $("#Update_payment_type_id").val(val.payment_type_id);
-                                    });
-                                    $("#purchase-update-modal").modal("show");
-                                 }',
-                            ),
-
-                        ),
-                        array('id' => 'send-link-'.uniqid())
-                    ),
-                    'delete'=>array
-                    (
-                        'label'=>'Delete Item',
-                        'icon'=>'icon-remove-sign',
-                        'url'=>'Yii::app()->createUrl("/purchase/removeitem", array("id" =>$data["purchase_id"]))',
-                        'confirm'=>'Are you sure you want to remove this item?',
-                        'options' => array(
-                            'class'=>"btn btn-small",
-                            'ajax' => array(
-                                'type' => 'GET',
-                                'dataType'=>'json',
-                                'url' => 'js:$(this).attr("href")',
-                                'success' => 'function(data){
-                                    $("#search-form").submit();
-                                 }',
-                            ),
-
-                        ),
-                        array('id' => 'send-link-'.uniqid())
-                    ),
-                ),
-                'header'=>'Action',
-                'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
+                'footer'=>'<strong>'.number_format($total['total_amount'],2).'</strong>',
+                'footerHtmlOptions'=>array('style'=>'text-align:right; font-size:14px'),
             ),
     ),
 )); ?>

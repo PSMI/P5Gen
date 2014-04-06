@@ -24,7 +24,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'htmlOptions'=>array('class'=>'well')
     ));
 ?>
-<?php echo CHtml::hiddenField('distributor_id',Yii::app()->session['distributor_id']); ?>
+<?php echo CHtml::hiddenField('distributor_id',  Yii::app()->session['distributor_id']); ?>
 <?php echo CHtml::label('Find Distributor &nbsp;', 'autocomplete_name'); ?>
 <?php $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
             'model'=>$model,
@@ -49,5 +49,12 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'buttonType'=>'submit', 
     'type'=>'primary',
     'label'=>'Select', 
+)); ?>
+
+<?php $this->widget('bootstrap.widgets.TbButton', array(
+    'buttonType'=>'link', 
+    'type'=>'info',
+    'label'=>'Clear',
+    'url'=>  Yii::app()->createUrl('purchase/index'),
 )); ?>
 <?php $this->endWidget(); ?>

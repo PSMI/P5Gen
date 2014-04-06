@@ -297,7 +297,7 @@ class Networks extends Controller
         
         return $array;
     }
-    
+        
     public function getDirectEndorser($member_id)
     {
         $model = new DirectEndorsement();
@@ -462,6 +462,31 @@ class Networks extends Controller
         
         return $array;
     }
+    
+    public function getIPDUnilevelDownlinesByCutOff($member_ids,$date_from,$date_to)
+    {
+        $model = new Downlines();
+        $rawData = $model->downlineInfo($member_ids);
+        foreach ($rawData as $key => $val)
+        {
+            
+            $placement_date = date('Y-m-d',strtotime($val['placement_date']));
+            if($placement_date > $date_from && $placement_date <= $date_to)
+            {
+                $count = $model->getUnilevelCount($val["member_id"]);
+                $temp["ID"] = $val["member_id"];
+                $temp["Count"] = $count;
+                $temp["Placement_Date"] = $val['placement_date'];
+                $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
+                $temp["DateEnrolled"] = date("F d, Y", strtotime($val["date_enrolled"]));
+                $temp["Upline"] = Networks::getMemberName($val["ipd_upline_id"]);
+                $temp["Endorser"] = Networks::getMemberName($val["ipd_endorser_id"]);
+                $array[] = $temp;
+            }
+        }
+        
+        return $array;
+    }
     /**
      * This function is used to get the distributor name of a particular
      * member id param.
@@ -549,7 +574,7 @@ class Networks extends Controller
             $temp["Placement_Date"] = date("F d, Y", strtotime($val["placement_date"]));
             $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
             $temp["DateEnrolled"] = date("F d, Y", strtotime($val["date_enrolled"]));
-            $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
+            $temp["Upline"] = Networks::getMemberName($val["ipd_upline_id"]);
             $temp["Endorser"] = Networks::getMemberName($val["ipd_endorser_id"]);
             $array[] = $temp;
         }

@@ -18,7 +18,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 ?>
 
-<h3>IPD Unilevel Payout</h3>
+<h3>Distributor Unilevel Payout</h3>
 
 <?php
 Yii::import('application.extensions.CJuiDateTimePicker.CJuiDateTimePicker');

@@ -41,7 +41,7 @@ class IpdUnilevel extends CFormModel
                     u.cutoff_id,
                     u.distributor_id,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                    u.ibo_count,
+                    u.ipd_count,
                     u.amount,
                     u.date_created,
                     DATE_FORMAT(u.date_approved, '%M %d, %Y') AS date_approved,
@@ -72,7 +72,7 @@ class IpdUnilevel extends CFormModel
         
         $query = "SELECT
                     sum(u.amount) as total_amount,
-                    sum(u.ibo_count) as total_ibo
+                    sum(u.ipd_count) as total_ipd
                   FROM distributor_unilevel u
                   WHERE u.cutoff_id = :cutoff_id";
         
@@ -92,7 +92,7 @@ class IpdUnilevel extends CFormModel
                     u.cutoff_id,
                     u.distributor_id,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                    u.ibo_count,
+                    u.ipd_count,
                     u.amount,
                     u.date_created,
                     DATE_FORMAT(u.date_approved, '%M %d, %Y') AS date_approved,
@@ -177,7 +177,7 @@ class IpdUnilevel extends CFormModel
         
         $query = "SELECT
                     ra.member_id,
-                    ra.direct_endorse,
+                    ra.ipd_direct_endorse,
                     ra.total_member,
                     ra.date_first_five_completed,
                     ra.with_unilevel_trx,
@@ -188,7 +188,7 @@ class IpdUnilevel extends CFormModel
                       ON ra.member_id = m.member_id
                   WHERE m.member_id = :member_id";
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $this->upline_id);
+        $command->bindParam(':member_id', $this->endorser_id);
         return $command->queryRow();
     }
     
@@ -199,14 +199,14 @@ class IpdUnilevel extends CFormModel
         //$payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
         
         $query = "UPDATE distributor_unilevel 
-                    SET ibo_count = ibo_count + 1, 
+                    SET ipd_count = ipd_count + 1, 
                         amount = amount + :payout,
                         date_last_updated = now()
                   WHERE cutoff_id = :cutoff_id
                     AND distributor_id = :member_id
                     AND status = 0";
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $this->upline_id);
+        $command->bindParam(':member_id', $this->endorser_id);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->bindParam(':payout', $payout);
         $result = $command->execute();     
@@ -220,7 +220,7 @@ class IpdUnilevel extends CFormModel
 //        $payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
 //        $payout = $this->total_direct_endorse * $payout_rate;
         
-        $query = "INSERT INTO distributor_unilevel (distributor_id, cutoff_id, ibo_count, amount)
+        $query = "INSERT INTO distributor_unilevel (distributor_id, cutoff_id, ipd_count, amount)
                    VALUES (:member_id, :cutoff_id, :total_direct_endorse, :payout)";        
         
         $command = $conn->createCommand($query);
@@ -258,10 +258,10 @@ class IpdUnilevel extends CFormModel
         
         //$payout_rate = ReferenceModel::get_payout_rate(TransactionTypes::UNILEVEL);
         
-        $query = "INSERT INTO distributor_unilevel (distributor_id, cutoff_id, ibo_count, amount)
+        $query = "INSERT INTO distributor_unilevel (distributor_id, cutoff_id, ipd_count, amount)
                    VALUES (:member_id, :cutoff_id, 1, :payout)";
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $this->upline_id);
+        $command->bindParam(':member_id', $this->endorser_id);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
                 $command->bindParam(':payout', $payout);
         $result = $command->execute();        
@@ -280,7 +280,7 @@ class IpdUnilevel extends CFormModel
         
         $command = $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
-        $command->bindParam(':member_id', $this->upline_id);
+        $command->bindParam(':member_id', $this->endorser_id);
         $result = $command->queryAll();
         return $result;
     }

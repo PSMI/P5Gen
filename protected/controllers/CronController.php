@@ -345,8 +345,8 @@ class CronController extends Controller
                 $this->createPID();
                 $audit->log_message = 'Created '.$this->PIDFile.' file';
                 $audit->log_cron();
-                $model->status = 1; //Processed by GOC
-                $lists = $model->getUnprocessedAgents();
+                $model->status = 0; //new records
+                $lists = $model->getUnprocessedDistributors();
                 if(count($lists)>0)
                 {
                     foreach($lists as $list)
@@ -389,6 +389,7 @@ class CronController extends Controller
         $audit->log_cron();
         echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
     }
+    
     public function actionUnilevel()
     {
         if($this->job_enabled())
@@ -490,8 +491,8 @@ class CronController extends Controller
                 $this->createPID();
                 $audit->log_message = 'Created '.$this->PIDFile.' file';
                 $audit->log_cron();
-                $model->status = 2; //Processed by Direct Endorse
-                $lists = $model->getUnprocessedAgents();
+                $model->status = 1; //Processed by Direct Endorse
+                $lists = $model->getUnprocessedDistributors();
                 
                 if(count($lists)>0)
                 {
@@ -502,17 +503,17 @@ class CronController extends Controller
                         if($retval['result_code'] == 0)
                         {
                             //add to auditlogs
-                            $audit->log_message = 'IpdUnilevel processing  successful for member '.$member_id.' uplines.';
+                            $audit->log_message = 'IPD Unilevel processing  successful for member '.$member_id.' uplines.';
                         }
                         elseif($retval['result_code'] == 1)
                         {
                             //add to auditlogs
-                            $audit->log_message = 'IpdUnilevel processing failed for member '.$member_id.' uplines.';
+                            $audit->log_message = 'IPD Unilevel processing failed for member '.$member_id.' uplines.';
                             $audit->status = 2;
                         }
                         elseif($retval['result_code'] == 2)
                         {
-                            $audit->log_message = 'Direct endorse count for member '.$member_id. ' is not valid for ipdunilevel entry.';
+                            $audit->log_message = 'Direct endorse count for member '.$member_id. ' is not valid for IPD unilevel entry.';
                             $audit->status = 2;
                         }
                         elseif($retval['result_code'] == 3)
@@ -533,9 +534,9 @@ class CronController extends Controller
             }
             else
             {
-                $audit->log_message = 'IpdUnilevel process PID file still exist. Please wait current process to finish. ';
+                $audit->log_message = 'IPD Unilevel process PID file still exist. Please wait current process to finish. ';
             }
-            $audit->log_message = 'IpdUnilevel job process has ended.';
+            $audit->log_message = 'IPD Unilevel job process has ended.';
         }
         else
         {
@@ -944,6 +945,7 @@ class CronController extends Controller
                 $audit->log_cron();
                 
                 $lists = $model->get_unprocessed_purchases();
+                
                 if(count($lists)>0)
                 {
                     foreach($lists as $list)

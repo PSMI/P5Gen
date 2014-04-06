@@ -179,14 +179,20 @@ class Transactions extends Controller
         $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_DIRECT_ENDORSE);
         //Get payout
         $account = $model->get_running_account($endorser_id);
-        if ($account['account_type_id'] == 5)
-        {
-            $payout = Transactions::getIpdDirectEndorseRateByDirectEndorseCount($account['direct_endorse'], $reference);
-        }
+//        if ($account['account_type_id'] == 5)
+//        {
+//            $payout = Transactions::getIpdDirectEndorseRateByDirectEndorseCount($account['direct_endorse'], $reference);
+//        }
+//        else
+//        {
+//            $payout = 100;
+//        }     
+        
+        if(Members::getMembershipType($endorser_id) == 'distributor')
+            $payout = Transactions::getIpdDirectEndorseRateByDirectEndorseCount($account['ipd_direct_endorse'], $reference);
         else
-        {
-            $payout = 100;
-        }        
+            $payout = $reference->get_variable_value ('IBO_DIRECT_COMMISSION_AMOUNT');
+        
         $model->member_id = $member_id;
         $model->endorser_id = $endorser_id;
         $model->cutoff_id = $cutoff_id;
@@ -194,8 +200,8 @@ class Transactions extends Controller
         $retval = $model->add_transactions();
         if($retval)
         {
-            $member->status = 2; //Processed by direct endorsement
-            $result = $member->updateUnprocessedAgents();
+            $member->status = 1; //Processed by direct endorsement
+            $result = $member->updateUnprocessedDistributors();
             if(count($result)>0)
                 return true;
             else
@@ -206,25 +212,26 @@ class Transactions extends Controller
             return false;
         }
     }
+    
     public function getIpdDirectEndorseRateByDirectEndorseCount($direct_endorse_count, $reference)
     {
         if($direct_endorse_count < 5)
         {
-            $payout = $reference->get_variables_by_id(21);
+            $payout = $reference->get_variable_value('IPD_DIRECT_5_COMMISSION_AMOUNT');
         }
         else if (($direct_endorse_count > 4) && ($direct_endorse_count < 10))
         {
-            $payout = $reference->get_variables_by_id(22);
+            $payout = $reference->get_variable_value('IPD_DIRECT_10_COMMISSION_AMOUNT');
         }
         else if (($direct_endorse_count > 9) && ($direct_endorse_count < 15))
         {
-            $payout = $reference->get_variables_by_id(23);
+            $payout = $reference->get_variable_value('IPD_DIRECT_15_COMMISSION_AMOUNT');
         }
         else
         {
-            $payout = $reference->get_variables_by_id(24);
+            $payout = $reference->get_variable_value('IPD_DIRECT_COMMISSION_AMOUNT');
         }
-        return $payout['variable_value'];
+        return $payout;
     }
     /**
      * Process unilevel transactions
@@ -344,100 +351,53 @@ class Transactions extends Controller
         $reference = new ReferenceModel();
         $member = new MembersModel();
         $member->member_id = $member_id;
-        $uplines = Networks::getEndorser($member_id);
+//        $uplines = Networks::getEndorser($member_id);
+//        if(is_null($uplines))//root record
+//            $uplines = array($member_id);
         
-        if(is_null($uplines))//root record
-            $uplines = array($member_id);
+        $endorsers = Networks::getIPDEndorser($member_id);
+        
+        if(is_null($endorsers))//root record
+            $endorsers = array($member_id);
         
         $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_UNILEVEL); 
         $model->cutoff_id = $cutoff_id;
-        
         $conn = $model->_connection;
         $trx = $conn->beginTransaction();
-        
         try
         {
-            foreach($uplines as $upline)
+            foreach($endorsers as $endorser)
             {
                 //Check each upline running account
-                $model->upline_id = $upline;
+                $model->endorser_id = $endorser;
                 $account = $model->get_running_account();
+                $ipd_direct_count = $account['ipd_direct_endorse'];
                 
-                //Get Total Purchased Amount w/in a month
-                $purchased_amount = 0;
-                $purchased = $model->getTotalPurchaseAmount();
-                $purchased_amount = $purchased_amount + $purchased['total'];
-                
-                //Get Product Maintenance Value
-                $product_maintenance = $reference->get_variables_by_id(30);
-                $product_maintenance_value = $product_maintenance['variable_value'];
-                
-                if ($purchased_amount > $product_maintenance_value)
+                //Check existing active transaction for current cutoff
+                $trans = $model->check_transaction();
+                $level = Networks::getLevel($endorser, $member_id);
+
+                if(Members::getMembershipType($member_id) == 'distributor')
+                    $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($ipd_direct_count, $reference, $level);
+                else
+                    $payout = $reference->get_variable_value('IBO_UNILEVEL_BONUS');
+
+                if(count($trans) > 0)
                 {
-                    //Check if endorsed atleast 1 direct endorse
-                    if ($account['direct_endorse'] > 0)
-                    {
-                        $payout = 5;
-                    }
-                    else 
-                    {
-                        $payout = 0;
-                    }
-
-                    // If member has already unilevel transaction
-                    if($account['with_unilevel_trx'] == 1)
-                    {
-                        //Check existing active transaction for current cutoff
-                        $trans = $model->check_transaction();
-                        $level = Networks::getLevelIpd($upline, $member_id);
-
-                        //Get payout
-                        if ($account['account_type_id'] == 5)
-                        {
-                            $payout = $payout + Transactions::getIpdUnilevelBonusByDirectEndorseCount($account['direct_endorse'], $reference, $level);
-                        }
-                        else
-                        {
-                            $payout = $payout + 50;
-                        }
-
-                        if(count($trans) > 0)
-                        {
-                            if($level < 11) $model->update_transaction($payout);
-                        }
-                        else
-                        {
-                            $model->new_transaction($payout);
-                        }
-                    }
-                    else //First transaction
-                    {
-                        $level = Networks::getLevel($upline, $member_id);
-                        if ($account['account_type_id'] == 5)
-                        {
-                            $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($account['direct_endorse'], $reference, $level);
-                        }
-                        else
-                        {
-                            if($level < 11)
-                            {
-                                $payout = 50;
-                            }
-                        }
-                        
-                        $model->total_direct_endorse = $account['total_member'];
-                        $retval = $model->insert_first_transaction($payout);
-                    }
+                    if($level < 11) $model->update_transaction($payout);
+                }
+                else
+                {
+                    $model->new_transaction($payout);
                 }
             }
-            
-            $member->status = 3; //Processed by unilevel endorsement
-            $member->updateUnprocessedAgents();
-            
+//            var_dump($model); exit;
+            $member->status = 2; //Processed by ipd unilevel
+            $member->updateUnprocessedDistributors();
             if(!$model->hasErrors() && !$member->hasErrors())
             {
                 $trx->commit();
-                return array('result_code'=>0, 'result_msg'=>'Successfully process unilevel transactions');
+                return array('result_code'=>0, 'result_msg'=>'Successfully process IPD unilevel transactions');
             }
             else
             {
@@ -451,46 +411,35 @@ class Transactions extends Controller
             return array('result_code'=>3, 'result_msg'=>$e->getMessage());
         }
     }
+    
     public function getIpdUnilevelBonusByDirectEndorseCount($direct_endorse_count, $reference, $level)
     {
         if($direct_endorse_count < 5)
         {
-            $payout = $reference->get_variables_by_id(25);
+            $payout = $reference->get_variable_value('IPD_UNILEVEL_BONUS');
         }
         else if (($direct_endorse_count > 4) && ($direct_endorse_count < 10))
         {
             if ($level < 6)
             {
-                $payout = $reference->get_variables_by_id(26);
-            }
-            else
-            {
-                $payout['variable_value'] = 0;
+                $payout = $reference->get_variable_value('IPD_UNILEVEL_5_BONUS_LEVEL_5');
             }
         }
         else if (($direct_endorse_count > 9) && ($direct_endorse_count < 15))
         {
             if ($level < 8)
             {
-                $payout = $reference->get_variables_by_id(27);
-            }
-            else
-            {
-                $payout['variable_value'] = 0;
+                $payout = $reference->get_variable_value('IPD_UNILEVEL_10_BONUS_LEVEL_7');
             }
         }
         else
         {
             if ($level < 11)
             {
-                $payout = $reference->get_variables_by_id(28);
-            }
-            else
-            {
-                $payout['variable_value'] = 0;
+                $payout = $reference->get_variable_value('IPD_UNILEVEL_15_BONUS_LEVEL_10');
             }
         }
-        return $payout['variable_value'];
+        return $payout;
     }
     
     /**
@@ -825,9 +774,9 @@ class Transactions extends Controller
         if(is_null($endorsers))//root record
             $endorsers = array($distributor_id);
         
-        $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_REPEAT_PURCHASE_COMMISSION); 
+        $cutoff_id = $reference->get_cutoff(TransactionTypes::REPEAT_PURCHASE_COMMISSION); 
         $model->cutoff_id = $cutoff_id;      
-        
+        //var_dump($cutoff_id); exit;
         $conn = $model->_connection;
         $trx = $conn->beginTransaction();
         

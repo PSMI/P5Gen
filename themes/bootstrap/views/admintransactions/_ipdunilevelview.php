@@ -23,11 +23,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                               'footer'=>'<strong>Total Payout</strong>',
                               'footerHtmlOptions'=>array('style'=>'font-size:14px'),
                         ), 
-                        array('name'=>'ibo_count',
+                        array('name'=>'ipd_count',
                             'header'=>'IPD Count',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),                            
-                            'footer'=>'<strong>'.number_format($total['total_ibo'],0).'</strong>',
+                            'footer'=>'<strong>'.number_format($total['total_ipd'],0).'</strong>',
                             'footerHtmlOptions'=>array('style'=>'text-align:center; font-size:14px'),
                         ),
                         array('name'=>'amount',
@@ -65,7 +65,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}{claim}{download}',
+                            'template'=>'{approve}{claim}{download}{flushout}',
                             'buttons'=>array
                             (
                                 'approve'=>array
@@ -104,6 +104,32 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                         'confirm'=>'Are you sure you want to CLAIM?',
+                                        'ajax' => array(
+                                            'type' => 'GET',
+                                            'dataType'=>'json',
+                                            'url' => 'js:$(this).attr("href")',
+                                            'success' => 'function(data){
+                                                if(data.result_code == 0)
+                                                {
+                                                    alert(data.result_msg);
+                                                    $.fn.yiiGridView.update("ipdunilvl-grid");
+                                                }
+                                                else
+                                                    alert(data.result_msg);
+                                             }',
+                                        ),
+                                    ),
+                                    array('id' => 'send-link-'.uniqid())
+                                ),
+                                'flushout'=>array
+                                (
+                                    'label'=>'Flush Out',
+                                    'icon'=>'icon-ban-circle',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["unilevel_id"], "status" => "2", "transtype" => "ipdunilvl"))',
+                                    'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 2)',
+                                    'options' => array(
+                                        'class'=>"btn btn-small",
+                                        'confirm'=>'Are you sure you want to FLUSH-OUT?',
                                         'ajax' => array(
                                             'type' => 'GET',
                                             'dataType'=>'json',

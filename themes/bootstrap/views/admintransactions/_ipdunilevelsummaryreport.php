@@ -21,7 +21,7 @@
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
                 <td class="name"><?php echo $row['member_name']; ?></td>
-                <td class="total"><?php echo $row['ibo_count']; ?></td>
+                <td class="total"><?php echo $row['ipd_count']; ?></td>
                 <td class="amount"><?php echo AdmintransactionsController::numberFormat($row['amount']); ?></td>
            <?php /*     <td><?php echo $row['date_approved']; ?></td>
                 <td><?php echo $row['approved_by']; ?></td>

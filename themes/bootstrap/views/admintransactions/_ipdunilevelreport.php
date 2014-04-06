@@ -14,13 +14,13 @@ $curdate = date('M d, Y h:ia');
 <page>
     <div id="header" align="center">
         <div class="logo">&nbsp;</div>
-        <p class="address">Unit 6 2nd Flr. Maclane Centre, Nat’l Hi-way<br />
+        <p class="address">Unit 6 2nd Flr. Maclane Centre, Nat'l Hi-way<br />
         San Antonio, San Pedro, Laguna<br />
         www.p5partners.com<br />
         (02)553-68-19
         </p>
     </div>
-    <h4>Unilevel Payout Summary </h4>
+    <h4>IPD Unilevel Payout Summary </h4>
     <table id="tbl-summary">
         <tr>
             <th>Name of Payee</th>
@@ -57,8 +57,8 @@ $curdate = date('M d, Y h:ia');
             <td><?php echo $cutoff_date; ?></td>
         </tr>
         <tr>
-            <th>Total IBO</th>
-            <td align="right"><?php echo $payout['ibo_count']; ?></td>
+            <th>Total IPD</th>
+            <td align="right"><?php echo $payout['ipd_count']; ?></td>
         </tr>
         <tr>
             <th>Total Amount</th>
@@ -92,11 +92,11 @@ $curdate = date('M d, Y h:ia');
         </tr>
     </table>
     <div id="footer">
-        <div class="slogan" align="center">“Finding ways in helping others is our top priority.”</div>
+        <div class="slogan" align="center">Finding ways in helping others is our top priority.</div>
     </div>
 </page>
 <page>
-    <h4>Unilevel Payout </h4>
+    <h4>IPD Unilevel Payout </h4>
     <table id="tbl-details">
         <tr>
             <th>Name of Payee</th>
@@ -128,7 +128,7 @@ $curdate = date('M d, Y h:ia');
         <tr>
             <th class="ctr">&nbsp;</th>
             <th class="ctr">Lvl</th>
-            <th class="name">Name of Endorsed IBO</th>
+            <th class="name">Name of Endorsed IPD</th>
             <th class="name">Endorser</th>
             <th class="name">Place Under</th>
             <th class="date">Date Joined</th>
@@ -160,7 +160,7 @@ $curdate = date('M d, Y h:ia');
     <table id="tbl-details">
         <tr>
             <th>Total IBO</th>
-            <td align="right"><?php echo $payout['ibo_count']; ?></td>
+            <td align="right"><?php echo $payout['ipd_count']; ?></td>
         </tr>
         <tr>
             <th>Total Amount</th>

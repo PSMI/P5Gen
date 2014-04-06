@@ -51,7 +51,7 @@ class IpdDirectEndorsement extends CFormModel
                     DATE_FORMAT(d.date_claimed, '%M %d, %Y') AS date_claimed,
                     CONCAT(md3.last_name, ', ', md3.first_name) AS claimed_by,
                     CONCAT(md4.last_name, ', ', md4.first_name) AS endorser_name,                    
-                    COUNT(d.endorser_id) AS ibo_count,
+                    COUNT(d.endorser_id) AS ipd_count,
                     FORMAT(SUM(d.amount),2) AS total_payout,
                     d.status
                   FROM distributor_endorsements d
@@ -129,7 +129,7 @@ class IpdDirectEndorsement extends CFormModel
         
         $query = "SELECT
                     SUM(amount) AS total_amount,
-                    COUNT(*) AS total_ibo
+                    COUNT(*) AS total_ipd
                   FROM distributor_endorsements d
                   WHERE d.cutoff_id = :cutoff_id";
         
@@ -294,7 +294,7 @@ class IpdDirectEndorsement extends CFormModel
                       ON ra.member_id = m.member_id
                   WHERE m.member_id = :member_id";
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $this->upline_id);
+        $command->bindParam(':member_id', $this->member_id);
         return $command->queryRow();
     }
 }

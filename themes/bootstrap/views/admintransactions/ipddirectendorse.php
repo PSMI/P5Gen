@@ -18,7 +18,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 ?>
 
-<h3>IPD Direct Endorsement Payout</h3>
+<h3>Distributor Endorsement Payout</h3>
 
 <?php
 

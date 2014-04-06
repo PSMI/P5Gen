@@ -33,22 +33,11 @@ class IpdRetention extends CFormModel
                     d.purchase_id,
                     d.distributor_id,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                    p.product_name,
-                    DATE_FORMAT(d.date_purchased, '%M %d, %Y') AS date_purchased,
-                    d.quantity,
-                    d.srp,
-                    d.discount,
-                    d.net_price,
-                    d.total,
-                    d.savings,
-                    pt.payment_type_name
+                    sum(d.savings) AS savings
                   FROM distributor_purchased_items d
                     INNER JOIN member_details md
                       ON d.distributor_id = md.member_id
-                    LEFT OUTER JOIN products p
-                      ON d.product_id = p.product_id
-                    LEFT OUTER JOIN ref_paymenttypes pt
-                      ON d.payment_type_id = pt.payment_type_id
+                  GROUP BY d.distributor_id
                   ORDER BY md.last_name;";
         
         $command =  $conn->createCommand($query);
@@ -63,6 +52,20 @@ class IpdRetention extends CFormModel
         
         $query = "SELECT
                     sum(d.total) as total_amount
+                  FROM distributor_purchased_items d";
+        
+        $command =  $conn->createCommand($query);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
+    
+    public function getTotalSavings()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    sum(d.savings) as total_savings
                   FROM distributor_purchased_items d";
         
         $command =  $conn->createCommand($query);

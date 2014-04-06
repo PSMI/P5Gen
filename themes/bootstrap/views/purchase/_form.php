@@ -11,6 +11,7 @@ Yii::app()->clientScript->registerScript('ui','
      $(\'input[rel="tooltip"]\').tooltip();     
      var quantity = $("#quantity"),
          product_id = $("#product_id"),
+         product_name = $("#PurchasesModel_product_name"),
          distributor_id = $("#distributor_id"),
          payment_type_id = $("#payment_type_id");
              
@@ -21,13 +22,34 @@ Yii::app()->clientScript->registerScript('ui','
  
 <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h4>Add Items</h4>
+    <h4>Add to Cart</h4>
 </div>
  
 <div class="modal-body">
     <?php echo CHtml::hiddenField('distributor_id',  Yii::app()->session['distributor_id']); ?>
-    <?php echo CHtml::label('Product', 'product_id'); ?>
-    <?php echo CHtml::dropDownList('product_id', '',ProductsForm::listProducts(), array('class'=>'span3')); ?>
+    <?php echo CHtml::hiddenField('product_id'); ?>
+    <?php echo CHtml::label('Product', 'product_name'); ?>
+    <?php //echo CHtml::dropDownList('product_id', '',ProductsForm::listProducts(), array('class'=>'span3')); 
+        $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
+                'model'=>$model,
+                'attribute'=>'product_name',
+                //'id'=>'product_name',
+                'sourceUrl'=>  Yii::app()->createUrl('purchase/products'),
+                'options'=>array(
+                    'minLength'=>'2',
+                    'showAnim'=>'fold',
+                    'focus' => 'js:function(event, ui){$("#PurchasesModel_product_name").val(ui.item["value"])}',
+                    'select' => 'js:function(event, ui){$("#product_id").val(ui.item["id"]); }',
+                ),
+                'htmlOptions'=>array(
+                    'class'=>'span3',
+                    'rel'=>'tooltip',
+                    'title'=>'Please type the product code or name.',
+                    'autocomplete'=>'off',
+                    //'onblur'=>'validateUpline()'
+                ),        
+            ));
+    ?>
     <?php echo CHtml::label('Quantity', 'quantity'); ?>
     <?php echo CHtml::textField('quantity',1,array('style'=>'text-align:right','class'=>'span1','tooltip'=>'Quantity')); ?>
     <?php echo CHtml::label('Payment Type', 'payment_type'); ?>
@@ -38,8 +60,9 @@ Yii::app()->clientScript->registerScript('ui','
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'=>'ajaxButton',
         'type'=>'primary',
-        'label'=>'Purchase Item',
-        'url'=>  Yii::app()->createUrl('purchase/additem',array(
+        'icon'=>'icon-shopping-cart',
+        'label'=>'Add to Cart',
+        'url'=>  Yii::app()->createUrl('purchase/addtocart',array(
             'product_id'=>'js:function(){return product_id.val()}',
             'quantity'=>'js:function(){return quantity.val()}',
             'distributor_id'=>'js:function(){return distributor_id.val()}',
@@ -69,5 +92,6 @@ Yii::app()->clientScript->registerScript('ui','
         'htmlOptions'=>array('data-dismiss'=>'modal'),
     )); ?>
 </div>
- 
+
 <?php $this->endWidget(); ?>
+

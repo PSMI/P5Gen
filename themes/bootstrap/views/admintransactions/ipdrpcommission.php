@@ -18,7 +18,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 ?>
 
-<h3>IPD RP Commission</h3>
+<h3>Distributor Repeat Purchase Commission</h3>
 
 <?php
 /** @var BootActiveForm $form */
@@ -28,7 +28,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 ));
 
-echo $form->dropDownListRow($model,'cutoff_id', ReferenceModel::list_cutoffs(TransactionTypes::IPD_REPEAT_PURCHASE_COMMISSION), array('class'=>'span3'));
+echo $form->dropDownListRow($model,'cutoff_id', ReferenceModel::list_cutoffs(TransactionTypes::REPEAT_PURCHASE_COMMISSION), array('class'=>'span3'));
 
 $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Search', 'htmlOptions' => array('style' => 'margin-left: 10px;')));
 

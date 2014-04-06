@@ -237,7 +237,7 @@ class MembersModel extends CFormModel
         return $result;
     }
     
-    public function getUnprocessedAgents()
+    public function getUnprocessedDistributors()
     {
         $conn = $this->_connection;
         $query = "SELECT * 
@@ -248,7 +248,7 @@ class MembersModel extends CFormModel
         $command->bindParam(':status', $this->status);
         return $command->queryAll();
     }
-    public function updateUnprocessedAgents()
+    public function updateUnprocessedDistributors()
     {
         $conn = $this->_connection;
         $query = "UPDATE unprocessed_distributors

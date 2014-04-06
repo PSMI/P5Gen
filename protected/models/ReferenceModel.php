@@ -61,6 +61,9 @@ class ReferenceModel extends CFormModel
         $goc_cutoff = ReferenceModel::get_variable_value('GOC_CUTOFF_INTERVAL');
         $unilevel_cutoff = ReferenceModel::get_variable_value('UNILEVEL_CUTOFF_INTERVAL');
         $direct_cutoff = ReferenceModel::get_variable_value('DIRECT_CUTOFF_INTERVAL');
+        $ipd_direct_cutoff = ReferenceModel::get_variable_value('IPD_DIRECT_CUTOFF_INTERVAL');
+        $ipd_unilevel_cutoff = ReferenceModel::get_variable_value('IPD_UNILEVEL_CUTOFF_INTERVAL');
+        $repeat_purchase_cutoff = ReferenceModel::get_variable_value('IPD_UNILEVEL_CUTOFF_INTERVAL');
         
         switch($trans_type_id)
         {
@@ -72,6 +75,15 @@ class ReferenceModel extends CFormModel
                 break;
             case 6: //Direct Endorsement
                 $interval = " ".$direct_cutoff;
+                break;
+            case 7: // IPD Direct
+                $interval = " ".$ipd_direct_cutoff;
+                break;
+            case 8: // IPD Unilevel
+                $interval = " ".$ipd_unilevel_cutoff;
+                break;
+            case 9: // Repeat Purchase
+                $interval = " ".$repeat_purchase_cutoff;
                 break;
             
         }
@@ -240,7 +252,7 @@ class ReferenceModel extends CFormModel
         $conn = $this->_connection;
         $query = "SELECT * FROM ref_variables 
                     WHERE (variable_id > 5 AND variable_id < 10) 
-                    OR (variable_id >= 16 AND variable_id <=20)";
+                    OR (variable_id IN (16,19,20,35))";
         $command = $conn->createCommand($query);
         $result = $command->queryAll();
         return $result;
@@ -251,7 +263,8 @@ class ReferenceModel extends CFormModel
         $conn = $this->_connection;
         $query = "SELECT * FROM ref_variables 
                     WHERE (variable_id >= 10 AND variable_id <= 15)
-                           OR (variable_id >= 21 AND variable_id <= 31)";
+                           OR (variable_id >= 21 AND variable_id <= 34)
+                           OR (variable_id IN (17,18))";
         $command = $conn->createCommand($query);
         $result = $command->queryAll();
         return $result;
