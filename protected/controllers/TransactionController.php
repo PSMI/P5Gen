@@ -175,6 +175,7 @@ class TransactionController extends Controller
         $member_id = Yii::app()->user->getId();
 
         $rawData = $model->getIpdRpCommission($member_id);
+        $total = $model->getPayoutTotal($member_id);
 
         $dataProvider = new CArrayDataProvider($rawData, array(
                                                 'keyField' => false,
@@ -183,7 +184,7 @@ class TransactionController extends Controller
                                             ),
                                 ));
 
-        $this->render('ipdrpcommission', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff));
+        $this->render('ipdrpcommission', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff, 'total'=>$total));
     }
     
     public function getStatusForButtonDisplayLoan($status_id, $status_type)
@@ -541,7 +542,7 @@ class TransactionController extends Controller
             $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
             $total_tax = $total_amount * ($tax_withheld/100);
             $payout['total_amount'] = $total_amount;
-            $payout['ibo_count'] = $result['ibo_count'];
+            $payout['ipd_count'] = $result['ipd_count'];
             $payout['tax_amount'] = $total_tax;
             $payout['net_amount'] = $total_amount - $total_tax;
             //Payee Information
@@ -626,6 +627,28 @@ class TransactionController extends Controller
             ), true
          ));
         $html2pdf->Output('Distributor_Direct_Endorsement_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
+        Yii::app()->end();
+    }
+    
+    public function actionIpdPdfRpCommissionSummary()
+    {
+        $model = new IpdRpCommissionMember();
+        $member_id = Yii::app()->user->getId();
+        
+        $member_name_arr = $model->getMemberName($member_id);
+        $member_name = $member_name_arr[0]['member_name'];
+        
+        $direct_details = $model->getIpdRpCommission($member_id);
+        $total = $model->getPayoutTotal($member_id);
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+        $html2pdf->WriteHTML($this->renderPartial('_ipdrpcommissionsummaryreport', array(
+                'direct_details'=>$direct_details,
+                'member_name'=>$member_name,
+                'total'=>$total,
+            ), true
+         ));
+        $html2pdf->Output('Distributor_Repeat_Purchase_Commission' . date('Y-m-d') . '.pdf', 'D'); 
         Yii::app()->end();
     }
 }
