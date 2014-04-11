@@ -32,13 +32,13 @@ echo $form->dropDownListRow($model,'cutoff_id', ReferenceModel::list_cutoffs(Tra
 
 $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Search', 'htmlOptions' => array('style' => 'margin-left: 10px;')));
 
-//$this->widget("bootstrap.widgets.TbButton", array(
-//                                            "label"=>"Export to PDF",
-//                                            //"icon"=>"icon-chevron-left",
-//                                            "type"=>"info",
-//                                            //'url'=>'pdfipdunilevelsummary?cutoff_id='.$model->cutoff_id,
-//                                            "htmlOptions"=>array("style"=>"float: right"),
-//                                        ));
+$this->widget("bootstrap.widgets.TbButton", array(
+                                            "label"=>"Export to PDF",
+                                            //"icon"=>"icon-chevron-left",
+                                            "type"=>"info",
+                                            'url'=>'ibopdfrpcommissionsummary?cutoff_id='.$model->cutoff_id,
+                                            "htmlOptions"=>array("style"=>"float: right"),
+                                        ));
 
 $this->endWidget(); 
 

@@ -58,7 +58,7 @@ $curdate = date('M d, Y h:ia');
             <td><?php echo $cutoff_date; ?></td>
         </tr>
         <tr>
-            <th>Total IBO</th>
+            <th>Total IPD</th>
             <td align="right"><?php echo number_format($total['total_ibo'], 0); ?></td>
         </tr>
         <tr>
@@ -150,7 +150,7 @@ $curdate = date('M d, Y h:ia');
     <br />
     <table id="tbl-details">
         <tr>
-            <th>Total IBO</th>
+            <th>Total IPD</th>
             <td align="right"><?php echo number_format($total['total_ibo'], 0); ?></td>
         </tr>
         <tr>

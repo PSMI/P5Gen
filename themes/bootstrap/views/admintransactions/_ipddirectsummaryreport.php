@@ -1,6 +1,6 @@
 <link href="css/report.css" type="text/css" rel="stylesheet" />
 <page>
-    <h4>IPD Direct Endorsement Payout Summary</h4>
+    <h4>Distributor Direct Endorsement Payout Summary</h4>
     <h5>Cutoff Date: <?php echo $cutoff_direct; ?></h5>
     <table id="tbl-lists2">
         <tr>

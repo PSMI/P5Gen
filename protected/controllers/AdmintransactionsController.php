@@ -1084,6 +1084,56 @@ class AdmintransactionsController extends Controller
         }
     }
     
+    public function actionIpdPdfDirect()
+    {
+        if(isset($_GET['id']) && isset($_GET['cutoff_id']))
+        {
+            $endorser_id = $_GET["id"];
+            $cutoff_id = $_GET["cutoff_id"];
+            
+            $member = new MembersModel();            
+            $model = new IpdDirectEndorsement();
+            $reference = new ReferenceModel();
+            
+            $model->cutoff_id = $cutoff_id;
+            $model->endorser_id = $endorser_id;
+            
+            //Payee Information
+            $payee = $member->selectMemberDetails($endorser_id);
+            $payee_endorser_id = $payee['endorser_id'];
+            $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
+            
+            //Endorser Information
+            $endorser = $member->selectMemberDetails($payee_endorser_id);
+            
+            //Cut-Off Dates
+            $cutoff = $reference->get_cutoff_by_id($cutoff_id);
+            
+            $endorsee = $model->getEndorseeByCutoff();
+            $total = $model->getEndorsementTotalAmount();
+            
+            $total_amount = $total['total_amount'];
+            
+            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $total_tax = $total_amount * ($tax_withheld/100);
+            
+            $total['tax_amount'] = $total_tax;
+            $total['net_amount'] = $total_amount - $total_tax;
+           
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+            $html2pdf->WriteHTML($this->renderPartial('_ipddirectendorsereport', array(
+                    'payee'=>$payee,
+                    'endorser'=>$endorser,
+                    'endorsee'=>$endorsee,
+                    'cutoff'=>$cutoff,
+                    'total'=>$total,
+                ), true
+             ));
+            $html2pdf->Output('DirectEndorsement_' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+            Yii::app()->end();
+        }
+    }
+    
     public function actionPdfLoanSummary()
     {
         $model = new Loan();
@@ -1213,7 +1263,7 @@ class AdmintransactionsController extends Controller
                 'cutoff_direct'=>$cutoff_direct,
             ), true
          ));
-        $html2pdf->Output('IPD_Direct_Endorsement_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
+        $html2pdf->Output('Distributor_Direct_Endorsement_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
         Yii::app()->end();
     }
     public function actionGetTransaction()
@@ -1223,6 +1273,28 @@ class AdmintransactionsController extends Controller
             $details[] = array('direct_endorsement_id'=>$_GET['id'],'endorser_id'=>$_GET['endorser_id'],'cutoff_id'=>$_GET['cutoff_id']);
             echo CJSON::encode($details);
         }
+    }
+    
+    public function actionIboPdfRpCommissionSummary()
+    {
+        $model = new IboRpCommission();
+        $model->cutoff_id = $_GET['cutoff_id'];
+        
+        $direct_details = $model->getIboRpCommission();
+        $total = $model->getPayoutTotal();
+        
+        $cutoff_rpcomm_arr = ReferenceModel::get_cutoff_by_id($_GET['cutoff_id']);
+        $cutoff_rpcomm = $cutoff_rpcomm_arr['cutoff_date'];
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+        $html2pdf->WriteHTML($this->renderPartial('_iborpcommissionsummaryreport', array(
+                'direct_details'=>$direct_details,
+                'total'=>$total,
+                'cutoff_rpcomm'=>$cutoff_rpcomm,
+            ), true
+         ));
+        $html2pdf->Output('Member_Repeat_Purchase_Commission' . date('Y-m-d') . '.pdf', 'D'); 
+        Yii::app()->end();
     }
 }
 ?>

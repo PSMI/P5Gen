@@ -137,7 +137,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Download',
                                     'icon'=>'icon-download-alt',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfdirect", array("id" =>$data["endorser_id"], "cutoff_id" =>$data["cutoff_id"]))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/ipdpdfdirect", array("id" =>$data["endorser_id"], "cutoff_id" =>$data["cutoff_id"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),
