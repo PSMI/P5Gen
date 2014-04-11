@@ -355,6 +355,7 @@ class Transactions extends Controller
 //        if(is_null($uplines))//root record
 //            $uplines = array($member_id);
         
+        //Get all endorsers regardless if IPD or IBO
         $endorsers = Networks::getIPDEndorser($member_id);
         
         if(is_null($endorsers))//root record
@@ -769,7 +770,8 @@ class Transactions extends Controller
         $total_purchase = $distributor_purchases['total'];
         $model->purchase_id = $distributor_purchases['purchase_id'];
         
-        $endorsers = Networks::getIPDEndorser($distributor_id);
+        //rp commission regardless of ibo or ipd endorser
+        $endorsers = Networks::getIPD10thUnilevelNetworkForPayout($distributor_id);
         
         if(is_null($endorsers))//root record
             $endorsers = array($distributor_id);

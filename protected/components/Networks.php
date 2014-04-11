@@ -650,5 +650,32 @@ class Networks extends Controller
         
         return $member_array;
     }
+    /**
+     * This function is used to trace the unilevel network of a newly
+     * registered IPD upto 10th level.
+     * It trace whatever account type the member is. Either it's IBO or IPD
+     * it should be included in the unilevel network.
+     * This will be used for payout purposes.
+     */
+    public function getIPD10thUnilevelNetworkForPayout($member_id, $level = 0)
+    {
+        $model = new Endorser();
+        $parent = array();
+        $children = array();
+        $i = 0;
+        $level++;
+        if ($level <= 10)
+        {
+            $downlines = $model->getEndorserForIPDUnilevel($member_id);
+            foreach ($downlines as $key => $val)
+            {
+                $parent[$i][$level] = $downlines[$key]["downline"];
+                $children = array_merge($children, Networks::getIPD10thUnilevelNetworkForPayout($downlines[$key]["downline"], $level));
+                $i++;
+            }
+        }
+        $finalTree = array_merge($parent, $children);
+        return $finalTree;
+    }
 }
 ?>
