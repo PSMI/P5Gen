@@ -41,7 +41,7 @@ class MemberDetailsModel extends CFormModel
         return array(
                 array('last_name, first_name, middle_name
                         address1, civil_status
-                        mobile_no, email, gender, birth_date, date_joined', 'required'),
+                        mobile_no, email, gender, birth_date', 'required'),
             
                 array('member_id, address2, address3, zip_code, telephone_no, tin_no
                         company, occupation, 

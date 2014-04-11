@@ -12,7 +12,7 @@ Yii::app()->clientScript->registerScript('ui','
      var quantity = $("#quantity"),
          product_id = $("#product_id"),
          product_name = $("#PurchasesModel_product_name"),
-         distributor_id = $("#distributor_id"),
+         member_id = $("#member_id"),
          payment_type_id = $("#payment_type_id");
              
  ', CClientScript::POS_END);
@@ -26,7 +26,8 @@ Yii::app()->clientScript->registerScript('ui','
 </div>
  
 <div class="modal-body">
-    <?php echo CHtml::hiddenField('distributor_id',  Yii::app()->session['distributor_id']); ?>
+    <?php echo CHtml::hiddenField('purchase_summary_id',  Yii::app()->session['purchase_summary_id']); ?>
+    <?php echo CHtml::hiddenField('member_id',  Yii::app()->session['member_id']); ?>
     <?php echo CHtml::hiddenField('product_id'); ?>
     <?php echo CHtml::label('Product', 'product_name'); ?>
     <?php //echo CHtml::dropDownList('product_id', '',ProductsForm::listProducts(), array('class'=>'span3')); 
@@ -65,7 +66,7 @@ Yii::app()->clientScript->registerScript('ui','
         'url'=>  Yii::app()->createUrl('purchase/addtocart',array(
             'product_id'=>'js:function(){return product_id.val()}',
             'quantity'=>'js:function(){return quantity.val()}',
-            'distributor_id'=>'js:function(){return distributor_id.val()}',
+            'member_id'=>'js:function(){return member_id.val()}',
             'payment_type_id'=>'js:function(){return payment_type_id.val()}'
         )),
         'ajaxOptions'=>array(
@@ -75,7 +76,7 @@ Yii::app()->clientScript->registerScript('ui','
             'success' => 'function(data){
                 if(data["result_code"] == 0)
                 {
-                    $("#purchase-modal").modal("hide");     
+                    $("#purchase-modal").modal("hide");   
                     $("#search-form").submit();
                 }
                 else

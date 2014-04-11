@@ -128,7 +128,7 @@ class ReferenceModel extends CFormModel
         }
         else
         {
-            return $result['cutoff_id'];
+            return $result;
         }
 
         

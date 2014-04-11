@@ -77,11 +77,11 @@ $curdate = date('M d, Y h:ia');
             <td  align="right">(<?php echo number_format($amount['tax'], 2); ?>)</td>
         </tr>
         <tr>
-            <th>Total Cash (80%)</th>
+            <th>Total Cash (<?php echo $amount['cash_pct']; ?>%)</th>
             <td align="right"><?php echo number_format($amount['cash'], 2); ?></td>
         </tr>
         <tr>
-            <th>Total Check (20%)</th>
+            <th>Total Check (<?php echo $amount['check_pct']; ?>%)</th>
             <td align="right"><?php echo number_format($amount['check'], 2); ?></td>
         </tr>
         <tr>
@@ -187,11 +187,11 @@ $curdate = date('M d, Y h:ia');
             <td width="100" align="right">(<?php echo number_format($amount['tax'], 2); ?>)</td>
         </tr>
         <tr>
-            <th>Total Cash (80%)</th>
+            <th>Total Cash (<?php echo $amount['cash_pct']; ?>%)</th>
             <td align="right"><?php echo number_format($amount['cash'], 2); ?></td>
         </tr>
         <tr>
-            <th>Total Check (20%)</th>
+            <th>Total Check (<?php echo $amount['check_pct']; ?>%)</th>
             <td align="right"><?php echo number_format($amount['check'], 2); ?></td>
         </tr>
         <tr>

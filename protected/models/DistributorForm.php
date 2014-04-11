@@ -20,17 +20,16 @@ class DistributorForm extends CFormModel
     }
     
     
-    public function selectDistributorName($distributor_id)
+    public function selectDistributorName($member_id)
     {
         $connection = $this->_connection;
         
         $sql = "SELECT a.member_id, a.status, b.last_name, b.middle_name, b.first_name
                 FROM members a 
                 INNER JOIN member_details b ON a.member_id = b.member_id
-                WHERE a.member_id = :member_id
-                    AND account_type_id = 5";
+                WHERE a.member_id = :member_id";
         $command = $connection->createCommand($sql);
-        $command->bindParam(":member_id", $distributor_id);
+        $command->bindParam(":member_id", $member_id);
         $result = $command->queryRow();
         
         return $result;
@@ -62,7 +61,6 @@ class DistributorForm extends CFormModel
                   WHERE (md.last_name LIKE :filter
                     OR md.first_name LIKE :filter
                     OR md.middle_name LIKE :filter)
-                    AND m.account_type_id = 5
                   ORDER BY md.last_name";
         $command = $conn->createCommand($query);
         $command->bindParam(':filter', $filter);

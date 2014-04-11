@@ -287,7 +287,7 @@ class GroupOverrideCommission extends CFormModel
                         m.member_id
                     FROM members m
                     WHERE m.member_id = :ibo_id
-                    AND placement_date > :from_cutoff AND placement_date <= :to_cutoff;";
+                    AND placement_date >= date_add(date(:from_cutoff),INTERVAL 1 DAY) AND placement_date <= date_add(:to_cutoff,INTERVAL 1 DAY);";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':ibo_id', $ibo_id);

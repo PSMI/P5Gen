@@ -275,7 +275,6 @@ class CronController extends Controller
                 
                 $model->status = 1; //Processed by GOC
                 $lists = $model->getUnprocessedMembers();
-                
                 if(count($lists)>0)
                 {
                     foreach($lists as $list)
@@ -284,7 +283,6 @@ class CronController extends Controller
                         $endorser_id = $list['endorser_id'];
                         
                         $retval = Transactions::process_direct_endorsement($member_id,$endorser_id);
-
                         if($retval)
                         {
                             //add to auditlogs

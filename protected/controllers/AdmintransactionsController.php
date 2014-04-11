@@ -766,7 +766,6 @@ class AdmintransactionsController extends Controller
             $from_cutoff = $cutoff['last_cutoff_date'];
             $to_cutoff = $cutoff['next_cutoff_date'];
             
-            
             //Get previous loans
             $prev_loans_total = $model->getPrevousLoans($member_id, $from_cutoff, $to_cutoff);
             $total_previous_loan = $prev_loans_total[0]['total_loan'];
@@ -814,8 +813,20 @@ class AdmintransactionsController extends Controller
             $amount['previous_loan'] = $previous_loan;
             
             //Total Amount table
-            $amount['cash'] = (80 / 100) * $net_commission;
-            $amount['check'] = (20 / 100) * $net_commission;
+            if($net_commission < '100000')
+            {
+                $amount['cash'] = (90 / 100) * $net_commission;
+                $amount['check'] = (10 / 100) * $net_commission;
+                $amount['cash_pct'] = 90;
+                $amount['check_pct'] = 10;
+            }
+            else
+            {
+                $amount['cash'] = (95 / 100) * $net_commission;
+                $amount['check'] = (5 / 100) * $net_commission;
+                $amount['cash_pct'] = 95;
+                $amount['check_pct'] = 5;
+            }
             
             $html2pdf->WriteHTML($this->renderPartial('_gocreport', array(
                             'member_name'=>$member_name,

@@ -99,7 +99,7 @@
                     (
                         'label'=>'Delete Item',
                         'icon'=>'icon-remove-sign',
-                        'url'=>'Yii::app()->createUrl("/purchase/removeitem", array("id" =>$data["purchase_id"]))',
+                        'url'=>'Yii::app()->createUrl("/purchase/removeitem", array("id" =>$data["purchase_id"],"sid"=>$data["purchase_summary_id"]))',
                         'confirm'=>'Are you sure you want to remove this item?',
                         'options' => array(
                             'class'=>"btn btn-small",

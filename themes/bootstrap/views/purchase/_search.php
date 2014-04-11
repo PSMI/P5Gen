@@ -8,8 +8,8 @@
 Yii::app()->clientScript->registerScript('ui','
          
      $(\'input[rel="tooltip"]\').tooltip();     
-     var distributor_name = $("#PurchasesModel_autocomplete_name"),
-         distributor_id = $("#distributor_id");
+    // var member_name = $("#PurchasesModel_autocomplete_name"),
+     //    member_id = $("#member_id");
     
  ', CClientScript::POS_END);
 ?>
@@ -24,8 +24,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'htmlOptions'=>array('class'=>'well')
     ));
 ?>
-<?php echo CHtml::hiddenField('distributor_id',  Yii::app()->session['distributor_id']); ?>
-<?php echo CHtml::label('Find Distributor &nbsp;', 'autocomplete_name'); ?>
+<?php echo CHtml::hiddenField('purchase_summary_id',  Yii::app()->session['purchase_summary_id']); ?>
+<?php echo CHtml::hiddenField('member_id',  Yii::app()->session['member_id']); ?>
+<?php echo CHtml::label('Find Member &nbsp;', 'autocomplete_name'); ?>
 <?php $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
             'model'=>$model,
             'attribute'=>'autocomplete_name',
@@ -33,13 +34,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'options'=>array(
                 'minLength'=>'2',
                 'showAnim'=>'fold',
-                'focus' => 'js:function(event, ui){ distributor_name.val(ui.item["value"]) }',
-                'select' => 'js:function(event, ui){ distributor_id.val(ui.item["id"]); }',
+                'focus' => 'js:function(event, ui){ $("#PurchasesModel_autocomplete_name").val(ui.item["value"]) }',
+                'select' => 'js:function(event, ui){ $("#member_id").val(ui.item["id"]); }',
             ),
             'htmlOptions'=>array(
                 'class'=>'span4',
                 'rel'=>'tooltip',
-                'title'=>'Please type the distributor\'s name.',
+                'title'=>'Please type the member\'s name.',
                 'autocomplete'=>'off',
             ),        
         ));

@@ -20,7 +20,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 
 <div class="span9">
     <div class="pull-left">
-<?php echo '<h4>'.$distributor['last_name'] . ', ' . $distributor['first_name'] . ' ' . $distributor['middle_name'] . '</h4>'; ?>
+    <?php echo '<h4>'.$distributor['last_name'] . ', ' . $distributor['first_name'] . ' ' . $distributor['middle_name'] . '</h4>'; ?>
+        
     </div>
     <div class="pull-right">
         <table class="items table table-bordered table-condensed">

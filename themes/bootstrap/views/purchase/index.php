@@ -5,7 +5,7 @@
  * @date : 2014-03-30
  */
 ?>
-<h3>Distributor Purchase Items</h3>
+<h3>Purchasing</h3>
 
 <?php $this->renderPartial('_search',array('model'=>$model)); ?>
 <?php 
