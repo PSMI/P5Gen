@@ -657,25 +657,28 @@ class Networks extends Controller
      * it should be included in the unilevel network.
      * This will be used for payout purposes.
      */
-    public function getIPD10thUnilevelNetworkForPayout($member_id, $level = 0)
+    public function getIPD10thUnilevelNetworkForPayout($member_id, $level = 0, $index = 0)
     {
         $model = new Endorser();
         $parent = array();
-        $children = array();
-        $i = 0;
+        $child = array();
+        $uplineInfo = array();
+
         $level++;
         if ($level <= 10)
         {
-            $downlines = $model->getEndorserForIPDUnilevel($member_id);
-            foreach ($downlines as $key => $val)
+            $uplineInfo = $model->getEndorserForIPDUnilevel($member_id);
+
+            if (is_array($uplineInfo))
             {
-                $parent[$i][$level] = $downlines[$key]["downline"];
-                $children = array_merge($children, Networks::getIPD10thUnilevelNetworkForPayout($downlines[$key]["downline"], $level));
-                $i++;
+                $parent[$index]['member_id'] = $uplineInfo['member_id'];
+                $parent[$index]['account_type_id'] = $uplineInfo['account_type_id'];
+                $parent[$index]['level'] = $level;
             }
+            $index++;
+            $child = array_merge($child, Networks::getIPD10thUnilevelNetworkForPayout($uplineInfo['member_id'], $level, $index));
         }
-        $finalTree = array_merge($parent, $children);
-        return $finalTree;
+        return array_merge($parent, $child);
     }
 }
 ?>

@@ -76,21 +76,20 @@ class Endorser extends CFormModel
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryRow();
-        if(Members::getAccountType($member_id) == 'distributor')
-        {
+       
             $endorser_id = $result["ipd_endorser_id"];
-        }
-        else
+       
+        if (is_null($endorser_id) || empty($endorser_id))
         {
             $endorser_id = $result["endorser_id"];
         }
-        $query1 = "SELECT member_id AS downline
+        $query1 = "SELECT member_id, account_type_id
                   FROM members m
                   WHERE m.member_id = :endorser_id AND placement_status = 1
                   ORDER BY placement_date ASC;";
         $command1 = $conn->createCommand($query1);
         $command1->bindParam(':endorser_id', $endorser_id);
-        $result1 = $command1->queryAll();
+        $result1 = $command1->queryRow();
         return $result1;
     }
 }
