@@ -105,6 +105,7 @@ class TransactionController extends Controller
         $member_id = Yii::app()->user->getId();
 
         $rawData = $model->getIpdDirectEndorsement($member_id);
+        $total = $model->getPayoutTotal($member_id);
 
         $dataProvider = new CArrayDataProvider($rawData, array(
                                                 'keyField' => false,
@@ -113,7 +114,7 @@ class TransactionController extends Controller
                                             ),
                                 ));
 
-        $this->render('ipddirectendorse', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff));
+        $this->render('ipddirectendorse', array('dataProvider' => $dataProvider,'next_cutoff'=>$next_cutoff, 'total'=>$total));
     }
     
     //For Unilevel
@@ -610,16 +611,21 @@ class TransactionController extends Controller
     {
         $model = new IpdDirectEndorsementMember();
         $member_id = Yii::app()->user->getId();
+        
         $member_name_arr = $model->getMemberName($member_id);
         $member_name = $member_name_arr[0]['member_name'];
+        
         $direct_details = $model->getIpdDirectEndorsement($member_id);
+        $total = $model->getPayoutTotal($member_id);
+        
         $html2pdf = Yii::app()->ePdf->HTML2PDF();            
         $html2pdf->WriteHTML($this->renderPartial('_ipddirectsummaryreport', array(
                 'direct_details'=>$direct_details,
                 'member_name'=>$member_name,
+                'total'=>$total,
             ), true
          ));
-        $html2pdf->Output('IPD_Direct_Endorsement_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
+        $html2pdf->Output('Distributor_Direct_Endorsement_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
         Yii::app()->end();
     }
 }
