@@ -30,15 +30,23 @@ class IpdRetention extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT
-                    d.purchase_id,
-                    d.distributor_id,
+                    ps.purchase_summary_id,
+                    ps.member_id,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                    sum(d.savings) AS savings
-                  FROM distributor_purchased_items d
+                    ps.receipt_no,
+                    ps.quantity,
+                    ps.total,
+                    ps.savings,
+                    pt.payment_type_name,
+                    DATE_FORMAT(ps.date_purchased,'%M %d, %Y') AS date_purchased,
+                    ps.status
+                  FROM purchased_summary ps
                     INNER JOIN member_details md
-                      ON d.distributor_id = md.member_id
-                  GROUP BY d.distributor_id
-                  ORDER BY md.last_name;";
+                      ON ps.member_id = md.member_id
+                    LEFT OUTER JOIN ref_paymenttypes pt
+                      ON ps.payment_type_id = pt.payment_type_id
+                  AND ps.status = 1
+                  ORDER BY ps.date_purchased DESC;";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryAll();
@@ -50,9 +58,12 @@ class IpdRetention extends CFormModel
     {
         $conn = $this->_connection;
         
-        $query = "SELECT
-                    sum(d.total) as total_amount
-                  FROM distributor_purchased_items d";
+        $query = "SELECT sum(ps.quantity) AS total_quantity,
+                         sum(ps.total) AS total_amount,
+                         sum(ps.savings) AS total_savings
+                    FROM purchased_summary ps
+                        WHERE ps.status = 1
+                   GROUP BY ps.member_id;";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryRow();
@@ -60,53 +71,30 @@ class IpdRetention extends CFormModel
         return $result;
     }
     
-    public function getTotalSavings()
+    public function getProductsPurchased($purchase_summary_id)
     {
         $conn = $this->_connection;
         
         $query = "SELECT
-                    sum(d.savings) as total_savings
-                  FROM distributor_purchased_items d";
+                    p.product_name,
+                    pi.quantity,
+                    pi.srp,
+                    pi.discount,
+                    pi.net_price,
+                    pi.total,
+                    pi.savings,
+                    DATE_FORMAT(pi.date_created,'%M %d, %Y') AS date_created
+                  FROM purchased_items pi
+                    INNER JOIN purchased_summary ps
+                      ON pi.purchase_summary_id = ps.purchase_summary_id
+                    LEFT OUTER JOIN products p
+                      ON pi.product_id = p.product_id
+                  WHERE pi.purchase_summary_id = :purchase_summary_id
+                  ORDER BY ps.date_purchased DESC;";
         
         $command =  $conn->createCommand($query);
-        $result = $command->queryRow();
-        
-        return $result;
-    }
-    
-    public function getUnilevelDetails()
-    {
-        $conn = $this->_connection;
-        
-        $query = "SELECT
-                    u.unilevel_id,
-                    u.cutoff_id,
-                    u.distributor_id,
-                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                    u.ibo_count,
-                    u.amount,
-                    u.date_created,
-                    DATE_FORMAT(u.date_approved, '%M %d, %Y') AS date_approved,
-                    CONCAT(md1.last_name, ', ', md1.first_name, ' ', md1.middle_name) AS approved_by,
-                    DATE_FORMAT(u.date_claimed, '%M %d, %Y') AS date_claimed,
-                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
-                    u.status
-                  FROM distributor_unilevel u
-                    INNER JOIN members m
-                      ON u.distributor_id = m.member_id
-                    INNER JOIN member_details md
-                      ON u.distributor_id = md.member_id
-                    LEFT OUTER JOIN member_details md1
-                      ON u.approved_by_id = md1.member_id
-                    LEFT OUTER JOIN member_details md2
-                      ON u.claimed_by_id = md2.member_id
-                  WHERE u.cutoff_id = :cutoff_id
-                  AND u.distributor_id = :member_id";
-        
-        $command =  $conn->createCommand($query);
-        $command->bindParam(':cutoff_id', $this->cutoff_id);
-        $command->bindParam(':member_id', $this->member_id);
-        $result = $command->queryRow();
+        $command->bindParam(':purchase_summary_id', $purchase_summary_id);
+        $result = $command->queryAll();
         
         return $result;
     }
@@ -161,6 +149,29 @@ class IpdRetention extends CFormModel
             return false;
         }
     }
+    
+    public function getMemberName($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name
+                  FROM members m
+                    INNER JOIN member_details md
+                        ON m.member_id = md.member_id
+                  WHERE m.member_id = :member_id;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    
+    
+    
+    
     
     public function get_running_account()
     {

@@ -26,7 +26,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                               'footerHtmlOptions'=>array('style'=>'font-size:14px'),
                         ), 
                         array('name'=>'savings',
-                            'header'=>'Total Savings',
+                            'header'=>'Total Retention',
                             'value'=>'AdmintransactionsController::numberFormat($data["savings"])',
                             'htmlOptions' => array('style' => 'text-align:right'),
                             'headerHtmlOptions' => array('style' => 'text-align:right'),
@@ -42,11 +42,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Withdraw',
                                     'icon'=>'ok-sign',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["distributor_id"], "status" => "2", "transtype" => "ipdretention"))',
-                                    //'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 2)',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["member_id"], "status" => "2", "transtype" => "ipdretention"))',
+                                    'visible'=>'AdmintransactionsController::getWithdrawButtonDisplay($data["savings"])',
                                     'options' => array(
                                         'class'=>"btn btn-small",
-                                        'confirm'=>'Are you sure you want to CLAIM?',
+                                        'confirm'=>'Are you sure you want to WITHDRAW?',
                                         'ajax' => array(
                                             'type' => 'GET',
                                             'dataType'=>'json',
@@ -68,7 +68,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Download',
                                     'icon'=>'icon-download-alt',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfipdretention", array("id" =>$data["distributor_id"]))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfipdretention", array("id" =>$data["purchase_summary_id"], "member_id" =>$data["member_id"], "savings" =>$data["savings"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),

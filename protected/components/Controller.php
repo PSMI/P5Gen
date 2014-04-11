@@ -116,6 +116,18 @@ class Controller extends CController
             }
         }
         
+        public function getWithdrawButtonDisplay($retention_amt)
+        {
+            if ($retention_amt >= 5555)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
         public function dateFormat($date)
         {
             if ($date == '')

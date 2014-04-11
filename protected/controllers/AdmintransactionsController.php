@@ -246,6 +246,37 @@ class AdmintransactionsController extends Controller
                     $result_msg = "An error occured. Please try again.";
                 }
             }
+            else if($transtype == 'ipdretention')
+            {
+                $result_code = 0;
+                $result_msg = "Withdraw Successful.";
+//                $direct_endorsement_id = $_GET["id"];
+//                $endorser_id = $_GET["endorser_id"];
+//                $cutoff_id = $_GET["cutoff_id"];
+//                $date_claimed = $_GET['date_claimed'];
+//                
+//                $model = new IpdRetention();
+//                $result = $model->updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid, $date_claimed);
+//                
+//                if (count($result) > 0)
+//                {
+//                    $result_code = 0;
+//                    
+//                    if ($status == 1)
+//                    {
+//                        $result_msg = "Direct Endorsement Approved.";
+//                    }
+//                    else
+//                    {
+//                        $result_msg = "Direct Endorsement Claimed.";
+//                    }
+//                }
+//                else
+//                {
+//                    $result_code = 1;
+//                    $result_msg = "An error occured. Please try again.";
+//                }
+            }
         }
         else
         {
@@ -460,7 +491,7 @@ class AdmintransactionsController extends Controller
         }
         
         $rawData = $model->getIpdRetentionMoney();
-        $total = $model->getTotalSavings();
+        $total = $model->getPayoutTotal();
         $dataProvider = new CArrayDataProvider($rawData, array(
                                                 'keyField' => false,
                                                 'pagination' => array(
@@ -1134,6 +1165,41 @@ class AdmintransactionsController extends Controller
         }
     }
     
+    public function actionPdfIpdRetention()
+    {
+        if(isset($_GET['id']))
+        {
+            $purchase_summary_id = $_GET["id"];
+            $member_id = $_GET["member_id"];
+            $savings = $_GET["savings"];
+            
+            $member = new MembersModel();            
+            $model = new IpdRetention();
+            $reference = new ReferenceModel();
+            
+            //Payee Information
+            $payee = $member->selectMemberDetails($member_id);
+            $payee_endorser_id = $payee['endorser_id'];
+            $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
+            
+            //Endorser Information
+            $endorser = $member->selectMemberDetails($payee_endorser_id);
+            
+            $produts = $model->getProductsPurchased($purchase_summary_id);
+           
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+            $html2pdf->WriteHTML($this->renderPartial('_ipdretentionreport', array(
+                    'payee'=>$payee,
+                    'endorser'=>$endorser,
+                    'savings'=>$savings,
+                    'produts'=>$produts,
+                ), true
+             ));
+            $html2pdf->Output('Distributor_Retention_Money' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+            Yii::app()->end();
+        }
+    }
+    
     public function actionPdfLoanSummary()
     {
         $model = new Loan();
@@ -1294,6 +1360,50 @@ class AdmintransactionsController extends Controller
             ), true
          ));
         $html2pdf->Output('Member_Repeat_Purchase_Commission' . date('Y-m-d') . '.pdf', 'D'); 
+        Yii::app()->end();
+    }
+    
+    public function actionIpdPdfRetentionSummary()
+    {
+        $model = new IpdRetention();
+        $member_id = Yii::app()->user->getId();
+        
+        $member_name_arr = $model->getMemberName($member_id);
+        $member_name = $member_name_arr[0]['member_name'];
+        
+        $direct_details = $model->getIpdRetentionMoney($member_id);
+        $total = $model->getPayoutTotal($member_id);
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+        $html2pdf->WriteHTML($this->renderPartial('_ipdretentionsummaryreport', array(
+                'direct_details'=>$direct_details,
+                'member_name'=>$member_name,
+                'total'=>$total,
+            ), true
+         ));
+        $html2pdf->Output('Distributor_Retention_Summary_' . date('Y-m-d') . '.pdf', 'D'); 
+        Yii::app()->end();
+    }
+    
+    public function actionIpdPdfRpCommissionSummary()
+    {
+        $model = new IpdRpCommission();
+        $model->cutoff_id = $_GET['cutoff_id'];
+        
+        $direct_details = $model->getIpdRpCommission();
+        $total = $model->getPayoutTotal();
+        
+        $cutoff_ipdrpcomm_arr = ReferenceModel::get_cutoff_by_id($_GET['cutoff_id']);
+        $cutoff_ipdrpcomm = $cutoff_ipdrpcomm_arr['cutoff_date'];
+        
+        $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+        $html2pdf->WriteHTML($this->renderPartial('_ipdrpcommissionsummaryreport', array(
+                'direct_details'=>$direct_details,
+                'cutoff_ipdrpcomm'=>$cutoff_ipdrpcomm,
+                'total'=>$total,
+            ), true
+         ));
+        $html2pdf->Output('Distributor_Repeat_Purchase_Commission' . date('Y-m-d') . '.pdf', 'D'); 
         Yii::app()->end();
     }
 }
