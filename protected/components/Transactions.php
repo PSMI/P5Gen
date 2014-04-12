@@ -358,9 +358,8 @@ class Transactions extends Controller
         //Get all endorsers regardless if IPD or IBO
         //$endorsers = Networks::getIPDEndorser($member_id);
         $endorsers = Networks::getIPD10thUnilevelNetworkForPayout($member_id);
-        
-        if(is_null($endorsers))//root record
-            $endorsers = array($member_id);
+        //        if(is_null($endorsers))//root record
+//            $endorsers = array($member_id);
         
         $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_UNILEVEL); 
         $model->cutoff_id = $cutoff_id;
@@ -372,28 +371,46 @@ class Transactions extends Controller
             {
                 //Check each upline running account
                 $model->endorser_id = $endorser['member_id'];
-                $account = $model->get_running_account();
-                $ipd_direct_count = $account['ipd_direct_endorse'];
+                //$account = $model->get_running_account();
+                //$ipd_direct_count = Networks::getIPDDirectCount($member_id);
+                //$ipd_direct_count = $account['ipd_direct_endorse'];
+//                echo $ipd_direct_count;
+//                if ($ipd_direct_count > 0 && $endorser['level'] > 1)
+//                {
+//                    //Check existing active transaction for current cutoff
+//                    $trans = $model->check_transaction();
+//                    
+//                    if(Members::getMembershipType($endorser['member_id']) == 'distributor')
+//                        $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($ipd_direct_count, $reference, $endorser['level']);
+//                    else
+//                        $payout = $reference->get_variable_value('IBO_UNILEVEL_BONUS');
+//                    
+//                    
+//                    if(count($trans) > 0)
+//                    {
+//                        $model->update_transaction($payout);
+//                    }
+//                    else
+//                    {
+//                        $model->new_transaction($payout);
+//                    }
+//                }
+                //Check existing active transaction for current cutoff
+                $trans = $model->check_transaction();
 
-                if ($ipd_direct_count > 0)
+                if(Members::getMembershipType($endorser['member_id']) == 'distributor')
+                    $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($ipd_direct_count, $reference, $endorser['level']);
+                else
+                    $payout = $reference->get_variable_value('IBO_UNILEVEL_BONUS');
+
+
+                if(count($trans) > 0)
                 {
-                    //Check existing active transaction for current cutoff
-                    $trans = $model->check_transaction();
-                    
-                    if(Members::getMembershipType($member_id) == 'distributor')
-                        $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($ipd_direct_count, $reference, $endorser['level']);
-                    else
-                        $payout = $reference->get_variable_value('IBO_UNILEVEL_BONUS');
-                    
-                    
-                    if(count($trans) > 0)
-                    {
-                        $model->update_transaction($payout);
-                    }
-                    else
-                    {
-                        $model->new_transaction($payout);
-                    }
+                    $model->update_transaction($payout);
+                }
+                else
+                {
+                    $model->new_transaction($payout);
                 }
             }
 //            var_dump($model); exit;
@@ -770,17 +787,18 @@ class Transactions extends Controller
         $model = new PurchasesModel();
         $reference = new ReferenceModel();
                                 
-        $distributor_id = $distributor_purchases['distributor_id'];
+        $distributor_id = $distributor_purchases['member_id'];
         $total_purchase = $distributor_purchases['total'];
         $model->repeat_purchase_id = $distributor_purchases['repeat_purchase_id'];
         
         //rp commission regardless of ibo or ipd endorser
         $endorsers = Networks::getIPD10thUnilevelNetworkForPayout($distributor_id);
-        
-        if(is_null($endorsers))//root record
-            $endorsers = array($distributor_id);
+                
+//        if(is_null($endorsers))//root record
+//            $endorsers = array($distributor_id);
         
         $cutoff_id = $reference->get_cutoff(TransactionTypes::REPEAT_PURCHASE_COMMISSION); 
+        
         $model->cutoff_id = $cutoff_id;      
         $conn = $model->_connection;
         $trx = $conn->beginTransaction();
@@ -789,49 +807,99 @@ class Transactions extends Controller
         {
             foreach($endorsers as $endorser)
             {
+                
                 $model->endorser_id = $endorser['member_id'];
                 
-                //$level = Networks::getLevel($model->endorser_id, $distributor_id);
                 $level = $endorser['level'];
                 
-                if(Members::getAccountType($distributor_id) == 'distributor')
+                if(Members::getMembershipType($distributor_id) == 'distributor')
                 {
-                    $direct_count = Networks::getIPDDirectCount($endorser);
-                    
-                    if($level > 1 && $level <= 10 && $direct_count >=5)
+                    if(Members::getMembershipType($endorser['member_id']) == 'distributor')
                     {
+                        $direct_count = Networks::getIPDDirectCount($endorser['member_id']);
 
-                        if($direct_count >=5 && $direct_count <10 && $level <=5 )
-                            $rate = $reference->get_variable_value ('IPD_REPEAT_PURCHASE_COMMISSION_5_2ND_5TH');
-                        elseif($direct_count >=10 && $direct_count <15 && $level <=7 )
-                            $rate = $reference->get_variable_value ('IPD_REPEAT_PURCHASE_COMMISSION_10_2ND_7TH');
-                        elseif($direct_count >=15 && $level <=10 )
-                            $rate = $reference->get_variable_value ('IPD_REPEAT_PURCHASE_COMMISSION_15_2ND_10TH');
+                        if($level == 1)
+                        {
+                            $retention = true;
+                            $rate = 5; //IPD other retention - direct
+                        }
+                        elseif($level > 1 && $level <= 10 && $direct_count >= 5)
+                        {
+                            
+                            $retention = false;
 
+                            if($direct_count >=5 && $direct_count <10 && $level <=5 )
+                                $rate = $reference->get_variable_value ('IPD_REPEAT_PURCHASE_COMMISSION_5_2ND_5TH');
+                            elseif($direct_count >=10 && $direct_count < 15 && $level <=7 )
+                                $rate = $reference->get_variable_value ('IPD_REPEAT_PURCHASE_COMMISSION_10_2ND_7TH');
+                            elseif($direct_count >=15 && $level <=10 )
+                                $rate = $reference->get_variable_value ('IPD_REPEAT_PURCHASE_COMMISSION_15_2ND_10TH');
+
+                        }
+
+                    }
+                    elseif(Members::getMembershipType($endorser['member_id']) == 'member')
+                    {
+                        //If IBO endorsed IPD, IBO will earn 5%
+                        //If IBO endorsed IBO, IBO will earn 3%
+                        //If IPD endorsed IPD, IPD will earn 5%
+                        $retention = false;
+
+                        if($level == 1)
+                        {
+                            $rate = 5; //IBO RP commission - Direct
+                        }
+                        elseif($level > 1 && $level <= 10)
+                        {
+                            
+                            $rate = 1; //IBO RP commssion 
+                        }
                     }
                 }
                 else
                 {
-                    if($level > 1 && $level <= 10)
+                    $retention = false;
+                    
+                    if(Members::getMembershipType($endorser['member_id']) == 'member')
                     {
-                        $rate = $reference->get_variable_value('IBO_REPEAT_PURCHASE_COMMISSION');
+
+                        if($level == 1)
+                        {
+                            $rate = 3; //IBO RP Commission - direct
+                        }
+                        elseif($level > 1 && $level <= 10)
+                        {
+                            
+                            $rate = 1; //IBO RP commission
+                        }
+
                     }
                 }
                 
-                $commission = $total_purchase * ($rate / 100);
-                $model->commission = $commission;
-                        
-                //Check if transaction exists for current cutoff
-                //If exist, update else insert new transaction
-                if($model->has_transaction())
-                    //Update
-                    $model->update_commission_transaction();
+                
+              $commission = $total_purchase * ($rate / 100);
+              $model->commission = $commission;
+
+              if($retention) 
+              {
+                //Update IPD retention money
+                if($model->has_retention())
+                    $model->update_ipd_retention();
                 else
-                    //Insert
+                    $model->insert_ipd_retention();
+              }
+              else
+              {
+                 if($model->has_transaction())
+                    $model->update_commission_transaction();
+                 else
                     $model->insert_commission_transaction();
+              }
+                
+                
                 
             }//foreach
-            
+                        
             $model->delete_processed_purchases();
                         
             if(!$model->hasErrors())
