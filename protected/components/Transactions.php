@@ -791,7 +791,8 @@ class Transactions extends Controller
             {
                 $model->endorser_id = $endorser['member_id'];
                 
-                $level = Networks::getLevel($model->endorser_id, $distributor_id);
+                //$level = Networks::getLevel($model->endorser_id, $distributor_id);
+                $level = $endorser['level'];
                 
                 if(Members::getAccountType($distributor_id) == 'distributor')
                 {
