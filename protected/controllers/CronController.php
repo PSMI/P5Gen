@@ -950,7 +950,7 @@ class CronController extends Controller
                 {
                     foreach($lists as $list)
                     {
-                        $distributor_purchases['distributor_id'] = $list['distributor_id'];   
+                        $distributor_purchases['member_id'] = $list['member_id'];   
                         $distributor_purchases['total'] = $list['total'];
                         $distributor_purchases['repeat_purchase_id'] = $list['repeat_purchase_id'];
                         

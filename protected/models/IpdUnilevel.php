@@ -50,6 +50,10 @@ class IpdUnilevel extends CFormModel
                         u.unilevel_id,  
                         u.cutoff_id,
                         u.distributor_id,
+                    CASE m.account_type_id
+                        WHEN 3 THEN 'IBO'
+                        WHEN 5 THEN 'IPD'
+                    END account_type_id,
                         CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
                         u.ipd_count,
                         u.amount,
@@ -60,6 +64,7 @@ class IpdUnilevel extends CFormModel
                         CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
                         u.status
                       FROM distributor_unilevel u
+                    INNER JOIN members m ON u.distributor_id = m.member_id
                         INNER JOIN member_details md
                           ON u.distributor_id = md.member_id
                         LEFT OUTER JOIN member_details md1

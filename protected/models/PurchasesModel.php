@@ -483,6 +483,10 @@ class PurchasesModel extends CFormModel
         $conn = $this->_connection;
         $trx = $conn->beginTransaction();
         
+        $model = new PurchasesModel();
+            
+        $result = $model->get_retention($this->member_id, $this->purchase_summary_id);
+                
         $query = "UPDATE purchased_summary 
                     SET status = 1
                     WHERE member_id = :member_id
@@ -493,14 +497,56 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':purchase_summary_id', $this->purchase_summary_id);
         $command->execute();
         
-        try
+        if(!$this->hasErrors())
         {
-            $trx->commit();
+            
+            $retention = $result['savings'];
+            
+            if($model->has_ipd_retention($this->member_id))
+            {
+                 $query2 = "UPDATE distributor_retentions
+                            SET purchase_retention = purchase_retention + :purchase_retention
+                            WHERE member_id = :member_id
+                                AND status = 0";
+            }
+            else
+            {
+                $query2 = "INSERT INTO distributor_retentions (member_id, purchase_retention)
+                            VALUES (:member_id, :purchase_retention)";
+            }
+            
+            $command2 = $conn->createCommand($query2);
+            $command2->bindParam(':member_id', $this->member_id);
+            $command2->bindParam(':purchase_retention', $retention);
+            $command2->execute();
+            
+            try
+            {
+                $trx->commit();
+            }
+            catch(PDOException $e)
+            {
+                $trx->rollback();
+            }
         }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-        }
+        
+    }
+    
+    public function get_retention($member_id, $purchase_summary_id)
+    {
+        $conn = $this->_connection;
+        
+        $query1 = "SELECT * FROM purchased_summary 
+                        WHERE member_id = :member_id
+                        AND purchase_summary_id = :purchase_summary_id 
+                        AND status = 0";
+            
+        $command1 = $conn->createCommand($query1);
+        $command1->bindParam(':member_id', $member_id);
+        $command1->bindParam(':purchase_summary_id', $purchase_summary_id);
+        $result = $command1->queryRow();
+        
+        return $result;
     }
     
     public function remove_item()
@@ -636,7 +682,7 @@ class PurchasesModel extends CFormModel
                     WHERE status = 0
                     LIMIT 25";
         $command = $conn->createCommand($query);
-        $command->bindParam(':member_id', $this->member_id);
+//        $command->bindParam(':member_id', $this->member_id);
         $result = $command->queryAll();
         return $result;
     }
@@ -647,9 +693,10 @@ class PurchasesModel extends CFormModel
         
         $query = "SELECT * FROM distributor_commissions
                     WHERE cutoff_id = :cutoff_id
-                        AND member_id AND status = 0";
+                        AND member_id = :member_id AND status = 0";
         $command = $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->bindParam(':member_id', $this->endorser_id);
         $result = $command->queryAll();
         if(count($result)>0)
             return true;
@@ -757,6 +804,65 @@ class PurchasesModel extends CFormModel
         {
             return false;
         }
+    }
+    
+    public function has_retention()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM distributor_retentions
+                    WHERE member_id = :member_id 
+                        AND status = 0";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->endorser_id);
+        $result = $command->queryAll();
+        if(count($result)>0)
+            return true;
+        else
+            return false;
+    }
+    
+    public function has_ipd_retention($endorser_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM distributor_retentions
+                    WHERE member_id = :member_id 
+                        AND status = 0";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $endorser_id);
+        $result = $command->queryAll();
+        if(count($result)>0)
+            return true;
+        else
+            return false;
+    }
+    
+    public function update_ipd_retention()
+    {
+        $conn = $this->_connection;
+        
+        $query = "UPDATE distributor_retentions
+                    SET other_retention = other_retention + :other_retention
+                    WHERE member_id = :member_id
+                        AND status = 0";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->endorser_id);
+        $command->bindParam(':other_retention', $this->commission);
+        $command->execute();
+    }
+    
+    public function insert_ipd_retention()
+    {
+        $conn = $this->_connection;
+        
+        $query = "INSERT INTO distributor_retentions (member_id, other_retention)
+                    VALUES (:member_id, :other_retention)";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->endorser_id);
+        $command->bindParam(':other_retention', $this->commission);
+        $command->execute();
     }
 }
 ?>

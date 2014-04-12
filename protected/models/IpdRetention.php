@@ -29,24 +29,36 @@ class IpdRetention extends CFormModel
     {
         $conn = $this->_connection;
         
-        $query = "SELECT
-                    ps.purchase_summary_id,
-                    ps.member_id,
+//        $query = "SELECT
+//                    ps.purchase_summary_id,
+//                    ps.member_id,
+//                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+//                    ps.receipt_no,
+//                    sum(ps.quantity) AS quantity,
+//                    sum(ps.total) AS total,
+//                    sum(ps.savings) AS savings,
+//                    pt.payment_type_name,
+//                    DATE_FORMAT(ps.date_purchased,'%M %d, %Y') AS date_purchased,
+//                    ps.status
+//                  FROM purchased_summary ps
+//                    INNER JOIN member_details md
+//                      ON ps.member_id = md.member_id
+//                    LEFT OUTER JOIN ref_paymenttypes pt
+//                      ON ps.payment_type_id = pt.payment_type_id
+//                  AND ps.status = 1
+//                  GROUP BY ps.member_id
+//                  ORDER BY ps.date_purchased DESC;";
+        
+        $query = "SELECT 
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                    ps.receipt_no,
-                    ps.quantity,
-                    ps.total,
-                    ps.savings,
-                    pt.payment_type_name,
-                    DATE_FORMAT(ps.date_purchased,'%M %d, %Y') AS date_purchased,
-                    ps.status
-                  FROM purchased_summary ps
-                    INNER JOIN member_details md
-                      ON ps.member_id = md.member_id
-                    LEFT OUTER JOIN ref_paymenttypes pt
-                      ON ps.payment_type_id = pt.payment_type_id
-                  AND ps.status = 1
-                  ORDER BY ps.date_purchased DESC;";
+                    purchase_retention,
+                    other_retention,
+                    (purchase_retention + other_retention) as total_retention
+                    FROM distributor_retentions dr
+                        INNER JOIN member_details md
+                          ON dr.member_id = md.member_id
+                          INNER JOIN members m ON dr.member_id = m.member_id
+                    WHERE dr.status = 0 AND m.account_type_id = 5";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryAll();
@@ -58,13 +70,19 @@ class IpdRetention extends CFormModel
     {
         $conn = $this->_connection;
         
-        $query = "SELECT sum(ps.quantity) AS total_quantity,
-                         sum(ps.total) AS total_amount,
-                         sum(ps.savings) AS total_savings
-                    FROM purchased_summary ps
-                        WHERE ps.status = 1
-                   GROUP BY ps.member_id;";
-        
+//        $query = "SELECT sum(ps.quantity) AS total_quantity,
+//                         sum(ps.total) AS total_amount,
+//                         sum(ps.savings) AS total_savings
+//                    FROM purchased_summary ps
+//                        WHERE ps.status = 1
+//                   GROUP BY ps.member_id;";
+        $query = "SELECT
+                    sum(dr.purchase_retention) AS total_purchase_retention,
+                    sum(dr.other_retention) AS total_other_retention,
+                    (sum(dr.purchase_retention) + sum(dr.other_retention)) AS total_retentions
+                  FROM distributor_retentions dr
+                    WHERE dr.status = 0;";
+
         $command =  $conn->createCommand($query);
         $result = $command->queryRow();
         
