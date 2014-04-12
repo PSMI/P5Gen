@@ -988,9 +988,10 @@ class AdmintransactionsController extends Controller
             $date_from = date('Y-m-d',strtotime($cutoff['last_cutoff_date']));
             $date_to = date('Y-m-d',strtotime($cutoff['next_cutoff_date']));
             
-            $downline = Networks::getIPDUnilevel10thLevel($member_id);
+            $downline = Networks::getIPD10thUnilevelNetworkForPayout($member_id);
             //$downline = Networks::getDownlines($member_id);
             $unilevels = Networks::arrangeLevel($downline, 'ASC');
+            
             foreach($unilevels['network'] as $level)
             {                    
                 $levels = $level['Level'];
@@ -1000,6 +1001,7 @@ class AdmintransactionsController extends Controller
                         $downlines = Networks::getIPDUnilevelDownlines($level['Members']);
                     else
                         $downlines = Networks::getIPDUnilevelDownlinesByCutOff($level['Members'],$date_from,$date_to);
+                    
                     if(!is_null($downlines))
                     {
                         $unilevel['member_id'] = $member_id;
@@ -1273,7 +1275,7 @@ class AdmintransactionsController extends Controller
         $model->cutoff_id = $_GET['cutoff_id'];
         $unilvl_details = $model->getUnilevel();
         $total_unilvl_arr = $model->getPayoutTotal();
-        $total_unilvl_ibo = $total_unilvl_arr['total_ibo'];
+        $total_unilvl_ibo = $total_unilvl_arr['total_ipd'];
         $total_unilvl = $total_unilvl_arr['total_amount'];
         $cutoff_unilvl_arr = ReferenceModel::get_cutoff_by_id($_GET['cutoff_id']);
         $cutoff_unilvl = $cutoff_unilvl_arr['cutoff_date'];
