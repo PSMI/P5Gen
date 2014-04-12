@@ -47,13 +47,14 @@ class Endorser extends CFormModel
     {
         $conn = $this->_connection;
         
-        if(Members::getAccountType($member_id) == 'distributor')
-            $endorser_id = 'ipd_endorser_id';
-        else
-            $endorser_id = 'endorser_id';
+//        if(Members::getAccountType($member_id) == 'distributor')
+//            $endorser_id = 'ipd_endorser_id';
+//        else
+//            $endorser_id = 'endorser_id';
+        
         $query = "SELECT count(member_id) as count 
                     FROM members
-                    WHERE $endorser_id = :member_id 
+                    WHERE ipd_endorser_id = :member_id 
                         AND placement_status = 1";
         
         $command = $conn->createCommand($query);
@@ -83,6 +84,7 @@ class Endorser extends CFormModel
         {
             $endorser_id = $result["endorser_id"];
         }
+        
         $query1 = "SELECT member_id, account_type_id
                   FROM members m
                   WHERE m.member_id = :endorser_id AND placement_status = 1

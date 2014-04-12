@@ -13,25 +13,36 @@ class PurchaseController extends Controller
     {
         
         $model = new PurchasesModel();
-        $model2 = new DistributorForm();    
-        $totals = array();
-        
+        $model2 = new DistributorForm(); 
+            
         if(isset($_POST['PurchasesModel']))
         {      
-            if(isset(Yii::app()->session['distributor_id']))
-                unset(Yii::app()->session['distributor_id']);
-
+            
             $model->attributes = $_POST['PurchasesModel'];
             
-            $distributor_id = $_POST['distributor_id'];
-            $model->distributor_id = $distributor_id;
-            Yii::app()->session['distributor_id'] = $distributor_id;
+            $member_id = $_POST['member_id'];
+            $model->member_id = $member_id;
+            Yii::app()->session['member_id'] = $model->member_id;
             
-            $distributor = $model2->selectDistributorName($distributor_id);
-            $purchases = $model->selectAll();
-            $totals = $model->getItemTotal();
+            $purchase_summary_id = $_POST['purchase_summary_id'];
+            if(!empty($purchase_summary_id))
+                $model->purchase_summary_id = $purchase_summary_id;
+            
+        }
+        else
+        {
+            $model->member_id = Yii::app()->session['member_id'];
+            $model->purchase_summary_id = Yii::app()->session['purchase_summary_id'];
         }
         
+        $member = $model2->selectDistributorName($member_id);
+        $purchases = $model->selectAll();
+        
+        if(empty($model->purchase_summary_id))
+            $model->purchase_summary_id = $purchases[0]['purchase_summary_id'];
+        
+        $totals = $model->getItemTotal();
+            
         $dataProvider = new CArrayDataProvider($purchases, array(
                         'keyField' => false,
                         'pagination' => array(
@@ -40,7 +51,17 @@ class PurchaseController extends Controller
 
         ));
         
-        $this->render('index',array('model'=>$model,'dataProvider'=>$dataProvider,'distributor'=>$distributor,'totals'=>$totals));
+        $this->render('index',array('model'=>$model,'dataProvider'=>$dataProvider,'member'=>$member,'totals'=>$totals));
+    }
+    
+    public function actionClearSession()
+    {
+        if(isset(Yii::app()->session['member_id']))
+            unset(Yii::app()->session['member_id']);
+        if(isset(Yii::app()->session['purchase_summary_id']))
+            unset(Yii::app()->session['purchase_summary_id']);
+        
+        $this->redirect(Yii::app()->createUrl('purchase/index'));
     }
     
     public function actionAddToCart()
@@ -52,6 +73,8 @@ class PurchaseController extends Controller
             if(isset($_GET['product_id']) && !empty($_GET['product_id']))
             {
                 $model->product_id = $_GET['product_id'];
+                $model->member_id = $_GET['member_id'];
+                $model->payment_type_id = $_GET['payment_type_id'];
                 
                 if($_GET['quantity'] > 0)
                 {
@@ -63,23 +86,35 @@ class PurchaseController extends Controller
                     Yii::app()->end();
                 }
                 
-                $model->distributor_id = $_GET['distributor_id'];
-                $model->payment_type_id = $_GET['payment_type_id'];
-
-                $retval = $model->is_item_exist();
-
-                if($retval === false)
+                if(isset($_GET['purchase_summary_id']) && !empty($_GET['purchase_summary_id']))
                 {
-                    $model->add_purchased_item();
+                    $model->purchase_summary_id = $_GET['purchase_summary_id'];
+                    $retval = $model->is_item_exist();
+
+                    if($retval === false)
+                    {
+                        $model->add_new_item();
+                    }
+                    else
+                    {
+                        $model->purchase_id = $retval[0]['purchase_id'];
+                        $model->update_item();
+                    }
                 }
                 else
                 {
-                    $model->purchase_id = $retval[0]['purchase_id'];
-                    $model->append_purchased_item();
+                    
+                   $retval = $model->add_new_purchase();
+                   if(!isset(Yii::app()->session['purchase_summary_id']))
+                       Yii::app()->session['purchase_summary_id'] = $retval;
+                    
                 }
-
+                  
                 if(!$model->hasErrors())
-                    echo CJSON::encode(array('result_code'=>0,'result_msg'=>'Add item successful'));
+                    echo CJSON::encode(array(
+                        'result_code'=>0,
+                        'result_msg'=>'Add item successful'
+                    ));
                 else
                     echo CJSON::encode(array('result_code'=>1,'result_msg'=>'Add item failed'));
             }
@@ -99,7 +134,7 @@ class PurchaseController extends Controller
             $model->purchase_id = $_GET['purchase_id'];
             $model->product_id = $_GET['product_id'];
             $model->quantity = $_GET['quantity'];
-            $model->distributor_id = $_GET['distributor_id'];
+            $model->member_id = $_GET['member_id'];
             $model->payment_type_id = $_GET['payment_type_id'];
             
             $model->update_purchased_item();
@@ -120,12 +155,18 @@ class PurchaseController extends Controller
         {
             $model = new PurchasesModel();
             
-            $model->distributor_id = $_GET['distributor_id'];
+            $model->member_id = $_GET['member_id'];
+            $model->purchase_summary_id = $_GET['purchase_summary_id'];
+            $model->receipt_no = $_GET['receipt_no'];
+            $model->payment_type_id = $_GET['payment_type_id'];
+            
+           //echo CJSON::encode(array('id'=>$_GET['member_id'], 'sid'=>$_GET['purchase_summary_id'])); exit;
             
             $model->checkout_items();
             
             if(!$model->hasErrors())
             {
+                unset(Yii::app()->session['purchase_summary_id']);
                 echo CJSON::encode(array('result_code'=>0,'result_msg'=>'Purchase is successful'));
             }
             else
@@ -140,7 +181,7 @@ class PurchaseController extends Controller
             $model = new PurchasesModel();
             
             $model->purchase_id = $_GET['id'];
-            
+            $model->purchase_summary_id = $_GET['sid'];
             $model->remove_item();
             
             if(!$model->hasErrors())
@@ -158,12 +199,14 @@ class PurchaseController extends Controller
         {
             $model = new PurchasesModel();
             
-            $model->distributor_id = $_GET['distributor_id'];
+            $model->member_id = $_GET['member_id'];
+            $model->purchase_summary_id = $_GET['purchase_summary_id'];
             
             $model->cancel_items();
             
             if(!$model->hasErrors())
             {
+                unset(Yii::app()->session['purchase_summary_id']);
                 echo CJSON::encode(array('result_code'=>0,'result_msg'=>'Purchase was cancelled successfully.'));
             }
             else
@@ -192,7 +235,7 @@ class PurchaseController extends Controller
         if(isset($_GET['id']))
         {
             $distributor = new MemberDetailsModel();
-            $model->distributor_id = $_GET['id'];
+            $model->member_id = $_GET['id'];
             
             $purchase_history = $model->selectByID();
             $view = '_ipdhistory';

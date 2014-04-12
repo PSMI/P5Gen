@@ -26,8 +26,8 @@ Yii::app()->clientScript->registerScript('ui','
 </div>
  
 <div class="modal-body">
-    <?php echo CHtml::hiddenField('purchase_summary_id',  Yii::app()->session['purchase_summary_id']); ?>
-    <?php echo CHtml::hiddenField('member_id',  Yii::app()->session['member_id']); ?>
+    <?php echo CHtml::hiddenField('purchase_summary_id',  $model->purchase_summary_id); ?>
+    <?php echo CHtml::hiddenField('member_id', $model->member_id); ?>
     <?php echo CHtml::hiddenField('product_id'); ?>
     <?php echo CHtml::label('Product', 'product_name'); ?>
     <?php //echo CHtml::dropDownList('product_id', '',ProductsForm::listProducts(), array('class'=>'span3')); 
@@ -65,7 +65,7 @@ Yii::app()->clientScript->registerScript('ui','
         'label'=>'Add to Cart',
         'url'=>  Yii::app()->createUrl('purchase/addtocart',array(
             'product_id'=>'js:function(){return product_id.val()}',
-            'quantity'=>'js:function(){return quantity.val()}',
+            'quantity'=>'js:function(){return $("#quantity").val()}',
             'member_id'=>'js:function(){return member_id.val()}',
             'payment_type_id'=>'js:function(){return payment_type_id.val()}'
         )),
@@ -84,7 +84,7 @@ Yii::app()->clientScript->registerScript('ui','
                     alert(data["result_msg"]);
                 }
              }',
-            'update'=>'#product-grid',
+            //'update'=>'#product-grid',
         ),
     )); ?>
     <?php $this->widget('bootstrap.widgets.TbButton', array(

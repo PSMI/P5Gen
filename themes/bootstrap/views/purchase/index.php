@@ -9,7 +9,7 @@
 
 <?php $this->renderPartial('_search',array('model'=>$model)); ?>
 <?php 
-    if(is_array($distributor))
-        $this->renderPartial('_main',array('model'=>$model,'dataProvider'=>$dataProvider,'distributor'=>$distributor,'totals'=>$totals)); 
+    if(is_array($member))
+        $this->renderPartial('_main',array('model'=>$model,'dataProvider'=>$dataProvider,'member'=>$member,'totals'=>$totals)); 
 
 ?>

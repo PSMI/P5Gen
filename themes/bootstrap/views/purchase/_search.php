@@ -24,7 +24,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'htmlOptions'=>array('class'=>'well')
     ));
 ?>
-<?php echo CHtml::hiddenField('purchase_summary_id',  Yii::app()->session['purchase_summary_id']); ?>
+<?php echo CHtml::hiddenField('purchase_summary_id', Yii::app()->session['purchase_summary_id']); ?>
 <?php echo CHtml::hiddenField('member_id',  Yii::app()->session['member_id']); ?>
 <?php echo CHtml::label('Find Member &nbsp;', 'autocomplete_name'); ?>
 <?php $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
@@ -56,6 +56,6 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'buttonType'=>'link', 
     'type'=>'info',
     'label'=>'Clear',
-    'url'=>  Yii::app()->createUrl('purchase/index'),
+    'url'=>  Yii::app()->createUrl('purchase/clearsession'),
 )); ?>
 <?php $this->endWidget(); ?>

@@ -6,7 +6,7 @@
  */
 ?>
 <h3>Purchase History</h3>
-<h4>Distributor : <?php echo $info['last_name'] . ', ' . $info['first_name']; ?></h4>
+<h4><?php echo $info['last_name'] . ', ' . $info['first_name']; ?></h4>
 <?php $this->beginWidget('bootstrap.widgets.TbGridView', array(
     'id'=>'product-grid',
     'type'=>'striped bordered condensed',

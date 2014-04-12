@@ -605,7 +605,6 @@ class RegistrationForm extends CFormModel
                         $product['product_code'] = $this->product_code;
                         $product['date_purchased'] = $this->date_purchased;
                         $product['payment_mode_id'] = $this->payment_mode_id;
-                        
                         $result3 = $purchase->insertPurchasedItem($product);
                         if ($result3)
                         {

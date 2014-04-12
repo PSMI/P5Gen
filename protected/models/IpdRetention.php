@@ -90,6 +90,7 @@ class IpdRetention extends CFormModel
                     LEFT OUTER JOIN products p
                       ON pi.product_id = p.product_id
                   WHERE pi.purchase_summary_id = :purchase_summary_id
+                    AND ps.status = 1
                   ORDER BY ps.date_purchased DESC;";
         
         $command =  $conn->createCommand($query);

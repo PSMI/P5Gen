@@ -127,7 +127,6 @@ class Controller extends CController
                 return false;
             }
         }
-        
         public function dateFormat($date)
         {
             if ($date == '')

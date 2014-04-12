@@ -28,6 +28,8 @@ class PurchasesModel extends CFormModel
     public $commission;
     public $date_from;
     public $date_to;
+    public $receipt_no;
+    public $repeat_purchase_id;
         
     public function __construct() {
         $this->_connection = Yii::app()->db;
@@ -119,16 +121,17 @@ class PurchasesModel extends CFormModel
         $query = "SELECT pi.purchase_id,
                          p.product_code,
                          p.product_name,                         
-                         date_format(pi.date_purchased,'%b %d, %Y') AS date_purchased,
+                         date_format(pi.date_created,'%b %d, %Y') AS date_purchased,
                          sum(pi.quantity) AS quantity,
-                         format(sum(total),2) as total
+                         format(sum(pi.total),2) as total
                     FROM purchased_items pi
                         INNER JOIN products p ON pi.product_id = p.product_id
-                    WHERE pi.date_purchased >= :date_from 
-                        AND pi.date_purchased <= :date_to
-                        AND pi.status = 1
-                    GROUP BY pi.date_purchased,pi.product_id
-                    ORDER BY pi.date_purchased;";
+                        INNER JOIN purchased_summary ps ON pi.purchase_summary_id = ps.purchase_summary_id
+                    WHERE pi.date_created >= :date_from 
+                        AND pi.date_created <= :date_to
+                        AND ps.status = 1
+                    GROUP BY date(pi.date_created),pi.product_id
+                    ORDER BY pi.date_created;";
         $command = $conn->createCommand($query);
         $command->bindParam(':date_from', $this->date_from);
         $command->bindParam(':date_to', $this->date_to);
@@ -140,11 +143,12 @@ class PurchasesModel extends CFormModel
     {
         $conn = $this->_connection;
         $query = "SELECT sum(pi.quantity) AS total_quantity,
-                         format(sum(total),2) as total_amount
+                         sum(pi.total) as total_amount
                     FROM purchased_items pi
-                    WHERE pi.date_purchased >= :date_from 
-                        AND pi.date_purchased <= :date_to
-                        AND pi.status = 1;";
+                        INNER JOIN purchased_summary ps ON pi.purchase_summary_id = ps.purchase_summary_id
+                    WHERE pi.date_created >= :date_from 
+                        AND pi.date_created <= :date_to
+                        AND ps.status = 1;";
         $command = $conn->createCommand($query);
         $command->bindParam(':date_from', $this->date_from);
         $command->bindParam(':date_to', $this->date_to);
@@ -158,19 +162,20 @@ class PurchasesModel extends CFormModel
         $query = "SELECT pi.purchase_id,
                          p.product_code,
                          p.product_name,                         
-                         date_format(pi.date_purchased,'%b %d, %Y') AS date_purchased,
+                         date_format(pi.date_created,'%b %d, %Y') AS date_purchased,
                          format(pi.srp,2) as srp,
                          pi.discount,
                          format(pi.net_price,2) as net_price,
                          format(sum(pi.savings),2) as savings,
                          sum(pi.quantity) as quantity,
-                         format(sum(total),2) as total
+                         format(sum(pi.total),2) as total
                     FROM purchased_items pi
                         INNER JOIN products p ON pi.product_id = p.product_id
-                    WHERE pi.member_id = :member_id
-                        AND pi.status = 1
-                    GROUP BY pi.date_purchased,pi.product_id
-                    ORDER BY pi.date_purchased;";
+                        INNER JOIN purchased_summary ps ON pi.purchase_summary_id = ps.purchase_summary_id
+                    WHERE ps.member_id = :member_id
+                        AND ps.status = 1
+                    GROUP BY date(pi.date_created), pi.product_id
+                    ORDER BY pi.date_created;";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
         $result = $command->queryAll();
@@ -182,10 +187,11 @@ class PurchasesModel extends CFormModel
         $conn = $this->_connection;
         $query = "SELECT sum(pi.savings) as total_savings,
                          sum(pi.quantity) as total_quantity,
-                         sum(total) as total_amount
+                         sum(pi.total) as total_amount
                     FROM purchased_items pi
-                    WHERE pi.member_id = :member_id
-                        AND pi.status = 1;";
+                        INNER JOIN purchased_summary ps ON pi.purchase_summary_id = ps.purchase_summary_id
+                    WHERE ps.member_id = :member_id
+                        AND ps.status = 1;";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
         $result = $command->queryRow();
@@ -273,12 +279,12 @@ class PurchasesModel extends CFormModel
             try
             {
                 $trx->commit();
-                if(!isset(Yii::app()->session['purchase_summary_id']))
-                    Yii::app()->session['purchase_summary_id'] = $purchase_summary_id;
+                return $purchase_summary_id;
             }
             catch(PDOException $e)
             {
                 $trx->rollback();
+                return false;
             }
         }
         
@@ -327,15 +333,26 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':savings', $savings);
         $command->bindParam(':quantity', $this->quantity);
         $command->execute();
+        if(!$this->hasErrors())
+        {
+            $query2 = "UPDATE purchased_summary 
+                        SET quantity = quantity + :quantity, total = total + :total, savings = savings + :savings
+                       WHERE purchase_summary_id = :purchase_summary_id
+                        AND status = 0";
+            $command1 = $conn->createCommand($query2);
+            $command1->bindParam(':purchase_summary_id', $this->purchase_summary_id);
+            $command1->bindParam(':quantity', $this->quantity);
+            $command1->bindParam(':total', $total_net_price);
+            $command1->bindParam(':savings', $savings);
+            $command1->execute();
         try
         {
             $trx->commit();
-//            if(!isset(Yii::app()->session['purchase_summary_id']))
-//                Yii::app()->session['purchase_summary_id'] = $purchase_summary_id;
         }
         catch(PDOException $e)
         {
             $trx->rollback();
+            }
         }
         
     }
@@ -389,6 +406,18 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':total', $total_net_price);
         $command->bindParam(':quantity', $this->quantity);
         $command->execute();
+        if(!$this->hasErrors())
+        {
+            $query2 = "UPDATE purchased_summary 
+                        SET quantity = quantity + :quantity, total = total + :total, savings = savings + :savings
+                       WHERE purchase_summary_id = :purchase_summary_id
+                        AND status = 0";
+            $command1 = $conn->createCommand($query2);
+            $command1->bindParam(':purchase_summary_id', $this->purchase_summary_id);
+            $command1->bindParam(':quantity', $this->quantity);
+            $command1->bindParam(':total', $total_net_price);
+            $command1->bindParam(':savings', $savings);
+            $command1->execute();
         try
         {
             $trx->commit();
@@ -396,6 +425,7 @@ class PurchasesModel extends CFormModel
         catch(PDOException $e)
         {
             $trx->rollback();
+            }
         }
     }
     
@@ -453,11 +483,14 @@ class PurchasesModel extends CFormModel
         $conn = $this->_connection;
         $trx = $conn->beginTransaction();
         
-        $query = "UPDATE purchased_items SET status = 1
+        $query = "UPDATE purchased_summary 
+                    SET status = 1
                     WHERE member_id = :member_id
+                    AND purchase_summary_id = :purchase_summary_id
                             AND status = 0";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':purchase_summary_id', $this->purchase_summary_id);
         $command->execute();
         
         try
@@ -498,9 +531,12 @@ class PurchasesModel extends CFormModel
         $conn = $this->_connection;
         $trx = $conn->beginTransaction();
         
-        $query = "DELETE FROM purchased_items WHERE member_id = :member_id AND status = 0";
+        $query = "UPDATE purchased_summary SET status = 2
+                  WHERE purchase_summary_id = :purchase_summary_id
+                    AND member_id = :member_id";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':purchase_summary_id', $this->purchase_summary_id);
         $command->execute();
         try
         {
@@ -574,7 +610,7 @@ class PurchasesModel extends CFormModel
     {
         $conn = $this->_connection;
         
-        $query = "SELECT * FROM distributor_repeat_purchases
+        $query = "SELECT * FROM repeat_purchases
                    WHERE member_id = :member_id";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
@@ -585,9 +621,9 @@ class PurchasesModel extends CFormModel
     public function delete_processed_purchases()
     {
         $conn = $this->_connection;
-        $query = "DELETE FROM distributor_repeat_purchases WHERE purchase_id = :purchase_id";
+        $query = "DELETE FROM repeat_purchases WHERE repeat_purchase_id = :repeat_purchase_id";
         $command = $conn->createCommand($query);
-        $command->bindParam(':purchase_id', $this->purchase_id);
+        $command->bindParam(':repeat_purchase_id', $this->repeat_purchase_id);
         $command->execute();
    
     }
@@ -596,7 +632,7 @@ class PurchasesModel extends CFormModel
     {
         $conn = $this->_connection;
         
-        $query = "SELECT * FROM distributor_repeat_purchases
+        $query = "SELECT * FROM repeat_purchases
                     WHERE status = 0
                     LIMIT 25";
         $command = $conn->createCommand($query);
@@ -655,9 +691,9 @@ class PurchasesModel extends CFormModel
     {
         $conn = $this->_connection;
         
-        $query = "UPDATE distributor_repeat_purchases
+        $query = "UPDATE repeat_purchases
                     SET status = 1
-                    WHERE purchase_id = :purchase_id)";
+                    WHERE purchase_id = :purchase_id";
         $command = $conn->createCommand($query);
         $command->bindParam(':purchase_id', $this->purchase_id);
         $command->execute();

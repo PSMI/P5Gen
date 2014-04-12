@@ -26,7 +26,9 @@
  * /cron/promocheck
  * /cron/sendmail
  * /cron/autoapprove
- * 
+ * /cron/repeatpurchase
+ * /cron/ipddirectendorse
+ * /cron/ipdunilevel
  */
 
 class CronController extends Controller
@@ -950,7 +952,7 @@ class CronController extends Controller
                     {
                         $distributor_purchases['distributor_id'] = $list['distributor_id'];   
                         $distributor_purchases['total'] = $list['total'];
-                        $distributor_purchases['purchase_id'] = $list['purchase_id'];
+                        $distributor_purchases['repeat_purchase_id'] = $list['repeat_purchase_id'];
                         
                         $retval = Transactions::process_repeat_purchase_commission($distributor_purchases);
                         
