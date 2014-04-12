@@ -356,7 +356,8 @@ class Transactions extends Controller
 //            $uplines = array($member_id);
         
         //Get all endorsers regardless if IPD or IBO
-        $endorsers = Networks::getIPDEndorser($member_id);
+        //$endorsers = Networks::getIPDEndorser($member_id);
+        $endorsers = Networks::getIPD10thUnilevelNetworkForPayout($member_id);
         
         if(is_null($endorsers))//root record
             $endorsers = array($member_id);
@@ -370,26 +371,29 @@ class Transactions extends Controller
             foreach($endorsers as $endorser)
             {
                 //Check each upline running account
-                $model->endorser_id = $endorser;
+                $model->endorser_id = $endorser['member_id'];
                 $account = $model->get_running_account();
                 $ipd_direct_count = $account['ipd_direct_endorse'];
-                
-                //Check existing active transaction for current cutoff
-                $trans = $model->check_transaction();
-                $level = Networks::getLevel($endorser, $member_id);
 
-                if(Members::getMembershipType($member_id) == 'distributor')
-                    $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($ipd_direct_count, $reference, $level);
-                else
-                    $payout = $reference->get_variable_value('IBO_UNILEVEL_BONUS');
-
-                if(count($trans) > 0)
+                if ($ipd_direct_count > 0)
                 {
-                    if($level < 11) $model->update_transaction($payout);
-                }
-                else
-                {
-                    $model->new_transaction($payout);
+                    //Check existing active transaction for current cutoff
+                    $trans = $model->check_transaction();
+                    
+                    if(Members::getMembershipType($member_id) == 'distributor')
+                        $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($ipd_direct_count, $reference, $endorser['level']);
+                    else
+                        $payout = $reference->get_variable_value('IBO_UNILEVEL_BONUS');
+                    
+                    
+                    if(count($trans) > 0)
+                    {
+                        $model->update_transaction($payout);
+                    }
+                    else
+                    {
+                        $model->new_transaction($payout);
+                    }
                 }
             }
 //            var_dump($model); exit;
