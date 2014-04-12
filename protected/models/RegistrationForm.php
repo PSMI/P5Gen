@@ -287,13 +287,13 @@ class RegistrationForm extends CFormModel
                         
                         $product['member_id'] = $this->new_member_id;
                         $product['product_code'] = $this->product_code;
-                        $product['product_name'] = $this->product_name;
+                        // $product['product_name'] = $this->product_name;
                         $product['date_purchased'] = $this->date_purchased;
                         $product['payment_mode_id'] = $this->payment_mode_id;
         
-                        $result3 = $purchase->insertPurchased($product);
-                        
-                        if(count($result3) > 0)
+                        // $result3 = $purchase->insertPurchased($product);
+                        $result3 = $purchase->insertPurchasedItem($product);
+                        if ($result3)
                         {
                             $username = Helpers::generate($this->new_member_id, $this->first_name, $this->last_name);
         
@@ -600,15 +600,14 @@ class RegistrationForm extends CFormModel
                     {
                         // Instantiate purchases model
                         $purchase = new PurchasesModel();
-                        // Retrieve product info
-                        $product_info = ProductsForm::selectProductById($this->product_code);
+
                         $product['member_id'] = $this->new_member_id;
-                        $product['product_id'] = $this->product_code;
-                        $product['amount'] = $product_info['amount'];
+                        $product['product_code'] = $this->product_code;
                         $product['date_purchased'] = $this->date_purchased;
                         $product['payment_mode_id'] = $this->payment_mode_id;
-                        $result3 = $purchase->insertIPDPurchased($product);
-                        if(count($result3) > 0)
+                        
+                        $result3 = $purchase->insertPurchasedItem($product);
+                        if ($result3)
                         {
                             $username = Helpers::generate($this->new_member_id, $this->first_name, $this->last_name);
         
