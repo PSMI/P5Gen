@@ -114,6 +114,26 @@ class Controller extends CController
                     return "Claimed";
                 }
             }
+            else if ($trans_type == 5)
+            {
+                //ipd unilevel
+                if($status_id == 0)
+                {
+                    return "Pending";
+                }
+                else if($status_id == 1)
+                {
+                    return "Approved";
+                }
+                else if($status_id == 2)
+                {
+                    return "Claimed";
+                }
+                else
+                {
+                    return "Flushed out";
+                }
+            }
         }
         
         public function getWithdrawButtonDisplay($retention_amt)

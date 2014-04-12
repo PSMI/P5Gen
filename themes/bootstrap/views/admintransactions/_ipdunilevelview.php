@@ -60,7 +60,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                         ),
                         array('name'=>'status',
                             'header'=>'Status',
-                            'value' => 'AdmintransactionsController::getStatus($data["status"], 2)',
+                           'value' => 'AdmintransactionsController::getStatus($data["status"], 5)',
                             'htmlOptions' => array('style' => 'text-align:center'),  
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),

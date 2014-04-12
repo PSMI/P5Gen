@@ -371,10 +371,21 @@ class AdmintransactionsController extends Controller
             $model->next_cutoff_date = $cutoff['next_cutoff_date'];
             $model->attributes = $_POST['IpdUnilevel'];
             Yii::app()->session['ipdunilevel'] = $model->attributes;
+            
+            if ($model->status == "2")
+            {
+                if (isset($_POST['fout']))
+                {
+                    $result = $model->flashOut();
+                    
+                    print_r($result); exit;
+                }
+            }
         }
         else
         {
             $model->attributes = Yii::app()->session['ipdunilevel'];
+            $model->status = "1, 2";
         }
         $rawData = $model->getUnilevel();
         $total = $model->getPayoutTotal();

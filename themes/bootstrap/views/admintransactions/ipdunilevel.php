@@ -32,7 +32,18 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 
 echo $form->dropDownListRow($model,'cutoff_id', ReferenceModel::list_cutoffs(TransactionTypes::IPD_UNILEVEL), array('class'=>'span3'));
 
+echo CHtml::label('RP Status:  &nbsp;', 'lblStatus', array('style'=>'margin-left: 20px;'));
+
+$options = array('1, 2'=>'All', '1'=>'Completed', '2'=>'Pending');
+echo $form->dropDownList($model, 'status', $options, array('style'=>'width: 120px;'));
+
 $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Search', 'htmlOptions' => array('style' => 'margin-left: 10px;')));
+
+if ($model->status == 2)
+{
+    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Flush Out', 'htmlOptions' => array('style' => 'margin-left: 10px;', 'onclick' => 'if(!confirm("Are you sure you want to FLUSH OUT?")){return false;};')));
+    echo CHtml::hiddenField('fout', '', array());
+}
 
 $this->widget("bootstrap.widgets.TbButton", array(
                                             "label"=>"Export to PDF",
