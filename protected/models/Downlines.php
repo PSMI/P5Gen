@@ -386,7 +386,7 @@ class Downlines extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT account_type_id,member_id,endorser_id,ipd_endorser_id 
-            FROM netmarketing.members WHERE member_id = :member_id;";
+            FROM members WHERE member_id = :member_id;";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
