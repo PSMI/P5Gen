@@ -156,11 +156,23 @@ class PurchaseController extends Controller
             $model = new PurchasesModel();
             
             $model->member_id = $_GET['member_id'];
-            $model->purchase_summary_id = $_GET['purchase_summary_id'];
-            $model->receipt_no = $_GET['receipt_no'];
+            $model->purchase_summary_id = $_GET['purchase_summary_id'];            
             $model->payment_type_id = $_GET['payment_type_id'];
             
-           //echo CJSON::encode(array('id'=>$_GET['member_id'], 'sid'=>$_GET['purchase_summary_id'])); exit;
+            if(empty($_GET['receipt_no']) || $_GET['receipt_no'] == "")
+            {
+                echo CJSON::encode(array('result_code'=>1,'result_msg'=>'Please enter a valid receipt number.'));
+                Yii::app()->end();
+            }
+            
+            $model->receipt_no = $_GET['receipt_no'];
+            
+            if($model->receipt_is_used())
+            {
+                echo CJSON::encode(array('result_code'=>1,'result_msg'=>'Receipt number is already in used. 
+Please enter a valid receipt no.'));
+                Yii::app()->end();
+            }
             
             $model->checkout_items();
             
@@ -168,9 +180,13 @@ class PurchaseController extends Controller
             {
                 unset(Yii::app()->session['purchase_summary_id']);
                 echo CJSON::encode(array('result_code'=>0,'result_msg'=>'Purchase is successful'));
+                Yii::app()->end();
             }
             else
+            {
                 echo CJSON::encode(array('result_code'=>1,'result_msg'=>'Purchase failed'));
+                Yii::app()->end();
+            }
         }
     }
     

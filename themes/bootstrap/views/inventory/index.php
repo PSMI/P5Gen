@@ -6,14 +6,6 @@
  */
 ?>
 
-<?php
-Yii::app()->clientScript->registerScript('ui','
-         
-     //var product_id = $("#product_id");
-         
- ', CClientScript::POS_END);
-?>
-
 <?php $this->breadcrumbs = array('Administration'=>'#',
     'Inventory'=>'#','Product Lists'
 );?>
@@ -131,6 +123,31 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 )); ?>
 
 <?php $this->endWidget(); ?>
+
+<?php
+Yii::app()->clientScript->registerScript('ui','
+         
+    $( "#product_code" ).blur(function() {
+        if($("#product_code").val() == "")
+        {
+           alert("Product code is required");
+        }
+    });
+    
+    $( "#product_name" ).blur(function() {
+        if($("#product_name").val() == "")
+        {
+           alert("Product name is required");
+        }
+    });
+    
+    $("#update-product").click(function(){
+        $( "#product_code" ).blur();
+        $( "#product_name" ).blur();
+    });
+             
+ ', CClientScript::POS_END);
+?>
 
 <form name="product-form" id="product-form" method="post" class="form-horizontal">
 <?php $this->beginWidget('bootstrap.widgets.TbModal', 

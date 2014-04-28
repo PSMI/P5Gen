@@ -211,6 +211,15 @@ Yii::app()->clientScript->registerScript('ui','
          purchase_summary_id = $("#purchase_summary_id"),
          receipt_no = $("#receipt_no"),
          payment_type_id = $("#payment_type_id");
+      
+     $( "#target" ).submit(function( event ) {
+        alert( "Handler for .submit() called." );
+        event.preventDefault();
+    });
+
+     $( "#other" ).click(function() {
+        $( "#target" ).click();
+    });
              
  ', CClientScript::POS_END);
 ?>
@@ -233,13 +242,14 @@ Yii::app()->clientScript->registerScript('ui','
  
 <div class="modal-footer">
 <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'id'=>'btn-checkout',
         'label'=>'Checkout',
         'url'=>  Yii::app()->createUrl('purchase/checkout'),
         'type'=>'primary',
         'buttonType'=>'ajaxButton',
         'icon'=>'icon-check',            
         'htmlOptions'=>array(
-            'confirm'=>'Are you sure you want continue purchasing?',
+            'confirm'=>'Are you sure you want continue purchasing?',           
         ),
         'ajaxOptions'=>array(
             'type' => 'GET',

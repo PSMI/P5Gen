@@ -7,6 +7,12 @@
 ?>
 <h3>Purchase History</h3>
 <h4><?php echo $info['last_name'] . ', ' . $info['first_name']; ?></h4>
+<?php $this->widget('bootstrap.widgets.TbButton', array(
+    'label'=>'Go Back',
+    'type'=>'primary', // null, 'primary', 'info', 'success', 'warning', 'danger' or 'inverse'
+    'size'=>'small', // null, 'large', 'small' or 'mini'
+    'url'=>  Yii::app()->createUrl('purchase/index'),
+)); ?>
 <?php $this->beginWidget('bootstrap.widgets.TbGridView', array(
     'id'=>'product-grid',
     'type'=>'striped bordered condensed',

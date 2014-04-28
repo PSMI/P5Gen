@@ -113,6 +113,22 @@ class Inventory extends CFormModel
         
     }
     
+    public function validate_product_code()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT *
+                  FROM products
+                    WHERE product_code = :product_code;";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':product_code', $this->product_code);
+        $result = $command->queryRow();
+        if(count($result)>0)
+            return true;
+        else
+            return false;
+    }
+    
     public function get_product_by_id()
     {
         $conn = $this->_connection;

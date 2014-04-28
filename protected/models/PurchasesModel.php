@@ -118,20 +118,31 @@ class PurchasesModel extends CFormModel
     public function selectByDate()
     {
         $conn = $this->_connection;
-        $query = "SELECT pi.purchase_id,
-                         p.product_code,
-                         p.product_name,                         
-                         date_format(pi.date_created,'%b %d, %Y') AS date_purchased,
-                         sum(pi.quantity) AS quantity,
-                         format(sum(pi.total),2) as total
-                    FROM purchased_items pi
-                        INNER JOIN products p ON pi.product_id = p.product_id
-                        INNER JOIN purchased_summary ps ON pi.purchase_summary_id = ps.purchase_summary_id
-                    WHERE pi.date_created >= :date_from 
-                        AND pi.date_created <= :date_to
-                        AND ps.status = 1
-                    GROUP BY date(pi.date_created),pi.product_id
-                    ORDER BY pi.date_created;";
+        $query = "SELECT
+                    CONCAT(md.last_name, ', ', md.first_name) AS member,
+                    CASE m.account_type_id WHEN 3 THEN 'IBO' WHEN 5 THEN 'IPD' END account_type,
+                    pi.purchase_id,
+                    p.product_code,
+                    ps.receipt_no,
+                    p.product_name,
+                    DATE_FORMAT(pi.date_created, '%b %d, %Y') AS date_purchased,
+                    pi.quantity,
+                    FORMAT(pi.total, 2) AS total
+                  --  SUM(pi.quantity) AS quantity,
+                  --  FORMAT(SUM(pi.total), 2) AS total
+                  FROM purchased_items pi
+                    INNER JOIN products p
+                      ON pi.product_id = p.product_id
+                    INNER JOIN purchased_summary ps
+                      ON pi.purchase_summary_id = ps.purchase_summary_id
+                    INNER JOIN member_details md ON ps.member_id = md.member_id
+                    INNER JOIN members m ON md.member_id = m.member_id
+                  WHERE pi.date_created >= :date_from
+                  AND pi.date_created <= :date_to
+                  AND ps.status = 1
+               --   GROUP BY DATE(pi.date_created),
+               --            pi.product_id
+                  ORDER BY pi.date_created;";
         $command = $conn->createCommand($query);
         $command->bindParam(':date_from', $this->date_from);
         $command->bindParam(':date_to', $this->date_to);
@@ -478,6 +489,21 @@ class PurchasesModel extends CFormModel
         }
     }
     
+    public function receipt_is_used()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM purchased_summary
+                  WHERE receipt_no = :receipt_no";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':receipt_no', $this->receipt_no);
+        $result = $command->queryAll();
+        if(count($result)>0)
+            return true;
+        else
+            return false;
+    }
+    
     public function checkout_items()
     {
         $conn = $this->_connection;
@@ -488,13 +514,14 @@ class PurchasesModel extends CFormModel
         $result = $model->get_retention($this->member_id, $this->purchase_summary_id);
                 
         $query = "UPDATE purchased_summary 
-                    SET status = 1
+                    SET status = 1, receipt_no = :receipt_no
                     WHERE member_id = :member_id
                     AND purchase_summary_id = :purchase_summary_id
                             AND status = 0";
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
         $command->bindParam(':purchase_summary_id', $this->purchase_summary_id);
+        $command->bindParam(':receipt_no', $this->receipt_no);
         $command->execute();
         
         if(!$this->hasErrors())

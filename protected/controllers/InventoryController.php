@@ -31,25 +31,44 @@ class InventoryController extends Controller
             {
 
                 $model->product_id = $_POST['product_id'];
-                $model->product_code = $_POST['product_code'];
-                $model->product_name = $_POST['product_name'];
+                
+                
                 $model->amount = $_POST['amount'];
                 $model->ibo_discount = $_POST['ibo_discount'];
                 $model->ipd_discount = $_POST['ipd_discount'];
                 $model->status = $_POST['status'];
-
-                $model->update_product();
-
-                if(!$model->hasErrors())
+                $model->product_name = $_POST['product_name'];
+                $model->product_code = $_POST['product_code'];
+                
+                if(isset($_POST['product_code']) && isset($_POST['product_name']) 
+                        && !empty($_POST['product_code']) && !empty($_POST['product_name'])
+                        && $_POST['product_code'] != "" && $_POST['product_name'] != "")
                 {
-                    $this->show_dialog = true;
-                    $this->dialog_message = 'Product update was successful.';
+                    $model->update_product();
+
+                    if(!$model->hasErrors())
+                    {
+                        $this->dialog_message = 'Product update was successful.';
+                    }
+                    else
+                    {
+                        $this->dialog_message = 'Product update has failed.';
+                    }
                 }
                 else
                 {
-                    $this->show_dialog = true;
-                    $this->dialog_message = 'Product update has failed.';
+                    if(empty($_POST['product_code']) || $_POST['product_code'] == "")
+                    {
+                        $this->dialog_message = 'Please enter a valid product code.';
+                    }
+
+                    if(empty($_POST['product_name']))
+                    {
+                        $this->dialog_message = 'Please enter a valid product name.';
+                    }
                 }
+                    
+                $this->show_dialog = true;
                 
                 $products = $model->get_products();
 
@@ -81,19 +100,25 @@ class InventoryController extends Controller
             
             if($model->validate())
             {
-                $model->add_product();
-                
-                if(!$model->hasErrors())
+                if(!$model->validate_product_code())
                 {
-                    $this->dialog_message = 'New product was successfully added.';
-                    $this->show_dialog = true;
+                    $model->add_product();
+                
+                    if(!$model->hasErrors())
+                    {
+                        $this->dialog_message = 'New product was successfully added.';
+                    }
+                    else
+                    {
+                        $this->dialog_message = 'An error encountered while adding new product.';
+                    }
                 }
                 else
                 {
-                    $this->dialog_message = 'An error encountered while adding new product.';
-                    $this->show_dialog = true;
+                    $this->dialog_message = 'Product code already exists. Please re-enter a valid code.';
                 }
                 
+                $this->show_dialog = true;
             }
         }
         $this->render('_form',array('model'=>$model));
