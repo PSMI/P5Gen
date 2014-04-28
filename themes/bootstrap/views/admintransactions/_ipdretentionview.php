@@ -81,7 +81,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Download',
                                     'icon'=>'icon-download-alt',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfipdretention", array("id" =>$data["purchase_summary_id"], "member_id" =>$data["member_id"], "savings" =>$data["savings"]))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfipdretention", array("id" =>$data["distributor_retention_id"], "member_id" =>$data["member_id"], "total_retention" =>$data["total_retention"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),

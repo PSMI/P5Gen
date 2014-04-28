@@ -83,6 +83,8 @@ class IboRpCommission extends CFormModel
         return $result;
     }
     
+    
+    
     public function getMemberName($member_id)
     {
         $conn = $this->_connection;
@@ -99,6 +101,57 @@ class IboRpCommission extends CFormModel
         $result = $command->queryAll();
         
         return $result;
+    }
+    
+    public function updateIboRpCommissionStatus($distributor_commission_id, $status, $userid)
+    {
+        $conn = $this->_connection;
+        
+        $trx = $conn->beginTransaction();
+        
+        if ($status == 1)
+        {
+            $query = "UPDATE distributor_commissions
+                        SET date_approved = NOW(),
+                            status = :status,
+                            approved_by_id = :userid
+                        WHERE distributor_commission_id = :distributor_commission_id;";
+        }
+        else if ($status == 2)
+        {
+            $query = "UPDATE distributor_commissions
+                        SET date_claimed = NOW(),
+                            status = :status,
+                            claimed_by_id = :userid
+                        WHERE distributor_commission_id = :distributor_commission_id;";
+        }
+        
+        $command = $conn->createCommand($query);
+        
+        $command->bindParam(':distributor_commission_id', $distributor_commission_id);
+        $command->bindParam(':status', $status);
+        $command->bindParam(':userid', $userid);
+
+        $result = $command->execute();
+        
+        try
+        {
+            if(count($result)>0)
+            {
+                $trx->commit();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+            return false;
+        }
     }
 }
 ?>

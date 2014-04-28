@@ -127,7 +127,7 @@ $curdate = date('M d, Y h:ia');
     <table id="tbl-lists2">
         <tr>
             <th class="ctr">&nbsp;</th>
-            <th class="ctr">Lvl</th>
+            <!--<th class="ctr">Lvl</th>-->
             <th class="name">Name of Endorsed IPD</th>
             <th class="name">Endorser</th>
             <th class="name">Place Under</th>
@@ -143,7 +143,7 @@ $curdate = date('M d, Y h:ia');
                     ?>
                     <tr>
                         <td class="ctr"><?php echo $ctr; ?></td>
-                        <td class="ctr"><?php echo $level; ?></td>
+                        <!--<td class="ctr"><?php //echo $level; ?></td>-->
                         <td class="name"><?php echo $row['Name'] ?></td>
                         <td class="name"><?php echo $row['Endorser']; ?></td>
                         <td class="name"><?php echo $row['Upline']; ?></td>

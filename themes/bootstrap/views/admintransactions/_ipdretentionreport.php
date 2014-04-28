@@ -53,7 +53,18 @@ $curdate = date('M d, Y h:ia');
         </tr>
         <tr>
             <th>Total Retention</th>
-            <td align="right"><?php echo number_format($savings, 2); ?></td>
+            <td align="right"><?php echo number_format($total_retention, 2); ?></td>
+        </tr>
+        <tr>
+            <th colspan="2">Deductions</th>
+        </tr>
+        <tr>
+            <th>Tax Withheld</th>
+            <td align="right">(<?php echo number_format($payout['tax_amount'], 2); ?>)</td>
+        </tr>
+        <tr>
+            <th>Net Amount</th>
+            <td align="right"><strong><?php echo number_format($payout['net_amount'], 2); ?></strong></td>
         </tr>
     </table>
     <br />

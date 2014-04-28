@@ -50,10 +50,12 @@ class IpdRetention extends CFormModel
 //                  ORDER BY ps.date_purchased DESC;";
         
         $query = "SELECT 
+                    dr.distributor_retention_id,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                    purchase_retention,
-                    other_retention,
-                    (purchase_retention + other_retention) as total_retention
+                    dr.member_id,
+                    dr.purchase_retention,
+                    dr.other_retention,
+                    (dr.purchase_retention + dr.other_retention) as total_retention
                     FROM distributor_retentions dr
                         INNER JOIN member_details md
                           ON dr.member_id = md.member_id
