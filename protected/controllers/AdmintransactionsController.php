@@ -246,6 +246,32 @@ class AdmintransactionsController extends Controller
                     $result_msg = "An error occured. Please try again.";
                 }
             }
+            else if($transtype == 'iborpcommission')
+            {
+                $distributor_commission_id = $_GET["id"];
+                
+                $model = new IboRpCommission();
+                $result = $model->updateIboRpCommissionStatus($distributor_commission_id, $status, $userid);
+                
+                if (count($result) > 0)
+                {
+                    $result_code = 0;
+                    
+                    if ($status == 1)
+                    {
+                        $result_msg = "IBO RP Commission Approved.";
+                    }
+                    else
+                    {
+                        $result_msg = "IBO RP Commission Claimed.";
+                    }
+                }
+                else
+                {
+                    $result_code = 1;
+                    $result_msg = "An error occured. Please try again.";
+                }
+            }
             else if($transtype == 'ipdretention')
             {
                 $result_code = 0;
@@ -1004,7 +1030,7 @@ class AdmintransactionsController extends Controller
             $unilevels = Networks::arrangeLevel($downline, 'ASC');
             
             foreach($unilevels['network'] as $level)
-            {                    
+            {
                 $levels = $level['Level'];
                  if($levels < 11)
                  {
@@ -1181,14 +1207,20 @@ class AdmintransactionsController extends Controller
     public function actionPdfIpdRetention()
     {
         if(isset($_GET['id']))
-        {
+        {        
             $purchase_summary_id = $_GET["id"];
             $member_id = $_GET["member_id"];
-            $savings = $_GET["savings"];
+            $total_retention = $_GET["total_retention"];
             
             $member = new MembersModel();            
             $model = new IpdRetention();
             $reference = new ReferenceModel();
+            
+            //tax info
+            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $total_tax = $total_retention * ($tax_withheld/100);
+            $payout['tax_amount'] = $total_tax;
+            $payout['net_amount'] = $total_retention - $total_tax;
             
             //Payee Information
             $payee = $member->selectMemberDetails($member_id);
@@ -1204,11 +1236,92 @@ class AdmintransactionsController extends Controller
             $html2pdf->WriteHTML($this->renderPartial('_ipdretentionreport', array(
                     'payee'=>$payee,
                     'endorser'=>$endorser,
-                    'savings'=>$savings,
+                    'total_retention'=>$total_retention,
                     'produts'=>$produts,
+                    'payout'=>$payout,
                 ), true
              ));
             $html2pdf->Output('Distributor_Retention_Money' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+            Yii::app()->end();
+        }
+    }
+    
+    public function actionPdfIboRpCommission()
+    {
+        if(isset($_GET['id']))
+        {        
+            $distributor_commission_id = $_GET["id"];
+            $member_id = $_GET["member_id"];
+            $cutoff_id = $_GET["cutoff_id"];
+            $commission_amount = $_GET["commission_amount"];
+            
+            $member = new MembersModel();            
+            $model = new IboRpCommission();
+            $reference = new ReferenceModel();
+            
+            //tax info
+            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $total_tax = $commission_amount * ($tax_withheld/100);
+            $payout['tax_amount'] = $total_tax;
+            $payout['net_amount'] = $commission_amount - $total_tax;
+            
+            //Payee Information
+            $payee = $member->selectMemberDetails($member_id);
+            $payee_endorser_id = $payee['endorser_id'];
+            $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
+            
+            //Endorser Information
+            //$endorser = $member->selectMemberDetails($payee_endorser_id);
+           
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+            $html2pdf->WriteHTML($this->renderPartial('_iborpcommission', array(
+                    'payee'=>$payee,
+                    //'endorser'=>$endorser,
+                    'commission_amount'=>$commission_amount,
+                    'payout'=>$payout,
+                ), true
+             ));
+            $html2pdf->Output('Member_Repeat_Purchase_commission' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
+            Yii::app()->end();
+        }
+    }
+    
+    public function actionPdfIpdRpCommission()
+    {
+        if(isset($_GET['id']))
+        {        
+            $distributor_commission_id = $_GET["id"];
+            $member_id = $_GET["member_id"];
+            $cutoff_id = $_GET["cutoff_id"];
+            $commission_amount = $_GET["commission_amount"];
+            
+            $member = new MembersModel();            
+            $model = new IpdRpCommission();
+            $reference = new ReferenceModel();
+            
+            //tax info
+            $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
+            $total_tax = $commission_amount * ($tax_withheld/100);
+            $payout['tax_amount'] = $total_tax;
+            $payout['net_amount'] = $commission_amount - $total_tax;
+            
+            //Payee Information
+            $payee = $member->selectMemberDetails($member_id);
+            $payee_endorser_id = $payee['endorser_id'];
+            $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
+            
+            //Endorser Information
+            //$endorser = $member->selectMemberDetails($payee_endorser_id);
+           
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+            $html2pdf->WriteHTML($this->renderPartial('_ipdrpcommission', array(
+                    'payee'=>$payee,
+                    //'endorser'=>$endorser,
+                    'commission_amount'=>$commission_amount,
+                    'payout'=>$payout,
+                ), true
+             ));
+            $html2pdf->Output('Distributor_Repeat_Purchase_commission' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
             Yii::app()->end();
         }
     }
