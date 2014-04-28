@@ -159,7 +159,7 @@ $curdate = date('M d, Y h:ia');
     <br />
     <table id="tbl-details">
         <tr>
-            <th>Total IBO</th>
+            <th>Total IPD</th>
             <td align="right"><?php echo $payout['ipd_count']; ?></td>
         </tr>
         <tr>
