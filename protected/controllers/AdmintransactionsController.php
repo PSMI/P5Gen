@@ -272,6 +272,32 @@ class AdmintransactionsController extends Controller
                     $result_msg = "An error occured. Please try again.";
                 }
             }
+            else if($transtype == 'ipdrpcommission')
+            {
+                $distributor_commission_id = $_GET["id"];
+                
+                $model = new IpdRpCommission();
+                $result = $model->updateIpdRpCommissionStatus($distributor_commission_id, $status, $userid);
+                
+                if (count($result) > 0)
+                {
+                    $result_code = 0;
+                    
+                    if ($status == 1)
+                    {
+                        $result_msg = "IPD RP Commission Approved.";
+                    }
+                    else
+                    {
+                        $result_msg = "IPD RP Commission Claimed.";
+                    }
+                }
+                else
+                {
+                    $result_code = 1;
+                    $result_msg = "An error occured. Please try again.";
+                }
+            }
             else if($transtype == 'ipdretention')
             {
                 $result_code = 0;
@@ -1271,14 +1297,18 @@ class AdmintransactionsController extends Controller
             $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
             
             //Endorser Information
-            //$endorser = $member->selectMemberDetails($payee_endorser_id);
-           
+            $endorser = $member->selectMemberDetails($payee_endorser_id);
+            
+            //RP Commission Details
+            $comm_details = $model->getCommissionDetails($member_id);
+            
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
-            $html2pdf->WriteHTML($this->renderPartial('_iborpcommission', array(
+            $html2pdf->WriteHTML($this->renderPartial('_iborpcommissionreport', array(
                     'payee'=>$payee,
-                    //'endorser'=>$endorser,
+                    'comm_details'=>$comm_details,
                     'commission_amount'=>$commission_amount,
                     'payout'=>$payout,
+                    'endorser'=>$endorser,
                 ), true
              ));
             $html2pdf->Output('Member_Repeat_Purchase_commission' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
@@ -1311,14 +1341,18 @@ class AdmintransactionsController extends Controller
             $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
             
             //Endorser Information
-            //$endorser = $member->selectMemberDetails($payee_endorser_id);
-           
+            $endorser = $member->selectMemberDetails($payee_endorser_id);
+            
+            //RP Commission Details
+            $comm_details = $model->getCommissionDetails($member_id);
+            
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
-            $html2pdf->WriteHTML($this->renderPartial('_ipdrpcommission', array(
+            $html2pdf->WriteHTML($this->renderPartial('_ipdrpcommissionreport', array(
                     'payee'=>$payee,
-                    //'endorser'=>$endorser,
+                    'comm_details'=>$comm_details,
                     'commission_amount'=>$commission_amount,
                     'payout'=>$payout,
+                    'endorser'=>$endorser,
                 ), true
              ));
             $html2pdf->Output('Distributor_Repeat_Purchase_commission' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
