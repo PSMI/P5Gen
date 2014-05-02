@@ -143,6 +143,28 @@ class Networks extends Controller
         return $finalTree;
     }
     
+    public function getDownlines2($member_id, $level = 0)
+    {
+        $model = new Downlines();
+        $parent = array();
+        $children = array();
+        $model->member_id = $member_id;
+        
+        $i = 0;
+        $level++;
+        $downlines = $model->getIPDDownlines2();
+        foreach ($downlines as $key => $val)
+        {
+            $parent[$i][$level] = $downlines[$key]["downline"];
+            $children = array_merge($children, Networks::getDownlines2($downlines[$key]["downline"], $level));
+            $i++;
+        }
+        
+        $finalTree = array_merge($parent, $children);
+        
+        return $finalTree;
+    }
+    
     
     /**
      * This function is used to retrieve the member's direct endorsements

@@ -1051,8 +1051,8 @@ class AdmintransactionsController extends Controller
             $date_from = date('Y-m-d',strtotime($cutoff['last_cutoff_date']));
             $date_to = date('Y-m-d',strtotime($cutoff['next_cutoff_date']));
             
-            $downline = Networks::getIPD10thUnilevelNetworkForPayout($member_id);
-            //$downline = Networks::getDownlines($member_id);
+            //$downline = Networks::getIPD10thUnilevelNetworkForPayout($member_id);
+            $downline = Networks::getDownlines2($member_id);
             $unilevels = Networks::arrangeLevel($downline, 'ASC');
             
             foreach($unilevels['network'] as $level)

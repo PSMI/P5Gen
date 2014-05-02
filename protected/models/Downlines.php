@@ -70,6 +70,24 @@ class Downlines extends CFormModel
         return $result;  
     }
     
+    public function getIPDDownlines2()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    member_id AS downline
+                  FROM members
+                  WHERE ipd_endorser_id = :member_id
+                  AND placement_status = 1
+                  ORDER BY placement_date ASC;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $result = $command->queryAll();
+        
+        return $result;  
+    }
+    
     public function firstFive()
     {
     	$conn = $this->_connection;
