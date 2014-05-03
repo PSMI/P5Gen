@@ -286,18 +286,24 @@ class MembersModel extends CFormModel
         return $result;
     }
     
-    public function get_count_with_flush_out()
+    public function get_count_with_flush_out($date_completed)
     {
-        $reference = new ReferenceModel();
-        $interval = $reference->get_variable_value('UNILEVEL_FLUSHOUT_INTERVAL');
+        //$reference = new ReferenceModel();
+        //$interval = $reference->get_variable_value('UNILEVEL_FLUSHOUT_INTERVAL');
         
         $conn = $this->_connection;
         
+//        $query = "SELECT
+//                    count(*) as total
+//                  FROM members m
+//                  WHERE m.endorser_id = :member_id
+//                  AND m.date_joined > DATE_ADD(m.date_joined, INTERVAL $interval);";
         $query = "SELECT
                     count(*) as total
                   FROM members m
                   WHERE m.endorser_id = :member_id
-                  AND m.date_joined > DATE_ADD(m.date_joined, INTERVAL $interval);";
+                  AND m.date_joined >= '$date_completed'";
+        
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
         //$command->bindParam(':interval', $interval);

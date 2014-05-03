@@ -485,6 +485,33 @@ class Networks extends Controller
         return $array;
     }
     
+    public function getUnilevelDownlinesByFlushOut($member_ids,$date_completed)
+    {
+        $model = new Downlines();
+        $rawData = $model->downlineInfo($member_ids);
+        
+        foreach ($rawData as $key => $val)
+        {
+            $date_completed = date('Y-m-d H:i',strtotime($date_completed));
+            $placement_date = date('Y-m-d H:i',strtotime($val['placement_date']));
+            
+            if($placement_date >= $date_completed )
+            {
+                $count = $model->getUnilevelCount($val["member_id"]);
+                $temp["ID"] = $val["member_id"];
+                $temp["Count"] = $count;
+                $temp["Placement_Date"] = $val['placement_date'];
+                $temp["Name"] = strtoupper($val["last_name"]) . ", " . $val["first_name"] . " " . $val["middle_name"];
+                $temp["DateEnrolled"] = date("F d, Y", strtotime($val["date_enrolled"]));
+                $temp["Upline"] = Networks::getMemberName($val["upline_id"]);
+                $temp["Endorser"] = Networks::getMemberName($val["endorser_id"]);
+                $array[] = $temp;
+            }
+        }
+        
+        return $array;
+    }
+    
     public function getIPDUnilevelDownlinesByCutOff($member_ids,$date_from,$date_to)
     {
         $model = new Downlines();

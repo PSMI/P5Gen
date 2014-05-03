@@ -990,9 +990,21 @@ class AdmintransactionsController extends Controller
                  if($levels < 11)
                  {
                     if($model->is_first_transaction())
-                        $downlines = Networks::getUnilevelDownlines($level['Members']);
+                    {
+                        $model->upline_id = $member_id;
+                        $account = $model->get_running_account();
+                        $flush_out = $reference->get_variable_value('UNILEVEL_FLUSHOUT_INTERVAL');
+                        $month = explode(" ", $flush_out);
+                        
+                        if($account['num_of_months'] > $month[0])
+                            $downlines = Networks::getUnilevelDownlinesByFlushOut($level['Members'],$account['date_first_five_completed']);
+                        else
+                            $downlines = Networks::getUnilevelDownlines($level['Members']);
+                    }
                     else
+                    {
                         $downlines = Networks::getUnilevelDownlinesByCutOff($level['Members'],$date_from,$date_to);
+                    }
                     
                     if(!is_null($downlines))
                     {
