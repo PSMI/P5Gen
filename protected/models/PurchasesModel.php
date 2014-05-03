@@ -510,11 +510,22 @@ class PurchasesModel extends CFormModel
         $trx = $conn->beginTransaction();
         
         $model = new PurchasesModel();
+        $reference = new ReferenceModel();
+        
+        $ipd_retention_rate = $reference->get_variable_value('IPD_RETENTION_MONEY');
+        $comm_ipd_rate = $reference->get_variable_value('IPD_REPEAT_PURCHASE_COMMISSION');
+        $comm_ibo_rate = $reference->get_variable_value('IBO_REPEAT_PURCHASE_COMMISSION');
+        $rpc_rate = $reference->get_variable_value('RPC_DEFAULT_RATE');
             
         $result = $model->get_retention($this->member_id, $this->purchase_summary_id);
                 
         $query = "UPDATE purchased_summary 
-                    SET status = 1, receipt_no = :receipt_no
+                    SET status = 1, 
+                        receipt_no = :receipt_no,
+                        ipd_retention_rate = :ipd_retention_rate,
+                        rpc_rate = :rpc_rate,
+                        comm_ipd_rate = :comm_ipd_rate,
+                        comm_ibo_rate = :comm_ibo_rate
                     WHERE member_id = :member_id
                     AND purchase_summary_id = :purchase_summary_id
                             AND status = 0";
@@ -522,6 +533,10 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':member_id', $this->member_id);
         $command->bindParam(':purchase_summary_id', $this->purchase_summary_id);
         $command->bindParam(':receipt_no', $this->receipt_no);
+        $command->bindParam(':ipd_retention_rate', $ipd_retention_rate);
+        $command->bindParam(':rpc_rate', $rpc_rate);
+        $command->bindParam(':comm_ipd_rate', $comm_ipd_rate);
+        $command->bindParam(':comm_ibo_rate', $comm_ibo_rate);
         $command->execute();
         
         if(!$this->hasErrors())
@@ -709,7 +724,6 @@ class PurchasesModel extends CFormModel
                     WHERE status = 0
                     LIMIT 25";
         $command = $conn->createCommand($query);
-//        $command->bindParam(':member_id', $this->member_id);
         $result = $command->queryAll();
         return $result;
     }
