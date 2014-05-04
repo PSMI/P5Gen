@@ -7,7 +7,8 @@
             <th class="ctr">&nbsp;</th>
             <th class="name">Distributor Name</th>
             <th>Purchase Retention</th>
-            <th>Other Retention</th>           
+            <th>Other Retention</th>
+            <th>Total Retention</th>
         </tr>
         <?php
         $ctr = 1;
@@ -18,13 +19,14 @@
                 <td><?php echo $row['member_name']; ?></td>
                 <td><?php echo $row['purchase_retention']; ?></td>
                 <td><?php echo $row['other_retention']; ?></td>
+                <td><?php echo $row['total_retention']; ?></td>
             </tr>
             <?php
             $ctr++;
         }
         ?>
         <tr>
-            <th class="date" colspan="2">Total</th>
+            <th class="date" colspan="4">Total</th>
             <td><?php echo $total['total_retentions']; ?></td>
         </tr>
     </table>

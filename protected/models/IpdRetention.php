@@ -29,26 +29,6 @@ class IpdRetention extends CFormModel
     {
         $conn = $this->_connection;
         
-//        $query = "SELECT
-//                    ps.purchase_summary_id,
-//                    ps.member_id,
-//                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-//                    ps.receipt_no,
-//                    sum(ps.quantity) AS quantity,
-//                    sum(ps.total) AS total,
-//                    sum(ps.savings) AS savings,
-//                    pt.payment_type_name,
-//                    DATE_FORMAT(ps.date_purchased,'%M %d, %Y') AS date_purchased,
-//                    ps.status
-//                  FROM purchased_summary ps
-//                    INNER JOIN member_details md
-//                      ON ps.member_id = md.member_id
-//                    LEFT OUTER JOIN ref_paymenttypes pt
-//                      ON ps.payment_type_id = pt.payment_type_id
-//                  AND ps.status = 1
-//                  GROUP BY ps.member_id
-//                  ORDER BY ps.date_purchased DESC;";
-        
         $query = "SELECT 
                     dr.distributor_retention_id,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
@@ -60,7 +40,7 @@ class IpdRetention extends CFormModel
                         INNER JOIN member_details md
                           ON dr.member_id = md.member_id
                           INNER JOIN members m ON dr.member_id = m.member_id
-                    WHERE dr.status = 0";
+                    WHERE dr.status = 0;";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryAll();
@@ -71,13 +51,7 @@ class IpdRetention extends CFormModel
     public function getPayoutTotal()
     {
         $conn = $this->_connection;
-        
-//        $query = "SELECT sum(ps.quantity) AS total_quantity,
-//                         sum(ps.total) AS total_amount,
-//                         sum(ps.savings) AS total_savings
-//                    FROM purchased_summary ps
-//                        WHERE ps.status = 1
-//                   GROUP BY ps.member_id;";
+
         $query = "SELECT
                     sum(dr.purchase_retention) AS total_purchase_retention,
                     sum(dr.other_retention) AS total_other_retention,
@@ -91,7 +65,7 @@ class IpdRetention extends CFormModel
         return $result;
     }
     
-    public function getProductsPurchased($purchase_summary_id)
+    public function getProductsPurchased($member_ids)
     {
         $conn = $this->_connection;
         
@@ -102,9 +76,7 @@ class IpdRetention extends CFormModel
                     p.product_name,
                     pi.quantity,
                     pi.srp,
-                    pi.savings,
-                    SUM(pi.srp) AS total_srp,
-                    SUM(pi.savings) AS total_savings
+                    pi.savings
                   FROM purchased_summary ps
                     INNER JOIN member_details md
                       ON ps.member_id = md.member_id
@@ -114,12 +86,31 @@ class IpdRetention extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN products p
                       ON pi.product_id = p.product_id
-                  WHERE ps.purchase_summary_id = :purchase_summary_id
+                  WHERE ps.member_id IN (:member_ids)
                     AND ps.status = 1
                   ORDER BY ps.date_purchased DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':purchase_summary_id', $purchase_summary_id);
+        $command->bindParam(':member_ids', $member_ids);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function getProductsPurchasedTotal($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    SUM(ps.total) AS total_price,
+                    SUM(ps.savings) AS total_savings
+                  FROM purchased_summary ps
+                  WHERE ps.member_id = :member_id
+                    AND ps.status = 1
+                  ORDER BY ps.date_purchased DESC;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
         return $result;

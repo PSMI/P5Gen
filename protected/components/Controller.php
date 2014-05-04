@@ -147,6 +147,19 @@ class Controller extends CController
                 return false;
             }
         }
+        
+        public function getMemberType($account_type_id)
+        {
+            if ($account_type_id == 3)
+            {
+                return "IBO";
+            }
+            else if ($account_type_id == 5)
+            {
+                return "IPD";
+            }
+        }
+        
         public function dateFormat($date)
         {
             if ($date == '')

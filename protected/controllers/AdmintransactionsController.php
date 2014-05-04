@@ -972,7 +972,6 @@ class AdmintransactionsController extends Controller
                 
             foreach($unilevels['network'] as $level)
             {                    
-                
                 $levels = $level['Level'];
                  if($levels < 11)
                  {
@@ -1255,21 +1254,28 @@ class AdmintransactionsController extends Controller
             //Endorser Information
             $endorser = $member->selectMemberDetails($payee_endorser_id);
             
+            //Get Downlines
+            $rawdata = Networks::getDownlines2($member_id);
+            $final = Networks::arrangeLevel($rawdata);
             
+            //Get products purchased per downline
+            $downline_products = $model->getProductsPurchased($final['network'][0]['Members']);
+            $downline_products_total = $model->getProductsPurchasedTotal($final['network'][0]['Members']);
             
-//            $downlines = Networks::getDownlines2($member_id);
-//            print_r($downlines); exit;
-            
-            
-            $produts = $model->getProductsPurchased($purchase_summary_id);
+            //Get own product purchased
+            $produts_own = $model->getProductsPurchased($member_id);
+            $produts_own_total = $model->getProductsPurchasedTotal($member_id);
             
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
             $html2pdf->WriteHTML($this->renderPartial('_ipdretentionreport', array(
                     'payee'=>$payee,
                     'endorser'=>$endorser,
                     'total_retention'=>$total_retention,
-                    'produts'=>$produts,
+                    'produts_own'=>$produts_own,
                     'payout'=>$payout,
+                    'produts_own_total'=>$produts_own_total,
+                    'downline_products'=>$downline_products,
+                    'downline_products_total'=>$downline_products_total,
                 ), true
              ));
             $html2pdf->Output('Distributor_Retention_Money' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 

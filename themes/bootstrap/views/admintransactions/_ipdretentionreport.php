@@ -88,6 +88,7 @@ $curdate = date('M d, Y h:ia');
 </page>
 <page>
     <h4>Distributor Retention Money</h4>
+    <h5>Purchase Retention</h5>
     <table id="tbl-details">
         <tr>
             <th>Name of Payee</th>
@@ -122,12 +123,12 @@ $curdate = date('M d, Y h:ia');
         </tr>
         <?php
         $ctr = 1;
-        foreach ($produts as $row) {
+        foreach ($produts_own as $row) {
             ?>
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
                 <td class="name"><?php echo $row['member_name'] ?></td>
-                <td><?php echo $row['account_type_id']; ?></td>
+                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
                 <td><?php echo $row['date_purchased']; ?></td>
                 <td><?php echo $row['product_name'] ?></td>
                 <td><?php echo $row['quantity']; ?></td>
@@ -141,8 +142,70 @@ $curdate = date('M d, Y h:ia');
             <tr>
                 <th></th><th></th><th></th><th></th><th></th>
                 <th>Total</th>
-                <td><?php echo $produts[0]['total_srp'] ?></td>
-                <td><?php echo $produts[0]['total_savings'] ?></td>
+                <td><?php echo $produts_own_total[0]['total_price'] ?></td>
+                <td><?php echo $produts_own_total[0]['total_savings'] ?></td>
+            </tr>
+    </table>
+    <br />
+</page>
+
+<page>
+    <h5>Other Retention</h5>
+    <table id="tbl-details">
+        <tr>
+            <th>Name of Payee</th>
+            <td><?php echo $payee_name; ?></td>
+            <th>Email</th>
+            <td><?php echo $payee_email; ?></td>
+        </tr>
+        <tr>
+            <th>Username</th>
+            <td><?php echo $payee_username; ?></td>
+            <th>Mobile No</th>
+            <td><?php echo $payee_mobile_no; ?></td>
+        </tr>
+        <tr>
+            <th>Endorser Name</th>
+            <td><?php echo $endoser_name; ?></td>
+            <th>Telephone No</th>
+            <td><?php echo $payee_tel_no; ?></td>
+        </tr>
+    </table> 
+    <br />
+    <table id="tbl-lists">
+        <tr>
+            <th class="ctr">&nbsp;</th>
+            <th class="name">Member Name</th>
+            <th>Membership</th>
+            <th>Date Purchased</th>
+            <th>Product Name</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>5% RM</th>
+        </tr>
+        <?php
+        $ctr = 1;
+        foreach ($downline_products as $row) {
+            ?>
+            <tr>
+                <td class="ctr"><?php echo $ctr; ?></td>
+                <td class="name"><?php echo $row['member_name'] ?></td>
+                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
+                <td><?php echo $row['date_purchased']; ?></td>
+                <td><?php echo $row['product_name'] ?></td>
+                <td><?php echo $row['quantity']; ?></td>
+                <td><?php echo $row['srp']; ?></td>
+                <td><?php echo $row['savings']; ?></td>
+            </tr>
+            <?php
+            $ctr++;
+        }
+        ?>
+            <tr>
+                <th></th><th></th><th></th><th></th><th></th>
+                <th>Total</th>
+                <td><?php echo $downline_products_total[0]['total_srp'] ?></td>
+                <td><?php echo $downline_products_total[0]['total_savings'] ?></td>
             </tr>
     </table>
     <br />
