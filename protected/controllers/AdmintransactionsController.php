@@ -300,34 +300,21 @@ class AdmintransactionsController extends Controller
             }
             else if($transtype == 'ipdretention')
             {
-                $result_code = 0;
-                $result_msg = "Withdraw Successful.";
-//                $direct_endorsement_id = $_GET["id"];
-//                $endorser_id = $_GET["endorser_id"];
-//                $cutoff_id = $_GET["cutoff_id"];
-//                $date_claimed = $_GET['date_claimed'];
-//                
-//                $model = new IpdRetention();
-//                $result = $model->updateDirectEndorsementStatus($endorser_id, $cutoff_id, $status, $userid, $date_claimed);
-//                
-//                if (count($result) > 0)
-//                {
-//                    $result_code = 0;
-//                    
-//                    if ($status == 1)
-//                    {
-//                        $result_msg = "Direct Endorsement Approved.";
-//                    }
-//                    else
-//                    {
-//                        $result_msg = "Direct Endorsement Claimed.";
-//                    }
-//                }
-//                else
-//                {
-//                    $result_code = 1;
-//                    $result_msg = "An error occured. Please try again.";
-//                }
+                $distributor_retention_id = $_GET["id"];
+                
+                $model = new IpdRetention();
+                $result = $model->updateIpdRetentionStatus($distributor_retention_id, $status, $userid);
+                
+                if (count($result) > 0)
+                {
+                    $result_code = 0;
+                    $result_msg = "IPD Retention Money Withdrawn.";
+                }
+                else
+                {
+                    $result_code = 1;
+                    $result_msg = "An error occured. Please try again.";
+                }
             }
         }
         else

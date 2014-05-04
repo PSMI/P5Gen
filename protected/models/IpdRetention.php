@@ -60,7 +60,7 @@ class IpdRetention extends CFormModel
                         INNER JOIN member_details md
                           ON dr.member_id = md.member_id
                           INNER JOIN members m ON dr.member_id = m.member_id
-                    WHERE dr.status = 0 AND m.account_type_id = 5";
+                    WHERE dr.status = 0";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryAll();
@@ -125,34 +125,20 @@ class IpdRetention extends CFormModel
         return $result;
     }
     
-    public function updateUnilevelStatus($unilevel_id, $status, $userid)
+    public function updateIpdRetentionStatus($distributor_retention_id, $status, $userid)
     {
         $conn = $this->_connection;
         
         $trx = $conn->beginTransaction();
         
-        if ($status == 1)
-        {
-            $query = "UPDATE distributor_unilevel
-                        SET date_approved = NOW(),
-                            status = :status,
-                            approved_by_id = :userid
-                        WHERE unilevel_id = :unilevel_id;";
-        }
-        else if ($status == 2)
-        {
-            $query = "UPDATE distributor_unilevel
-                        SET date_claimed = NOW(),
-                            status = :status,
-                            claimed_by_id = :userid
-                        WHERE unilevel_id = :unilevel_id;";
-        }   
+        $query = "UPDATE distributor_retentions
+                    SET status = :status
+                    WHERE distributor_retention_id = :distributor_retention_id;";  
         
         $command = $conn->createCommand($query);
         
-        $command->bindParam(':unilevel_id', $unilevel_id);
+        $command->bindParam(':distributor_retention_id', $distributor_retention_id);
         $command->bindParam(':status', $status);
-        $command->bindParam(':userid', $userid);
 
         $result = $command->execute();
         

@@ -55,8 +55,8 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Withdraw',
                                     'icon'=>'ok-sign',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["member_id"], "status" => "2", "transtype" => "ipdretention"))',
-                                    'visible'=>'AdmintransactionsController::getWithdrawButtonDisplay($data["savings"])',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/processtransaction", array("id" =>$data["distributor_retention_id"], "status" => "1", "transtype" => "ipdretention"))',
+                                    'visible'=>'AdmintransactionsController::getWithdrawButtonDisplay($data["total_retention"])',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                         'confirm'=>'Are you sure you want to WITHDRAW?',
