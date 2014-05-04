@@ -96,19 +96,24 @@ class IpdRetention extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                    m.account_type_id,
+                    DATE_FORMAT(ps.date_purchased,'%M %d, %Y') AS date_purchased,
                     p.product_name,
                     pi.quantity,
                     pi.srp,
-                    pi.discount,
-                    pi.net_price,
-                    pi.total,
                     pi.savings,
-                    DATE_FORMAT(pi.date_created,'%M %d, %Y') AS date_created
+                    SUM(pi.srp) AS total_srp,
+                    SUM(pi.savings) AS total_savings
                   FROM purchased_items pi
                     INNER JOIN purchased_summary ps
                       ON pi.purchase_summary_id = ps.purchase_summary_id
                     LEFT OUTER JOIN products p
                       ON pi.product_id = p.product_id
+                    LEFT OUTER JOIN member_details md
+                      ON ps.member_id = md.member_id
+                    LEFT OUTER JOIN members m
+                      ON md.member_id = m.member_id
                   WHERE pi.purchase_summary_id = :purchase_summary_id
                     AND ps.status = 1
                   ORDER BY ps.date_purchased DESC;";

@@ -112,16 +112,13 @@ $curdate = date('M d, Y h:ia');
     <table id="tbl-lists">
         <tr>
             <th class="ctr">&nbsp;</th>
-            <th class="name">Product Name</th>
-            <th class="name">Quantity</th>
-            <th class="name">Srp</th>
-            <th class="name">discount</th>
-            <th class="name">Net Price</th>
-            <th class="name">Total</th>
-            <th class="name">Savings</th>
-            <th class="name">Date Created</th>
-            
-            <th class="date">Date Joined</th>
+            <th class="name">Member Name</th>
+            <th>Membership</th>
+            <th>Date Purchased</th>
+            <th>Product Name</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>5% RM</th>
         </tr>
         <?php
         $ctr = 1;
@@ -129,19 +126,24 @@ $curdate = date('M d, Y h:ia');
             ?>
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
-                <td class="name"><?php echo $row['product_name'] ?></td>
-                <td class="date"><?php echo $row['quantity']; ?></td>
-                <td class="date"><?php echo $row['srp']; ?></td>
-                <td class="date"><?php echo $row['discount'] ?></td>
-                <td class="date"><?php echo $row['net_price']; ?></td>
-                <td class="date"><?php echo $row['total']; ?></td>
-                <td class="date"><?php echo $row['savings'] ?></td>
-                <td class="date"><?php echo $row['date_created']; ?></td>
+                <td class="name"><?php echo $row['member_name'] ?></td>
+                <td><?php echo $row['account_type_id']; ?></td>
+                <td><?php echo $row['date_purchased']; ?></td>
+                <td><?php echo $row['product_name'] ?></td>
+                <td><?php echo $row['quantity']; ?></td>
+                <td><?php echo $row['srp']; ?></td>
+                <td><?php echo $row['savings']; ?></td>
             </tr>
             <?php
             $ctr++;
         }
         ?>
+            <tr>
+                <th></th><th></th><th></th><th></th><th></th>
+                <th>Total</th>
+                <td><?php echo $produts[0]['total_srp'] ?></td>
+                <td><?php echo $produts[0]['total_savings'] ?></td>
+            </tr>
     </table>
     <br />
 </page>

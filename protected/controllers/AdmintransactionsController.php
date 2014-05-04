@@ -1268,8 +1268,14 @@ class AdmintransactionsController extends Controller
             //Endorser Information
             $endorser = $member->selectMemberDetails($payee_endorser_id);
             
+            
+            
+//            $downlines = Networks::getDownlines2($member_id);
+//            print_r($downlines); exit;
+            
+            
             $produts = $model->getProductsPurchased($purchase_summary_id);
-           
+            
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
             $html2pdf->WriteHTML($this->renderPartial('_ipdretentionreport', array(
                     'payee'=>$payee,
