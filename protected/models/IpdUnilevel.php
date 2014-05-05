@@ -44,7 +44,7 @@ class IpdUnilevel extends CFormModel
         $last_cutoff = $cutoff_ipdunilevel_arr['last_cutoff_date'];
         $next_cutoff = $cutoff_ipdunilevel_arr['next_cutoff_date'];
         
-        if ($this->status == "1, 2")
+        if ($this->status == "0, 1, 2, 3")
         {
             $query = "SELECT
                         u.unilevel_id,  
@@ -98,13 +98,11 @@ class IpdUnilevel extends CFormModel
                               ON u.claimed_by_id = md2.member_id
                             LEFT OUTER JOIN purchased_summary ps
                               ON u.distributor_id = ps.member_id
-                          WHERE u.cutoff_id = 6
-                          AND ps.total >= $total_purchased_amt
+                          WHERE u.cutoff_id = :cutoff_id
                           AND ps.status = 1
-                          AND ps.date_purchased <= $next_cutoff AND ps.date_purchased >= $last_cutoff
                           ORDER BY md.last_name;";
         }
-        else
+        else if ($this->status == "2")
         {
             $query = "SELECT
                             u.unilevel_id,  
@@ -128,11 +126,99 @@ class IpdUnilevel extends CFormModel
                               ON u.claimed_by_id = md2.member_id
                             LEFT OUTER JOIN purchased_summary ps
                               ON u.distributor_id = ps.member_id
-                          WHERE u.cutoff_id = 6
-                          AND ps.total < $total_purchased_amt
-                          AND ps.status = 1
-                          AND ps.date_purchased > $next_cutoff AND ps.date_purchased > $last_cutoff
+                          WHERE u.cutoff_id = :cutoff_id
+                          AND ps.status = 2
                           ORDER BY md.last_name;";
+        }
+        else if ($this->status == "3")
+        {
+            $query = "SELECT
+                            u.unilevel_id,  
+                            u.cutoff_id,
+                            u.distributor_id,
+                            CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                            u.ipd_count,
+                            u.amount,
+                            u.date_created,
+                            DATE_FORMAT(u.date_approved, '%M %d, %Y') AS date_approved,
+                            CONCAT(md1.last_name, ', ', md1.first_name, ' ', md1.middle_name) AS approved_by,
+                            DATE_FORMAT(u.date_claimed, '%M %d, %Y') AS date_claimed,
+                            CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                            u.status
+                          FROM distributor_unilevel u
+                            INNER JOIN member_details md
+                              ON u.distributor_id = md.member_id
+                            LEFT OUTER JOIN member_details md1
+                              ON u.approved_by_id = md1.member_id
+                            LEFT OUTER JOIN member_details md2
+                              ON u.claimed_by_id = md2.member_id
+                            LEFT OUTER JOIN purchased_summary ps
+                              ON u.distributor_id = ps.member_id
+                          WHERE u.cutoff_id = :cutoff_id
+                          AND ps.status = 3
+                          ORDER BY md.last_name;";
+        }
+        else if ($this->status == "0")
+        {
+            $query = "SELECT
+                        u.unilevel_id,  
+                        u.cutoff_id,
+                        u.distributor_id,
+                    CASE m.account_type_id
+                        WHEN 3 THEN 'IBO'
+                        WHEN 5 THEN 'IPD'
+                    END account_type_id,
+                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                        u.ipd_count,
+                        u.amount,
+                        u.date_created,
+                        DATE_FORMAT(u.date_approved, '%M %d, %Y') AS date_approved,
+                        CONCAT(md1.last_name, ', ', md1.first_name, ' ', md1.middle_name) AS approved_by,
+                        DATE_FORMAT(u.date_claimed, '%M %d, %Y') AS date_claimed,
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                        u.status
+                      FROM distributor_unilevel u
+                    INNER JOIN members m ON u.distributor_id = m.member_id
+                        INNER JOIN member_details md
+                          ON u.distributor_id = md.member_id
+                        LEFT OUTER JOIN member_details md1
+                          ON u.approved_by_id = md1.member_id
+                        LEFT OUTER JOIN member_details md2
+                          ON u.claimed_by_id = md2.member_id
+                      WHERE u.cutoff_id = :cutoff_id
+                      AND u.amount < $total_purchased_amt
+                      ORDER BY md.last_name;";
+        }
+        else
+        {
+            $query = "SELECT
+                        u.unilevel_id,  
+                        u.cutoff_id,
+                        u.distributor_id,
+                    CASE m.account_type_id
+                        WHEN 3 THEN 'IBO'
+                        WHEN 5 THEN 'IPD'
+                    END account_type_id,
+                        CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                        u.ipd_count,
+                        u.amount,
+                        u.date_created,
+                        DATE_FORMAT(u.date_approved, '%M %d, %Y') AS date_approved,
+                        CONCAT(md1.last_name, ', ', md1.first_name, ' ', md1.middle_name) AS approved_by,
+                        DATE_FORMAT(u.date_claimed, '%M %d, %Y') AS date_claimed,
+                        CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                        u.status
+                      FROM distributor_unilevel u
+                    INNER JOIN members m ON u.distributor_id = m.member_id
+                        INNER JOIN member_details md
+                          ON u.distributor_id = md.member_id
+                        LEFT OUTER JOIN member_details md1
+                          ON u.approved_by_id = md1.member_id
+                        LEFT OUTER JOIN member_details md2
+                          ON u.claimed_by_id = md2.member_id
+                      WHERE u.cutoff_id = :cutoff_id
+                      AND u.amount >= $total_purchased_amt
+                      ORDER BY md.last_name;";
         }
 
         $command =  $conn->createCommand($query);
@@ -152,7 +238,7 @@ class IpdUnilevel extends CFormModel
         $last_cutoff = $cutoff_ipdunilevel_arr['last_cutoff_date'];
         $next_cutoff = $cutoff_ipdunilevel_arr['next_cutoff_date'];
         
-        if ($this->status == "1, 2")
+        if ($this->status == "0, 1, 2, 3")
         {
             $query = "SELECT
                         sum(u.amount) as total_amount,
@@ -166,12 +252,35 @@ class IpdUnilevel extends CFormModel
                         sum(u.amount) as total_amount,
                         sum(u.ipd_count) as total_ipd
                       FROM distributor_unilevel u
-                      INNER JOIN purchased_summary ps
-                              ON u.distributor_id = ps.member_id
                       WHERE u.cutoff_id = :cutoff_id
-                      AND ps.total >= $total_purchased_amt
-                      AND ps.date_purchased <= $next_cutoff AND ps.date_purchased >= $last_cutoff
-                      AND ps.status = 1;";
+                      AND u.status = 1;";
+        }
+        else if ($this->status == "2")
+        {
+            $query = "SELECT
+                        sum(u.amount) as total_amount,
+                        sum(u.ipd_count) as total_ipd
+                      FROM distributor_unilevel u
+                      WHERE u.cutoff_id = :cutoff_id
+                      AND u.status = 2;";
+        }
+        else if ($this->status == "3")
+        {
+            $query = "SELECT
+                        sum(u.amount) as total_amount,
+                        sum(u.ipd_count) as total_ipd
+                      FROM distributor_unilevel u
+                      WHERE u.cutoff_id = :cutoff_id
+                      AND u.status = 3;";
+        }
+        else if ($this->status == "0")
+        {
+            $query = "SELECT
+                        sum(u.amount) as total_amount,
+                        sum(u.ipd_count) as total_ipd
+                      FROM distributor_unilevel u
+                      WHERE u.cutoff_id = :cutoff_id
+                      AND u.amount < $total_purchased_amt;";
         }
         else
         {
@@ -179,14 +288,10 @@ class IpdUnilevel extends CFormModel
                         sum(u.amount) as total_amount,
                         sum(u.ipd_count) as total_ipd
                       FROM distributor_unilevel u
-                      INNER JOIN purchased_summary ps
-                              ON u.distributor_id = ps.member_id
                       WHERE u.cutoff_id = :cutoff_id
-                      AND ps.total < $total_purchased_amt
-                      AND ps.date_purchased > $next_cutoff AND ps.date_purchased > $last_cutoff
-                      AND ps.status = 1;";
+                      AND u.amount >= $total_purchased_amt;";
         }
-            
+        
         $command =  $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $result = $command->queryRow();
@@ -205,14 +310,10 @@ class IpdUnilevel extends CFormModel
         $next_cutoff = $cutoff_ipdunilevel_arr['next_cutoff_date'];
         
         $query = "UPDATE distributor_unilevel du 
-                    INNER JOIN purchased_summary ps
-                        ON du.distributor_id = ps.member_id
                     SET du.status = 3, 
                         du.date_last_updated = now()
                   WHERE du.cutoff_id = :cutoff_id
-                    AND ps.total < $total_purchased_amt
-                    AND ps.date_purchased > $next_cutoff AND ps.date_purchased > $last_cutoff
-                    AND ps.status = 1";
+                    AND du.status = 0";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':cutoff_id', $this->cutoff_id);

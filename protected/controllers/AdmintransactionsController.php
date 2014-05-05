@@ -411,20 +411,19 @@ class AdmintransactionsController extends Controller
             $model->attributes = $_POST['IpdUnilevel'];
             Yii::app()->session['ipdunilevel'] = $model->attributes;
             
-            if ($model->status == "2")
-            {
-                if (isset($_POST['fout']))
-                {
-                    $result = $model->flashOut();
-                    
-                    print_r($result); exit;
-                }
-            }
+//            if ($model->status == "0")
+//            {
+//                if (isset($_POST['fout']))
+//                {
+//                    //$result = $model->flashOut();
+//                    unset($_POST['fout']);
+//                }
+//            }
         }
         else
         {
             $model->attributes = Yii::app()->session['ipdunilevel'];
-            $model->status = "1, 2";
+            $model->status = "0, 1, 2, 3";
         }
         $rawData = $model->getUnilevel();
         $total = $model->getPayoutTotal();
