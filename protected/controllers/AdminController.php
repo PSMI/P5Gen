@@ -70,7 +70,7 @@ class AdminController extends Controller
 
                 if($schedule == 'd')
                 {
-                    if($new_value >=1 && $new_value <= 31)
+                    if($new_value >=1 && $new_value <= 365)
                     {
                         $new_schedule = $new_value . ' DAY';
                         $reference->update_ref_variables($variable_id, $new_schedule);
