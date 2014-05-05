@@ -326,5 +326,46 @@ Please enter a valid receipt no.'));
         }
     }
     
+    public function actionCancel()
+    {
+        if(Yii::app()->request->isAjaxRequest)
+        {   
+            $values['purchase_summary_id'] = $_GET['id'];
+            $values['member_id'] = $_GET['mid'];
+            $values['receipt_no'] = $_GET['receipt_no'];
+            $values['name'] = $_GET['name'];
+            $values['date_purchased'] = $_GET['date_purchased'];
+            echo CJSON::encode($values);
+        }
+    }
+    
+    public function actionCancelPurchase()
+    {
+        if(Yii::app()->request->isAjaxRequest)
+        {   
+            $model = new PurchasesModel();
+            
+            $model->purchase_summary_id = $_POST['purchase_summary_id'];
+            $model->member_id = $_POST['member_id'];
+            $model->receipt_no = $_POST['receipt_no'];
+            $model->cancel_reason = $_POST['reason'];
+            
+            $model->cancel_purchase();
+            
+            if(!$model->hasErrors())
+            {
+                $result_code = 0;
+                $result_msg = 'Receipt# '.$_POST['receipt_no'].' was successfully cancelled.';
+            }
+            else
+            {
+                $result_code = 1;
+                $result_msg = 'Receipt# '.$_POST['receipt_no'].' cancellation failed.';
+            }
+            
+            echo CJSON::encode(array('result_code'=>$result_code,'result_msg'=>$result_msg));
+        }
+    }
+    
 }
 ?>

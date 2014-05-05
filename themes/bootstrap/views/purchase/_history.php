@@ -102,11 +102,11 @@
                 'htmlOptions'=>array('style'=>'text-align:center'),
                 'headerHtmlOptions' => array('style' => 'text-align:center'),
             ),
-        array('name'=>'product_code', 
-                'header'=>'Product Code',
-                'htmlOptions'=>array('style'=>'text-align:center'),
-                'headerHtmlOptions' => array('style' => 'text-align:center'),
-            ),
+//        array('name'=>'product_code', 
+//                'header'=>'Product Code',
+//                'htmlOptions'=>array('style'=>'text-align:center'),
+//                'headerHtmlOptions' => array('style' => 'text-align:center'),
+//            ),
         array('name'=>'product_name', 
                 'header'=>'Product Name',
                 'htmlOptions'=>array('style'=>'text-align:left'),
@@ -119,6 +119,21 @@
                 'footer'=>'<strong>'.number_format($total['total_quantity'],0).'</strong>',
                 'footerHtmlOptions'=>array('style'=>'text-align:center; font-size:14px'),
             ),
+//        array('name'=>'SRP', 
+//                'header'=>'SRP',
+//                'htmlOptions'=>array('style'=>'text-align:right'),
+//                'headerHtmlOptions' => array('style' => 'text-align:right'),
+//            ),
+        array('name'=>'discount', 
+                'header'=>'Discount',
+                'htmlOptions'=>array('style'=>'text-align:right'),
+                'headerHtmlOptions' => array('style' => 'text-align:right'),
+            ),
+//        array('name'=>'net_price', 
+//                'header'=>'Net Price',
+//                'htmlOptions'=>array('style'=>'text-align:right'),
+//                'headerHtmlOptions' => array('style' => 'text-align:right'),
+//            ),
         array('name'=>'total', 
                 'header'=>'Total',
                 'htmlOptions'=>array('style'=>'text-align:right'),
@@ -126,7 +141,112 @@
                 'footer'=>'<strong>'.number_format($total['total_amount'],2).'</strong>',
                 'footerHtmlOptions'=>array('style'=>'text-align:right; font-size:14px'),
             ),
+        array('class'=>'bootstrap.widgets.TbButtonColumn',
+                'template'=>'{cancel}',
+                'buttons'=>array
+                (
+                    'cancel'=>array
+                    (
+                        'label'=>'Cancel Purchase',
+                        'icon'=>'icon-remove-sign',
+                        'url'=>'Yii::app()->createUrl("/purchase/cancel", array(
+                                "id" =>$data["purchase_summary_id"],
+                                "receipt_no"=>$data["receipt_no"],
+                                "mid"=>$data["member_id"],
+                                "name"=>$data["member"],
+                                "date_purchased"=>$data["date_purchased"]                                
+                             ))',
+                        'confirm'=>'Are you sure you want to cancel this purchase?',
+                        'options' => array(
+                            'class'=>"btn btn-small",
+                            'ajax' => array(
+                                'type' => 'GET',
+                                'dataType'=>'json',
+                                'url' => 'js:$(this).attr("href")',
+                                'success' => 'function(data){
+                                    $("#receipt_text").text(data.receipt_no);
+                                    $("#receipt_no").val(data.receipt_no);
+                                    $("#purchase_summary_id").val(data.purchase_summary_id);
+                                    $("#member_id").val(data.member_id);
+                                    $("#member_name_text").text(data.name);
+                                    $("#date_purchased_text").text(data.date_purchased);
+                                    $("#cancel-purchase-modal").modal("show");
+                                 }',
+                            ),
+
+                        ),
+                        array('id' => 'send-link-'.uniqid())
+                    ),
+                ),
+                'header'=>'&nbsp;',
+                'htmlOptions'=>array('style'=>'width:50px;text-align:center'),
+            ),
     ),
 )); ?>
 
 <?php $this->endWidget(); ?>
+
+<?php /** @var BootActiveForm $form */
+    $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+        'id'=>'searchForm',
+        'type'=>'search',
+        'htmlOptions'=>array('class'=>'well'),
+    ));
+?>
+<?php $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'cancel-purchase-modal')); ?>
+ 
+<div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h4>Cancel Purchase for Receipt # <span id="receipt_text"></span></h4>
+</div>
+ 
+<div class="modal-body">
+    <?php echo CHtml::hiddenField('purchase_summary_id'); ?>
+    <?php echo CHtml::hiddenField('member_id'); ?>
+    <?php echo CHtml::hiddenField('receipt_no'); ?>
+    Member : <strong><span id="member_name_text"></span></strong><br />
+    Date Purchased : <strong><span id="date_purchased_text"></span></strong><br />
+    <?php echo CHtml::label('Cancellation Reason', 'cancellation_reason'); ?>
+    
+    <?php echo CHtml::textArea('cancellation_reason','',array('class'=>'span5','tooltip'=>'Please provide reason to cancel')); ?>
+</div>
+ 
+<div class="modal-footer">
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'buttonType'=>'ajaxButton',
+        'type'=>'primary',
+        'icon'=>'icon-remove',
+        'label'=>'Cancel Purchase',
+        'url'=>  Yii::app()->createUrl('purchase/cancelpurchase',array(
+            'product_summary_id'=>'js:function(){return $("#product_summary_id").val()}',
+            'member_id'=>'js:function(){return $("#member_id").val()}',
+            'receipt_no'=>'js:function(){return $("#receipt_no").val()}',
+            'reason'=>'js:function(){return $("#cancellation_reason").val()}'
+        )),
+        'ajaxOptions'=>array(
+            'type' => 'POST',
+            'dataType'=>'json',
+            'url' => 'js:$(this).attr("href")',
+            'success' => 'function(data){
+                if(data["result_code"] == 0)
+                {
+                    $("#cancel-purchase-modal").modal("hide");   
+                    alert(data.result_msg);
+                }
+                else
+                {
+                    alert(data["result_msg"]);
+                }
+             }',
+        ),
+    )); ?>
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'label'=>'Cancel',
+        'url'=>'#',
+        'htmlOptions'=>array('data-dismiss'=>'modal'),
+    )); ?>
+</div>
+
+<?php $this->endWidget(); ?>
+<?php $this->endWidget(); ?>
+

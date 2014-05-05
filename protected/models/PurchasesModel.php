@@ -30,6 +30,7 @@ class PurchasesModel extends CFormModel
     public $date_to;
     public $receipt_no;
     public $repeat_purchase_id;
+    public $cancel_reason;
         
     public function __construct() {
         $this->_connection = Yii::app()->db;
@@ -119,6 +120,8 @@ class PurchasesModel extends CFormModel
     {
         $conn = $this->_connection;
         $query = "SELECT
+                    ps.purchase_summary_id,
+                    ps.member_id,
                     CONCAT(md.last_name, ', ', md.first_name) AS member,
                     CASE m.account_type_id WHEN 3 THEN 'IBO' WHEN 5 THEN 'IPD' END account_type,
                     pi.purchase_id,
@@ -127,6 +130,9 @@ class PurchasesModel extends CFormModel
                     p.product_name,
                     DATE_FORMAT(pi.date_created, '%b %d, %Y') AS date_purchased,
                     pi.quantity,
+                    FORMAT(pi.discount, 2) AS discount,
+                    FORMAT(pi.srp, 2) AS SRP,
+                    FORMAT(pi.net_price, 2) AS net_price,
                     FORMAT(pi.total, 2) AS total
                   --  SUM(pi.quantity) AS quantity,
                   --  FORMAT(SUM(pi.total), 2) AS total
@@ -709,11 +715,21 @@ class PurchasesModel extends CFormModel
     public function delete_processed_purchases()
     {
         $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+        
         $query = "DELETE FROM repeat_purchases WHERE repeat_purchase_id = :repeat_purchase_id";
         $command = $conn->createCommand($query);
         $command->bindParam(':repeat_purchase_id', $this->repeat_purchase_id);
         $command->execute();
-   
+        
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
     }
     
     public function get_unprocessed_purchases()
@@ -748,6 +764,7 @@ class PurchasesModel extends CFormModel
     public function insert_commission_transaction()
     {
         $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
         
         $query = "INSERT INTO distributor_commissions (member_id, commission_amount, cutoff_id)
                     VALUES (:member_id, :commission_amount, :cutoff_id)";
@@ -756,11 +773,21 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':commission_amount', $this->commission);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->execute();
+        
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
     }
     
     public function update_commission_transaction()
     {
         $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
         
         $query = "UPDATE distributor_commissions
                     SET commission_amount = commission_amount + :commission_amount
@@ -778,6 +805,7 @@ class PurchasesModel extends CFormModel
     public function update_repeat_purchase()
     {
         $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
         
         $query = "UPDATE repeat_purchases
                     SET status = 1
@@ -785,6 +813,15 @@ class PurchasesModel extends CFormModel
         $command = $conn->createCommand($query);
         $command->bindParam(':purchase_id', $this->purchase_id);
         $command->execute();
+        
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
     }
     
     /**
@@ -882,6 +919,7 @@ class PurchasesModel extends CFormModel
     public function update_ipd_retention()
     {
         $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
         
         $query = "UPDATE distributor_retentions
                     SET other_retention = other_retention + :other_retention
@@ -892,11 +930,21 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':member_id', $this->endorser_id);
         $command->bindParam(':other_retention', $this->commission);
         $command->execute();
+        
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
     }
     
     public function insert_ipd_retention()
     {
         $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
         
         $query = "INSERT INTO distributor_retentions (member_id, other_retention)
                     VALUES (:member_id, :other_retention)";
@@ -904,6 +952,48 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':member_id', $this->endorser_id);
         $command->bindParam(':other_retention', $this->commission);
         $command->execute();
+        
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
+    }
+    
+    public function cancel_purchase()
+    {
+        $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE purchased_summary
+                    SET status = 2,
+                        cancelled_by_mid = :logged_user_id,
+                        cancellation_reason = :reason
+                    WHERE purchase_summary_id = :purchase_summary_id
+                        AND member_id = :member_id
+                        AND receipt_no = :receipt_no";
+        
+        $logged_user_id = Yii::app()->user->getId();
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':logged_user_id', $logged_user_id);
+        $command->bindParam(':reason', $this->cancel_reason);
+        $command->bindParam(':purchase_summary_id', $this->purchase_summary_id);
+        $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':receipt_no', $this->receipt_no);
+        $command->execute();
+        
+        try
+        {
+            $trx->commit();
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
     }
 }
 ?>
