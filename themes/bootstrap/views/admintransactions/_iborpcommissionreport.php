@@ -90,6 +90,7 @@ $curdate = date('M d, Y h:ia');
 
 <page>
     <h4>Member Repeat Purchase Commission</h4>
+    <h5>Own Purchase Commission</h5>
     <table id="tbl-details">
         <tr>
             <th>Name of Payee</th>
@@ -114,26 +115,100 @@ $curdate = date('M d, Y h:ia');
     <table id="tbl-lists">
         <tr>
             <th class="ctr">&nbsp;</th>
-            <th class="date">Date Purchased</th>
             <th class="name">Member Name</th>
+            <th>Membership</th>
+            <th>Date Purchased</th>
             <th>Product Name</th>
-            <th>Quantity</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>1% RPC</th>
         </tr>
         <?php
         $ctr = 1;
-        foreach ($comm_details as $row) {
+        foreach ($comm_details_own as $row) {
             ?>
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
-                <td class="date"><?php echo $row['date_purchased'] ?></td>
-                <td class="name"><?php echo $row['member_name']; ?></td>
-                <td><?php echo $row['product_name']; ?></td>
-                <td><?php echo $row['quantity'] ?></td>
+                <td class="name"><?php echo $row['member_name'] ?></td>
+                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
+                <td><?php echo $row['date_purchased']; ?></td>
+                <td><?php echo $row['product_name'] ?></td>
+                <td><?php echo $row['quantity']; ?></td>
+                <td><?php echo $row['srp']; ?></td>
+                <td><?php echo $row['savings']; ?></td>
             </tr>
             <?php
             $ctr++;
         }
         ?>
+            <tr>
+                <th></th><th></th><th></th><th></th><th></th>
+                <th>Total</th>
+                <td><?php echo $comm_details_own_total[0]['total_price'] ?></td>
+                <td><?php echo $comm_details_own_total[0]['total_savings'] ?></td>
+            </tr>
+    </table>
+    <br />
+</page>
+
+<page>
+    <h5>Downline Commission</h5>
+    <table id="tbl-details">
+        <tr>
+            <th>Name of Payee</th>
+            <td><?php echo $payee_name; ?></td>
+            <th>Email</th>
+            <td><?php echo $payee_email; ?></td>
+        </tr>
+        <tr>
+            <th>Username</th>
+            <td><?php echo $payee_username; ?></td>
+            <th>Mobile No</th>
+            <td><?php echo $payee_mobile_no; ?></td>
+        </tr>
+        <tr>
+            <th>Endorser Name</th>
+            <td><?php echo $endoser_name; ?></td>
+            <th>Telephone No</th>
+            <td><?php echo $payee_tel_no; ?></td>
+        </tr>
+    </table> 
+    <br />
+    <table id="tbl-lists">
+        <tr>
+            <th class="ctr">&nbsp;</th>
+            <th class="name">Member Name</th>
+            <th>Membership</th>
+            <th>Date Purchased</th>
+            <th>Product Name</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>1% RPC</th>
+        </tr>
+        <?php
+        $ctr = 1;
+        foreach ($comm_details_downlines as $row) {
+            ?>
+            <tr>
+                <td class="ctr"><?php echo $ctr; ?></td>
+                <td class="name"><?php echo $row['member_name'] ?></td>
+                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
+                <td><?php echo $row['date_purchased']; ?></td>
+                <td><?php echo $row['product_name'] ?></td>
+                <td><?php echo $row['quantity']; ?></td>
+                <td><?php echo $row['srp']; ?></td>
+                <td><?php echo $row['savings']; ?></td>
+            </tr>
+            <?php
+            $ctr++;
+        }
+        ?>
+            <tr>
+                <th></th><th></th><th></th><th></th><th></th>
+                <th>Total</th>
+                <td><?php echo $comm_details_downlines_total[0]['total_price'] ?></td>
+                <td><?php echo $comm_details_downlines_total[0]['total_savings'] ?></td>
+            </tr>
     </table>
     <br />
 </page>
