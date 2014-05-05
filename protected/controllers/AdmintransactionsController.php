@@ -966,7 +966,6 @@ class AdmintransactionsController extends Controller
             $date_to = date('Y-m-d',strtotime($cutoff['next_cutoff_date']));
               
             $downline = Networks::getUnilevel($member_id);
-            //$downline = Networks::getDownlines($member_id);
             $unilevels = Networks::arrangeLevel($downline, 'ASC');
                 
             foreach($unilevels['network'] as $level)
@@ -974,17 +973,20 @@ class AdmintransactionsController extends Controller
                 $levels = $level['Level'];
                  if($levels < 11)
                  {
+                    $model->cutoff_id = $cutoff_id;
+                    
                     if($model->is_first_transaction())
                     {
-                        $model->upline_id = $member_id;
-                        $account = $model->get_running_account();
                         $flush_out = $reference->get_variable_value('UNILEVEL_FLUSHOUT_INTERVAL');
                         $month = explode(" ", $flush_out);
+                        $interval = $month[1];
+                        $model->upline_id = $member_id;
+                        $account = $model->get_running_account($interval);                        
                         
                         if($account['num_of_months'] > $month[0])
                             $downlines = Networks::getUnilevelDownlinesByFlushOut($level['Members'],$account['date_first_five_completed']);
                         else
-                            $downlines = Networks::getUnilevelDownlines($level['Members']);
+                            $downlines = Networks::getUnilevelDownlinesByDate($level['Members'], $date_from);
                     }
                     else
                     {

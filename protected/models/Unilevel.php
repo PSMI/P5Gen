@@ -171,7 +171,7 @@ class Unilevel extends CFormModel
         }
     }
     
-    public function get_running_account()
+    public function get_running_account($interval)
     {
         $conn = $this->_connection;
         
@@ -181,7 +181,7 @@ class Unilevel extends CFormModel
                     ra.total_member,
                     ra.date_first_five_completed,
                     ra.with_unilevel_trx,
-                    TIMESTAMPDIFF(MONTH,m.date_joined,date_first_five_completed) AS num_of_months
+                    TIMESTAMPDIFF($interval,m.date_joined,date_first_five_completed) AS num_of_months
                   FROM running_accounts ra
                     INNER JOIN members m
                       ON ra.member_id = m.member_id
@@ -329,10 +329,12 @@ class Unilevel extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT count(*) as total FROM unilevel 
-                    WHERE member_id = :member_id";
+                    WHERE member_id = :member_id
+                        AND cutoff_id <= :cutoff_id";
         
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->member_id);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
         $result = $command->queryRow();
         $trx_count = $result['total'];
         if($trx_count == 1)

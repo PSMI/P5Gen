@@ -262,9 +262,15 @@ class Transactions extends Controller
         {
             foreach($uplines as $upline)
             {
+                //Check direct endorse count if >= 5 date and if no. of month <= N months
+                $flush_out = $reference->get_variable_value('UNILEVEL_FLUSHOUT_INTERVAL');
+                $month = explode(" ", $flush_out);
+                
+                $interval = $month[1];
+                        
                 //Check each upline running account
                 $model->upline_id = $upline;
-                $account = $model->get_running_account();
+                $account = $model->get_running_account($interval);
                 
                 // If member has already unilevel transaction
                 if($account['with_unilevel_trx'] == 1)
@@ -290,9 +296,9 @@ class Transactions extends Controller
                         //$model->total_direct_endorse = $account['total_member'];
                         $model->total_direct_endorse = $account['direct_endorse'];
                         
-                        //Check direct endorse count if >= 5 date and if no. of month <= N months
-                        $flush_out = $reference->get_variable_value('UNILEVEL_FLUSHOUT_INTERVAL');
-                        $month = explode(" ", $flush_out);
+//                        //Check direct endorse count if >= 5 date and if no. of month <= N months
+//                        $flush_out = $reference->get_variable_value('UNILEVEL_FLUSHOUT_INTERVAL');
+//                        $month = explode(" ", $flush_out);
                         
                         if($account['num_of_months'] <= $month[0])
                         {                            
