@@ -89,7 +89,7 @@ class MemberDetailsModel extends CFormModel
                 a.birth_date, a.mobile_no, a.email, b.username
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
-                WHERE b.account_type_id = 2";
+                WHERE b.account_type_id IN (2, 4)";
         $command = $connection->createCommand($sql);
         $result = $command->queryAll();
         
@@ -104,7 +104,7 @@ class MemberDetailsModel extends CFormModel
                 a.birth_date, a.mobile_no, a.email, b.username
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
-                WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField) AND b.account_type_id IN (1, 2)";
+                WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField) AND b.account_type_id IN (2, 4)";
         $command = $connection->createCommand($sql);
         $keyword = "%" . $searchField . "%";
         $command->bindParam(":searchField", $keyword);
