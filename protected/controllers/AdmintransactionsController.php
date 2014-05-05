@@ -1372,6 +1372,12 @@ class AdmintransactionsController extends Controller
             $model = new IpdRpCommission();
             $reference = new ReferenceModel();
             
+            
+            $cutoff_ipd_rp_comm_arr = ReferenceModel::get_cutoff_by_id($cutoff_id);
+            
+            $last_cutoff_date = $cutoff_ipd_rp_comm_arr['last_cutoff_date'];
+            $next_cutoff_date = $cutoff_ipd_rp_comm_arr['next_cutoff_date'];
+            
             //tax info
             $tax_withheld = $reference->get_variable_value('TAX_WITHHELD');
             $total_tax = $commission_amount * ($tax_withheld/100);
@@ -1386,16 +1392,43 @@ class AdmintransactionsController extends Controller
             //Endorser Information
             $endorser = $member->selectMemberDetails($payee_endorser_id);
             
-            //RP Commission Details
-            $comm_details = $model->getCommissionDetails($member_id);
+            //Get Downline's member_ids
+            $rawdata = Networks::getDownlines2($member_id);
+            $final = Networks::arrangeLevel($rawdata);
+            
+            $i = 0;
+            $len = count($final['network']);
+            $member_ids = "";
+            foreach($final['network'] as $level)
+            {
+                if ($i == 0) 
+                {
+                    $member_ids = $member_ids.$level['Members'].",";
+                } else if ($i == $len - 1) 
+                {
+                    $member_ids = $member_ids.$level['Members'];
+                }
+                $i++;
+            }
+            
+            //RP Own RP Commission Details
+            $comm_details_own = $model->getCommissionDetails($member_id, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_own_total = $model->getCommissionDetailsTotal($member_id, $last_cutoff_date, $next_cutoff_date);
+            
+            //RP Downline's RP Commission Details
+            $comm_details_downlines = $model->getCommissionDetails($member_ids, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_downlines_total = $model->getCommissionDetailsTotal($member_ids, $last_cutoff_date, $next_cutoff_date);
             
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
             $html2pdf->WriteHTML($this->renderPartial('_ipdrpcommissionreport', array(
                     'payee'=>$payee,
-                    'comm_details'=>$comm_details,
+                    'comm_details_own'=>$comm_details_own,
                     'commission_amount'=>$commission_amount,
                     'payout'=>$payout,
                     'endorser'=>$endorser,
+                    'comm_details_own_total'=>$comm_details_own_total,
+                    'comm_details_downlines'=>$comm_details_downlines,
+                    'comm_details_downlines_total'=>$comm_details_downlines_total,
                 ), true
              ));
             $html2pdf->Output('Distributor_Repeat_Purchase_commission' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
