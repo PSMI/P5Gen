@@ -960,18 +960,5 @@ class PurchasesModel extends CFormModel
         }
     }
     
-    public function get_purchases_by_cutoff()
-    {
-        $conn = $this->_connection;
-        
-        $query = "SELECT * FROM repeat_purchase_logs
-                    WHERE date_purchased >= :date_from
-                        AND date_purchased <= :date_to";
-        $command = $conn->createCommand($query);
-        $command->bindParam(':date_from', $this->date_from);
-        $command->bindParam(':date_to', $this->date_to);
-        $result = $command->queryAll();
-        return $result;
-    }
 }
 ?>

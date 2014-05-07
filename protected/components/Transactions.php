@@ -797,13 +797,11 @@ class Transactions extends Controller
                                 
         $distributor_id = $distributor_purchases['member_id'];
         $total_purchase = $distributor_purchases['total'];
+        
         $model->repeat_purchase_id = $distributor_purchases['repeat_purchase_id'];
         
         //rp commission regardless of ibo or ipd endorser
         $endorsers = Networks::getIPD10thUnilevelNetworkForPayout($distributor_id);
-                
-//        if(is_null($endorsers))//root record
-//            $endorsers = array($distributor_id);
         
         $cutoff_id = $reference->get_cutoff(TransactionTypes::REPEAT_PURCHASE_COMMISSION); 
         
@@ -822,6 +820,7 @@ class Transactions extends Controller
                 
                 if(Members::getMembershipType($distributor_id) == 'distributor')
                 {
+                    
                     if(Members::getMembershipType($endorser['member_id']) == 'distributor')
                     {
                         $direct_count = Networks::getIPDDirectCount($endorser['member_id']);
