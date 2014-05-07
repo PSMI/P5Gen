@@ -63,7 +63,7 @@ class ReferenceModel extends CFormModel
         $direct_cutoff = ReferenceModel::get_variable_value('DIRECT_CUTOFF_INTERVAL');
         $ipd_direct_cutoff = ReferenceModel::get_variable_value('IPD_DIRECT_CUTOFF_INTERVAL');
         $ipd_unilevel_cutoff = ReferenceModel::get_variable_value('IPD_UNILEVEL_CUTOFF_INTERVAL');
-        $repeat_purchase_cutoff = ReferenceModel::get_variable_value('IPD_UNILEVEL_CUTOFF_INTERVAL');
+        $repeat_purchase_cutoff = ReferenceModel::get_variable_value('REPEAT_PURCHASEL_CUTOFF_INTERVAL');
         
         switch($trans_type_id)
         {
