@@ -715,21 +715,12 @@ class PurchasesModel extends CFormModel
     public function delete_processed_purchases()
     {
         $conn = $this->_connection;
-        $trx = $conn->beginTransaction();
         
         $query = "DELETE FROM repeat_purchases WHERE repeat_purchase_id = :repeat_purchase_id";
         $command = $conn->createCommand($query);
         $command->bindParam(':repeat_purchase_id', $this->repeat_purchase_id);
         $command->execute();
         
-        try
-        {
-            $trx->commit();
-        }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-        }
     }
     
     public function get_unprocessed_purchases()
@@ -764,30 +755,21 @@ class PurchasesModel extends CFormModel
     public function insert_commission_transaction()
     {
         $conn = $this->_connection;
-        $trx = $conn->beginTransaction();
         
         $query = "INSERT INTO distributor_commissions (member_id, commission_amount, cutoff_id)
                     VALUES (:member_id, :commission_amount, :cutoff_id)";
+        
         $command = $conn->createCommand($query);
         $command->bindParam(':member_id', $this->endorser_id);
         $command->bindParam(':commission_amount', $this->commission);
         $command->bindParam(':cutoff_id', $this->cutoff_id);
         $command->execute();
         
-        try
-        {
-            $trx->commit();
-        }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-        }
     }
     
     public function update_commission_transaction()
     {
         $conn = $this->_connection;
-        $trx = $conn->beginTransaction();
         
         $query = "UPDATE distributor_commissions
                     SET commission_amount = commission_amount + :commission_amount
@@ -919,7 +901,6 @@ class PurchasesModel extends CFormModel
     public function update_ipd_retention()
     {
         $conn = $this->_connection;
-        $trx = $conn->beginTransaction();
         
         $query = "UPDATE distributor_retentions
                     SET other_retention = other_retention + :other_retention
@@ -931,20 +912,11 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':other_retention', $this->commission);
         $command->execute();
         
-        try
-        {
-            $trx->commit();
-        }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-        }
     }
     
     public function insert_ipd_retention()
     {
         $conn = $this->_connection;
-        $trx = $conn->beginTransaction();
         
         $query = "INSERT INTO distributor_retentions (member_id, other_retention)
                     VALUES (:member_id, :other_retention)";
@@ -953,14 +925,6 @@ class PurchasesModel extends CFormModel
         $command->bindParam(':other_retention', $this->commission);
         $command->execute();
         
-        try
-        {
-            $trx->commit();
-        }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-        }
     }
     
     public function cancel_purchase()
@@ -994,6 +958,20 @@ class PurchasesModel extends CFormModel
         {
             $trx->rollback();
         }
+    }
+    
+    public function get_purchases_by_cutoff()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM repeat_purchase_logs
+                    WHERE date_purchased >= :date_from
+                        AND date_purchased <= :date_to";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':date_from', $this->date_from);
+        $command->bindParam(':date_to', $this->date_to);
+        $result = $command->queryAll();
+        return $result;
     }
 }
 ?>
