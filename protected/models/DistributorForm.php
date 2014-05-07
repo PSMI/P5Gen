@@ -93,5 +93,19 @@ class DistributorForm extends CFormModel
         $result = $command->execute();
         return $result;
     }
+    
+    public function getDistributorsByCutOff($from, $to)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT member_id FROM unprocessed_distributor_logs
+                    WHERE date_created >= :date_from
+                        AND date_created <= :date_to";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':date_from', $from);
+        $command->bindParam(':date_to', $to);
+        $result = $command->queryAll();
+        return $result;
+    }
 }
 ?>

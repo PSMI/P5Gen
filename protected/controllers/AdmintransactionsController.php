@@ -1029,6 +1029,8 @@ class AdmintransactionsController extends Controller
             $model = new IpdUnilevel();
             $member = new MembersModel();            
             $reference = new ReferenceModel();
+            $distributor = new DistributorForm();
+            
             $model->cutoff_id = $cutoff_id;
             $model->member_id = $member_id;
             $result = $model->getUnilevelDetails();
@@ -1049,7 +1051,28 @@ class AdmintransactionsController extends Controller
             $cutoff = $reference->get_cutoff_by_id($cutoff_id);
             $date_from = date('Y-m-d',strtotime($cutoff['last_cutoff_date']));
             $date_to = date('Y-m-d',strtotime($cutoff['next_cutoff_date']));
+                        
+            $distributors = $distributor->getDistributorsByCutOff($date_from, $date_to);
             
+            foreach($distributors as $member)
+            {
+                $array[] = $member['member_id'];
+            }
+         
+            $rawData = Networks::getRPCMembersForPDF($member_id, $array);
+            
+            $array = implode(",",$rawData);
+            $downlines = Networks::getIPDUnilevelDownlines($array);
+            
+            $unilevel['member_id'] = $member_id;
+            $total =+ count($downlines);
+            $unilevel['total'] = $total;
+            //$unilevel['level'] = Networks::getLevel($member_id, $member_id);                   
+            $unilevel['downlines'] = $downlines;
+            $unilevel_downlines[] = $unilevel;
+            
+            
+            /*
             //$downline = Networks::getIPD10thUnilevelNetworkForPayout($member_id);
             $downline = Networks::getDownlines2($member_id);
             $unilevels = Networks::arrangeLevel($downline, 'ASC');
@@ -1075,6 +1098,9 @@ class AdmintransactionsController extends Controller
                     }
                  }
             }
+             * 
+             */
+            
             $html2pdf = Yii::app()->ePdf->HTML2PDF();
             $html2pdf->WriteHTML($this->renderPartial('_ipdunilevelreport', array(
                     'payee'=>$payee,
