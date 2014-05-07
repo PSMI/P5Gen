@@ -20,25 +20,16 @@ class Networks extends Controller
         
         $downlines = $model->firstFive();
         
-        //if(count($downlines)>0 && count($downlines) <= 5)
         if(count($downlines) <= 5)
-        {
-            
+        {    
             //include all direct endorse
             $direct_endorsed = $model->getDirectEndorsed();
             
             if(count($direct_endorsed) < 0 && is_null($direct_endorsed) && empty($direct_endorsed))
                 $downlines = array('downline'=>$member_id);
             else
-                $downlines = array_merge(array('0'=>array('downline'=>$model->member_id)), $direct_endorsed);
-            
+                $downlines = array_merge(array('0'=>array('downline'=>$model->member_id)), $direct_endorsed);   
         }
-//        else
-//        {
-//            $downlines = array('downline'=>$member_id);
-//        }
-        
-       
 
         $level = 1;
 
@@ -47,7 +38,7 @@ class Networks extends Controller
 
             foreach($downlines as $downline)
             {
-                $result[] = array(//'level'=>$level,
+                $result[] = array(
                                   'downline'=>$downline['downline'],
                                 );
             }
@@ -95,7 +86,13 @@ class Networks extends Controller
         return $uplines;
     }
     
-     public function getEndorser($member_id)
+    
+    /**
+     * @author Noel Antonio
+     * @param type $member_id
+     * @return type
+     */
+    public function getEndorser($member_id)
     {
         $endorser = array();
         $model = new Endorser();
@@ -111,6 +108,7 @@ class Networks extends Controller
             
         return $endorser;
     }
+    
     
     /**
      * This recursive function is used to retrieve the downlines
@@ -135,28 +133,6 @@ class Networks extends Controller
         {
             $parent[$i][$level] = $downlines[$key]["downline"];
             $children = array_merge($children, Networks::getDownlines($downlines[$key]["downline"], $level));
-            $i++;
-        }
-        
-        $finalTree = array_merge($parent, $children);
-        
-        return $finalTree;
-    }
-    
-    public function getDownlines2($member_id, $level = 0)
-    {
-        $model = new Downlines();
-        $parent = array();
-        $children = array();
-        $model->member_id = $member_id;
-        
-        $i = 0;
-        $level++;
-        $downlines = $model->getIPDDownlines2();
-        foreach ($downlines as $key => $val)
-        {
-            $parent[$i][$level] = $downlines[$key]["downline"];
-            $children = array_merge($children, Networks::getDownlines2($downlines[$key]["downline"], $level));
             $i++;
         }
         
@@ -195,6 +171,7 @@ class Networks extends Controller
         
         return $finalTree;
     }
+    
     
     /**
      * This function is used to retrieve the member's direct endorsements
@@ -272,6 +249,7 @@ class Networks extends Controller
         return array('network'=>$genealogy, 'total'=>$total_downlines);
     }
     
+    
     /**
      * @author Noel Antonio
      * @date 02/12/2014
@@ -295,6 +273,7 @@ class Networks extends Controller
         
         return $array;
     }
+    
     
     /**
      * @author Noel Antonio
@@ -321,6 +300,12 @@ class Networks extends Controller
         return $array;
     }
     
+    /**
+     * @author Noel Antonio
+     * @param type $member_ids
+     * @param type $date_to
+     * @return type
+     */
     public function getUnilevelDownlinesByDate($member_ids, $date_to)
     {
         $model = new Downlines();
@@ -344,14 +329,19 @@ class Networks extends Controller
         
         return $array;
     }
-        
+    
+    
+    /**
+     * @author Noel Antonio
+     * @param type $member_id
+     * @return type
+     */
     public function getDirectEndorser($member_id)
     {
         $model = new DirectEndorsement();
         
         do
         {            
-             
              $result = $model->getDirectEndorser($member_id);    
              $member_id = $result['endorser'];
              
@@ -361,6 +351,7 @@ class Networks extends Controller
             
         return $endorsers;
     }
+    
     
     /**
      * This function is used to get the placed under of the member
@@ -386,6 +377,8 @@ class Networks extends Controller
         
         return $member_array;
     }
+    
+    
     /**
      * This function is used to arrange the array 
      * and prepare it for autocomplete
@@ -411,6 +404,7 @@ class Networks extends Controller
         return $downlines;
     }
     
+    
     /**
      * This function is used to get the member name of a particular
      * member id param.
@@ -429,6 +423,7 @@ class Networks extends Controller
         
         return $member_name;
     }
+    
     
     /**
      * @author owliber
@@ -458,6 +453,7 @@ class Networks extends Controller
         
     }
     
+    
     /**
      * @author jopormento
      * @param type $member_id
@@ -485,6 +481,14 @@ class Networks extends Controller
         
     }
     
+    
+    /**
+     * @author owliber
+     * @param type $member_ids
+     * @param type $date_from
+     * @param type $date_to
+     * @return type
+     */
     public function getUnilevelDownlinesByCutOff($member_ids,$date_from,$date_to)
     {
         $model = new Downlines();
@@ -510,6 +514,13 @@ class Networks extends Controller
         return $array;
     }
     
+    
+    /**
+     * @author owliber
+     * @param type $member_ids
+     * @param type $date_completed
+     * @return type
+     */
     public function getUnilevelDownlinesByFlushOut($member_ids,$date_completed)
     {
         $model = new Downlines();
@@ -537,6 +548,14 @@ class Networks extends Controller
         return $array;
     }
     
+    
+    /**
+     * @author owliber
+     * @param type $member_ids
+     * @param type $date_from
+     * @param type $date_to
+     * @return type
+     */
     public function getIPDUnilevelDownlinesByCutOff($member_ids,$date_from,$date_to)
     {
         $model = new Downlines();
@@ -561,6 +580,8 @@ class Networks extends Controller
         
         return $array;
     }
+    
+    
     /**
      * This function is used to get the distributor name of a particular
      * member id param.
@@ -578,6 +599,7 @@ class Networks extends Controller
         $distributor_name = strtoupper($distributor_name);
         return $distributor_name;
     }
+    
     
     /**
      * This fucntion is used to retrieve the unilevel network of a member up to 10th level.
@@ -610,8 +632,11 @@ class Networks extends Controller
         return $finalTree;
     }
     
+    
     /**
      * This function is used to get the qualified IPD.
+     * @author Noel Antonio
+     * @date 02/12/2014
      */
     public function getQualifiedIPD()
     {
@@ -622,17 +647,15 @@ class Networks extends Controller
         for ($a = 0; $a < count($ipd_list); $a++)
         {
             $ipd_id = $ipd_list[$a]["member_id"];
-//            $count = $model->countIPDEndorsement($ipd_id);
-//            if ($count >= 5)
-//            {
-                $temp_array[] = $ipd_id;
-//            }
+            $temp_array[] = $ipd_id;
         }
         
         return $temp_array;
     }
     
+    
     /**
+     * This function is used to get the IPD unilevel downlines
      * @author Noel Antonio
      * @date 02/12/2014
      */
@@ -656,8 +679,10 @@ class Networks extends Controller
         return $array;
     }
     
+    
     /**
-     * This is a recursive function in locating the immediate IBO
+     * This is a recursive function in locating the immediate IBO.
+     * @author Noel Antonio
      * @param type $member_id
      * @return type
      */
@@ -679,6 +704,13 @@ class Networks extends Controller
         }
     }
     
+    
+    /**
+     * This function is used to get the IPD endorsers.
+     * @author Noel Antonio
+     * @param type $member_id
+     * @return type
+     */
     public function getIPDEndorser($member_id)
     {
         $endorser = array();
@@ -695,6 +727,12 @@ class Networks extends Controller
         return $endorser;
     }
     
+    
+    /**
+     * This function is used to get IPD direct count
+     * @param type $member_id
+     * @return type
+     */
     public function getIPDDirectCount($member_id)
     {
         $model = new Endorser();
@@ -702,8 +740,10 @@ class Networks extends Controller
         return $count;
     }
     
+    
     /**
-     * This function is used to get the placed under of the member
+     * This function is used to get the placed under of the member.
+     * @author Noel Antonio
      * @param type $member_id
      * @return type
      */
@@ -724,6 +764,8 @@ class Networks extends Controller
         
         return $member_array;
     }
+    
+    
     /**
      * This function is used to trace the unilevel network of a newly
      * registered IPD upto 10th level.
@@ -752,7 +794,89 @@ class Networks extends Controller
             $index++;
             $child = array_merge($child, Networks::getIPD10thUnilevelNetworkForPayout($uplineInfo['member_id'], $level, $index));
         }
+        
         return array_merge($parent, $child);
+    }
+    
+    
+    /**
+     * @author Noel Antonio
+     * @param type $member_id
+     * @param type $level
+     * @return type
+     */
+    public function getDownlines2($member_id, $level = 0)
+    {
+        $model = new Downlines();
+        $parent = array();
+        $children = array();
+        $model->member_id = $member_id;
+        
+        $i = 0;
+        $level++;
+        $downlines = $model->getIPDDownlines2();
+        foreach ($downlines as $key => $val)
+        {
+            $parent[$i][$level] = $downlines[$key]["downline"];
+            $children = array_merge($children, Networks::getDownlines2($downlines[$key]["downline"], $level));
+            $i++;
+        }
+        
+        $finalTree = array_merge($parent, $children);
+        
+        return $finalTree;
+    }
+    
+    
+    /**
+     * @author Noel Antonio
+     * @date 05-07-2014
+     */
+    public function getRPCMembersForPDF($tracing_id, $array)
+    {
+        $rawData = array();
+        
+        foreach ($array as $ipd_id)
+        {
+            $retval = Networks::traceIPDEndorserUpward($tracing_id, $ipd_id, $ipd_id);
+            if ($retval != '')
+            {
+                $rawData[] = $retval;
+            }
+        }
+        
+        return $rawData;
+    }
+    
+    
+    /**
+     * This function is used to trace the unilevel network (upward) of each 
+     * IPD member that purchased products per cut off
+     * @author Noel Antonio
+     * @date 05-07-2014
+     */
+    public function traceIPDEndorserUpward($endorser_id, $buyer_id, $member_id, $level = 0)
+    {
+        $model = new Endorser();
+        $retval = '';
+
+        $level++;
+        if ($level <= 10)
+        {
+            $uplineInfo = $model->getEndorserForIPDUnilevel($member_id);
+            
+                // if endorser was traced as part of the network then -
+                if ($endorser_id == $uplineInfo['member_id'])
+                {
+                    // return the buyer id
+                    $retval = $buyer_id;
+                    return $retval;
+                }
+            
+            $retval = Networks::traceIPDEndorserUpward($endorser_id, $buyer_id, $uplineInfo['member_id'], $level);
+        }
+        
+        return $retval;
     }
 }
 ?>
