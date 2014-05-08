@@ -1058,49 +1058,23 @@ class AdmintransactionsController extends Controller
             {
                 $array[] = $member['member_id'];
             }
-         
+            
             $rawData = Networks::getRPCMembersForPDF($member_id, $array);
-            
-            $array = implode(",",$rawData);
-            $downlines = Networks::getIPDUnilevelDownlines($array);
-            
-            $unilevel['member_id'] = $member_id;
-            $total =+ count($downlines);
-            $unilevel['total'] = $total;
-            //$unilevel['level'] = Networks::getLevel($member_id, $member_id);                   
-            $unilevel['downlines'] = $downlines;
-            $unilevel_downlines[] = $unilevel;
-            
-            
-            /*
-            //$downline = Networks::getIPD10thUnilevelNetworkForPayout($member_id);
-            $downline = Networks::getDownlines2($member_id);
-            $unilevels = Networks::arrangeLevel($downline, 'ASC');
-            
-            foreach($unilevels['network'] as $level)
+
+            foreach($rawData as $key => $level)
             {
-                $levels = $level['Level'];
-                 if($levels < 11)
-                 {
-                    if($model->is_first_transaction())
-                        $downlines = Networks::getIPDUnilevelDownlines($level['Members']);
-                    else
-                        $downlines = Networks::getIPDUnilevelDownlinesByCutOff($level['Members'],$date_from,$date_to);
-                    
-                    if(!is_null($downlines))
-                    {
-                        $unilevel['member_id'] = $member_id;
-                        $total =+ count($downlines);
-                        $unilevel['total'] = $total;
-                        $unilevel['level'] = $levels;                     
-                        $unilevel['downlines'] = $downlines;
-                        $unilevel_downlines[] = $unilevel;
-                    }
-                 }
+                $levels = $level['level'];
+
+                $downlines = Networks::getIPDUnilevelDownlines($level['member_id']);
+                $unilevel['member_id'] = $member_id;
+                $total =+ count($downlines);
+                $unilevel['total'] = $total;
+                $unilevel['level'] = $levels;                     
+                $unilevel['downlines'] = $downlines;
+                $unilevel_downlines[] = $unilevel;
+
             }
-             * 
-             */
-            
+
             $html2pdf = Yii::app()->ePdf->HTML2PDF();
             $html2pdf->WriteHTML($this->renderPartial('_ipdunilevelreport', array(
                     'payee'=>$payee,
