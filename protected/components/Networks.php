@@ -856,15 +856,18 @@ class Networks extends Controller
      */
     public function getRPCMembersForPDF($tracing_id, $array)
     {
+        $checking = array();
         $rawData = array();
         
         foreach ($array as $ipd_id)
         {
-            $retval = Networks::traceIPDEndorserUpward($tracing_id, $ipd_id, $ipd_id);
-            if ($retval != '')
+            
+            $checking = Networks::traceIPDEndorserUpward($tracing_id, $ipd_id, $ipd_id);
+            if (!empty($checking))
             {
-                $rawData[] = $retval;
+                $rawData[] = $checking;
             }
+            
         }
         
         return $rawData;
@@ -880,25 +883,24 @@ class Networks extends Controller
     public function traceIPDEndorserUpward($endorser_id, $buyer_id, $member_id, $level = 0)
     {
         $model = new Endorser();
-        $retval = '';
-
+        $array = array();
+        
         $level++;
         if ($level <= 10)
         {
             $uplineInfo = $model->getEndorserForIPDUnilevel($member_id);
             
-                // if endorser was traced as part of the network then -
-                if ($endorser_id == $uplineInfo['member_id'])
-                {
-                    // return the buyer id
-                    $retval = $buyer_id;
-                    return $retval;
-                }
+            // if endorser was traced as part of the network then -
+            if ($endorser_id == $uplineInfo['member_id'])
+            {
+                // return the buyer id
+                return array('member_id'=>$buyer_id, 'level'=>$level);
+            }
             
-            $retval = Networks::traceIPDEndorserUpward($endorser_id, $buyer_id, $uplineInfo['member_id'], $level);
+            $array = Networks::traceIPDEndorserUpward($endorser_id, $buyer_id, $uplineInfo['member_id'], $level);
         }
         
-        return $retval;
+        return $array;
     }
 }
 ?>
