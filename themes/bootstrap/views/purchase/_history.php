@@ -188,9 +188,8 @@
 
 <?php /** @var BootActiveForm $form */
     $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-        'id'=>'searchForm',
+        'id'=>'cancelForm',
         'type'=>'search',
-        'htmlOptions'=>array('class'=>'well'),
     ));
 ?>
 <?php $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'cancel-purchase-modal')); ?>
