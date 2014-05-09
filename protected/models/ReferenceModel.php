@@ -264,7 +264,7 @@ class ReferenceModel extends CFormModel
         $query = "SELECT * FROM ref_variables 
                     WHERE (variable_id >= 10 AND variable_id <= 15)
                            OR (variable_id >= 21 AND variable_id <= 34)
-                           OR (variable_id IN (17,18))";
+                           OR (variable_id IN (17,18,36,37,38,39))";
         $command = $conn->createCommand($query);
         $result = $command->queryAll();
         return $result;
