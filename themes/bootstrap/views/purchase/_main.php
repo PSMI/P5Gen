@@ -52,7 +52,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         ),
         array(
             'label'=>'Purchase History', 
-            'url'=>  Yii::app()->createUrl('purchase/history',array('id'=>Yii::app()->session['member_id'])),
+            'url'=>  Yii::app()->createUrl('purchase/history',array('id'=>Yii::app()->session['purchaser_id'])),
             'icon'=>'icon-shopping-cart',
             'buttonType'=>'link',
         ),
@@ -79,7 +79,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'confirm'=>'Are you sure you want cancel?',
             ),
             'url'=>  Yii::app()->createUrl('purchase/cancelcart',array(
-                'member_id'=>'js:function(){return member_id.val()}',
+                'purchaser_id'=>'js:function(){return purchaser_id.val()}',
                 'purchase_summary_id'=>'js:function(){return $("#purchase_summary_id").val()}'
             )),
             'ajaxOptions'=>array(
@@ -124,9 +124,6 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <?php $this->widget('bootstrap.widgets.TbButton', array(
         'label'=>'Close',
         'url'=>  Yii::app()->createUrl('purchase/clearsession'),
-//        'htmlOptions'=>array(
-//            'onclick'=>'$("#search-form").submit();'
-//        ),
     )); ?>
 </div> 
 <?php $this->endWidget(); ?>
@@ -207,7 +204,7 @@ Yii::app()->clientScript->registerScript('ui','
 <?php
 Yii::app()->clientScript->registerScript('ui','
          
-     var member_id = $("#member_id"),
+     var purchaser_id = $("#purchaser_id"),
          purchase_summary_id = $("#purchase_summary_id"),
          receipt_no = $("#receipt_no"),
          payment_type_id = $("#payment_type_id");
@@ -232,7 +229,7 @@ Yii::app()->clientScript->registerScript('ui','
 </div>
  
 <div class="modal-body">
-    <?php echo CHtml::hiddenField('member_id'); ?>
+    <?php echo CHtml::hiddenField('purchaser_id'); ?>
     <?php echo CHtml::hiddenField('purchase_summary_id'); ?>
     <?php echo CHtml::label('Receipt No', 'receipt_no'); ?>
     <?php echo CHtml::textField('receipt_no','',array('style'=>'text-align:right','class'=>'span2','tooltip'=>'Enter receipt number')); ?>
@@ -255,7 +252,7 @@ Yii::app()->clientScript->registerScript('ui','
             'type' => 'GET',
             'dataType'=>'json',
             'data'=>array(
-                'member_id'=>'js:function(){return member_id.val()}',
+                'purchaser_id'=>'js:function(){return purchaser_id.val()}',
                 'purchase_summary_id'=>'js:function(){return purchase_summary_id.val()}',
                 'receipt_no'=>'js:function(){return receipt_no.val()}',
                 'payment_type_id'=>'js:function(){return payment_type_id.val()}'

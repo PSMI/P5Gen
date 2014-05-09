@@ -9,7 +9,7 @@ Yii::app()->clientScript->registerScript('ui','
          
      $(\'input[rel="tooltip"]\').tooltip();     
     // var member_name = $("#PurchasesModel_autocomplete_name"),
-     //    member_id = $("#member_id");
+     //    purchaser_id = $("#purchaser_id");
     
  ', CClientScript::POS_END);
 ?>
@@ -25,7 +25,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     ));
 ?>
 <?php echo CHtml::hiddenField('purchase_summary_id', Yii::app()->session['purchase_summary_id']); ?>
-<?php echo CHtml::hiddenField('member_id',  Yii::app()->session['member_id']); ?>
+<?php echo CHtml::hiddenField('purchaser_id',  Yii::app()->session['purchaser_id']); ?>
 <?php echo CHtml::label('Find Member &nbsp;', 'autocomplete_name'); ?>
 <?php $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
             'model'=>$model,
@@ -35,7 +35,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'minLength'=>'2',
                 'showAnim'=>'fold',
                 'focus' => 'js:function(event, ui){ $("#PurchasesModel_autocomplete_name").val(ui.item["value"]) }',
-                'select' => 'js:function(event, ui){ $("#member_id").val(ui.item["id"]); }',
+                'select' => 'js:function(event, ui){ $("#purchaser_id").val(ui.item["id"]); }',
             ),
             'htmlOptions'=>array(
                 'class'=>'span4',

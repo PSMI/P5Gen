@@ -167,7 +167,7 @@
                                     $("#receipt_text").text(data.receipt_no);
                                     $("#receipt_no").val(data.receipt_no);
                                     $("#purchase_summary_id").val(data.purchase_summary_id);
-                                    $("#member_id").val(data.member_id);
+                                    $("#purchaser_id").val(data.member_id);
                                     $("#member_name_text").text(data.name);
                                     $("#date_purchased_text").text(data.date_purchased);
                                     $("#cancel-purchase-modal").modal("show");
@@ -201,7 +201,7 @@
  
 <div class="modal-body">
     <?php echo CHtml::hiddenField('purchase_summary_id'); ?>
-    <?php echo CHtml::hiddenField('member_id'); ?>
+    <?php echo CHtml::hiddenField('purchaser_id'); ?>
     <?php echo CHtml::hiddenField('receipt_no'); ?>
     Member : <strong><span id="member_name_text"></span></strong><br />
     Date Purchased : <strong><span id="date_purchased_text"></span></strong><br />
@@ -218,7 +218,7 @@
         'label'=>'Cancel Purchase',
         'url'=>  Yii::app()->createUrl('purchase/cancelpurchase',array(
             'product_summary_id'=>'js:function(){return $("#product_summary_id").val()}',
-            'member_id'=>'js:function(){return $("#member_id").val()}',
+            'purchaser_id'=>'js:function(){return $("#purchaser_id").val()}',
             'receipt_no'=>'js:function(){return $("#receipt_no").val()}',
             'reason'=>'js:function(){return $("#cancellation_reason").val()}'
         )),

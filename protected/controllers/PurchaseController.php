@@ -20,9 +20,9 @@ class PurchaseController extends Controller
             
             $model->attributes = $_POST['PurchasesModel'];
             
-            $member_id = $_POST['member_id'];
+            $member_id = $_POST['purchaser_id'];
             $model->member_id = $member_id;
-            Yii::app()->session['member_id'] = $model->member_id;
+            Yii::app()->session['purchaser_id'] = $model->member_id;
             
             $purchase_summary_id = $_POST['purchase_summary_id'];
             if(!empty($purchase_summary_id))
@@ -31,7 +31,7 @@ class PurchaseController extends Controller
         }
         else
         {
-            $model->member_id = Yii::app()->session['member_id'];
+            $model->member_id = Yii::app()->session['purchaser_id'];
             $model->purchase_summary_id = Yii::app()->session['purchase_summary_id'];
         }
         
@@ -56,8 +56,8 @@ class PurchaseController extends Controller
     
     public function actionClearSession()
     {
-        if(isset(Yii::app()->session['member_id']))
-            unset(Yii::app()->session['member_id']);
+        if(isset(Yii::app()->session['purchaser_id']))
+            unset(Yii::app()->session['purchaser_id']);
         if(isset(Yii::app()->session['purchase_summary_id']))
             unset(Yii::app()->session['purchase_summary_id']);
         
@@ -73,7 +73,7 @@ class PurchaseController extends Controller
             if(isset($_GET['product_id']) && !empty($_GET['product_id']))
             {
                 $model->product_id = $_GET['product_id'];
-                $model->member_id = $_GET['member_id'];
+                $model->member_id = $_GET['purchaser_id'];
                 $model->payment_type_id = $_GET['payment_type_id'];
                 
                 if($_GET['quantity'] > 0)
@@ -134,7 +134,7 @@ class PurchaseController extends Controller
             $model->purchase_id = $_GET['purchase_id'];
             $model->product_id = $_GET['product_id'];
             $model->quantity = $_GET['quantity'];
-            $model->member_id = $_GET['member_id'];
+            $model->member_id = $_GET['purchaser_id'];
             $model->payment_type_id = $_GET['payment_type_id'];
             
             $model->update_purchased_item();
@@ -155,7 +155,7 @@ class PurchaseController extends Controller
         {
             $model = new PurchasesModel();
             
-            $model->member_id = $_GET['member_id'];
+            $model->member_id = $_GET['purchaser_id'];
             $model->purchase_summary_id = $_GET['purchase_summary_id'];            
             $model->payment_type_id = $_GET['payment_type_id'];
             
@@ -215,7 +215,7 @@ Please enter a valid receipt no.'));
         {
             $model = new PurchasesModel();
             
-            $model->member_id = $_GET['member_id'];
+            $model->member_id = $_GET['purchaser_id'];
             $model->purchase_summary_id = $_GET['purchase_summary_id'];
             
             $model->cancel_items();
@@ -346,21 +346,31 @@ Please enter a valid receipt no.'));
             $model = new PurchasesModel();
             
             $model->purchase_summary_id = $_POST['purchase_summary_id'];
-            $model->member_id = $_POST['member_id'];
+            $model->member_id = $_POST['purchaser_id'];
             $model->receipt_no = $_POST['receipt_no'];
-            $model->cancel_reason = $_POST['reason'];
             
-            $model->cancel_purchase();
-            
-            if(!$model->hasErrors())
+            if(!empty($_POST['cancellation_reason']) || $_POST['cancellation_reason'] != "")
             {
-                $result_code = 0;
-                $result_msg = 'Receipt# '.$_POST['receipt_no'].' was successfully cancelled.';
+               $model->cancel_reason = $_POST['cancellation_reason'];
+                
+               $model->cancel_purchase();
+            
+                if(!$model->hasErrors())
+                {
+                    $result_code = 0;
+                    $result_msg = 'Receipt# '.$_POST['receipt_no'].' was successfully cancelled.';
+                }
+                else
+                {
+                    $result_code = 1;
+                    $result_msg = 'Receipt# '.$_POST['receipt_no'].' cancellation failed.';
+                } 
+                
             }
             else
             {
-                $result_code = 1;
-                $result_msg = 'Receipt# '.$_POST['receipt_no'].' cancellation failed.';
+               $result_code = 1;
+               $result_msg = 'Please provide a reason for cancellation.';
             }
             
             echo CJSON::encode(array('result_code'=>$result_code,'result_msg'=>$result_msg));

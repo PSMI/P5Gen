@@ -935,7 +935,8 @@ class PurchasesModel extends CFormModel
         $query = "UPDATE purchased_summary
                     SET status = 2,
                         cancelled_by_mid = :logged_user_id,
-                        cancellation_reason = :reason
+                        cancellation_reason = :reason,
+                        date_cancelled = now()
                     WHERE purchase_summary_id = :purchase_summary_id
                         AND member_id = :member_id
                         AND receipt_no = :receipt_no";

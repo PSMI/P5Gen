@@ -12,7 +12,7 @@ Yii::app()->clientScript->registerScript('ui','
      var quantity = $("#quantity"),
          product_id = $("#product_id"),
          product_name = $("#PurchasesModel_product_name"),
-         member_id = $("#member_id"),
+         purchaser_id = $("#purchaser_id"),
          payment_type_id = $("#payment_type_id");
              
  ', CClientScript::POS_END);
@@ -27,7 +27,7 @@ Yii::app()->clientScript->registerScript('ui','
  
 <div class="modal-body">
     <?php echo CHtml::hiddenField('purchase_summary_id',  $model->purchase_summary_id); ?>
-    <?php echo CHtml::hiddenField('member_id', $model->member_id); ?>
+    <?php echo CHtml::hiddenField('purchaser_id', $model->member_id); ?>
     <?php echo CHtml::hiddenField('product_id'); ?>
     <?php echo CHtml::label('Product', 'product_name'); ?>
     <?php //echo CHtml::dropDownList('product_id', '',ProductsForm::listProducts(), array('class'=>'span3')); 
@@ -66,7 +66,7 @@ Yii::app()->clientScript->registerScript('ui','
         'url'=>  Yii::app()->createUrl('purchase/addtocart',array(
             'product_id'=>'js:function(){return product_id.val()}',
             'quantity'=>'js:function(){return $("#quantity").val()}',
-            'member_id'=>'js:function(){return member_id.val()}',
+            'purchaser_id'=>'js:function(){return purchaser_id.val()}',
             'payment_type_id'=>'js:function(){return payment_type_id.val()}'
         )),
         'ajaxOptions'=>array(

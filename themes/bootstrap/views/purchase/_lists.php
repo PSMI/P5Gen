@@ -68,33 +68,6 @@
                 'template'=>'{delete}',//{update}
                 'buttons'=>array
                 (
-//                    'update'=>array
-//                    (
-//                        'label'=>'Update Item',
-//                        'icon'=>'icon-edit',
-//                        'url'=>'Yii::app()->createUrl("/purchase/getvalues", array("id" =>$data["purchase_id"]))',
-//                        'options' => array(
-//                            'class'=>"btn btn-small",
-//                            'ajax' => array(
-//                                'type' => 'GET',
-//                                'dataType'=>'json',
-//                                'url' => 'js:$(this).attr("href")',
-//                                'success' => 'function(data){
-//                                    $.each(data, function(name,val){
-//                                       $("#Update_distributor_id").val(val.distributor_id);
-//                                       $("#Update_purchase_id").val(val.purchase_id);
-//                                       $("#Update_product_id").val(val.product_id);
-//                                       $("#Update_products").val(val.product_id);
-//                                       $("#Update_qty").val(val.quantity);
-//                                       $("#Update_payment_type_id").val(val.payment_type_id);
-//                                    });
-//                                    $("#purchase-update-modal").modal("show");
-//                                 }',
-//                            ),
-//
-//                        ),
-//                        array('id' => 'send-link-'.uniqid())
-//                    ),
                     'delete'=>array
                     (
                         'label'=>'Delete Item',
