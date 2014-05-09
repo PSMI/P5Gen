@@ -828,7 +828,7 @@ class Transactions extends Controller
                         if($level == 1)
                         {
                             $retention = true;
-                            $rate = 5; //IPD other retention - direct
+                            $rate = $reference->get_variable_value('IPD_REPEAT_PURCHASE_COMMISSION_DIRECT'); // 5 %IPD other retention - direct
                         }
                         elseif($level > 1 && $level <= 10 && $direct_count >= 5)
                         {
@@ -854,12 +854,12 @@ class Transactions extends Controller
 
                         if($level == 1)
                         {
-                            $rate = 5; //IBO RP commission - Direct
+                            $rate = $reference->get_variable_value('IBO_REPEAT_PURCHASE_COMMISSION_DIRECT'); // 5% IBO RP commission - Direct
                         }
                         elseif($level > 1 && $level <= 10)
                         {
                             
-                            $rate = 1; //IBO RP commssion 
+                            $rate = $reference->get_variable_value('RPC_DEFAULT_RATE'); //1% IBO RP commssion 
                         }
                     }
                 }
@@ -872,12 +872,12 @@ class Transactions extends Controller
 
                         if($level == 1)
                         {
-                            $rate = 3; //IBO RP Commission - direct
+                            $rate = $reference->get_variable_value('IBO_REPEAT_PURCHASE_COMMISSION'); //3% IBO RP Commission - direct
                         }
                         elseif($level > 1 && $level <= 10)
                         {
                             
-                            $rate = 1; //IBO RP commission
+                            $rate = $reference->get_variable_value('RPC_DEFAULT_RATE'); //1% IBO RP commission
                         }
 
                     }
