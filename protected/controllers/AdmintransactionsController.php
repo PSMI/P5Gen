@@ -1316,24 +1316,49 @@ class AdmintransactionsController extends Controller
             //Endorser Information
             $endorser = $member->selectMemberDetails($payee_endorser_id);
             
-            //Get Downline's member_ids
-            $rawdata = Networks::getDownlines2($member_id);
-            $final = Networks::arrangeLevel($rawdata);
+//            //Get Downline's member_ids
+//            $rawdata = Networks::getDownlines2($member_id);
+//            $final = Networks::arrangeLevel($rawdata);
             
-            $i = 0;
-            $len = count($final['network']);
-            $member_ids = "";
-            foreach($final['network'] as $level)
+            //Get all member purchases per cutoff
+            $member_id_rp = $model->getMemberRepeatPurchaseByCutoff($last_cutoff_date, $next_cutoff_date);
+            
+            //Get downlines
+            $rawdata = Networks::getIPDUnilevel10thLEvel($member_id);
+            
+            foreach ($member_id_rp as $index => $values)
             {
-                if ($i == 0) 
-                {
-                    $member_ids = $member_ids.$level['Members'].",";
-                } else if ($i == $len - 1) 
-                {
-                    $member_ids = $member_ids.$level['Members'];
-                }
-                $i++;
+                $single_dim_arr[] = $values['member_id'];
             }
+            
+            foreach ($rawdata as $index2 => $values2)
+            {
+                foreach ($values2 as $level => $member_id)
+                {
+                    if (in_array($member_id, $single_dim_arr))
+                    {
+                        $final[] = $member_id;
+                    }
+                }
+            }
+            
+            $member_ids = implode(",", $final);
+            $test = Networks::getDirectEndorser(8);
+            print_r($test); exit;
+//            $i = 0;
+//            $len = count($final['network']);
+//            $member_ids = "";
+//            foreach($final['network'] as $level)
+//            {
+//                if ($i == 0) 
+//                {
+//                    $member_ids = $member_ids.$level['Members'].",";
+//                } else if ($i == $len - 1) 
+//                {
+//                    $member_ids = $member_ids.$level['Members'];
+//                }
+//                $i++;
+//            }
             
             //RP Own RP Commission Details
             $comm_details_own = $model->getCommissionDetails($member_id, $last_cutoff_date, $next_cutoff_date);

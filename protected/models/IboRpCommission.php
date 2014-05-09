@@ -183,7 +183,7 @@ class IboRpCommission extends CFormModel
                   ORDER BY member_name DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);;
+        $command->bindParam(':member_ids', $member_ids);
         $result = $command->queryAll();
         
         return $result;
@@ -205,6 +205,25 @@ class IboRpCommission extends CFormModel
                     AND ps.date_purchased >= '$last_cutoff_date'
                     AND ps.date_purchased <= '$next_cutoff_date'
                   ORDER BY ps.date_purchased DESC;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function getMemberRepeatPurchaseByCutoff($last_cutoff_date, $next_cutoff_date)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    ps.member_id
+                  FROM purchased_summary ps
+                    WHERE ps.status = 1
+                    AND ps.savings <> 0
+                    AND ps.date_purchased >= '$last_cutoff_date'
+                    AND ps.date_purchased <= '$next_cutoff_date';";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
