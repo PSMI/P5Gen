@@ -174,7 +174,7 @@ class IpdRpCommission extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN products p
                       ON pi.product_id = p.product_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND pi.savings <> 0
                     AND m.account_type_id = 5
@@ -184,7 +184,6 @@ class IpdRpCommission extends CFormModel
                   ORDER BY member_name DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
@@ -203,7 +202,7 @@ class IpdRpCommission extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN members m
                       ON ps.member_id = m.member_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND ps.savings <> 0
                     AND m.account_type_id = 5
@@ -212,7 +211,6 @@ class IpdRpCommission extends CFormModel
                     AND ps.date_purchased <= '$next_cutoff_date';";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
@@ -241,7 +239,7 @@ class IpdRpCommission extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN products p
                       ON pi.product_id = p.product_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND pi.savings <> 0
                     AND m.account_type_id = 3
@@ -251,7 +249,6 @@ class IpdRpCommission extends CFormModel
                   ORDER BY member_name DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
@@ -270,7 +267,7 @@ class IpdRpCommission extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN members m
                       ON ps.member_id = m.member_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND ps.savings <> 0
                     AND m.account_type_id = 3
@@ -279,7 +276,6 @@ class IpdRpCommission extends CFormModel
                     AND ps.date_purchased <= '$next_cutoff_date';";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
@@ -308,7 +304,7 @@ class IpdRpCommission extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN products p
                       ON pi.product_id = p.product_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND pi.savings <> 0
                     AND ps.date_purchased >= '$last_cutoff_date'
@@ -316,7 +312,6 @@ class IpdRpCommission extends CFormModel
                   ORDER BY member_name DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $result = $command->queryAll();
         
         return $result;
@@ -334,14 +329,13 @@ class IpdRpCommission extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN members m
                       ON ps.member_id = m.member_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND ps.savings <> 0
                     AND ps.date_purchased >= '$last_cutoff_date'
                     AND ps.date_purchased <= '$next_cutoff_date';";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $result = $command->queryAll();
         
         return $result;

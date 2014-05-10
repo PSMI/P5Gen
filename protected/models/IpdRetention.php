@@ -195,7 +195,7 @@ class IpdRetention extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN products p
                       ON pi.product_id = p.product_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND pi.savings <> 0
                     AND m.account_type_id = 5
@@ -203,7 +203,6 @@ class IpdRetention extends CFormModel
                   ORDER BY member_name DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
@@ -222,14 +221,13 @@ class IpdRetention extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN members m
                       ON ps.member_id = m.member_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND ps.savings <> 0
                     AND m.account_type_id = 5
                     AND m.ipd_endorser_id = :member_id;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
@@ -258,7 +256,7 @@ class IpdRetention extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN products p
                       ON pi.product_id = p.product_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND pi.savings <> 0
                     AND m.account_type_id = 3
@@ -266,7 +264,6 @@ class IpdRetention extends CFormModel
                   ORDER BY member_name DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
@@ -285,14 +282,13 @@ class IpdRetention extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN members m
                       ON ps.member_id = m.member_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND ps.savings <> 0
                     AND m.account_type_id = 3
                     AND m.ipd_endorser_id = :member_id;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
@@ -321,13 +317,12 @@ class IpdRetention extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN products p
                       ON pi.product_id = p.product_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND pi.savings <> 0
                   ORDER BY member_name DESC;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $result = $command->queryAll();
         
         return $result;
@@ -345,12 +340,11 @@ class IpdRetention extends CFormModel
                       ON ps.purchase_summary_id = pi.purchase_summary_id
                     LEFT OUTER JOIN members m
                       ON ps.member_id = m.member_id
-                  WHERE ps.member_id IN (:member_ids)
+                  WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND ps.savings <> 0;";
         
         $command =  $conn->createCommand($query);
-        $command->bindParam(':member_ids', $member_ids);
         $result = $command->queryAll();
         
         return $result;
