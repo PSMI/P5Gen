@@ -206,7 +206,7 @@ $curdate = date('M d, Y h:ia');
         }
         ?>
             <tr>
-                <th></th><th></th><th></th><th></th><th></th>
+                <th></th><th></th><th></th><th></th><th></th><th></th>
                 <th>Total</th>
                 <td><?php echo $comm_details_downlines_five_prcnt_total[0]['total_price'] ?></td>
                 <td><?php echo $comm_details_downlines_five_prcnt_total[0]['total_savings'] ?></td>
@@ -251,7 +251,7 @@ $curdate = date('M d, Y h:ia');
         }
         ?>
             <tr>
-                <th></th><th></th><th></th><th></th><th></th>
+                <th></th><th></th><th></th><th></th><th></th><th></th>
                 <th>Total</th>
                 <td><?php echo $comm_details_downlines_three_prcnt_total[0]['total_price'] ?></td>
                 <td><?php echo $comm_details_downlines_three_prcnt_total[0]['total_savings'] ?></td>

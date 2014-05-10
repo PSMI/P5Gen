@@ -362,7 +362,7 @@ class IboRpCommission extends CFormModel
                     AND ps.date_purchased <= '$next_cutoff_date';";
         
         $command =  $conn->createCommand($query);
-        $result = $command->queryAll();
+        $result = $command->queryColumn();
         
         return $result;
     }

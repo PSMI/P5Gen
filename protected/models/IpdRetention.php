@@ -367,7 +367,7 @@ class IpdRetention extends CFormModel
                     AND ps.savings <> 0;";
         
         $command =  $conn->createCommand($query);
-        $result = $command->queryAll();
+        $result = $command->queryColumn();
         
         return $result;
     }

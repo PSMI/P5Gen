@@ -1060,7 +1060,7 @@ class AdmintransactionsController extends Controller
             }
             
             $rawData = Networks::getRPCMembersForPDF($member_id, $array);
-
+            
             foreach($rawData as $key => $level)
             {
                 $levels = $level['level'];
@@ -1259,28 +1259,36 @@ class AdmintransactionsController extends Controller
             $member_id_rp = $model->getMemberRepeatPurchaseByCutoff();
             
             //Get downlines
-            $rawdata = Networks::getIPDUnilevel10thLevel($member_id);
+            //$rawdata = Networks::getIPDUnilevel10thLevel($member_id);
+            $rawdata = Networks::getRPCMembersForPDF($member_id, $member_id_rp);
             
-            if (count($member_id_rp) != 0 && count($rawdata))
+            foreach($rawdata as $mids)
             {
-                foreach ($member_id_rp as $index => $values)
-                {
-                    $single_dim_arr[] = $values['member_id'];
-                }
-
-                foreach ($rawdata as $index2 => $values2)
-                {
-                    foreach ($values2 as $level => $member_id)
-                    {
-                        if (in_array($member_id, $single_dim_arr))
-                        {
-                            $final[] = $member_id;
-                        }
-                    }
-                }
-                
-                $member_ids = implode(",", $final);
+                $member_ids2[] = $mids['member_id'];
             }
+            
+            $member_ids = implode(",", $member_ids2);
+            
+//            if (count($member_id_rp) != 0 && count($rawdata))
+//            {
+//                foreach ($member_id_rp as $index => $values)
+//                {
+//                    $single_dim_arr[] = $values['member_id'];
+//                }
+//
+//                foreach ($rawdata as $index2 => $values2)
+//                {
+//                    foreach ($values2 as $level => $member_id)
+//                    {
+//                        if (in_array($member_id, $single_dim_arr))
+//                        {
+//                            $final[] = $member_id;
+//                        }
+//                    }
+//                }
+//                
+//                $member_ids = implode(",", $final);
+//            }
             
             //RP Own RP Commission Details
             $comm_details_own = $model->getCommissionDetailsOnePercent($member_id);
@@ -1357,43 +1365,15 @@ class AdmintransactionsController extends Controller
             $member_id_rp = $model->getMemberRepeatPurchaseByCutoff($last_cutoff_date, $next_cutoff_date);
             
             //Get downlines
-            $rawdata = Networks::getIPDUnilevel10thLevel($member_id);
+            //$rawdata = Networks::getIPDUnilevel10thLevel($member_id);
+            $rawdata = Networks::getRPCMembersForPDF($member_id, $member_id_rp);
             
-            if (count($member_id_rp) != 0 && count($rawdata))
+            foreach($rawdata as $mids)
             {
-                foreach ($member_id_rp as $index => $values)
-                {
-                    $single_dim_arr[] = $values['member_id'];
-                }
-
-                foreach ($rawdata as $index2 => $values2)
-                {
-                    foreach ($values2 as $level => $member_id)
-                    {
-                        if (in_array($member_id, $single_dim_arr))
-                        {
-                            $final[] = $member_id;
-                        }
-                    }
-                }
-                
-                $member_ids = implode(",", $final);
+                $member_ids2[] = $mids['member_id'];
             }
-
-//            $i = 0;
-//            $len = count($final['network']);
-//            $member_ids = "";
-//            foreach($final['network'] as $level)
-//            {
-//                if ($i == 0) 
-//                {
-//                    $member_ids = $member_ids.$level['Members'].",";
-//                } else if ($i == $len - 1) 
-//                {
-//                    $member_ids = $member_ids.$level['Members'];
-//                }
-//                $i++;
-//            }
+            
+            $member_ids = implode(",", $member_ids2);
             
             //RP Own RP Commission Details
             $comm_details_own = $model->getCommissionDetailsOnePercent($member_id, $last_cutoff_date, $next_cutoff_date);
@@ -1471,28 +1451,36 @@ class AdmintransactionsController extends Controller
             $member_id_rp = $model->getMemberRepeatPurchaseByCutoff($last_cutoff_date, $next_cutoff_date);
             
             //Get downlines
-            $rawdata = Networks::getIPDUnilevel10thLevel($member_id);
+            //$rawdata = Networks::getIPDUnilevel10thLevel($member_id);
+            $rawdata = Networks::getRPCMembersForPDF($member_id, $member_id_rp);
             
-            if (count($member_id_rp) != 0 && count($rawdata))
+            foreach($rawdata as $mids)
             {
-                foreach ($member_id_rp as $index => $values)
-                {
-                    $single_dim_arr[] = $values['member_id'];
-                }
-
-                foreach ($rawdata as $index2 => $values2)
-                {
-                    foreach ($values2 as $level => $member_id)
-                    {
-                        if (in_array($member_id, $single_dim_arr))
-                        {
-                            $final[] = $member_id;
-                        }
-                    }
-                }
-                
-                $member_ids = implode(",", $final);
+                $member_ids2[] = $mids['member_id'];
             }
+            
+            $member_ids = implode(",", $member_ids2);
+            
+//            if (count($member_id_rp) != 0 && count($rawdata))
+//            {
+//                foreach ($member_id_rp as $index => $values)
+//                {
+//                    $single_dim_arr[] = $values['member_id'];
+//                }
+//
+//                foreach ($rawdata as $index2 => $values2)
+//                {
+//                    foreach ($values2 as $level => $member_id)
+//                    {
+//                        if (in_array($member_id, $single_dim_arr))
+//                        {
+//                            $final[] = $member_id;
+//                        }
+//                    }
+//                }
+//                
+//                $member_ids = implode(",", $final);
+//            }
 
 //            $i = 0;
 //            $len = count($final['network']);
