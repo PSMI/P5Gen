@@ -70,6 +70,23 @@ class Downlines extends CFormModel
         return $result;  
     }
     
+    public function countTempFiveDownlines()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    member_id AS downline
+                  FROM members
+                  WHERE upline_id = :member_id
+                  AND account_type_id = 3;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':member_id', $this->member_id);
+        $result = $command->queryAll();
+        
+        return $result;  
+    }
+    
     public function getIPDDownlines2()
     {
         $conn = $this->_connection;

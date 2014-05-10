@@ -128,7 +128,8 @@ class Networks extends Controller
         
         $i = 0;
         $level++;
-        $downlines = $model->officialFirstLevel();
+        // $downlines = $model->officialFirstLevel();
+        $downlines = $model->countTempFiveDownlines();
         foreach ($downlines as $key => $val)
         {
             $parent[$i][$level] = $downlines[$key]["downline"];
