@@ -1255,28 +1255,65 @@ class AdmintransactionsController extends Controller
             //Endorser Information
             $endorser = $member->selectMemberDetails($payee_endorser_id);
             
-            //Get Downlines
-            $rawdata = Networks::getDownlines2($member_id);
-            $final = Networks::arrangeLevel($rawdata);
+            //Get all member purchases per cutoff
+            $member_id_rp = $model->getMemberRepeatPurchaseByCutoff();
             
-            //Get products purchased per downline
-            $downline_products = $model->getProductsPurchased($final['network'][0]['Members']);
-            $downline_products_total = $model->getProductsPurchasedTotal($final['network'][0]['Members']);
+            //Get downlines
+            $rawdata = Networks::getIPDUnilevel10thLevel($member_id);
             
-            //Get own product purchased
-            $produts_own = $model->getProductsPurchased($member_id);
-            $produts_own_total = $model->getProductsPurchasedTotal($member_id);
+            if (count($member_id_rp) != 0 && count($rawdata))
+            {
+                foreach ($member_id_rp as $index => $values)
+                {
+                    $single_dim_arr[] = $values['member_id'];
+                }
+
+                foreach ($rawdata as $index2 => $values2)
+                {
+                    foreach ($values2 as $level => $member_id)
+                    {
+                        if (in_array($member_id, $single_dim_arr))
+                        {
+                            $final[] = $member_id;
+                        }
+                    }
+                }
+                
+                $member_ids = implode(",", $final);
+            }
+            
+            //RP Own RP Commission Details
+            $comm_details_own = $model->getCommissionDetailsOnePercent($member_id);
+            $comm_details_own_total = $model->getCommissionDetailsOnePercentTotal($member_id);
+            
+            //RP IPD Downline's RP Commission Details
+            
+            //For Endorser and IPD
+            $comm_details_downlines_five_prcnt = $model->getCommissionDetailsFivePercent($member_ids, $member_id);
+            $comm_details_downlines_five_prcnt_total = $model->getCommissionDetailsFivePercentTotal($member_ids, $member_id);
+            
+            //For Endorser and IBO
+            $comm_details_downlines_three_prcnt = $model->getCommissionDetailsThreePercent($member_ids, $member_id);
+            $comm_details_downlines_three_prcnt_total = $model->getCommissionDetailsThreePercentTotal($member_ids, $member_id);
+            
+            //For Endorser and IBO
+            $comm_details_downlines_one_prcnt = $model->getCommissionDetailsOnePercent($member_ids);
+            $comm_details_downlines_one_prcnt_total = $model->getCommissionDetailsOnePercentTotal($member_ids);
             
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
             $html2pdf->WriteHTML($this->renderPartial('_ipdretentionreport', array(
                     'payee'=>$payee,
                     'endorser'=>$endorser,
                     'total_retention'=>$total_retention,
-                    'produts_own'=>$produts_own,
                     'payout'=>$payout,
-                    'produts_own_total'=>$produts_own_total,
-                    'downline_products'=>$downline_products,
-                    'downline_products_total'=>$downline_products_total,
+                    'comm_details_own'=>$comm_details_own,
+                    'comm_details_own_total'=>$comm_details_own_total,
+                    'comm_details_downlines_five_prcnt'=>$comm_details_downlines_five_prcnt,
+                    'comm_details_downlines_five_prcnt_total'=>$comm_details_downlines_five_prcnt_total,
+                    'comm_details_downlines_three_prcnt'=>$comm_details_downlines_three_prcnt,
+                    'comm_details_downlines_three_prcnt_total'=>$comm_details_downlines_three_prcnt_total,
+                    'comm_details_downlines_one_prcnt'=>$comm_details_downlines_one_prcnt,
+                    'comm_details_downlines_one_prcnt_total'=>$comm_details_downlines_one_prcnt_total,
                 ), true
              ));
             $html2pdf->Output('Distributor_Retention_Money' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
@@ -1316,35 +1353,33 @@ class AdmintransactionsController extends Controller
             //Endorser Information
             $endorser = $member->selectMemberDetails($payee_endorser_id);
             
-//            //Get Downline's member_ids
-//            $rawdata = Networks::getDownlines2($member_id);
-//            $final = Networks::arrangeLevel($rawdata);
-            
             //Get all member purchases per cutoff
             $member_id_rp = $model->getMemberRepeatPurchaseByCutoff($last_cutoff_date, $next_cutoff_date);
             
             //Get downlines
-            $rawdata = Networks::getIPDUnilevel10thLEvel($member_id);
+            $rawdata = Networks::getIPDUnilevel10thLevel($member_id);
             
-            foreach ($member_id_rp as $index => $values)
+            if (count($member_id_rp) != 0 && count($rawdata))
             {
-                $single_dim_arr[] = $values['member_id'];
-            }
-            
-            foreach ($rawdata as $index2 => $values2)
-            {
-                foreach ($values2 as $level => $member_id)
+                foreach ($member_id_rp as $index => $values)
                 {
-                    if (in_array($member_id, $single_dim_arr))
+                    $single_dim_arr[] = $values['member_id'];
+                }
+
+                foreach ($rawdata as $index2 => $values2)
+                {
+                    foreach ($values2 as $level => $member_id)
                     {
-                        $final[] = $member_id;
+                        if (in_array($member_id, $single_dim_arr))
+                        {
+                            $final[] = $member_id;
+                        }
                     }
                 }
+                
+                $member_ids = implode(",", $final);
             }
-            
-            $member_ids = implode(",", $final);
-            $test = Networks::getDirectEndorser(8);
-            print_r($test); exit;
+
 //            $i = 0;
 //            $len = count($final['network']);
 //            $member_ids = "";
@@ -1361,12 +1396,22 @@ class AdmintransactionsController extends Controller
 //            }
             
             //RP Own RP Commission Details
-            $comm_details_own = $model->getCommissionDetails($member_id, $last_cutoff_date, $next_cutoff_date);
-            $comm_details_own_total = $model->getCommissionDetailsTotal($member_id, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_own = $model->getCommissionDetailsOnePercent($member_id, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_own_total = $model->getCommissionDetailsOnePercentTotal($member_id, $last_cutoff_date, $next_cutoff_date);
             
-            //RP Downline's RP Commission Details
-            $comm_details_downlines = $model->getCommissionDetails($member_ids, $last_cutoff_date, $next_cutoff_date);
-            $comm_details_downlines_total = $model->getCommissionDetailsTotal($member_ids, $last_cutoff_date, $next_cutoff_date);
+            //RP IPD Downline's RP Commission Details
+            
+            //For Endorser and IPD
+            $comm_details_downlines_five_prcnt = $model->getCommissionDetailsFivePercent($member_ids, $member_id, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_downlines_five_prcnt_total = $model->getCommissionDetailsFivePercentTotal($member_ids, $member_id, $last_cutoff_date, $next_cutoff_date);
+            
+            //For Endorser and IBO
+            $comm_details_downlines_three_prcnt = $model->getCommissionDetailsThreePercent($member_ids, $member_id, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_downlines_three_prcnt_total = $model->getCommissionDetailsThreePercentTotal($member_ids, $member_id, $last_cutoff_date, $next_cutoff_date);
+            
+            //For Endorser and IBO
+            $comm_details_downlines_one_prcnt = $model->getCommissionDetailsOnePercent($member_ids, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_downlines_one_prcnt_total = $model->getCommissionDetailsOnePercentTotal($member_ids, $last_cutoff_date, $next_cutoff_date);
             
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
             $html2pdf->WriteHTML($this->renderPartial('_iborpcommissionreport', array(
@@ -1376,8 +1421,12 @@ class AdmintransactionsController extends Controller
                     'payout'=>$payout,
                     'endorser'=>$endorser,
                     'comm_details_own_total'=>$comm_details_own_total,
-                    'comm_details_downlines'=>$comm_details_downlines,
-                    'comm_details_downlines_total'=>$comm_details_downlines_total,
+                    'comm_details_downlines_five_prcnt'=>$comm_details_downlines_five_prcnt,
+                    'comm_details_downlines_five_prcnt_total'=>$comm_details_downlines_five_prcnt_total,
+                    'comm_details_downlines_three_prcnt'=>$comm_details_downlines_three_prcnt,
+                    'comm_details_downlines_three_prcnt_total'=>$comm_details_downlines_three_prcnt_total,
+                    'comm_details_downlines_one_prcnt'=>$comm_details_downlines_one_prcnt,
+                    'comm_details_downlines_one_prcnt_total'=>$comm_details_downlines_one_prcnt_total,
                 ), true
              ));
             $html2pdf->Output('Member_Repeat_Purchase_commission' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
@@ -1418,32 +1467,65 @@ class AdmintransactionsController extends Controller
             //Endorser Information
             $endorser = $member->selectMemberDetails($payee_endorser_id);
             
-            //Get Downline's member_ids
-            $rawdata = Networks::getDownlines2($member_id);
-            $final = Networks::arrangeLevel($rawdata);
+            //Get all member purchases per cutoff
+            $member_id_rp = $model->getMemberRepeatPurchaseByCutoff($last_cutoff_date, $next_cutoff_date);
             
-            $i = 0;
-            $len = count($final['network']);
-            $member_ids = "";
-            foreach($final['network'] as $level)
+            //Get downlines
+            $rawdata = Networks::getIPDUnilevel10thLevel($member_id);
+            
+            if (count($member_id_rp) != 0 && count($rawdata))
             {
-                if ($i == 0) 
+                foreach ($member_id_rp as $index => $values)
                 {
-                    $member_ids = $member_ids.$level['Members'].",";
-                } else if ($i == $len - 1) 
-                {
-                    $member_ids = $member_ids.$level['Members'];
+                    $single_dim_arr[] = $values['member_id'];
                 }
-                $i++;
+
+                foreach ($rawdata as $index2 => $values2)
+                {
+                    foreach ($values2 as $level => $member_id)
+                    {
+                        if (in_array($member_id, $single_dim_arr))
+                        {
+                            $final[] = $member_id;
+                        }
+                    }
+                }
+                
+                $member_ids = implode(",", $final);
             }
+
+//            $i = 0;
+//            $len = count($final['network']);
+//            $member_ids = "";
+//            foreach($final['network'] as $level)
+//            {
+//                if ($i == 0) 
+//                {
+//                    $member_ids = $member_ids.$level['Members'].",";
+//                } else if ($i == $len - 1) 
+//                {
+//                    $member_ids = $member_ids.$level['Members'];
+//                }
+//                $i++;
+//            }
             
             //RP Own RP Commission Details
-            $comm_details_own = $model->getCommissionDetails($member_id, $last_cutoff_date, $next_cutoff_date);
-            $comm_details_own_total = $model->getCommissionDetailsTotal($member_id, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_own = $model->getCommissionDetailsOnePercent($member_id, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_own_total = $model->getCommissionDetailsOnePercentTotal($member_id, $last_cutoff_date, $next_cutoff_date);
             
-            //RP Downline's RP Commission Details
-            $comm_details_downlines = $model->getCommissionDetails($member_ids, $last_cutoff_date, $next_cutoff_date);
-            $comm_details_downlines_total = $model->getCommissionDetailsTotal($member_ids, $last_cutoff_date, $next_cutoff_date);
+            //RP IPD Downline's RP Commission Details
+            
+            //For Endorser and IPD
+            $comm_details_downlines_five_prcnt = $model->getCommissionDetailsFivePercent($member_ids, $member_id, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_downlines_five_prcnt_total = $model->getCommissionDetailsFivePercentTotal($member_ids, $member_id, $last_cutoff_date, $next_cutoff_date);
+            
+            //For Endorser and IBO
+            $comm_details_downlines_three_prcnt = $model->getCommissionDetailsThreePercent($member_ids, $member_id, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_downlines_three_prcnt_total = $model->getCommissionDetailsThreePercentTotal($member_ids, $member_id, $last_cutoff_date, $next_cutoff_date);
+            
+            //For Endorser and IBO
+            $comm_details_downlines_one_prcnt = $model->getCommissionDetailsOnePercent($member_ids, $last_cutoff_date, $next_cutoff_date);
+            $comm_details_downlines_one_prcnt_total = $model->getCommissionDetailsOnePercentTotal($member_ids, $last_cutoff_date, $next_cutoff_date);
             
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
             $html2pdf->WriteHTML($this->renderPartial('_ipdrpcommissionreport', array(
@@ -1453,8 +1535,12 @@ class AdmintransactionsController extends Controller
                     'payout'=>$payout,
                     'endorser'=>$endorser,
                     'comm_details_own_total'=>$comm_details_own_total,
-                    'comm_details_downlines'=>$comm_details_downlines,
-                    'comm_details_downlines_total'=>$comm_details_downlines_total,
+                    'comm_details_downlines_five_prcnt'=>$comm_details_downlines_five_prcnt,
+                    'comm_details_downlines_five_prcnt_total'=>$comm_details_downlines_five_prcnt_total,
+                    'comm_details_downlines_three_prcnt'=>$comm_details_downlines_three_prcnt,
+                    'comm_details_downlines_three_prcnt_total'=>$comm_details_downlines_three_prcnt_total,
+                    'comm_details_downlines_one_prcnt'=>$comm_details_downlines_one_prcnt,
+                    'comm_details_downlines_one_prcnt_total'=>$comm_details_downlines_one_prcnt_total,
                 ), true
              ));
             $html2pdf->Output('Distributor_Repeat_Purchase_commission' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 

@@ -88,6 +88,7 @@ $curdate = date('M d, Y h:ia');
     </div>
 </page>
 
+<?php if (count($comm_details_own) > 0) { ?>
 <page>
     <h4>Member Repeat Purchase Commission</h4>
     <h5>Own Purchase Commission</h5>
@@ -114,13 +115,12 @@ $curdate = date('M d, Y h:ia');
     <br />
     <table id="tbl-lists">
         <tr>
-            <th class="ctr">&nbsp;</th>
-            <th class="name">Member Name</th>
-            <th>Membership</th>
+            <th class="ctr">&nbsp;</th>/th>
             <th>Date Purchased</th>
             <th>Product Name</th>
             <th>Qty</th>
             <th>Price</th>
+            <th>Subtotal</th>
             <th>1% RPC</th>
         </tr>
         <?php
@@ -129,12 +129,11 @@ $curdate = date('M d, Y h:ia');
             ?>
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
-                <td class="name"><?php echo $row['member_name'] ?></td>
-                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
                 <td><?php echo $row['date_purchased']; ?></td>
                 <td><?php echo $row['product_name'] ?></td>
                 <td><?php echo $row['quantity']; ?></td>
                 <td><?php echo $row['srp']; ?></td>
+                <td><?php echo $row['total']; ?></td>
                 <td><?php echo $row['savings']; ?></td>
             </tr>
             <?php
@@ -142,7 +141,7 @@ $curdate = date('M d, Y h:ia');
         }
         ?>
             <tr>
-                <th></th><th></th><th></th><th></th><th></th>
+                <th></th><th></th><th></th><th></th>
                 <th>Total</th>
                 <td><?php echo $comm_details_own_total[0]['total_price'] ?></td>
                 <td><?php echo $comm_details_own_total[0]['total_savings'] ?></td>
@@ -150,9 +149,11 @@ $curdate = date('M d, Y h:ia');
     </table>
     <br />
 </page>
+<?php } ?>
 
+<?php if (count($comm_details_downlines_five_prcnt) > 0) { ?>
 <page>
-    <h5>Downline Commission</h5>
+    <h5>5% Downline Commission</h5>
     <table id="tbl-details">
         <tr>
             <th>Name of Payee</th>
@@ -183,11 +184,12 @@ $curdate = date('M d, Y h:ia');
             <th>Product Name</th>
             <th>Qty</th>
             <th>Price</th>
-            <th>1% RPC</th>
+            <th>Subtotal</th>
+            <th>5% RPC</th>
         </tr>
         <?php
         $ctr = 1;
-        foreach ($comm_details_downlines as $row) {
+        foreach ($comm_details_downlines_five_prcnt as $row) {
             ?>
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
@@ -197,6 +199,7 @@ $curdate = date('M d, Y h:ia');
                 <td><?php echo $row['product_name'] ?></td>
                 <td><?php echo $row['quantity']; ?></td>
                 <td><?php echo $row['srp']; ?></td>
+                <td><?php echo $row['total']; ?></td>
                 <td><?php echo $row['savings']; ?></td>
             </tr>
             <?php
@@ -206,9 +209,100 @@ $curdate = date('M d, Y h:ia');
             <tr>
                 <th></th><th></th><th></th><th></th><th></th>
                 <th>Total</th>
-                <td><?php echo $comm_details_downlines_total[0]['total_price'] ?></td>
-                <td><?php echo $comm_details_downlines_total[0]['total_savings'] ?></td>
+                <td><?php echo $comm_details_downlines_five_prcnt_total[0]['total_price'] ?></td>
+                <td><?php echo $comm_details_downlines_five_prcnt_total[0]['total_savings'] ?></td>
             </tr>
     </table>
     <br />
 </page>
+<?php } ?>
+
+<?php if (count($comm_details_downlines_three_prcnt) > 0) { ?>
+<page>
+    <h5>3% Downline Commission</h5>
+    <table id="tbl-lists">
+        <tr>
+            <th class="ctr">&nbsp;</th>
+            <th class="name">Member Name</th>
+            <th>Membership</th>
+            <th>Date Purchased</th>
+            <th>Product Name</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+            <th>3% RPC</th>
+        </tr>
+        <?php
+        $ctr = 1;
+        foreach ($comm_details_downlines_three_prcnt as $row) {
+            ?>
+            <tr>
+                <td class="ctr"><?php echo $ctr; ?></td>
+                <td class="name"><?php echo $row['member_name'] ?></td>
+                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
+                <td><?php echo $row['date_purchased']; ?></td>
+                <td><?php echo $row['product_name'] ?></td>
+                <td><?php echo $row['quantity']; ?></td>
+                <td><?php echo $row['srp']; ?></td>
+                <td><?php echo $row['total']; ?></td>
+                <td><?php echo $row['savings']; ?></td>
+            </tr>
+            <?php
+            $ctr++;
+        }
+        ?>
+            <tr>
+                <th></th><th></th><th></th><th></th><th></th>
+                <th>Total</th>
+                <td><?php echo $comm_details_downlines_three_prcnt_total[0]['total_price'] ?></td>
+                <td><?php echo $comm_details_downlines_three_prcnt_total[0]['total_savings'] ?></td>
+            </tr>
+    </table>
+    <br />
+</page>
+<?php } ?>
+
+<?php if (count($comm_details_downlines_one_prcnt) > 0) { ?>
+<page>
+    <h5>1% Downline Commission</h5>
+    <table id="tbl-lists">
+        <tr>
+            <th class="ctr">&nbsp;</th>
+            <th class="name">Member Name</th>
+            <th>Membership</th>
+            <th>Date Purchased</th>
+            <th>Product Name</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+            <th>1% RPC</th>
+        </tr>
+        <?php
+        $ctr = 1;
+        foreach ($comm_details_downlines_one_prcnt as $row) {
+            ?>
+            <tr>
+                <td class="ctr"><?php echo $ctr; ?></td>
+                <td class="name"><?php echo $row['member_name'] ?></td>
+                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
+                <td><?php echo $row['date_purchased']; ?></td>
+                <td><?php echo $row['product_name'] ?></td>
+                <td><?php echo $row['quantity']; ?></td>
+                <td><?php echo $row['srp']; ?></td>
+                <td><?php echo $row['total']; ?></td>
+                <td><?php echo $row['savings']; ?></td>
+            </tr>
+            <?php
+            $ctr++;
+        }
+        ?>
+            <tr>
+                <th></th><th></th><th></th><th></th><th></th><th></th>
+                <th>Total</th>
+                <td><?php echo $comm_details_downlines_one_prcnt_total[0]['total_price'] ?></td>
+                <td><?php echo $comm_details_downlines_one_prcnt_total[0]['total_savings'] ?></td>
+            </tr>
+    </table>
+    <br />
+</page>
+<?php } ?>
