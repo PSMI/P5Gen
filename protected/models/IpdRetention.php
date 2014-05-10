@@ -295,7 +295,7 @@ class IpdRetention extends CFormModel
         return $result;
     }
     
-    public function getCommissionDetailsOnePercent($member_ids)
+    public function getCommissionDetailsOnePercent($member_ids, $member_id)
     {
         $conn = $this->_connection;
         
@@ -320,15 +320,17 @@ class IpdRetention extends CFormModel
                   WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND pi.savings <> 0
+                    AND (m.ipd_endorser_id <> :member_id OR m.endorser_id <> :member_id)
                   ORDER BY member_name DESC;";
         
         $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
         return $result;
     }
     
-    public function getCommissionDetailsOnePercentTotal($member_ids)
+    public function getCommissionDetailsOnePercentTotal($member_ids, $member_id)
     {
         $conn = $this->_connection;
         
@@ -342,9 +344,11 @@ class IpdRetention extends CFormModel
                       ON ps.member_id = m.member_id
                   WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
-                    AND ps.savings <> 0;";
+                    AND ps.savings <> 0
+                    AND (m.ipd_endorser_id <> :member_id OR m.endorser_id <> :member_id);";
         
         $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
         $result = $command->queryAll();
         
         return $result;
