@@ -881,5 +881,40 @@ class Networks extends Controller
         
         return $array;
     }
+    
+    
+    /**
+     * This function is used to trace the network of the IPD
+     * for repeat purchase payout. If there are IBO in the middle of the
+     * network, the IBO genealogy should be followed.
+     * @param type $member_id
+     * @param type $level
+     * @param type $index
+     * @return type
+     */
+    public function traceRPNetworkUpward($member_id, $level = 0, $index = 0)
+    {
+        $model = new Endorser();
+        $parent = array();
+        $child = array();
+        $uplineInfo = array();
+
+        $level++;
+        if ($level <= 10)
+        {
+            $uplineInfo = $model->getEndorserForRP($member_id);
+
+            if (is_array($uplineInfo))
+            {
+                $parent[$index]['member_id'] = $uplineInfo['member_id'];
+                $parent[$index]['account_type_id'] = $uplineInfo['account_type_id'];
+                $parent[$index]['level'] = $level;
+            }
+            $index++;
+            $child = array_merge($child, Networks::traceRPNetworkUpward($uplineInfo['member_id'], $level, $index));
+        }
+        
+        return array_merge($parent, $child);
+    }
 }
 ?>
