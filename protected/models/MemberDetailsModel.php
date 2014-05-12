@@ -237,6 +237,32 @@ class MemberDetailsModel extends CFormModel
         return $result;
     }
     
+    /**
+     * @author Noel Antonio
+     * @date 05-12-2014
+     * @param type $activation_code
+     * @return type
+     */
+    public function selectMemberDetailsByActivationCode($activation_code)
+    {
+        $connection = $this->_connection;       
+        
+        $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
+                a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id, b.username,
+                CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
+                WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
+                FROM member_details a
+                INNER JOIN members b ON a.member_id = b.member_id
+                WHERE b.activation_code = :activation_code AND b.account_type_id = 3
+                ORDER BY a.last_name";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(":activation_code", $activation_code);
+        
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
     public function checkExistingEmail($email)
     {
         $connection = $this->_connection;

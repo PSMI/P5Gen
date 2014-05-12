@@ -19,12 +19,17 @@ class MembersController extends Controller
                 $this->redirect(array('site/404'));
         
         $model = new MemberDetailsModel();
-        $members = new MembersModel();
+        $members = new MembersModel();       
 
-        if ($_POST["MemberDetailsModel"]) //(isset($_POST["txtSearch"]) && $_POST["txtSearch"] != "")
+        if (isset($_POST['btnSearch']) && $_POST['member_id'] != '')
         {
-            $searchField = $_POST["member_id"]; //$_POST["txtSearch"];
+            $searchField = $_POST["member_id"];
             $rawData = $model->selectMemberDetailsBySearchField($searchField);
+        }
+        else if (isset($_POST['btnSearchCode']) && $_POST['txtSearchCode'] != '')
+        {
+            $activation_code = $_POST['txtSearchCode'];
+            $rawData = $model->selectMemberDetailsByActivationCode($activation_code);
         }
         else
         {

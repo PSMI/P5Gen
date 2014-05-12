@@ -22,5 +22,19 @@ class AccountTypes extends CFormModel
         
         return $result;
     }
+    
+    public function checkCustomerServiceAccountType()
+    {
+        $account_type_id = Yii::app()->session['account_type_id'];
+        
+        if ($account_type_id == 4) // customer service
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
 }
 ?>

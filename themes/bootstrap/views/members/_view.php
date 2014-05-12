@@ -71,6 +71,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     'label'=>'Terminate Member',
                                     'icon'=>'icon-remove-circle',
                                     'url'=>'Yii::app()->createUrl("/members/terminate", array("id" =>$data["member_id"]))',
+                                    'visible'=>'AccountTypes::checkCustomerServiceAccountType()',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),
