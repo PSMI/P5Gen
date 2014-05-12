@@ -190,7 +190,7 @@ class RegistrationForm extends CFormModel
         
         $model->member_id = Yii::app()->user->getId();
         
-        $placeUnder = Networks::getPlaceUnder(Yii::app()->user->getId());
+        $placeUnder = Networks::getPlaceUnderWithUnapprovedMember(Yii::app()->user->getId());
         $downline_lists = Networks::autoComplete($placeUnder);
         
         $query = "SELECT
