@@ -25,15 +25,12 @@ class RegistrationController extends Controller
         if (isset($_POST['RegistrationForm']) && $_POST['hidden_flag'] != 1)
         {
             $model->attributes = $_POST['RegistrationForm'];
+            Yii::app()->session['birth_date'] = $model->birth_date;
             
             // force required fields.
 
             $model->product_name = 'Default: P5 Water Purifier';
 
-
-
-        
-            
             if($model->validate())
             {
                 $activation = new ActivationCodeModel();
@@ -68,6 +65,10 @@ class RegistrationController extends Controller
         else if ($_POST['hidden_flag'] == 1)
         {
             $model->attributes = $_POST['RegistrationForm'];
+            $model->birth_date = Yii::app()->session['birth_date'];
+            
+            unset(Yii::app()->session['birth_date']);
+            
             // process registration
             $retval = $model->register();                    
             if($retval['result_code'] == 0)
