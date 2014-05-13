@@ -1298,7 +1298,7 @@ class AdmintransactionsController extends Controller
                     if ($account_type_id == 5)
                     {
                         //check if downline is IPD and direct endorse
-                        if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
+                        if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
                         {
                             $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                             $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1332,7 +1332,7 @@ class AdmintransactionsController extends Controller
                     else if ($account_type_id == 3)
                     {
                         //check if downline is IPD  and direct endorse
-                        if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
+                        if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
                         {
                             $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                             $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1347,7 +1347,7 @@ class AdmintransactionsController extends Controller
 
                             $ipd_direct_comm_table[] = $ipd_direct_comm_table_arr;
                         }
-                        else if ($cdd['account_type_id'] == 3 || $cdd['ipd_endorser_id'] == $member_id)
+                        else if ($cdd['account_type_id'] == 3 && $cdd['endorser_id'] == $member_id)
                         {
                             $ibo_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                             $ibo_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1453,7 +1453,7 @@ class AdmintransactionsController extends Controller
                 if ($account_type_id == 5)
                 {
                     //check if downline is IPD and direct endorse
-                    if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
+                    if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1487,7 +1487,7 @@ class AdmintransactionsController extends Controller
                 else if ($account_type_id == 3)
                 {
                     //check if downline is IPD  and direct endorse
-                    if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
+                    if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1502,7 +1502,7 @@ class AdmintransactionsController extends Controller
                         
                         $ipd_direct_comm_table[] = $ipd_direct_comm_table_arr;
                     }
-                    else if ($cdd['account_type_id'] == 3 || $cdd['ipd_endorser_id'] == $member_id)
+                    else if ($cdd['account_type_id'] == 3 && $cdd['endorser_id'] == $member_id)
                     {
                         $ibo_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ibo_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1606,7 +1606,7 @@ class AdmintransactionsController extends Controller
                 if ($account_type_id == 5)
                 {
                     //check if downline is IPD and direct endorse
-                    if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
+                    if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1640,7 +1640,7 @@ class AdmintransactionsController extends Controller
                 else if ($account_type_id == 3)
                 {
                     //check if downline is IPD  and direct endorse
-                    if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
+                    if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1655,7 +1655,7 @@ class AdmintransactionsController extends Controller
                         
                         $ipd_direct_comm_table[] = $ipd_direct_comm_table_arr;
                     }
-                    else if ($cdd['account_type_id'] == 3 || $cdd['ipd_endorser_id'] == $member_id)
+                    else if ($cdd['account_type_id'] == 3 && $cdd['endorser_id'] == $member_id)
                     {
                         $ibo_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ibo_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
