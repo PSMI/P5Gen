@@ -87,7 +87,8 @@ $curdate = date('M d, Y h:ia');
     </div>
 </page>
 
-<?php if (count($comm_details_own) > 0) { ?>
+<?php $array_count = count($own_purchase_comm_details_table) - 1; ?>
+<?php if (count($own_purchase_comm_details_table) > 0) { ?>
 <page>
     <h4>Distributor Retention Money</h4>
     <h5>Purchase Retention</h5>
@@ -119,40 +120,39 @@ $curdate = date('M d, Y h:ia');
             <th>Product Name</th>
             <th>Qty</th>
             <th>Price</th>
-            <th>Subtotal</th>
-            <th>5% RM</th>
+            <th><?php echo $own_purchase_comm_details_table[0]['comm_ipd_rate'] ?>% RM</th>
         </tr>
         <?php
         $ctr = 1;
-        foreach ($comm_details_own as $row) {
+        foreach ($own_purchase_comm_details_table as $row) {
             ?>
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
                 <td><?php echo $row['date_purchased']; ?></td>
                 <td><?php echo $row['product_name'] ?></td>
                 <td><?php echo $row['quantity']; ?></td>
-                <td><?php echo $row['srp']; ?></td>
-                <td><?php echo $row['total']; ?></td>
-                <td><?php echo $row['savings']; ?></td>
+                <td style="text-align: right;"><?php echo number_format($row['total'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($row['savings'], 2, '.', ','); ?></td>
             </tr>
             <?php
             $ctr++;
         }
         ?>
             <tr>
-                <th></th><th></th><th></th><th></th>
+                <th></th><th></th><th></th>
                 <th>Total</th>
-                <td><?php echo $comm_details_own_total[0]['total_price'] ?></td>
-                <td><?php echo $comm_details_own_total[0]['total_savings'] ?></td>
+                <td style="text-align: right;"><?php echo number_format($ipd_direct_comm_table[$array_count]['grand_total'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($ipd_direct_comm_table[$array_count]['total_savings'], 2, '.', ','); ?></td>
             </tr>
     </table>
     <br />
 </page>
 <?php } ?>
 
-<?php if (count($comm_details_downlines_five_prcnt) > 0) { ?>
+<?php $array_count = count($ipd_direct_comm_table) - 1; ?>
+<?php if (count($ipd_direct_comm_table) > 0) { ?>
 <page>
-    <h5>5% Downline Commission</h5>
+    <h5><?php echo $ipd_direct_comm_table[0]['comm_ipd_rate'] ?>% Downline Commission</h5>
     <table id="tbl-details">
         <tr>
             <th>Name of Payee</th>
@@ -183,42 +183,41 @@ $curdate = date('M d, Y h:ia');
             <th>Product Name</th>
             <th>Qty</th>
             <th>Price</th>
-            <th>Subtotal</th>
-            <th>5% RPC</th>
+            <th><?php echo $ipd_direct_comm_table[0]['comm_ipd_rate'] ?>% RPC</th>
         </tr>
         <?php
         $ctr = 1;
-        foreach ($comm_details_downlines_five_prcnt as $row) {
+        foreach ($ipd_direct_comm_table as $row) {
             ?>
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
                 <td class="name"><?php echo $row['member_name'] ?></td>
-                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
+                <td><?php echo $row['account_type']; ?></td>
                 <td><?php echo $row['date_purchased']; ?></td>
                 <td><?php echo $row['product_name'] ?></td>
                 <td><?php echo $row['quantity']; ?></td>
-                <td><?php echo $row['srp']; ?></td>
-                <td><?php echo $row['total']; ?></td>
-                <td><?php echo $row['savings']; ?></td>
+                <td style="text-align: right;"><?php echo number_format($row['total'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($row['savings'], 2, '.', ','); ?></td>
             </tr>
             <?php
             $ctr++;
         }
         ?>
             <tr>
-                <th></th><th></th><th></th><th></th><th></th><th></th>
+                <th></th><th></th><th></th><th></th><th></th>
                 <th>Total</th>
-                <td><?php echo $comm_details_downlines_five_prcnt_total[0]['total_price'] ?></td>
-                <td><?php echo $comm_details_downlines_five_prcnt_total[0]['total_savings'] ?></td>
+                <td style="text-align: right;"><?php echo number_format($ipd_direct_comm_table[$array_count]['grand_total'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($ipd_direct_comm_table[$array_count]['total_savings'], 2, '.', ','); ?></td>
             </tr>
     </table>
     <br />
 </page>
 <?php } ?>
 
-<?php if (count($comm_details_downlines_three_prcnt) > 0) { ?>
+<?php $array_count = count($ibo_direct_comm_table_table) - 1; ?>
+<?php if (count($ibo_direct_comm_table_table) > 0) { ?>
 <page>
-    <h5>3% Downline Commission</h5>
+    <h5><?php echo $ibo_direct_comm_table_table[0]['comm_ibo_rate']; ?>% Downline Commission</h5>
     <table id="tbl-lists">
         <tr>
             <th class="ctr">&nbsp;</th>
@@ -228,42 +227,41 @@ $curdate = date('M d, Y h:ia');
             <th>Product Name</th>
             <th>Qty</th>
             <th>Price</th>
-            <th>Subtotal</th>
-            <th>3% RPC</th>
+            <th><?php echo $ibo_direct_comm_table_table[0]['comm_ibo_rate'] ?>% RPC</th>
         </tr>
         <?php
         $ctr = 1;
-        foreach ($comm_details_downlines_three_prcnt as $row) {
+        foreach ($ibo_direct_comm_table_table as $row) {
             ?>
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
                 <td class="name"><?php echo $row['member_name'] ?></td>
-                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
+                <td><?php echo $row['account_type']; ?></td>
                 <td><?php echo $row['date_purchased']; ?></td>
                 <td><?php echo $row['product_name'] ?></td>
                 <td><?php echo $row['quantity']; ?></td>
-                <td><?php echo $row['srp']; ?></td>
-                <td><?php echo $row['total']; ?></td>
-                <td><?php echo $row['savings']; ?></td>
+                <td style="text-align: right;"><?php echo number_format($row['total'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($row['savings'], 2, '.', ','); ?></td>
             </tr>
             <?php
             $ctr++;
         }
         ?>
             <tr>
-                <th></th><th></th><th></th><th></th><th></th><th></th>
+                <th></th><th></th><th></th><th></th><th></th>
                 <th>Total</th>
-                <td><?php echo $comm_details_downlines_three_prcnt_total[0]['total_price'] ?></td>
-                <td><?php echo $comm_details_downlines_three_prcnt_total[0]['total_savings'] ?></td>
+                <td style="text-align: right;"><?php echo number_format($ibo_direct_comm_table_table[$array_count]['grand_total'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($ibo_direct_comm_table_table[$array_count]['total_savings'], 2, '.', ','); ?></td>
             </tr>
     </table>
     <br />
 </page>
 <?php } ?>
 
-<?php if (count($comm_details_downlines_one_prcnt) > 0) { ?>
+<?php $array_count = count($indirect_endorse_table) - 1; ?>
+<?php if (count($indirect_endorse_table) > 0) { ?>
 <page>
-    <h5>1% Downline Commission</h5>
+    <h5><?php echo $indirect_endorse_table[0]['rpc_rate']; ?>% Downline Commission</h5>
     <table id="tbl-lists">
         <tr>
             <th class="ctr">&nbsp;</th>
@@ -273,33 +271,31 @@ $curdate = date('M d, Y h:ia');
             <th>Product Name</th>
             <th>Qty</th>
             <th>Price</th>
-            <th>Subtotal</th>
-            <th>1% RPC</th>
+            <th><?php echo $indirect_endorse_table[0]['rpc_rate'] ?>% RPC</th>
         </tr>
         <?php
         $ctr = 1;
-        foreach ($comm_details_downlines_one_prcnt as $row) {
+        foreach ($indirect_endorse_table as $row) {
             ?>
             <tr>
                 <td class="ctr"><?php echo $ctr; ?></td>
                 <td class="name"><?php echo $row['member_name'] ?></td>
-                <td><?php echo AdmintransactionsController::getMemberType($row['account_type_id']); ?></td>
+                <td><?php echo $row['account_type']; ?></td>
                 <td><?php echo $row['date_purchased']; ?></td>
                 <td><?php echo $row['product_name'] ?></td>
                 <td><?php echo $row['quantity']; ?></td>
-                <td><?php echo $row['srp']; ?></td>
-                <td><?php echo $row['total']; ?></td>
-                <td><?php echo $row['savings']; ?></td>
+                <td style="text-align: right;"><?php echo number_format($row['total'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($row['savings'], 2, '.', ','); ?></td>
             </tr>
             <?php
             $ctr++;
         }
         ?>
             <tr>
-                <th></th><th></th><th></th><th></th><th></th><th></th>
+                <th></th><th></th><th></th><th></th><th></th>
                 <th>Total</th>
-                <td><?php echo $comm_details_downlines_one_prcnt_total[0]['total_price'] ?></td>
-                <td><?php echo $comm_details_downlines_one_prcnt_total[0]['total_savings'] ?></td>
+                <td style="text-align: right;"><?php echo number_format($indirect_endorse_table[$array_count]['grand_total'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($indirect_endorse_table[$array_count]['total_savings'], 2, '.', ','); ?></td>
             </tr>
     </table>
     <br />

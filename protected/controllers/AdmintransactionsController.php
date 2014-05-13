@@ -1233,8 +1233,8 @@ class AdmintransactionsController extends Controller
     {
         if(isset($_GET['id']))
         {        
-            $purchase_summary_id = $_GET["id"];
             $member_id = $_GET["member_id"];
+            $account_type_id = $_GET["account_type_id"];
             $total_retention = $_GET["total_retention"];
             
             $member = new MembersModel();            
@@ -1259,7 +1259,6 @@ class AdmintransactionsController extends Controller
             $member_id_rp = $model->getMemberRepeatPurchaseByCutoff();
             
             //Get downlines
-            //$rawdata = Networks::getIPDUnilevel10thLevel($member_id);
             $rawdata = Networks::getRPCMembersForPDF($member_id, $member_id_rp);
             
             if (count($rawdata) > 0)
@@ -1270,26 +1269,117 @@ class AdmintransactionsController extends Controller
                 }
 
                 $member_ids = implode(",", $member_ids2);
-                
+
                 //RP Own RP Commission Details
-                $comm_details_own = $model->getCommissionDetailsOnePercent($member_id, $member_id);
-                $comm_details_own_total = $model->getCommissionDetailsOnePercentTotal($member_id, $member_id);
+                $comm_details_own_arr = $model->getCommissionDetails($member_id, $member_id);
 
-                //RP IPD Downline's RP Commission Details
+                foreach ($comm_details_own_arr as $cdo)
+                {
+                    $own_purchase_comm_details_table_arr['member_name'] = $cdo['member_name'];
+                    $own_purchase_comm_details_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdo['account_type_id']);
+                    $own_purchase_comm_details_table_arr['date_purchased'] = $cdo['date_purchased'];
+                    $own_purchase_comm_details_table_arr['quantity'] = $cdo['quantity'];
+                    $own_purchase_comm_details_table_arr['total'] = $cdo['total'];
+                    $own_purchase_comm_details_table_arr['savings'] = ($cdo['ipd_retention_rate'] / 100) * $cdo['total'];
+                    $own_purchase_comm_details_table_arr['ipd_retention_rate'] = $cdo['ipd_retention_rate'];
+                    $own_purchase_comm_details_table_arr['grand_total'] += $cdo['total'];
+                    $own_purchase_comm_details_table_arr['total_savings'] += $own_purchase_comm_details_table_arr['savings'];
 
-                //For Endorser and IPD
-                $comm_details_downlines_five_prcnt = $model->getCommissionDetailsFivePercent($member_ids, $member_id);
-                $comm_details_downlines_five_prcnt_total = $model->getCommissionDetailsFivePercentTotal($member_ids, $member_id);
-
-    //            //For Endorser and IBO
-    //            $comm_details_downlines_three_prcnt = $model->getCommissionDetailsThreePercent($member_ids, $member_id);
-    //            $comm_details_downlines_three_prcnt_total = $model->getCommissionDetailsThreePercentTotal($member_ids, $member_id);
-    //            
-    //            //For Endorser and IBO
-    //            $comm_details_downlines_one_prcnt = $model->getCommissionDetailsOnePercent($member_ids);
-    //            $comm_details_downlines_one_prcnt_total = $model->getCommissionDetailsOnePercentTotal($member_ids);
-            }
+                    $own_purchase_comm_details_table[] = $own_purchase_comm_details_table_arr;
+                }
                 
+                //Get Downlines purchase details
+                $comm_details_downlines_arr = $model->getCommissionDetails($member_ids, $member_id);
+                
+                //Loop to get direct IPD
+                foreach ($comm_details_downlines_arr as $cdd)
+                {
+                    //check if payee is IPD
+                    if ($account_type_id == 5)
+                    {
+                        //check if downline is IPD and direct endorse
+                        if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
+                        {
+                            $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
+                            $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
+                            $ipd_direct_comm_table_arr['date_purchased'] = $cdd['date_purchased'];
+                            $ipd_direct_comm_table_arr['product_name'] = $cdd['product_name'];
+                            $ipd_direct_comm_table_arr['quantity'] = $cdd['quantity'];
+                            $ipd_direct_comm_table_arr['total'] = $cdd['total'];
+                            $ipd_direct_comm_table_arr['savings'] = ($cdd['comm_ipd_rate'] / 100) * $cdd['total'];
+                            $ipd_direct_comm_table_arr['comm_ipd_rate'] = $cdd['comm_ipd_rate'];
+                            $ipd_direct_comm_table_arr['grand_total'] += $cdd['total'];
+                            $ipd_direct_comm_table_arr['total_savings'] += $ipd_direct_comm_table_arr['savings'];
+
+                            $ipd_direct_comm_table[] = $ipd_direct_comm_table_arr;
+                        }
+                        else
+                        {
+                            $indirect_endorse_table_arr['member_name'] = $cdd['member_name'];
+                            $indirect_endorse_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
+                            $indirect_endorse_table_arr['date_purchased'] = $cdd['date_purchased'];
+                            $indirect_endorse_table_arr['product_name'] = $cdd['product_name'];
+                            $indirect_endorse_table_arr['quantity'] = $cdd['quantity'];
+                            $indirect_endorse_table_arr['total'] = $cdd['total'];
+                            $indirect_endorse_table_arr['savings'] = ($cdd['rpc_rate'] / 100) * $cdd['total'];
+                            $indirect_endorse_table_arr['rpc_rate'] = $cdd['rpc_rate'];
+                            $indirect_endorse_table_arr['grand_total'] += $cdd['total'];
+                            $indirect_endorse_table_arr['total_savings'] += $indirect_endorse_table_arr['savings'];
+
+                            $indirect_endorse_table[] = $indirect_endorse_table_arr;
+                        }
+                    }
+                    else if ($account_type_id == 3)
+                    {
+                        //check if downline is IPD  and direct endorse
+                        if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
+                        {
+                            $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
+                            $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
+                            $ipd_direct_comm_table_arr['date_purchased'] = $cdd['date_purchased'];
+                            $ipd_direct_comm_table_arr['product_name'] = $cdd['product_name'];
+                            $ipd_direct_comm_table_arr['quantity'] = $cdd['quantity'];
+                            $ipd_direct_comm_table_arr['total'] = $cdd['total'];
+                            $ipd_direct_comm_table_arr['savings'] = ($cdd['comm_ipd_rate'] / 100) * $cdd['total'];
+                            $ipd_direct_comm_table_arr['comm_ipd_rate'] = $cdd['comm_ipd_rate'];
+                            $ipd_direct_comm_table_arr['grand_total'] += $cdd['total'];
+                            $ipd_direct_comm_table_arr['total_savings'] += $ipd_direct_comm_table_arr['savings'];
+
+                            $ipd_direct_comm_table[] = $ipd_direct_comm_table_arr;
+                        }
+                        else if ($cdd['account_type_id'] == 3 || $cdd['ipd_endorser_id'] == $member_id)
+                        {
+                            $ibo_direct_comm_table_arr['member_name'] = $cdd['member_name'];
+                            $ibo_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
+                            $ibo_direct_comm_table_arr['date_purchased'] = $cdd['date_purchased'];
+                            $ibo_direct_comm_table_arr['product_name'] = $cdd['product_name'];
+                            $ibo_direct_comm_table_arr['quantity'] = $cdd['quantity'];
+                            $ibo_direct_comm_table_arr['total'] = $cdd['total'];
+                            $ibo_direct_comm_table_arr['savings'] = ($cdd['comm_ibo_rate'] / 100) * $cdd['total'];
+                            $ibo_direct_comm_table_arr['comm_ibo_rate'] = $cdd['comm_ibo_rate'];
+                            $ibo_direct_comm_table_arr['grand_total'] += $cdd['total'];
+                            $ibo_direct_comm_table_arr['total_savings'] += $ibo_direct_comm_table_arr['savings'];
+
+                            $ibo_direct_comm_table_table[] = $ibo_direct_comm_table_arr;
+                        }
+                        else
+                        {
+                            $indirect_endorse_table_arr['member_name'] = $cdd['member_name'];
+                            $indirect_endorse_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
+                            $indirect_endorse_table_arr['date_purchased'] = $cdd['date_purchased'];
+                            $indirect_endorse_table_arr['product_name'] = $cdd['product_name'];
+                            $indirect_endorse_table_arr['quantity'] = $cdd['quantity'];
+                            $indirect_endorse_table_arr['total'] = $cdd['total'];
+                            $indirect_endorse_table_arr['savings'] = ($cdd['rpc_rate'] / 100) * $cdd['total'];
+                            $indirect_endorse_table_arr['rpc_rate'] = $cdd['rpc_rate'];
+                            $indirect_endorse_table_arr['grand_total'] += $cdd['total'];
+                            $indirect_endorse_table_arr['total_savings'] += $indirect_endorse_table_arr['savings'];
+
+                            $indirect_endorse_table[] = $indirect_endorse_table_arr;
+                        }
+                    }
+                }
+            }
             
             $html2pdf = Yii::app()->ePdf->HTML2PDF();            
             $html2pdf->WriteHTML($this->renderPartial('_ipdretentionreport', array(
@@ -1297,14 +1387,10 @@ class AdmintransactionsController extends Controller
                     'endorser'=>$endorser,
                     'total_retention'=>$total_retention,
                     'payout'=>$payout,
-                    'comm_details_own'=>$comm_details_own,
-                    'comm_details_own_total'=>$comm_details_own_total,
-                    'comm_details_downlines_five_prcnt'=>$comm_details_downlines_five_prcnt,
-                    'comm_details_downlines_five_prcnt_total'=>$comm_details_downlines_five_prcnt_total,
-                    'comm_details_downlines_three_prcnt'=>$comm_details_downlines_three_prcnt,
-                    'comm_details_downlines_three_prcnt_total'=>$comm_details_downlines_three_prcnt_total,
-                    'comm_details_downlines_one_prcnt'=>$comm_details_downlines_one_prcnt,
-                    'comm_details_downlines_one_prcnt_total'=>$comm_details_downlines_one_prcnt_total,
+                    'own_purchase_comm_details_table'=>$own_purchase_comm_details_table,
+                    'ipd_direct_comm_table'=>$ipd_direct_comm_table,
+                    'ibo_direct_comm_table_table'=>$ibo_direct_comm_table_table,
+                    'indirect_endorse_table'=>$indirect_endorse_table,
                 ), true
              ));
             $html2pdf->Output('Distributor_Retention_Money' . $payee_name . '_' . date('Y-m-d') . '.pdf', 'D'); 
@@ -1367,7 +1453,7 @@ class AdmintransactionsController extends Controller
                 if ($account_type_id == 5)
                 {
                     //check if downline is IPD and direct endorse
-                    if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
+                    if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1401,7 +1487,7 @@ class AdmintransactionsController extends Controller
                 else if ($account_type_id == 3)
                 {
                     //check if downline is IPD  and direct endorse
-                    if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
+                    if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1416,7 +1502,7 @@ class AdmintransactionsController extends Controller
                         
                         $ipd_direct_comm_table[] = $ipd_direct_comm_table_arr;
                     }
-                    else if ($cdd['account_type_id'] == 3 && $cdd['ipd_endorser_id'] == $member_id)
+                    else if ($cdd['account_type_id'] == 3 || $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ibo_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ibo_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1520,7 +1606,7 @@ class AdmintransactionsController extends Controller
                 if ($account_type_id == 5)
                 {
                     //check if downline is IPD and direct endorse
-                    if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
+                    if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1554,7 +1640,7 @@ class AdmintransactionsController extends Controller
                 else if ($account_type_id == 3)
                 {
                     //check if downline is IPD  and direct endorse
-                    if ($cdd['account_type_id'] == 5 && $cdd['ipd_endorser_id'] == $member_id)
+                    if ($cdd['account_type_id'] == 5 || $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ipd_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ipd_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);
@@ -1569,7 +1655,7 @@ class AdmintransactionsController extends Controller
                         
                         $ipd_direct_comm_table[] = $ipd_direct_comm_table_arr;
                     }
-                    else if ($cdd['account_type_id'] == 3 && $cdd['ipd_endorser_id'] == $member_id)
+                    else if ($cdd['account_type_id'] == 3 || $cdd['ipd_endorser_id'] == $member_id)
                     {
                         $ibo_direct_comm_table_arr['member_name'] = $cdd['member_name'];
                         $ibo_direct_comm_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdd['account_type_id']);

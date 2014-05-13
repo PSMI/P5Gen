@@ -29,17 +29,19 @@ class IpdRetention extends CFormModel
     {
         $conn = $this->_connection;
         
-        $query = "SELECT 
+        $query = "SELECT
                     dr.distributor_retention_id,
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
                     dr.member_id,
+                    m.account_type_id,
                     dr.purchase_retention,
                     dr.other_retention,
                     (dr.purchase_retention + dr.other_retention) as total_retention
                     FROM distributor_retentions dr
                         INNER JOIN member_details md
                           ON dr.member_id = md.member_id
-                          INNER JOIN members m ON dr.member_id = m.member_id
+                        INNER JOIN members m
+                          ON dr.member_id = m.member_id
                     WHERE dr.status = 0
                         AND m.account_type_id = 5;";
         
@@ -171,22 +173,24 @@ class IpdRetention extends CFormModel
         
         return $result;
     }
-    
-    
-    
-    public function getCommissionDetailsFivePercent($member_ids, $member_id)
+
+    public function getCommissionDetails($member_ids, $member_id)
     {
         $conn = $this->_connection;
         
         $query = "SELECT
                     CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
                     m.account_type_id,
+                    m.ipd_endorser_id,
+                    m.endorser_id,
                     DATE_FORMAT(ps.date_purchased,'%M %d, %Y') AS date_purchased,
                     p.product_name,
-                    pi.quantity,
-                    pi.srp,
-                    pi.total,
-                    pi.savings
+                    ps.quantity,
+                    ps.total,
+                    ps.comm_ipd_rate,
+                    ps.comm_ibo_rate,
+                    ps.rpc_rate,
+                    ps.ipd_retention_rate
                   FROM purchased_summary ps
                     INNER JOIN member_details md
                       ON ps.member_id = md.member_id
@@ -199,154 +203,7 @@ class IpdRetention extends CFormModel
                   WHERE ps.member_id IN ($member_ids)
                     AND ps.status = 1
                     AND pi.savings <> 0
-                    AND m.account_type_id = 5
-                    AND m.ipd_endorser_id = :member_id
                   ORDER BY member_name DESC;";
-        
-        $command =  $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
-        $result = $command->queryAll();
-        
-        return $result;
-    }
-    
-    public function getCommissionDetailsFivePercentTotal($member_ids, $member_id)
-    {
-        $conn = $this->_connection;
-        
-        $query = "SELECT
-                    SUM(pi.total) AS total_price,
-                    SUM(pi.savings) AS total_savings
-                  FROM purchased_summary ps
-                    INNER JOIN purchased_items pi
-                      ON ps.purchase_summary_id = pi.purchase_summary_id
-                    LEFT OUTER JOIN members m
-                      ON ps.member_id = m.member_id
-                  WHERE ps.member_id IN ($member_ids)
-                    AND ps.status = 1
-                    AND ps.savings <> 0
-                    AND m.account_type_id = 5
-                    AND m.ipd_endorser_id = :member_id;";
-        
-        $command =  $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
-        $result = $command->queryAll();
-        
-        return $result;
-    }
-    
-    public function getCommissionDetailsThreePercent($member_ids, $member_id)
-    {
-        $conn = $this->_connection;
-        
-        $query = "SELECT
-                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                    m.account_type_id,
-                    DATE_FORMAT(ps.date_purchased,'%M %d, %Y') AS date_purchased,
-                    p.product_name,
-                    pi.quantity,
-                    pi.srp,
-                    pi.total,
-                    pi.savings
-                  FROM purchased_summary ps
-                    INNER JOIN member_details md
-                      ON ps.member_id = md.member_id
-                    LEFT OUTER JOIN members m
-                      ON ps.member_id = m.member_id
-                    LEFT OUTER JOIN purchased_items pi
-                      ON ps.purchase_summary_id = pi.purchase_summary_id
-                    LEFT OUTER JOIN products p
-                      ON pi.product_id = p.product_id
-                  WHERE ps.member_id IN ($member_ids)
-                    AND ps.status = 1
-                    AND pi.savings <> 0
-                    AND m.account_type_id = 3
-                    AND m.ipd_endorser_id = :member_id
-                  ORDER BY member_name DESC;";
-        
-        $command =  $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
-        $result = $command->queryAll();
-        
-        return $result;
-    }
-    
-    public function getCommissionDetailsThreePercentTotal($member_ids, $member_id)
-    {
-        $conn = $this->_connection;
-        
-        $query = "SELECT
-                    SUM(pi.total) AS total_price,
-                    SUM(pi.savings) AS total_savings
-                  FROM purchased_summary ps
-                    INNER JOIN purchased_items pi
-                      ON ps.purchase_summary_id = pi.purchase_summary_id
-                    LEFT OUTER JOIN members m
-                      ON ps.member_id = m.member_id
-                  WHERE ps.member_id IN ($member_ids)
-                    AND ps.status = 1
-                    AND ps.savings <> 0
-                    AND m.account_type_id = 3
-                    AND m.ipd_endorser_id = :member_id;";
-        
-        $command =  $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
-        $result = $command->queryAll();
-        
-        return $result;
-    }
-    
-    public function getCommissionDetailsOnePercent($member_ids, $member_id)
-    {
-        $conn = $this->_connection;
-        
-        $query = "SELECT
-                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
-                    m.account_type_id,
-                    DATE_FORMAT(ps.date_purchased,'%M %d, %Y') AS date_purchased,
-                    p.product_name,
-                    pi.quantity,
-                    pi.srp,
-                    pi.total,
-                    pi.savings
-                  FROM purchased_summary ps
-                    INNER JOIN member_details md
-                      ON ps.member_id = md.member_id
-                    LEFT OUTER JOIN members m
-                      ON ps.member_id = m.member_id
-                    LEFT OUTER JOIN purchased_items pi
-                      ON ps.purchase_summary_id = pi.purchase_summary_id
-                    LEFT OUTER JOIN products p
-                      ON pi.product_id = p.product_id
-                  WHERE ps.member_id IN ($member_ids)
-                    AND ps.status = 1
-                    AND pi.savings <> 0
-                    AND (m.ipd_endorser_id <> :member_id OR m.endorser_id <> :member_id)
-                  ORDER BY member_name DESC;";
-        
-        $command =  $conn->createCommand($query);
-        $command->bindParam(':member_id', $member_id);
-        $result = $command->queryAll();
-        
-        return $result;
-    }
-    
-    public function getCommissionDetailsOnePercentTotal($member_ids, $member_id)
-    {
-        $conn = $this->_connection;
-        
-        $query = "SELECT
-                    SUM(pi.total) AS total_price,
-                    SUM(pi.savings) AS total_savings
-                  FROM purchased_summary ps
-                    INNER JOIN purchased_items pi
-                      ON ps.purchase_summary_id = pi.purchase_summary_id
-                    LEFT OUTER JOIN members m
-                      ON ps.member_id = m.member_id
-                  WHERE ps.member_id IN ($member_ids)
-                    AND ps.status = 1
-                    AND ps.savings <> 0
-                    AND (m.ipd_endorser_id <> :member_id OR m.endorser_id <> :member_id);";
         
         $command =  $conn->createCommand($query);
         $command->bindParam(':member_id', $member_id);
