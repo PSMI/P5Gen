@@ -1285,6 +1285,7 @@ class AdmintransactionsController extends Controller
                     $own_purchase_comm_details_table_arr['member_name'] = $cdo['member_name'];
                     $own_purchase_comm_details_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdo['account_type_id']);
                     $own_purchase_comm_details_table_arr['date_purchased'] = $cdo['date_purchased'];
+                    $own_purchase_comm_details_table_arr['product_name'] = $cdo['product_name'];
                     $own_purchase_comm_details_table_arr['quantity'] = $cdo['quantity'];
                     $own_purchase_comm_details_table_arr['total'] = $cdo['total'];
                     $own_purchase_comm_details_table_arr['savings'] = ($cdo['ipd_retention_rate'] / 100) * $cdo['total'];
