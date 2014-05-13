@@ -122,7 +122,7 @@ class Inventory extends CFormModel
                     WHERE product_code = :product_code;";
         $command = $conn->createCommand($query);
         $command->bindParam(':product_code', $this->product_code);
-        $result = $command->queryRow();
+        $result = $command->queryAll();
         if(count($result)>0)
             return true;
         else
