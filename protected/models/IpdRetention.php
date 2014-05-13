@@ -40,7 +40,7 @@ class IpdRetention extends CFormModel
                     FROM distributor_retentions dr
                         INNER JOIN member_details md
                           ON dr.member_id = md.member_id
-                        INNER JOIN members m
+                        LEFT OUTER JOIN members m
                           ON dr.member_id = m.member_id
                     WHERE dr.status = 0
                         AND m.account_type_id = 5;";
@@ -60,6 +60,8 @@ class IpdRetention extends CFormModel
                     sum(dr.other_retention) AS total_other_retention,
                     (sum(dr.purchase_retention) + sum(dr.other_retention)) AS total_retentions
                   FROM distributor_retentions dr
+                    INNER JOIN members m
+                        ON dr.member_id = m.member_id
                     WHERE dr.status = 0
                     AND m.account_type_id = 5;";
 

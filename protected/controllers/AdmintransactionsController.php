@@ -1249,7 +1249,14 @@ class AdmintransactionsController extends Controller
             
             //Payee Information
             $payee = $member->selectMemberDetails($member_id);
-            $payee_endorser_id = $payee['endorser_id'];
+            if ($account_type_id == 5)
+            {
+                $payee_endorser_id = $payee['ipd_endorser_id'];
+            }
+            else if ($account_type_id == 3)
+            {
+                $payee_endorser_id = $payee['endorser_id'];
+            }
             $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
             
             //Endorser Information
@@ -1269,10 +1276,10 @@ class AdmintransactionsController extends Controller
                 }
 
                 $member_ids = implode(",", $member_ids2);
-
+                
                 //RP Own RP Commission Details
                 $comm_details_own_arr = $model->getCommissionDetails($member_id, $member_id);
-
+                
                 foreach ($comm_details_own_arr as $cdo)
                 {
                     $own_purchase_comm_details_table_arr['member_name'] = $cdo['member_name'];
@@ -1380,8 +1387,29 @@ class AdmintransactionsController extends Controller
                     }
                 }
             }
+            else
+            {
+                //RP Own RP Commission Details
+                $comm_details_own_arr = $model->getCommissionDetails($member_id, $member_id);
+                
+                foreach ($comm_details_own_arr as $cdo)
+                {
+                    $own_purchase_comm_details_table_arr['member_name'] = $cdo['member_name'];
+                    $own_purchase_comm_details_table_arr['account_type'] = AdmintransactionsController::getMemberType($cdo['account_type_id']);
+                    $own_purchase_comm_details_table_arr['date_purchased'] = $cdo['date_purchased'];
+                    $own_purchase_comm_details_table_arr['quantity'] = $cdo['quantity'];
+                    $own_purchase_comm_details_table_arr['total'] = $cdo['total'];
+                    $own_purchase_comm_details_table_arr['savings'] = ($cdo['ipd_retention_rate'] / 100) * $cdo['total'];
+                    $own_purchase_comm_details_table_arr['ipd_retention_rate'] = $cdo['ipd_retention_rate'];
+                    $own_purchase_comm_details_table_arr['grand_total'] += $cdo['total'];
+                    $own_purchase_comm_details_table_arr['total_savings'] += $own_purchase_comm_details_table_arr['savings'];
+
+                    $own_purchase_comm_details_table[] = $own_purchase_comm_details_table_arr;
+                }
+            }
             
-            $html2pdf = Yii::app()->ePdf->HTML2PDF();            
+            
+            $html2pdf = Yii::app()->ePdf->HTML2PDF();     
             $html2pdf->WriteHTML($this->renderPartial('_ipdretentionreport', array(
                     'payee'=>$payee,
                     'endorser'=>$endorser,
@@ -1424,7 +1452,14 @@ class AdmintransactionsController extends Controller
             
             //Payee Information
             $payee = $member->selectMemberDetails($member_id);
-            $payee_endorser_id = $payee['endorser_id'];
+            if ($account_type_id == 5)
+            {
+                $payee_endorser_id = $payee['ipd_endorser_id'];
+            }
+            else if ($account_type_id == 3)
+            {
+                $payee_endorser_id = $payee['endorser_id'];
+            }
             $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
             
             //Endorser Information
@@ -1577,7 +1612,14 @@ class AdmintransactionsController extends Controller
             
             //Payee Information
             $payee = $member->selectMemberDetails($member_id);
-            $payee_endorser_id = $payee['endorser_id'];
+            if ($account_type_id == 5)
+            {
+                $payee_endorser_id = $payee['ipd_endorser_id'];
+            }
+            else if ($account_type_id == 3)
+            {
+                $payee_endorser_id = $payee['endorser_id'];
+            }
             $payee_name = $payee['last_name'] . '_' . $payee['first_name'];
             
             //Endorser Information

@@ -120,7 +120,7 @@ $curdate = date('M d, Y h:ia');
             <th>Product Name</th>
             <th>Qty</th>
             <th>Price</th>
-            <th><?php echo $own_purchase_comm_details_table[0]['comm_ipd_rate'] ?>% RM</th>
+            <th><?php echo $own_purchase_comm_details_table[0]['ipd_retention_rate'] ?>% RM</th>
         </tr>
         <?php
         $ctr = 1;
@@ -141,8 +141,8 @@ $curdate = date('M d, Y h:ia');
             <tr>
                 <th></th><th></th><th></th>
                 <th>Total</th>
-                <td style="text-align: right;"><?php echo number_format($ipd_direct_comm_table[$array_count]['grand_total'], 2, '.', ','); ?></td>
-                <td style="text-align: right;"><?php echo number_format($ipd_direct_comm_table[$array_count]['total_savings'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($own_purchase_comm_details_table[$array_count]['grand_total'], 2, '.', ','); ?></td>
+                <td style="text-align: right;"><?php echo number_format($own_purchase_comm_details_table[$array_count]['total_savings'], 2, '.', ','); ?></td>
             </tr>
     </table>
     <br />
