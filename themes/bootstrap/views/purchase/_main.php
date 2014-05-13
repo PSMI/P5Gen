@@ -229,8 +229,8 @@ Yii::app()->clientScript->registerScript('ui','
 </div>
  
 <div class="modal-body">
-    <?php echo CHtml::hiddenField('purchaser_id'); ?>
-    <?php echo CHtml::hiddenField('purchase_summary_id'); ?>
+    <?php echo CHtml::hiddenField('purchaser_id', Yii::app()->session['purchaser_id']); ?>
+    <?php echo CHtml::hiddenField('purchase_summary_id',  Yii::app()->session['purchase_summary_id']); ?>
     <?php echo CHtml::label('Receipt No', 'receipt_no'); ?>
     <?php echo CHtml::textField('receipt_no','',array('style'=>'text-align:right','class'=>'span2','tooltip'=>'Enter receipt number')); ?>
     <?php echo CHtml::label('Payment Type', 'payment_type_id'); ?>

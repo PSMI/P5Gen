@@ -16,7 +16,12 @@ class PurchaseController extends Controller
         $model2 = new DistributorForm(); 
             
         if(isset($_POST['PurchasesModel']))
-        {      
+        {   
+            if(isset(Yii::app()->session['purchaser_id']))
+            {
+                unset(Yii::app()->session['purchaser_id']);
+                unset(Yii::app()->session['purchase_summary_id']);
+            }
             
             $model->attributes = $_POST['PurchasesModel'];
             
@@ -39,7 +44,10 @@ class PurchaseController extends Controller
         $purchases = $model->selectAll();
         
         if(empty($model->purchase_summary_id))
+        {
             $model->purchase_summary_id = $purchases[0]['purchase_summary_id'];
+            Yii::app()->session['purchase_summary_id'] = $purchases[0]['purchase_summary_id'];
+        }
         
         $totals = $model->getItemTotal();
             
