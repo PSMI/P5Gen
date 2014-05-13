@@ -60,7 +60,8 @@ class IpdRetention extends CFormModel
                     sum(dr.other_retention) AS total_other_retention,
                     (sum(dr.purchase_retention) + sum(dr.other_retention)) AS total_retentions
                   FROM distributor_retentions dr
-                    WHERE dr.status = 0;";
+                    WHERE dr.status = 0
+                    AND m.account_type_id = 5;";
 
         $command =  $conn->createCommand($query);
         $result = $command->queryRow();
