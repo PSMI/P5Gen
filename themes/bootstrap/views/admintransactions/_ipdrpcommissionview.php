@@ -121,7 +121,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                 (
                                     'label'=>'Download',
                                     'icon'=>'icon-download-alt',
-                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfipdrpcommission", array("id" =>$data["distributor_commission_id"], "cutoff_id" =>$data["cutoff_id"], "member_id" =>$data["member_id"], "commission_amount" => $data["commission_amount"]))',
+                                    'url'=>'Yii::app()->createUrl("/admintransactions/pdfipdrpcommission", array("id" =>$data["distributor_commission_id"], "cutoff_id" =>$data["cutoff_id"], "member_id" =>$data["member_id"], "commission_amount" => $data["commission_amount"], "account_type_id" => $data["account_type_id"]))',
                                     'options' => array(
                                         'class'=>"btn btn-small",
                                     ),
