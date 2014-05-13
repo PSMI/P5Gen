@@ -40,7 +40,8 @@ class IpdRetention extends CFormModel
                         INNER JOIN member_details md
                           ON dr.member_id = md.member_id
                           INNER JOIN members m ON dr.member_id = m.member_id
-                    WHERE dr.status = 0;";
+                    WHERE dr.status = 0
+                        AND m.account_type_id = 5;";
         
         $command =  $conn->createCommand($query);
         $result = $command->queryAll();
