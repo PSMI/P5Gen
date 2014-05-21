@@ -49,7 +49,7 @@ class DistributorForm extends CFormModel
         
         return $result;
     }
-    public function autoCompleteSearch($filter)
+    public function autoCompleteSearchDistributors($filter)
     {
         $conn = $this->_connection;        
         $filter = "%".$filter."%";                      
@@ -61,6 +61,7 @@ class DistributorForm extends CFormModel
                   WHERE (md.last_name LIKE :filter
                     OR md.first_name LIKE :filter
                     OR md.middle_name LIKE :filter)
+                    AND m.ipd_endorser_id IS NOT NULL
                   ORDER BY md.last_name";
         $command = $conn->createCommand($query);
         $command->bindParam(':filter', $filter);

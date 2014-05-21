@@ -155,8 +155,10 @@ class ActivationCodeModel extends CFormModel
         $connection = $this->_connection;
         
         $sql = "SELECT a.activation_code_batch_id, a.batch_quantity, a.date_generated, a.generated_from_ip,
-                        CONCAT(b.first_name, ' ', b.last_name) AS member_name,
-                        CASE a.distribution_tag_id WHEN 1 THEN 'IBO' WHEN 2 THEN 'IPD' END AS distribution_tag_id
+                                CONCAT(b.first_name, ' ', b.last_name) AS member_name,
+                                CASE a.distribution_tag_id WHEN 1 THEN 'IBO' WHEN 2 THEN 'IPD' END AS distribution_tag_id,
+                                (SELECT count(activation_code_id) FROM activation_codes WHERE activation_code_batch_id = a.activation_code_batch_id
+                                AND Status = 0) AS available_codes
                 FROM activation_code_batch a
                 INNER JOIN member_details b ON a.generated_by_id = b.member_id
                 ORDER BY a.date_generated DESC;";

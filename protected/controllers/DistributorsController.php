@@ -146,7 +146,7 @@ class DistributorsController extends Controller
         {
             $model = new DistributorForm();
 
-            $result = $model->autoCompleteSearch($_GET['term']);
+            $result = $model->autoCompleteSearchDistributors($_GET['term']);
 
             if(count($result)>0)
             {
