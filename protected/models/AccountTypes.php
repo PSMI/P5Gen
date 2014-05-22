@@ -16,7 +16,7 @@ class AccountTypes extends CFormModel
     {
         $connection = $this->_connection;
         
-        $sql = "SELECT * FROM ref_account_types WHERE account_type_id != 3 AND account_type_id != 1;";
+        $sql = "SELECT * FROM ref_account_types WHERE account_type_id NOT IN (1,3,5);";
         $command = $connection->createCommand($sql);
         $result = $command->queryAll();
         
