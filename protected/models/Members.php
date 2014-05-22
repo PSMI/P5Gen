@@ -32,7 +32,7 @@ class Members extends CActiveRecord
     {
         $query = "SELECT status FROM members 
                   WHERE username = :username
-                    AND account_type_id IN (1,2,3,4)";
+                    AND account_type_id IN (1,2,3,4,6)";
         $sql = Yii::app()->db->createCommand($query);
         $sql->bindParam(":username",$username);
         $result = $sql->queryRow();
@@ -52,7 +52,7 @@ class Members extends CActiveRecord
     {
         $query = "SELECT * FROM members
                     WHERE username = :username
-                        AND account_type_id IN (1,2,3,4)";
+                        AND account_type_id IN (1,2,3,4,6)";
         
         $sql = Yii::app()->db->createCommand($query);
         $sql->bindParam(":username",$username);

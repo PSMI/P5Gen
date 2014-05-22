@@ -90,7 +90,7 @@ class MemberDetailsModel extends CFormModel
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
                 INNER JOIN ref_account_types c ON b.account_type_id = c.account_type_id
-                WHERE b.account_type_id IN (2, 4)";
+                WHERE b.account_type_id IN (2,4,6)";
         $command = $connection->createCommand($sql);
         $result = $command->queryAll();
         
@@ -106,7 +106,7 @@ class MemberDetailsModel extends CFormModel
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
                 INNER JOIN ref_account_types c ON b.account_type_id = c.account_type_id
-                WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField) AND b.account_type_id IN (2, 4)";
+                WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField) AND b.account_type_id IN (2,4,6)";
         $command = $connection->createCommand($sql);
         $keyword = "%" . $searchField . "%";
         $command->bindParam(":searchField", $keyword);
