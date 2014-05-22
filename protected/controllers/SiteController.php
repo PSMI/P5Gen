@@ -92,7 +92,12 @@ class SiteController extends Controller
 	public function actionLogin()
 	{
                 if(isset(Yii::app()->session['member_id']) && isset(Yii::app()->session['account_type_id']))
+                {
+                    if(Yii::app()->session['account_type_id'] == 6)
+                        $this->redirect(array("purchase/index"));
+                    else
                         $this->redirect(array("site/index"));
+                }
             
 		$model=new LoginForm;
 
@@ -114,7 +119,10 @@ class SiteController extends Controller
                             $err_code = $model->login();
                             
                             if ($err_code == 0) {
-                                $this->redirect(array("site/index"));
+                                if(Yii::app()->session['account_type_id'] == 6)
+                                    $this->redirect(array("purchase/index"));
+                                else
+                                    $this->redirect(array("site/index"));
                             } else if ($err_code == 4) {
                                 $members = new Members();
                                 $result = $members->getUplineDetailsByUserName($model->username);
