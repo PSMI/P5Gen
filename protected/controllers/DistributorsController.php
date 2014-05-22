@@ -166,6 +166,32 @@ class DistributorsController extends Controller
         }
     }
     
+    public function actionSearchAll()
+    {
+        if(Yii::app()->request->isAjaxRequest && isset($_GET['term']))
+        {
+            $model = new DistributorForm();
+
+            $result = $model->autoCompleteSearchAll($_GET['term']);
+
+            if(count($result)>0)
+            {
+                foreach($result as $row)
+                {
+                    $arr[] = array(
+                        'id'=>$row['member_id'],
+                        'value'=>$row['member_name'],
+                        'label'=>$row['member_name'],
+                    );
+                }
+
+                echo CJSON::encode($arr);
+                Yii::app()->end();
+            }
+            
+        }
+    }
+    
     public function actionUpdateSuccess()
     {
         $model = new MemberDetailsModel();

@@ -69,6 +69,25 @@ class DistributorForm extends CFormModel
         return $result;
     }
     
+    public function autoCompleteSearchAll($filter)
+    {
+        $conn = $this->_connection;        
+        $filter = "%".$filter."%";                      
+        $query = "SELECT
+                    m.member_id,
+                    CONCAT(COALESCE(md.last_name,' '), ', ', COALESCE(md.first_name,' '), ' ', COALESCE(md.middle_name,' ')) AS member_name
+                  FROM members m
+                    INNER JOIN member_details md ON m.member_id = md.member_id
+                  WHERE (md.last_name LIKE :filter
+                    OR md.first_name LIKE :filter
+                    OR md.middle_name LIKE :filter)
+                  ORDER BY md.last_name";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':filter', $filter);
+        $result = $command->queryAll();        
+        return $result;
+    }
+    
     public function getUnprocessedDistributors()
     {
         $conn = $this->_connection;
