@@ -29,6 +29,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'value'=>'CHtml::encode($data["email"])',
                             'htmlOptions' => array('style' => 'text-align:left'),    
                         ),
+                        array('name'=>'AccountTypeID',
+                            'header'=>'Account Type',
+                            'type'=>'raw',
+                            'value'=>'CHtml::encode($data["account_type_name"])',
+                            'htmlOptions' => array('style' => 'text-align:left'),    
+                        ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
                             'template'=>'{changepass}{update}',
                             'buttons'=>array
