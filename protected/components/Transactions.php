@@ -801,7 +801,8 @@ class Transactions extends Controller
         $model->repeat_purchase_id = $distributor_purchases['repeat_purchase_id'];
         
         //rp commission regardless of ibo or ipd endorser
-        $endorsers = Networks::getIPD10thUnilevelNetworkForPayout($distributor_id);
+        //$endorsers = Networks::getIPD10thUnilevelNetworkForPayout($distributor_id);
+        $endorsers = Networks::traceRPNetworkUpward($distributor_id);
         
         $cutoff_id = $reference->get_cutoff(TransactionTypes::REPEAT_PURCHASE_COMMISSION); 
         
