@@ -55,6 +55,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'url'=>  Yii::app()->createUrl('purchase/history',array('id'=>Yii::app()->session['purchaser_id'])),
             'icon'=>'icon-shopping-cart',
             'buttonType'=>'link',
+            'htmlOptions'=>array('target'=>'blank'),
         ),
     ),
 )); ?>

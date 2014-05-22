@@ -30,7 +30,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <?php $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
             'model'=>$model,
             'attribute'=>'autocomplete_name',
-            'sourceUrl'=>  Yii::app()->createUrl('distributors/search'),
+            'sourceUrl'=>  Yii::app()->createUrl('distributors/searchAll'),
             'options'=>array(
                 'minLength'=>'2',
                 'showAnim'=>'fold',
@@ -42,6 +42,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'rel'=>'tooltip',
                 'title'=>'Please type the member\'s name.',
                 'autocomplete'=>'off',
+//                'disabled'=>$this->input_disabled,
             ),        
         ));
 ?>
@@ -58,4 +59,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'label'=>'Clear',
     'url'=>  Yii::app()->createUrl('purchase/clearsession'),
 )); ?>
+<?php
+//<?php $this->widget('bootstrap.widgets.TbButton', array(
+//    'buttonType'=>'link', 
+//    'type'=>'warning',
+//    'label'=>'Purchase History',
+//    'url'=>  Yii::app()->createUrl('purchase/history'),
+//    'htmlOptions'=>array('class'=>'pull-right','target'=>'blank'),
+//)); ?>
+
 <?php $this->endWidget(); ?>

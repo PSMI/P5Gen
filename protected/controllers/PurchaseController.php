@@ -7,10 +7,13 @@
 
 class PurchaseController extends Controller
 {
-    public $layout = 'column2';
-    
+    //public $layout = 'column2';
+//    public $input_disabled = '';
+      
     public function actionIndex()
     {
+        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
+                $this->redirect(array('site/404'));
         
         $model = new PurchasesModel();
         $model2 = new DistributorForm(); 
@@ -33,6 +36,8 @@ class PurchaseController extends Controller
             if(!empty($purchase_summary_id))
                 $model->purchase_summary_id = $purchase_summary_id;
             
+//            $this->input_disabled = 'disabled';
+            
         }
         else
         {
@@ -47,6 +52,7 @@ class PurchaseController extends Controller
         {
             $model->purchase_summary_id = $purchases[0]['purchase_summary_id'];
             Yii::app()->session['purchase_summary_id'] = $purchases[0]['purchase_summary_id'];
+
         }
         
         $totals = $model->getItemTotal();
@@ -74,6 +80,7 @@ class PurchaseController extends Controller
     
     public function actionAddToCart()
     {
+       
         if(Yii::app()->request->isAjaxRequest)
         {
             $model = new PurchasesModel();
@@ -254,6 +261,10 @@ Please enter a valid receipt no.'));
     
     public function actionHistory()
     {
+        
+        if(!Yii::app()->user->hasUserAccess() && !Yii::app()->user->isSuperAdmin()) 
+                $this->redirect(array('site/404'));
+        
         $model = new PurchasesModel();
         
         if(isset($_GET['id']))
@@ -268,6 +279,7 @@ Please enter a valid receipt no.'));
         }
         else
         {
+            $this->layout = 'column2';
             $info = array();
             if(isset($_POST['PurchasesModel']))
             {

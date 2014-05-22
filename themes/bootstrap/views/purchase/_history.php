@@ -63,8 +63,8 @@
             'style' => 'margin-left: 10px;'
             )
         ));
-
 ?>
+
 <?php $this->endWidget(); ?>
 
 <?php $this->beginWidget('bootstrap.widgets.TbGridView', array(
