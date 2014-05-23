@@ -20,11 +20,11 @@ class PurchaseController extends Controller
             
         if(isset($_POST['PurchasesModel']))
         {   
-            if(isset(Yii::app()->session['purchaser_id']))
+            /*if (isset(Yii::app()->session['purchaser_id']))
             {
                 unset(Yii::app()->session['purchaser_id']);
                 unset(Yii::app()->session['purchase_summary_id']);
-            }
+            }*/
             
             $model->attributes = $_POST['PurchasesModel'];
             
@@ -35,8 +35,6 @@ class PurchaseController extends Controller
             $purchase_summary_id = $_POST['purchase_summary_id'];
             if(!empty($purchase_summary_id))
                 $model->purchase_summary_id = $purchase_summary_id;
-            
-//            $this->input_disabled = 'disabled';
             
         }
         else
@@ -193,8 +191,9 @@ Please enter a valid receipt no.'));
             
             if(!$model->hasErrors())
             {
-                unset(Yii::app()->session['purchase_summary_id']);
                 echo CJSON::encode(array('result_code'=>0,'result_msg'=>'Purchase is successful'));
+                unset(Yii::app()->session['purchase_summary_id']);
+                unset(Yii::app()->session['purchaser_id']);
                 Yii::app()->end();
             }
             else
