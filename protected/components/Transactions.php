@@ -215,15 +215,15 @@ class Transactions extends Controller
     
     public function getIpdDirectEndorseRateByDirectEndorseCount($direct_endorse_count, $reference)
     {
-        if($direct_endorse_count < 5)
+        if($direct_endorse_count <= 5)
         {
             $payout = $reference->get_variable_value('IPD_DIRECT_5_COMMISSION_AMOUNT');
         }
-        else if (($direct_endorse_count > 4) && ($direct_endorse_count < 10))
+        else if (($direct_endorse_count > 5) && ($direct_endorse_count <= 10))
         {
             $payout = $reference->get_variable_value('IPD_DIRECT_10_COMMISSION_AMOUNT');
         }
-        else if (($direct_endorse_count > 9) && ($direct_endorse_count < 15))
+        else if (($direct_endorse_count > 10) && ($direct_endorse_count <= 15))
         {
             $payout = $reference->get_variable_value('IPD_DIRECT_15_COMMISSION_AMOUNT');
         }
