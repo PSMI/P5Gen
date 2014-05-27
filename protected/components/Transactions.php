@@ -803,7 +803,6 @@ class Transactions extends Controller
         //rp commission regardless of ibo or ipd endorser
         //$endorsers = Networks::getIPD10thUnilevelNetworkForPayout($distributor_id);
         $endorsers = Networks::traceRPNetworkUpward($distributor_id);
-        
         $cutoff_id = $reference->get_cutoff(TransactionTypes::REPEAT_PURCHASE_COMMISSION); 
         
         $model->cutoff_id = $cutoff_id;      
@@ -814,7 +813,7 @@ class Transactions extends Controller
         {
             foreach($endorsers as $endorser)
             {
-                
+	    	
                 $model->endorser_id = $endorser['member_id'];
                 
                 $level = $endorser['level'];
@@ -831,7 +830,8 @@ class Transactions extends Controller
                             $retention = true;
                             $rate = $reference->get_variable_value('IPD_REPEAT_PURCHASE_COMMISSION_DIRECT'); // 5 %IPD other retention - direct
                         }
-                        elseif($level > 1 && $level <= 10 && $direct_count >= 5)
+                        // elseif($level > 1 && $level <= 10 && $direct_count >= 5)
+                        else
                         {
                             
                             $retention = false;
@@ -883,8 +883,8 @@ class Transactions extends Controller
 
                     }
                 }
-                
-                
+		
+		
               $commission = $total_purchase * ($rate / 100);
               $model->commission = $commission;
 
