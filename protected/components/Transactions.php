@@ -177,28 +177,21 @@ class Transactions extends Controller
         $member = new MembersModel();
          
         $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_DIRECT_ENDORSE);
+        $model->endorser_id = $endorser_id;
         
-        //Get payout
-        /* $account = $model->get_running_account();
+        //$direct_count = Networks::getIPDDirectCount($endorser_id);
+        $direct_count = $model->count_transactions();
         
-        if ($account['account_type_id'] == 5)
+        if(Members::getMembershipType($endorser_id) == 'distributor')
         {
-            $payout = Transactions::getIpdDirectEndorseRateByDirectEndorseCount($account['direct_endorse'], $reference);
+            $payout = Transactions::getIpdDirectEndorseRateByDirectEndorseCount($direct_count, $reference);
         }
         else
         {
-            $payout = 100;
-        }*/
-        
-        $direct_count = Networks::getIPDDirectCount($endorser_id);
-        
-        if(Members::getMembershipType($endorser_id) == 'distributor')
-            $payout = Transactions::getIpdDirectEndorseRateByDirectEndorseCount($direct_count, $reference);
-        else
             $payout = $reference->get_variable_value ('IBO_DIRECT_COMMISSION_AMOUNT');
+        }
         
-        $model->member_id = $member_id;
-        $model->endorser_id = $endorser_id;
+        $model->member_id = $member_id;        
         $model->cutoff_id = $cutoff_id;
         $model->payout_rate = $payout;
         $retval = $model->add_transactions();

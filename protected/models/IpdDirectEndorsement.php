@@ -277,6 +277,20 @@ class IpdDirectEndorsement extends CFormModel
         
     }
     
+    public function count_transactions()
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT count(*) as trans_count"
+                . "FROM distributor_endorsements"
+                . "WHERE endorser_id = :endorser_id";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':endorser_id', $this->endorser_id);
+        $result = $command->queryAll();
+        
+        return $result['trans_count'];
+    }
+    
     public function get_running_account()
     {
         $conn = $this->_connection;
