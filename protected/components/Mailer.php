@@ -210,7 +210,7 @@ class Mailer
         $endorser_id = $param['endorser_id'];
         
         $reference = new ReferenceModel();
-        $message_template = $reference->get_message_template(self::DISAPPROVE_NOTIFY_TMPL);
+        $message_template = $reference->get_message_template(self::APPROVE_NOTIFY_TMPL);
                 
         $members = new MembersModel();
         
