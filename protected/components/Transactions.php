@@ -355,15 +355,9 @@ class Transactions extends Controller
         $reference = new ReferenceModel();
         $member = new MembersModel();
         $member->member_id = $member_id;
-//        $uplines = Networks::getEndorser($member_id);
-//        if(is_null($uplines))//root record
-//            $uplines = array($member_id);
         
         //Get all endorsers regardless if IPD or IBO
-        //$endorsers = Networks::getIPDEndorser($member_id);
         $endorsers = Networks::getIPD10thUnilevelNetworkForPayout($member_id);
-        //        if(is_null($endorsers))//root record
-//            $endorsers = array($member_id);
         
         $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_UNILEVEL); 
         $model->cutoff_id = $cutoff_id;
@@ -375,39 +369,19 @@ class Transactions extends Controller
             {
                 //Check each upline running account
                 $model->endorser_id = $endorser['member_id'];
-                //$account = $model->get_running_account();
-                //$ipd_direct_count = Networks::getIPDDirectCount($member_id);
-                //$ipd_direct_count = $account['ipd_direct_endorse'];
-//                echo $ipd_direct_count;
-//                if ($ipd_direct_count > 0 && $endorser['level'] > 1)
-//                {
-//                    //Check existing active transaction for current cutoff
-//                    $trans = $model->check_transaction();
-//                    
-//                    if(Members::getMembershipType($endorser['member_id']) == 'distributor')
-//                        $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($ipd_direct_count, $reference, $endorser['level']);
-//                    else
-//                        $payout = $reference->get_variable_value('IBO_UNILEVEL_BONUS');
-//                    
-//                    
-//                    if(count($trans) > 0)
-//                    {
-//                        $model->update_transaction($payout);
-//                    }
-//                    else
-//                    {
-//                        $model->new_transaction($payout);
-//                    }
-//                }
-                //Check existing active transaction for current cutoff
-                $trans = $model->check_transaction();
 
-                if(Members::getMembershipType($endorser['member_id']) == 'distributor')
+                if (Members::getMembershipType($endorser['member_id']) == 'distributor')
+                {
+                    $ipd_direct_count = Networks::getIPDDirectCount($endorser['member_id']);
                     $payout = Transactions::getIpdUnilevelBonusByDirectEndorseCount($ipd_direct_count, $reference, $endorser['level']);
+                }
                 else
+                {
                     $payout = $reference->get_variable_value('IBO_UNILEVEL_BONUS');
-
-
+                }
+                
+                // Check existing active transaction for current cutoff
+                $trans = $model->check_transaction();
                 if(count($trans) > 0)
                 {
                     $model->update_transaction($payout);
@@ -417,7 +391,7 @@ class Transactions extends Controller
                     $model->new_transaction($payout);
                 }
             }
-//            var_dump($model); exit;
+            
             $member->status = 2; //Processed by ipd unilevel
             $member->updateUnprocessedDistributors();
             if(!$model->hasErrors() && !$member->hasErrors())
@@ -797,7 +771,6 @@ class Transactions extends Controller
         $model->repeat_purchase_id = $distributor_purchases['repeat_purchase_id'];
         
         //rp commission regardless of ibo or ipd endorser
-        //$endorsers = Networks::getIPD10thUnilevelNetworkForPayout($distributor_id);
         $endorsers = Networks::traceRPNetworkUpward($distributor_id);
         $cutoff_id = $reference->get_cutoff(TransactionTypes::REPEAT_PURCHASE_COMMISSION); 
         
