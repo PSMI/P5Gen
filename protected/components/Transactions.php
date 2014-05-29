@@ -179,11 +179,9 @@ class Transactions extends Controller
         $cutoff_id = $reference->get_cutoff(TransactionTypes::IPD_DIRECT_ENDORSE);
         $model->endorser_id = $endorser_id;
         
-        //$direct_count = Networks::getIPDDirectCount($endorser_id);
-        $direct_count = $model->count_transactions();
-        
         if(Members::getMembershipType($endorser_id) == 'distributor')
         {
+            $direct_count = $model->count_transactions();
             $payout = Transactions::getIpdDirectEndorseRateByDirectEndorseCount($direct_count, $reference);
         }
         else
@@ -197,6 +195,7 @@ class Transactions extends Controller
         $retval = $model->add_transactions();
         if($retval)
         {
+            $member->member_id = $member_id;
             $member->status = 1; //Processed by direct endorsement
             $result = $member->updateUnprocessedDistributors();
             if(count($result)>0)
@@ -212,15 +211,15 @@ class Transactions extends Controller
     
     public function getIpdDirectEndorseRateByDirectEndorseCount($direct_endorse_count, $reference)
     {
-        if($direct_endorse_count <= 5)
+        if($direct_endorse_count < 5)
         {
             $payout = $reference->get_variable_value('IPD_DIRECT_5_COMMISSION_AMOUNT');
         }
-        else if (($direct_endorse_count > 5) && ($direct_endorse_count <= 10))
+        else if (($direct_endorse_count >= 5) && ($direct_endorse_count < 10))
         {
             $payout = $reference->get_variable_value('IPD_DIRECT_10_COMMISSION_AMOUNT');
         }
-        else if (($direct_endorse_count > 10) && ($direct_endorse_count <= 15))
+        else if (($direct_endorse_count >= 10) && ($direct_endorse_count < 15))
         {
             $payout = $reference->get_variable_value('IPD_DIRECT_15_COMMISSION_AMOUNT');
         }

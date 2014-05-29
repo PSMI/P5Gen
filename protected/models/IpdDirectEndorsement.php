@@ -282,11 +282,11 @@ class IpdDirectEndorsement extends CFormModel
         $conn = $this->_connection;
         
         $query = "SELECT count(*) as trans_count"
-                . "FROM distributor_endorsements"
-                . "WHERE endorser_id = :endorser_id";
+                . " FROM distributor_endorsements"
+                . " WHERE endorser_id = :endorser_id";
         $command = $conn->createCommand($query);
         $command->bindParam(':endorser_id', $this->endorser_id);
-        $result = $command->queryAll();
+        $result = $command->queryRow();
         
         return $result['trans_count'];
     }
