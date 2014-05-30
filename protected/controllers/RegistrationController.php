@@ -161,10 +161,11 @@ class RegistrationController extends Controller
             
             // force required fields
             $model->product_name = 'Default: P5 Water Purifier';
-            $activation_code = $model->activation_code;
             
             if ($model->validate())
             {
+                $activation_code = $model->activation_code;
+                
                 $activation = new ActivationCodeModel();
                 $result = $activation->validateActivationCode($activation_code, 2);
                 if(count($result) > 0)
