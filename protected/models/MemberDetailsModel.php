@@ -212,18 +212,18 @@ class MemberDetailsModel extends CFormModel
     {
         $connection = $this->_connection;
         
-        /*$sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
+        $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
                 a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id, b.username,
                 CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
-                WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField) AND b.account_type_id = 3";
+                WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField OR b.activation_code LIKE :searchField) AND b.account_type_id = 3";
         $command = $connection->createCommand($sql);
         $keyword = "%" . $searchField . "%";
-        $command->bindParam(":searchField", $keyword);*/
+        $command->bindParam(":searchField", $keyword);
         
-        $sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
+        /*$sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
                 a.birth_date, a.mobile_no, a.email, b.endorser_id, b.upline_id, b.username,
                 CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
@@ -232,7 +232,7 @@ class MemberDetailsModel extends CFormModel
                 WHERE b.member_id = :member_id AND b.account_type_id = 3
                 ORDER BY a.last_name";
         $command = $connection->createCommand($sql);
-        $command->bindParam(":member_id", $searchField);
+        $command->bindParam(":member_id", $searchField);*/
         
         $result = $command->queryAll();
         
@@ -309,10 +309,21 @@ class MemberDetailsModel extends CFormModel
                 WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
                 FROM member_details a
                 INNER JOIN members b ON a.member_id = b.member_id
+                WHERE (a.last_name LIKE :searchField OR a.first_name LIKE :searchField OR b.activation_code LIKE :searchField) AND b.ipd_endorser_id IS NOT NULL";
+        $command = $connection->createCommand($sql);
+        $keyword = "%" . $searchField . "%";
+        $command->bindParam(":searchField", $keyword);
+        
+        /*$sql = "SELECT a.member_id, a.last_name, a.first_name, a.middle_name,
+                a.birth_date, a.mobile_no, a.email, b.endorser_id, b.ipd_endorser_id, b.upline_id, b.username,
+                CASE b.status WHEN 0 THEN 'Pending' WHEN 1 THEN 'Active'
+                WHEN 2 THEN 'Inactive' WHEN 3 THEN 'Terminated' WHEN 4 THEN 'Banned' END AS status
+                FROM member_details a
+                INNER JOIN members b ON a.member_id = b.member_id
                 WHERE b.member_id = :member_id AND b.ipd_endorser_id IS NOT NULL
                 ORDER BY a.last_name";
         $command = $connection->createCommand($sql);
-        $command->bindParam(":member_id", $searchField);
+        $command->bindParam(":member_id", $searchField);*/
         
         $result = $command->queryAll();
         

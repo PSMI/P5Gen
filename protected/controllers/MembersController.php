@@ -21,7 +21,13 @@ class MembersController extends Controller
         $model = new MemberDetailsModel();
         $members = new MembersModel();       
 
-        if (isset($_POST['btnSearch']) && $_POST['member_id'] != '')
+        if (isset($_POST['btnSearch']) && $_POST['txtSearchCode'] != '')
+        {
+            $searchField = $_POST["txtSearchCode"];
+            $rawData = $model->selectMemberDetailsBySearchField($searchField);
+        }
+        
+        /*if (isset($_POST['btnSearch']) && $_POST['member_id'] != '')
         {
             $searchField = $_POST["member_id"];
             $rawData = $model->selectMemberDetailsBySearchField($searchField);
@@ -34,7 +40,7 @@ class MembersController extends Controller
         else
         {
             $rawData = $model->selectAllMemberDetails(); // In future, this will no longer be used if the data is too many.
-        }
+        }*/
         
         // get upline and endorser
         foreach ($rawData as $key => $value) {

@@ -5,18 +5,18 @@
  * @date 01-30-2014
  */
 
-Yii::app()->clientScript->registerScript('ui','
+/*Yii::app()->clientScript->registerScript('ui','
          
      $(\'input[rel="tooltip"]\').tooltip();     
      var member_name = $("#MemberDetailsModel_autocomplete_name"),
          member_id = $("#member_id");
     
- ', CClientScript::POS_END);
+ ', CClientScript::POS_END);*/
 ?>
 
 <?php
 
-    echo CHtml::hiddenField('member_id');
+    /*echo CHtml::hiddenField('member_id');
     $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
             'model'=>$model,
             'attribute'=>'autocomplete_name',
@@ -33,7 +33,9 @@ Yii::app()->clientScript->registerScript('ui','
                 'title'=>'Please type your member\'s name.',
                 'autocomplete'=>'off',
             ),        
-        ));
+        ));*/
+
+    echo CHtml::textField("txtSearchCode", '', array('style'=>'width: 355px', 'autocomplete'=>'off', 'placeholder'=>'Search By Name Or Activation Code'));
 
     $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'=>'submit', 
@@ -47,7 +49,7 @@ Yii::app()->clientScript->registerScript('ui','
 <br/>
 
 <?php
-    echo CHtml::textField("txtSearchCode", '', array('style'=>'width: 355px', 'autocomplete'=>'off'));
+    /*echo CHtml::textField("txtSearchCode", '', array('style'=>'width: 355px', 'autocomplete'=>'off'));
     
     $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'=>'submit', 
@@ -55,5 +57,5 @@ Yii::app()->clientScript->registerScript('ui','
         'icon'=>'icon-search',
         'label'=>'Search Activation Code', 
         'htmlOptions'=>array('id'=>'btnSearchCode', 'name'=>'btnSearchCode','style'=>'margin-top:-10px;')
-    )); 
+    )); */
 ?>

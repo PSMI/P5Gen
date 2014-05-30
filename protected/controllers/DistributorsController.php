@@ -22,15 +22,15 @@ class DistributorsController extends Controller
         $model = new MemberDetailsModel();
         $members = new MembersModel();
 
-        if ($_POST["MemberDetailsModel"])
+        if (isset($_POST["txtSearchCode"]) && $_POST["txtSearchCode"] != "")
         {
-            $searchField = $_POST["member_id"];
+            $searchField = $_POST["txtSearchCode"];
             $rawData = $model->selectDistributorDetailsBySearchField($searchField);
         }
-        else
+        /*else
         {
             $rawData = $model->selectAllDistributorDetails();
-        }
+        }*/
         
         // get upline and endorser
         foreach ($rawData as $key => $value) {

@@ -5,7 +5,7 @@
  * @date 04-01-2014
  */
 
-Yii::app()->clientScript->registerScript('ui','
+/*Yii::app()->clientScript->registerScript('ui','
          
      $(\'input[rel="tooltip"]\').tooltip();     
      var member_name = $("#MemberDetailsModel_autocomplete_name"),
@@ -30,7 +30,9 @@ $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
             'title'=>'Please type the distributor\'s name.',
             'autocomplete'=>'off',
         ),        
-    ));
+    ));*/
+
+echo CHtml::textField("txtSearchCode", '', array('style'=>'width: 355px', 'autocomplete'=>'off', 'placeholder'=>'Search By Name Or Activation Code'));
 
 $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'=>'submit', 
