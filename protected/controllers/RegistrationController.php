@@ -161,10 +161,12 @@ class RegistrationController extends Controller
             
             // force required fields
             $model->product_name = 'Default: P5 Water Purifier';
+            $activation_code = $model->activation_code;
+            
             if ($model->validate())
             {
                 $activation = new ActivationCodeModel();
-                $result = $activation->validateActivationCode($model->activation_code, 2);
+                $result = $activation->validateActivationCode($activation_code, 2);
                 if(count($result) > 0)
                 {
                     $retname = $model->validateMemberName();
@@ -176,7 +178,17 @@ class RegistrationController extends Controller
                     }
                     else 
                     {
-                        $this->showConfirm = true;
+                        $exist_member_code = $activation->checkUsedCodeByMembers($activation_code);
+                        if ($exist_member_code > 0)
+                        {
+                            $this->dialogMessage = '<strong>Ooops!</strong> The activation code you have entered has already been used by another member. Please use another activation code.';
+                            $this->errorCode = 6;
+                            $this->showDialog = true;
+                        }
+                        else
+                        {
+                            $this->showConfirm = true;
+                        }
                     }
                 }
                 else
@@ -267,26 +279,48 @@ class RegistrationController extends Controller
             $activation_code = $model_attr['activation_code'];
             $upline_id = $model_attr['upline_id'];
             $ibo_endorser_id = $model_attr['ibo_endorser_id'];
-            $registration = new RegistrationForm();
-            $retval = $registration->registerIPDtoIBO($member_id, $upline_id, $ibo_endorser_id, $activation_code);
-            if ($retval)
+            
+            $activation = new ActivationCodeModel();
+            $result = $activation->validateActivationCode($activation_code, 1);
+            
+            if ($result > 0)
             {
-                $param['member_id'] = $member_id;
-                Mailer::sendIPDtoIBONotification($param);
-                
-                $param2['upline_id'] = $upline_id;
-                $param2['new_member_id'] = $member_id;
-                $param2['endorser_id'] = $ibo_endorser_id;                      
-                Mailer::sendUplineNotification($param2);
-                
-                $this->dialogTitle = 'SUCCESSFUL!';
-                $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our distributor as a new member.';
+                $exist_member_code = $activation->checkUsedCodeByMembers($activation_code);
+                if ($exist_member_code > 0)
+                {
+                    $this->dialogTitle = 'ERROR!';
+                    $this->dialogMessage = '<strong>Ooops!</strong> The activation code you have entered has already been used by another member. Please use another activation code.';
+                }
+                else
+                {
+                    $registration = new RegistrationForm();
+                    $retval = $registration->registerIPDtoIBO($member_id, $upline_id, $ibo_endorser_id, $activation_code);
+                    if ($retval)
+                    {
+                        $param['member_id'] = $member_id;
+                        Mailer::sendIPDtoIBONotification($param);
+
+                        $param2['upline_id'] = $upline_id;
+                        $param2['new_member_id'] = $member_id;
+                        $param2['endorser_id'] = $ibo_endorser_id;                      
+                        Mailer::sendUplineNotification($param2);
+
+                        $this->dialogTitle = 'SUCCESSFUL!';
+                        $this->dialogMessage = '<strong>Well done!</strong> You have successfully registered our distributor as a new member.';
+                    }
+                    else
+                    {
+                        $this->dialogTitle = 'ERROR!';
+                        $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
+                    }
+                }
             }
             else
             {
                 $this->dialogTitle = 'ERROR!';
-                $this->dialogMessage = '<strong>Ooops!</strong> A problem encountered during the registration. Please contact P5 support.';
+                $this->dialogMessage = '<strong>Ooops!</strong> The activation code entered is invalid. Please make sure you have entered the code correctly or the code given to you is valid.';
             }
+            
             $this->showDialog = true;
         }
         $this->render('_newibo', array('model'=>$model));
