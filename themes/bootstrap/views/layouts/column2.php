@@ -5,13 +5,14 @@
         <div id="sidebar">
         <?php 
             /* Get user access rights by account type */
-            if(!Yii::app()->user->isGuest) UserMenu::userMenus(Yii::app()->session['account_type_id']);
+            if(!Yii::app()->user->isGuest) //UserMenu::userMenus(Yii::app()->session['account_type_id']);
+                $menu_items = UserMenu::userMenus(Yii::app()->session['account_type_id']);
             
             $this->beginWidget('zii.widgets.CPortlet');
             $this->widget('bootstrap.widgets.TbMenu', array(
                 'type'=>'pills',
                 'stacked'=>true,
-                'items'=>$this->menu,
+                'items'=>$menu_items,
                 //'htmlOptions'=>array('class'=>'operations'),
             ));
             
