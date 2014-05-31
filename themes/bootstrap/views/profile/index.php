@@ -139,7 +139,7 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
 <br />
 <?php 
 echo '<div id="div-update">';
-$this->renderPartial('_update', array('model'=>$model)); 
+$this->renderPartial('_update', array('model'=>$model, 'data'=>$data)); 
 echo '</div>';
 ?>
 <br />
@@ -149,6 +149,8 @@ echo '</div>';
 <!-- dialog box -->
 <?php 
 $trigger = false;
+$buttons = array();
+
 if ($this->showDialog) 
 {
     $buttons = array(
