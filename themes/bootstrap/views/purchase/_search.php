@@ -59,13 +59,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'label'=>'Clear',
     'url'=>  Yii::app()->createUrl('purchase/clearsession'),
 )); ?>
-<?php
-//<?php $this->widget('bootstrap.widgets.TbButton', array(
-//    'buttonType'=>'link', 
-//    'type'=>'warning',
-//    'label'=>'Purchase History',
-//    'url'=>  Yii::app()->createUrl('purchase/history'),
-//    'htmlOptions'=>array('class'=>'pull-right','target'=>'blank'),
-//)); ?>
+
+<?php $this->widget('bootstrap.widgets.TbButton', array(
+    'buttonType'=>'link', 
+    'type'=>'warning',
+    'label'=>'Purchase History',
+    'url'=>  Yii::app()->createUrl('purchase/history'),
+    'htmlOptions'=>array('class'=>'pull-right','target'=>'blank'),
+)); ?>
 
 <?php $this->endWidget(); ?>

@@ -43,10 +43,10 @@ class PurchaseController extends Controller
             $model->purchase_summary_id = Yii::app()->session['purchase_summary_id'];
         }
         
-        $member = $model2->selectDistributorName($member_id);
+        $member = $model2->selectDistributorName($model->member_id);
         $purchases = $model->selectAll();
         
-        if(empty($model->purchase_summary_id))
+        if(!empty($purchases) && empty($model->purchase_summary_id))
         {
             $model->purchase_summary_id = $purchases[0]['purchase_summary_id'];
             Yii::app()->session['purchase_summary_id'] = $purchases[0]['purchase_summary_id'];
@@ -278,7 +278,8 @@ Please enter a valid receipt no.'));
         }
         else
         {
-            $this->layout = 'column2';
+            if(Yii::app()->user->accountType() != 6) $this->layout = 'column2';
+                
             $info = array();
             if(isset($_POST['PurchasesModel']))
             {
