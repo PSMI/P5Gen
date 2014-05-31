@@ -7,7 +7,7 @@
 
 class UserMenu extends Controller
 {
-    public function userMenus($account_type_id)
+    public static function userMenus($account_type_id)
     {
         $model = new AccessRights();
         
@@ -84,8 +84,9 @@ class UserMenu extends Controller
         
         
         
-        $this->menu = $items;
-        return $this->menu;       
+        //$this->menu = $items;
+        //return $this->menu;       
+        return $items;
         
     }
     
