@@ -20,7 +20,8 @@ class MembersController extends Controller
         
         $model = new MemberDetailsModel();
         $members = new MembersModel();       
-
+        $rawData = array();
+        
         if (isset($_POST['btnSearch']) && $_POST['txtSearchCode'] != '')
         {
             $searchField = $_POST["txtSearchCode"];
