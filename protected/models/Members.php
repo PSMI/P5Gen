@@ -28,7 +28,7 @@ class Members extends CActiveRecord
         $this->Password = $this->hashPassword($this->Password);
     }
     
-    public function getUserStatus($username)
+    public static function getUserStatus($username)
     {
         $query = "SELECT status FROM members 
                   WHERE username = :username
@@ -108,7 +108,7 @@ class Members extends CActiveRecord
         return $result;
     }
     
-    public function getAccountType($username)
+    public static function getAccountType($username)
     {
         $query = "SELECT account_type_id FROM members 
                   WHERE username = :username";
