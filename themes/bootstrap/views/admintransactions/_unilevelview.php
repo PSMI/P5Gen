@@ -65,7 +65,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                             'headerHtmlOptions' => array('style' => 'text-align:center'),
                         ),
                         array('class'=>'bootstrap.widgets.TbButtonColumn',
-                            'template'=>'{approve}{claim}{download}',
+                            'template'=>'{approve}{claim}{download}{update}',
                             'buttons'=>array
                             (
                                 'approve'=>array
@@ -133,10 +133,113 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                                     ),
                                     array('id' => 'send-link-'.uniqid())
                                 ),
+                                'update' => array
+                                    (
+                                    'label' => 'Fix discrepancies',
+                                    'icon' => 'icon-edit',
+                                    'url' => 'Yii::app()->createUrl("/admintransactions/getvalues", array("id" =>$data["unilevel_id"], "name"=>$data["member_name"], "member_id" =>$data["member_id"],"cutoff_id"=>$data["cutoff_id"],"ibo_count"=>$data["ibo_count"],"amount"=>$data["amount"]))',
+                                    'visible'=>'AdmintransactionsController::getStatusForButtonDisplayGoc($data["status"], 1)',
+                                    'options' => array(
+                                        'class' => "btn btn-small",
+                                        'ajax' => array(
+                                                'type' => 'GET',
+                                                'dataType'=>'json',
+                                                'url' => 'js:$(this).attr("href")',
+                                                'success' => 'function(data){   
+                                                     $.each(data, function(name,val){
+                                                        $("#ibo_count").val(val.ibo_count);
+                                                        $("#amount").val(val.amount);
+                                                        $("#cutoff_id").val(val.cutoff_id);
+                                                        $("#member_id").val(val.member_id);
+                                                        $("#member_name").text(val.name);
+                                                        $("#unilevel_id").val(val.unilevel_id);
+                                                        $("#unilevel_rate").val(val.unilevel_rate);
+                                                    });
+                                                    $("#update-dialog").modal("show");
+                                                 }',
+                                            ),
+                                    ),
+                                array('id' => 'send-link-' . uniqid())
+                                ),
                             ),
                             'header'=>'Action',
-                            'htmlOptions'=>array('style'=>'width:80px;text-align:center'),
+                            'htmlOptions'=>array('style'=>'width:120px;text-align:center'),
                         ),
         )
         ));
 ?>
+
+<?php
+Yii::app()->clientScript->registerScript('ui','
+        
+    function update_amount()
+    {
+        var total;
+        total = $("#unilevel_rate").val() * $("#ibo_count").val();
+        $("#amount").val(total.toFixed(2));    
+    }
+             
+ ', CClientScript::POS_END);
+?>
+
+<form name="updateForm" id="optionForm" method="post">
+<!-- MESSAGE DIALOG -->
+<?php $this->beginWidget('bootstrap.widgets.TbModal', 
+        array('id'=>'update-dialog',
+              'autoOpen'=>false,
+              'fade'=>true,
+)); ?>
+ 
+<div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h4>Modify Values </h4> <strong>Member </strong><span id="member_name"></span>
+</div>
+
+<div class="modal-body">    
+   <?php echo CHtml::hiddenField('unilevel_rate'); ?>
+   <?php echo CHtml::hiddenField('unilevel_id'); ?>
+   <?php echo CHtml::hiddenField('cutoff_id'); ?>
+   <?php echo CHtml::hiddenField('member_id'); ?>    
+   <?php echo CHtml::label('IBO Count', 'ibo_count'); ?>
+   <?php echo CHtml::textField('ibo_count','',array(
+        'onchange'=>'update_amount();',
+   )); ?><br />
+   <?php echo CHtml::label('Amount', 'amount'); ?>
+   <?php echo CHtml::textField('amount','',array('readonly'=>'readonly')); ?>
+</div>
+ 
+<div class="modal-footer">
+    
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'buttonType'=>'ajaxButton',
+        'type'=>'primary',
+        'icon'=>'icon-edit',
+        'label'=>'Update',        
+        'url'=>  Yii::app()->createUrl('admintransactions/modifyunilevel',array()),
+        'ajaxOptions'=>array(
+            'confirm'=>'Are you sure you want to continue updating the values?',
+            'type' => 'GET',
+            'dataType'=>'json',
+            'url' => 'js:$(this).attr("href")',
+            'success' => 'function(data){
+                if(data["result_code"] == 0)
+                {
+                    $("#update-dialog").modal("hide");   
+                    alert(data["result_msg"]);
+                    $("#searchForm").submit();
+                }
+                else
+                {
+                    alert(data["result_msg"]);
+                }
+             }',
+        ),
+    )); ?>
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'label'=>'Close',
+        'url'=> array('admintransactions/unilevel'),
+        'htmlOptions'=> array('data-dismiss'=>'modal'),
+    )); ?>
+</div>
+</form>
+<?php $this->endWidget(); ?>

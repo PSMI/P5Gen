@@ -15,6 +15,9 @@ class Unilevel extends CFormModel
     public $total_members;
     public $next_cutoff_date;
     public $last_cutoff_date;
+    public $amount;
+    public $ibo_count;
+    public $unilevel_id;
     
     public function __construct()
     {
@@ -342,6 +345,67 @@ class Unilevel extends CFormModel
         else
             return false; 
        
+    }
+    
+    public function update_unilevel_discrepancies()
+    {
+        $conn = $this->_connection;
+        
+        $trx = $conn->beginTransaction();
+        
+        $query1 = "INSERT INTO unilevel_logs (unilevel_id, old_ibo_count,old_amount, updated_by_mid)"
+                . " SELECT unilevel_id, ibo_count, amount, :logged_user"
+                . " FROM unilevel"
+                . " WHERE unilevel_id = :unilevel_id";
+        $command1 = $conn->createCommand($query1);
+        $command1->bindParam(':logged_user', Yii::app()->user->getId());
+        $command1->bindParam(':unilevel_id', $this->unilevel_id);
+        $command1->execute(); 
+        
+        if(!$this->hasErrors())
+        {
+            $query2 = "UPDATE unilevel 
+                        SET ibo_count = :ibo_count, 
+                            amount = :amount,
+                            date_last_updated = now()
+                        WHERE cutoff_id = :cutoff_id
+                        AND member_id = :member_id
+                        AND unilevel_id = :unilevel_id
+                        AND status = 0";
+        
+            $command2 = $conn->createCommand($query2);
+            $command2->bindParam(':member_id', $this->member_id);
+            $command2->bindParam(':cutoff_id', $this->cutoff_id);
+            $command2->bindParam(':amount', $this->amount);
+            $command2->bindParam(':ibo_count', $this->ibo_count);
+            $command2->bindParam(':unilevel_id', $this->unilevel_id);
+            $command2->execute();
+            
+            if(!$this->hasErrors())
+            {
+                $query3 = "UPDATE unilevel_logs 
+                           SET new_ibo_count = :ibo_count, 
+                               new_amount = :amount
+                           WHERE unilevel_id = :unilevel_id
+                             ORDER BY unilevel_log_id DESC
+                             LIMIT 1";
+        
+                $command3 = $conn->createCommand($query3);
+                $command3->bindParam(':unilevel_id', $this->unilevel_id);
+                $command3->bindParam(':amount', $this->amount);
+                $command3->bindParam(':ibo_count', $this->ibo_count);
+                $command3->execute();
+                
+                try
+                {
+                    $trx->commit();
+                } catch (PDOException $e) {
+                    $trx->rollback();
+                }
+            }
+            
+        }
+             
     }
     
     

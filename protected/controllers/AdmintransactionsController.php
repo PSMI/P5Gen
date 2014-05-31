@@ -1953,5 +1953,55 @@ class AdmintransactionsController extends Controller
         $html2pdf->Output('Distributor_Repeat_Purchase_Commission' . date('Y-m-d') . '.pdf', 'D'); 
         Yii::app()->end();
     }
+    
+    public function actionGetValues()
+    {
+        if(Yii::app()->request->isAjaxRequest)
+        {
+            $model = new ReferenceModel();
+            $rate = $model->get_payout_rate(TransactionTypes::UNILEVEL);
+            
+            $values[] = array(
+                'unilevel_id'=>$_GET['id'],
+                'member_id'=>$_GET['member_id'],
+                'name'=>$_GET['name'],
+                'amount'=>$_GET['amount'],
+                'ibo_count'=>$_GET['ibo_count'],
+                'cutoff_id'=>$_GET['cutoff_id'],
+                'unilevel_rate'=>$rate);
+            
+            echo CJSON::encode($values);
+        }
+    }
+    
+    public function actionModifyUnilevel()
+    {
+        if(Yii::app()->request->isAjaxRequest)
+        {
+            $model = new Unilevel();
+            
+            $model->unilevel_id = $_GET['unilevel_id'];
+            $model->member_id = $_GET['member_id'];
+            $model->amount = $_GET['amount'];
+            $model->ibo_count = $_GET['ibo_count'];
+            $model->cutoff_id = $_GET['cutoff_id'];
+            
+            $model->update_unilevel_discrepancies();
+            
+            if(!$model->hasErrors())
+            {
+                $result_code=0;
+                $result_msg='Unilevel discrepanicy is successfully corrected';
+            }
+            else
+            {
+                $result_code=1;
+                $result_msg=$model->getErrors();
+            }
+            echo CJSON::encode(array('result_code'=>$result_code,'result_msg'=>$result_msg));
+        }
+    }
+    
+    
 }
 ?>
