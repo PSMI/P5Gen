@@ -21,7 +21,8 @@ class DistributorsController extends Controller
         
         $model = new MemberDetailsModel();
         $members = new MembersModel();
-
+        $rawData = array();
+        
         if (isset($_POST["txtSearchCode"]) && $_POST["txtSearchCode"] != "")
         {
             $searchField = $_POST["txtSearchCode"];
