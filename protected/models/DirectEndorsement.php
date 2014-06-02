@@ -13,6 +13,7 @@ class DirectEndorsement extends CFormModel
     public $payout_rate;
     public $date_claimed;
     public $direct_endorsement_id;
+    public $autocomplete_name;
     
     public function __construct()
     {
@@ -277,6 +278,67 @@ class DirectEndorsement extends CFormModel
         
     }
     
+    /**
+     * @author Noel Antonio
+     * @date 06-01-2014
+     */
+    public function getDirectEndorsementBySearchField($member_id)
+    {        
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    d.direct_endorsement_id,
+                    d.endorser_id,
+                    d.cutoff_id,
+                    CONCAT(md.last_name, ', ', md.first_name) AS member_name,
+                    DATE_FORMAT(d.date_created, '%M %d, %Y') AS date_created,
+                    DATE_FORMAT(d.date_approved, '%M %d, %Y') AS date_approved,
+                    CONCAT(md2.last_name, ', ', md2.first_name) AS approved_by,
+                    DATE_FORMAT(d.date_claimed, '%M %d, %Y') AS date_claimed,
+                    CONCAT(md3.last_name, ', ', md3.first_name) AS claimed_by,
+                    CONCAT(md4.last_name, ', ', md4.first_name) AS endorser_name,                    
+                    COUNT(d.endorser_id) AS ibo_count,
+                    FORMAT(SUM(d.amount),2) AS total_payout,
+                    d.status
+                  FROM direct_endorsements d
+                    LEFT OUTER JOIN member_details md
+                      ON d.member_id = md.member_id
+                    LEFT OUTER JOIN member_details md2
+                      ON d.approved_by_id = md2.member_id
+                    LEFT OUTER JOIN member_details md3
+                      ON d.claimed_by_id = md3.member_id
+                    LEFT OUTER JOIN member_details md4
+                      ON d.endorser_id = md4.member_id
+                  WHERE d.endorser_id = :member_id
+                  GROUP BY d.endorser_id
+                  ORDER BY md4.last_name;
+                ";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
     
+    /**
+     * @author Noel Antonio
+     * @date 06-01-2014
+     */
+    public function getPayoutTotalBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    SUM(amount) AS total_amount,
+                    COUNT(*) AS total_ibo
+                  FROM direct_endorsements d
+                  WHERE d.endorser_id = :member_id";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();        
+        return $result;
+    }
 }
 ?>
