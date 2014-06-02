@@ -34,6 +34,8 @@ class RequireLogin extends CBehavior
             'cron/ipddirectendorse',
             'cron/ipdunilevel',
             'cron/rotatelog',
+            'cron/flushoutrpc',
+            'cron/notifyqualifiedipd',
         );
         if (Yii::app()->user->isGuest && !in_array($controller, $allowed))
         {

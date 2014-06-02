@@ -210,5 +210,79 @@ class IpdRpCommission extends CFormModel
         
         return $result;
     }
+    
+    public function checkMemberPurchaseRequirement()
+    {
+        $reference = new ReferenceModel();
+        //$rpc_requirement = $reference->get_variable_value('IPD_REPEAT_PURCHASE_REQUIREMENT');
+        $rpc_requirement = 300;
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    a.member_id,
+                    a.total_purchased
+                  FROM (SELECT
+                      ps.member_id,
+                      SUM(ps.`total`) AS total_purchased
+                    FROM purchased_summary ps
+                    WHERE ps.date_purchased > :last_cutoff
+                    AND ps.date_purchased <= :next_cutoff
+                    AND ps.status = 1
+                    GROUP BY ps.member_id) AS a
+                  WHERE a.total_purchased < :rpc_requirement;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':rpc_requirement', $rpc_requirement);
+        $command->bindParam(':last_cutoff', $this->last_cutoff_date);
+        $command->bindParam(':next_cutoff', $this->next_cutoff_date);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function getMembersByCutOff($lists)
+    {
+        $conn = $this->_connection;
+        
+        $member_lists = implode(',', $lists);
+        
+        $query = "SELECT *
+                  FROM distributor_commissions dc
+                  WHERE dc.cutoff_id = :cutoff_id
+                   AND member_id IN ($member_lists)
+                   AND dc.status = 0";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    public function flush_commissions($lists)
+    {
+        $conn = $this->_connection;        
+        $trx = $conn->beginTransaction();
+        
+        $member_lists = implode(',', $lists);
+        
+        $query = "UPDATE distributor_commissions dc"
+                . " SET dc.status = 3, date_flushout = now()"
+                . " WHERE dc.cutoff_id = :cutoff_id"
+                . " AND dc.member_id IN ($member_lists)";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':cutoff_id', $this->cutoff_id);
+        $command->execute();
+        
+        try 
+        {
+            $trx->commit();
+        } 
+        catch (PDOException $ex) 
+        {
+            $trx->rollback();
+        }
+    }
 }
 ?>

@@ -1001,5 +1001,74 @@ class CronController extends Controller
         echo $this->_curdate . ' : ' . $audit->log_message . '<br />';
     }
     
+    public function actionFlushoutRPC()
+    {
+        if($this->job_enabled())
+        {
+            //get next cutoff and compare with current date
+            $reference = new ReferenceModel();
+            $model = new IpdRpCommission();
+            
+            $cutoff = $reference->get_last_cutoff(TransactionTypes::REPEAT_PURCHASE_COMMISSION);
+            
+            $current_date = date('Y-m-d');
+            $last_cutoff = date('Y-m-d',strtotime($cutoff['last_cutoff_date']));
+            $next_cutoff = date('Y-m-d',strtotime($cutoff['next_cutoff_date']));
+            
+            if($current_date > $next_cutoff)
+            {
+                $model->cutoff_id = $cutoff['cutoff_id'];
+                $model->next_cutoff_date = $next_cutoff;
+                $model->last_cutoff_date = $last_cutoff;
+                //check members with purchases < RPC requirement amount
+                $result = $model->checkMemberPurchaseRequirement();
+                
+                if(count($result)> 0 )
+                {
+                    foreach($result as $val)
+                    {
+                        $member_lists[] = $val['member_id'];
+                    }
+
+                    //get distributor with commissions for the previous cutoff
+                    $flush_lists = $model->getMembersByCutOff($member_lists);
+                    
+                    //Flushout commission lists
+                    if(count($flush_lists) > 0)
+                    {
+                        foreach($flush_lists as $list)
+                        {
+                            $model->flush_commissions();
+                        }
+                    }
+                }
+                
+            }  
+                
+        }
+            
+    }
+    
+    public function actionNotifyQualifiedIPD()
+    {
+        if($this->job_enabled())
+        {
+            $model = new IpdRetention();
+            $result = $model->getQualifiedIPD();
+            
+            foreach($result as $row)
+            {
+                //Notify distributor
+                $param['member_id'] = $row['member_id'];
+                $param['total_retention'] = $row['total_retention'];
+                Mailer::sendNotificationToQualifiedIPD($param);
+                
+                //Notify P5
+                $IPD_lists = $row['member_id'];
+                Mailer::sendAdminNotification($IPD_lists);
+            }
+        }
+    }
+    
 }
 ?>

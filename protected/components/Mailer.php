@@ -17,6 +17,8 @@ class Mailer
     CONST IPD_VERIFY_ACCOUNT_TMPL = 8;
     CONST IPD_ENDORSER_NOTIFY = 9;
     CONST IPD_TO_IBO_NOTIFICATION = 10;
+    CONST NOTIFY_QUALIFIED_IPD = 11;
+    CONST NOTIFY_ADMIN = 12;
     
     /**
      * Send verification link to new member
@@ -24,7 +26,7 @@ class Mailer
      */
     public function sendVerificationLink($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
         
         $member_id = $param['member_id'];
         
@@ -75,7 +77,7 @@ class Mailer
      */
     public function sendUplineNotification($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
                     
         $downline_id = $param['new_member_id'];
         $upline_id = $param['upline_id'];
@@ -119,7 +121,7 @@ class Mailer
      */
     public function sendChangePassword($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
         
         $member_id = $param['member_id'];
         
@@ -161,7 +163,7 @@ class Mailer
      */
     public function sendDisapproveNotification($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
                     
         $downline_id = $param['new_member_id'];
         $upline_id = $param['upline_id'];
@@ -203,7 +205,7 @@ class Mailer
     
     public function sendApproveNotification($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
                     
         $downline_id = $param['new_member_id'];
         $upline_id = $param['upline_id'];
@@ -244,7 +246,7 @@ class Mailer
     
      public function sendMemberNotification($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
                     
         $downline_id = $param['new_member_id'];
         $upline_id = $param['upline_id'];
@@ -289,7 +291,7 @@ class Mailer
      */
     public function accountCreation($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
         
         $member_id = $param['member_id'];
         
@@ -353,7 +355,7 @@ class Mailer
      */
     public function sendIPDVerificationLink($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
         $member_id = $param['distributor_id'];
         $reference = new ReferenceModel();
         $message_template = $reference->get_message_template(self::IPD_VERIFY_ACCOUNT_TMPL);
@@ -391,7 +393,7 @@ class Mailer
      */
     public function sendIPDEndorserNotification($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
         $downline_id = $param['new_member_id'];
         $endorser_id = $param['endorser_id'];
         $reference = new ReferenceModel();
@@ -421,7 +423,7 @@ class Mailer
      */
     public function sendIPDtoIBONotification($param)
     {
-        $model = new RegistrationForm();
+        $model = new EmailMessages();
         $downline_id = $param['member_id'];
 
         $reference = new ReferenceModel();
@@ -441,6 +443,66 @@ class Mailer
         $sender_name = 'P5 Marketing Incorporated';
         $recipient = $member_email;
         $subject = 'Important: You are now an IBO Member!';
+        $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
+    }
+    
+    public static function sendNotificationToQualifiedIPD($param)
+    {
+        $model = new EmailMessages();
+        $distributor_id = $param['member_id'];
+        $total_retention = $param['total_retention'];
+
+        $reference = new ReferenceModel();
+        $message_template = $reference->get_message_template(self::NOTIFY_QUALIFIED_IPD);
+        
+        $members = new MembersModel();
+        $member_info = $members->selectMemberDetails($distributor_id); 
+
+        $member_email = $member_info['email'];
+        $member_name = $member_info['first_name'] . ' ' . $member_info['last_name'];
+
+        $placeholders = array(
+                'MEMBER_NAME'=>$member_name,
+                'RETENTION'=>$total_retention,
+            );
+        foreach($placeholders as $key => $value){
+            $message_template = str_replace('{'.$key.'}', $value, $message_template);
+        }
+        
+        $sender = 'noreply@p5partners.com';
+        $sender_name = 'P5 Marketing Incorporated';
+        $recipient = $member_email;
+        $subject = 'Congratulations! You are now qualified to be an IBO member!';
+        $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
+    }
+    
+    public static function sendAdminNotification($distributors)
+    {
+        $model = new EmailMessages();
+        
+        $reference = new ReferenceModel();
+        $message_template = $reference->get_message_template(self::NOTIFY_ADMIN);
+        $current_date = date('Y-m-d');
+        $members = new MembersModel();
+        
+        foreach($distributors as $row)
+        {
+            $result = $members->selectMemberDetails($row['member_id']); 
+            $distributor_lists[] = $result['first_name'] . ' ' . $result['last_name'] . '<br />';
+        }
+
+        $placeholders = array(
+                'DISTRIBUTOR_LISTS'=>$distributor_lists,
+                'CURRENT_DATE'=>$current_date,
+            );
+        
+        foreach($placeholders as $key => $value){
+            $message_template = str_replace('{'.$key.'}', $value, $message_template);
+        }
+        $sender = 'noreply@p5partners.com';
+        $sender_name = 'P5 System';
+        $recipient = 'npastor@freemissionphils.com';
+        $subject = '[Alert] New qualified distributors for IBO membership!';
         $model->log_messages($sender, $sender_name, $recipient, $subject, $message_template);
     }
 }

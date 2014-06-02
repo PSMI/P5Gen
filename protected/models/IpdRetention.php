@@ -403,5 +403,32 @@ class IpdRetention extends CFormModel
             return false;
         }
     }
+    
+    /**
+     * Get all distributors with savings greater than 5,555
+     * @author owliber
+     */
+    public function getQualifiedIPD()
+    {
+        $conn = $this->_connection;
+        
+        $reference = new ReferenceModel();
+        $ibo_payin_amount = $reference->get_variable_value('IBO_PAYIN_AMOUNT');
+        
+        $query = "SELECT
+                    a.member_id,
+                    a.total_retention
+                  FROM (SELECT
+                      dr.member_id,
+                      (dr.purchase_retention + dr.other_retention) AS total_retention
+                    FROM distributor_retentions dr
+                    WHERE dr.status = 0) AS a
+                  WHERE a.total_retention >= :ibo_payin_amount;";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':ibo_payin_amount', $ibo_payin_amount);
+        $result = $command->queryAll();
+        return $result;
+    }
 }
 ?>

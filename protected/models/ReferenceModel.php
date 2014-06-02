@@ -398,5 +398,21 @@ class ReferenceModel extends CFormModel
         $model = new ReferenceModel();
         return CHtml::listData($model->select_payment_types(), 'payment_type_id', 'payment_type_name');
     }
+    
+    public function get_last_cutoff($trans_type_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT * FROM ref_cutoffs 
+                    WHERE transaction_type_id = :trans_type_id 
+                    AND status = 2
+                  ORDER BY cutoff_id DESC
+                  LIMIT 1";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':trans_type_id', $trans_type_id);
+        $result = $command->queryRow();
+        return $result;
+    }
 }
 ?>
