@@ -1044,7 +1044,12 @@ class CronController extends Controller
                 }
                 
             }  
-                
+            echo 'Done flushing IPD commissions.';
+      
+        }
+        else
+        {
+            echo 'Cron job was disabled.';
         }
             
     }
@@ -1056,17 +1061,31 @@ class CronController extends Controller
             $model = new IpdRetention();
             $result = $model->getQualifiedIPD();
             
-            foreach($result as $row)
+            if(count($result)>0)
             {
-                //Notify distributor
-                $param['member_id'] = $row['member_id'];
-                $param['total_retention'] = $row['total_retention'];
-                Mailer::sendNotificationToQualifiedIPD($param);
-                
-                //Notify P5
-                $IPD_lists = $row['member_id'];
-                Mailer::sendAdminNotification($IPD_lists);
+                foreach($result as $row)
+                {
+                    //Notify distributor
+                    $param['member_id'] = $row['member_id'];
+                    $param['total_retention'] = $row['total_retention'];
+                    Mailer::sendNotificationToQualifiedIPD($param);
+
+                    //Notify P5
+                    $IPD_lists = $row['member_id'];
+                    Mailer::sendAdminNotification($IPD_lists);
+                }
+
+                echo 'Done sending notification.';
             }
+            else
+            {
+                echo 'No qualified distributors found.';
+            }
+            
+        }
+        else
+        {
+            echo 'Cron job was disabled.';
         }
     }
     
