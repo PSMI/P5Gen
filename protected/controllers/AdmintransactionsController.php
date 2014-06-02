@@ -1060,6 +1060,7 @@ class AdmintransactionsController extends Controller
             }
             
             $rawData = Networks::getRPCMembersForPDF($member_id, $array);
+            $reference = new ReferenceModel();
             
             foreach($rawData as $key => $level)
             {
@@ -1071,6 +1072,12 @@ class AdmintransactionsController extends Controller
                 $unilevel['total'] = $total;
                 $unilevel['level'] = $levels;                     
                 $unilevel['downlines'] = $downlines;
+                
+                // additional: for display of payout rate
+                $ipd_direct_count = Networks::getIPDDirectCount($member_id);
+                $payout_rate = Transactions::getIpdUnilevelBonusByDirectEndorseCount($ipd_direct_count, $reference, $levels);
+                $unilevel['payout_rate'] = $payout_rate;
+                
                 $unilevel_downlines[] = $unilevel;
 
             }

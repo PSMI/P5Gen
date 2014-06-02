@@ -130,7 +130,7 @@ $curdate = date('M d, Y h:ia');
             <th class="ctr">Lvl</th>
             <th class="name">Name of Endorsed IPD</th>
             <th class="name">Endorser</th>
-            <th class="name">Place Under</th>
+            <th class="name">Payout Amount</th>
             <th class="date">Date Joined</th>
         </tr>
         <?php
@@ -146,7 +146,7 @@ $curdate = date('M d, Y h:ia');
                         <td class="ctr"><?php echo $level; ?></td>
                         <td class="name"><?php echo $row['Name'] ?></td>
                         <td class="name"><?php echo $row['Endorser']; ?></td>
-                        <td class="name"><?php echo $row['Upline']; ?></td>
+                        <td class="name"><?php echo number_format($rows['payout_rate'], 2); ?></td>
                         <td class="date"><?php echo $row['DateEnrolled']; ?></td>
                     </tr>
                     <?php
