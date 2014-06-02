@@ -42,5 +42,21 @@ class EmailMessages extends CFormModel
         $command->execute();
     }
     
+    public function log_messages($sender, $sender_name, $recipient, $subject, $message_body)
+    {
+        $conn = $this->_connection;
+        
+        $query = "INSERT INTO email_messages (sender, sender_name, recipient, email_subject, message_body)
+                   VALUES (:sender, :sender_name, :recipient, :email_subject, :message_body)";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':sender', $sender);
+        $command->bindParam(':sender_name', $sender_name);
+        $command->bindParam(':recipient', $recipient);
+        $command->bindParam(':email_subject', $subject);
+        $command->bindParam(':message_body', $message_body);
+        $command->execute();
+    }
+    
 }
 ?>
