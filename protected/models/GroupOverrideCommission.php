@@ -11,6 +11,7 @@ class GroupOverrideCommission extends CFormModel
     public $cutoff_id;
     public $uplines;
     public $upline_id;
+    public $autocomplete_name;
     
     public function __construct()
     {
@@ -333,6 +334,62 @@ class GroupOverrideCommission extends CFormModel
         $result = $command->queryRow();
         
         return $result['loan_balance'];
+    }
+    
+    /**
+     * @author Noel Antonio
+     * @date 06-01-2014
+     */
+    public function getComissionsBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    c.commission_id,
+                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
+                    c.ibo_count,
+                    c.amount,
+                    c.date_created,
+                    DATE_FORMAT(c.date_approved,'%M %d, %Y') AS date_approved,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
+                    DATE_FORMAT(c.date_claimed,'%M %d, %Y') AS date_claimed,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                    c.status,
+                    c.member_id,
+                    c.cutoff_id
+                  FROM commissions c
+                    INNER JOIN member_details m
+                      ON c.member_id = m.member_id
+                    LEFT OUTER JOIN member_details md ON c.approved_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md2 ON c.claimed_by_id = md2.member_id
+                  WHERE c.member_id = :member_id ORDER BY m.last_name;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    /**
+     * @author Noel Antonio
+     * @date 06-01-2014
+     */
+    public function getCommissionsTotalBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    sum(c.ibo_count) AS total_ibo,
+                    sum(c.amount) AS total_amount
+                  FROM commissions c
+                  WHERE c.member_id = :member_id";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result;
     }
 }
 ?>

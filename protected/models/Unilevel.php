@@ -18,6 +18,7 @@ class Unilevel extends CFormModel
     public $amount;
     public $ibo_count;
     public $unilevel_id;
+    public $autocomplete_name;
     
     public function __construct()
     {
@@ -408,6 +409,63 @@ class Unilevel extends CFormModel
              
     }
     
+    /**
+     * @author Noel Antonio
+     * @date 06-01-2014
+     */
+    public function getUnilevelBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    u.unilevel_id,  
+                    u.cutoff_id,
+                    u.member_id,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                    u.ibo_count,
+                    u.amount,
+                    u.date_created,
+                    DATE_FORMAT(u.date_approved, '%M %d, %Y') AS date_approved,
+                    CONCAT(md1.last_name, ', ', md1.first_name, ' ', md1.middle_name) AS approved_by,
+                    DATE_FORMAT(u.date_claimed, '%M %d, %Y') AS date_claimed,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                    u.status
+                  FROM unilevel u
+                    INNER JOIN member_details md
+                      ON u.member_id = md.member_id
+                    LEFT OUTER JOIN member_details md1
+                      ON u.approved_by_id = md1.member_id
+                    LEFT OUTER JOIN member_details md2
+                      ON u.claimed_by_id = md2.member_id
+                  WHERE u.member_id = :member_id 
+                  ORDER BY md.last_name;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
     
+    /**
+     * @author Noel Antonio
+     * @date 06-01-2014
+     */
+    public function getPayoutTotalBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    sum(u.amount) as total_amount,
+                    sum(u.ibo_count) as total_ibo
+                  FROM unilevel u
+                  WHERE u.member_id = :member_id";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result;
+    }
 }
 ?>
