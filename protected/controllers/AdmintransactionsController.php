@@ -162,34 +162,51 @@ class AdmintransactionsController extends Controller
         $this->render('goc', array('model'=>$model, 'dataProvider' => $dataProvider, 'total'=>$total));
     }
     
-    //For Loan
+    
+    /* ----------------- IBO LOAN PAYOUT ---------------- */
     public function actionLoan()
     {
         $model = new Loan();
             
-        if (isset($_POST["Loan"]))
-        {   
-            unset(Yii::app()->session['statusid']);
+        if (isset($_POST["Loan"]) && isset($_POST['btnSearch']))
+        {
+            $member_id = $_POST['member_id'];
+            $rawData = $model->getLoanApplicationsBySearchField($member_id);
+            $total = $model->getTotalLoansBySearchField($member_id);
+        }
+        else if (isset($_POST["Loan"]) && !isset($_POST['btnSearch']))
+        {
             $model->attributes = $_POST['Loan'];
+            $rawData = $model->getLoanApplications();
+            $total = $model->getTotalLoans();
+            
+            Yii::app()->session['statusid'] = $model->attributes;
+        }
+        else if (Yii::app()->request->isAjaxRequest && $_GET['ajax'] == "loans-grid")
+        {
+            $model->attributes = Yii::app()->session['statusid'];
+            $rawData = $model->getLoanApplications();
+            $total = $model->getTotalLoans();
+            
             Yii::app()->session['statusid'] = $model->attributes;
         }
         else
         {
+            if (isset(Yii::app()->session['statusid']))
+                unset(Yii::app()->session['statusid']);
+            
             $model->date_from2 = date('Y-m-d');
             $model->date_to = date('Y-m-d');
             $model->status = "1, 2, 3, 4";
-            $model->attributes = Yii::app()->session['statusid'];
+            // $model->attributes = Yii::app()->session['statusid'];
         }
-        
-        $rawData = $model->getLoanApplications();
-        $total = $model->getTotalLoans();
 
         $dataProvider = new CArrayDataProvider($rawData, array(
-                                                'keyField' => false,
-                                                'pagination' => array(
-                                                'pageSize' => 25,
-                                            ),
-                                ));
+                        'keyField' => false,
+                        'pagination' => array(
+                        'pageSize' => 25,
+                    ),
+        ));
 
         $this->render('loan', array(
             'dataProvider' => $dataProvider,
@@ -197,6 +214,7 @@ class AdmintransactionsController extends Controller
             'model'=>$model
         ));  
     }
+    
     
     public function actionProcessTransaction()
     {

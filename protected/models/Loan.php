@@ -11,6 +11,7 @@ class Loan extends CFormModel
     public $status;
     public $date_from2;
     public $date_to;
+    public $autocomplete_name;
 
     public function __construct() 
     {
@@ -279,6 +280,63 @@ class Loan extends CFormModel
         $command->bindParam(':loan_id', $this->loan_id);
         $result = $command->queryRow();
         return $result;
+    }
+    
+    /**
+     * @author Noel Antonio
+     * @date 06-03-2014
+     */
+    public function getLoanApplicationsBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    l.loan_id,
+                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
+                    l.loan_type_id,
+                    l.level_no,
+                    l.loan_amount,
+                    DATE_FORMAT(l.date_created,'%M %d, %Y') AS date_created,
+                    DATE_FORMAT(l.date_completed,'%M %d, %Y') AS date_completed,
+                    DATE_FORMAT(l.date_approved,'%M %d, %Y') AS date_approved,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
+                    DATE_FORMAT(l.date_claimed,'%M %d, %Y') AS date_claimed,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                    l.status,
+                    l.member_id
+                  FROM loans l
+                    INNER JOIN member_details m
+                      ON l.member_id = m.member_id
+                    LEFT OUTER JOIN member_details md ON l.approved_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md2 ON l.claimed_by_id = md2.member_id
+                  WHERE l.member_id = :member_id
+                  ORDER BY m.last_name;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    /**
+     * @author Noel Antonio
+     * @date 06-03-2014
+     */
+    public function getTotalLoansBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    sum(l.loan_amount) as total_loans                    
+                  FROM loans l
+                  WHERE l.member_id = :member_id";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result['total_loans'];
     }
 }
 ?>
