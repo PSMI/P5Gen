@@ -10,7 +10,8 @@ class IboRpCommission extends CFormModel
     public $member_id;
     public $cutoff_id;
     public $next_cutoff_date;
-    public $last_cutoff_date;    
+    public $last_cutoff_date;
+    public $autocomplete_name;
     
     public function __construct()
     {
@@ -209,6 +210,70 @@ class IboRpCommission extends CFormModel
         
         $command =  $conn->createCommand($query);
         $result = $command->queryColumn();
+        
+        return $result;
+    }
+    
+    /**
+     * @author Noel Antonio
+     * @date 06-03-2014
+     */
+    public function getIboRpCommissionBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    d.distributor_commission_id,
+                    d.member_id,
+                    CONCAT(m.last_name, ', ', m.first_name, ' ', m.middle_name) AS member_name,
+                    m2.account_type_id,
+                    d.commission_amount,
+                    d.cutoff_id,
+                    d.date_created,
+                    DATE_FORMAT(d.date_approved,'%M %d, %Y') AS date_approved,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS approved_by,
+                    DATE_FORMAT(d.date_claimed,'%M %d, %Y') AS date_claimed,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                    d.status
+                  FROM distributor_commissions d
+                    INNER JOIN member_details m
+                      ON d.member_id = m.member_id
+                    LEFT OUTER JOIN member_details md
+                      ON d.approved_by_id = md.member_id
+                    LEFT OUTER JOIN member_details md2
+                      ON d.claimed_by_id = md2.member_id
+                    LEFT OUTER JOIN members m2
+                      ON d.member_id = m2.member_id
+                  WHERE d.member_id = :member_id
+                  AND m2.account_type_id = 3
+                  ORDER BY md.last_name;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    /**
+     * @author Noel Antonio
+     * @date 06-03-2014
+     */
+    public function getPayoutTotalBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+        
+        $query = "SELECT
+                    sum(d.commission_amount) as total_amount
+                  FROM distributor_commissions d
+                  INNER JOIN members m
+                      ON d.member_id = m.member_id
+                  WHERE d.member_id = :member_id
+                  AND m.account_type_id = 3;";
+        
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
         
         return $result;
     }

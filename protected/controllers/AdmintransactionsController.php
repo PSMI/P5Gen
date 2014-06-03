@@ -198,7 +198,6 @@ class AdmintransactionsController extends Controller
             $model->date_from2 = date('Y-m-d');
             $model->date_to = date('Y-m-d');
             $model->status = "1, 2, 3, 4";
-            // $model->attributes = Yii::app()->session['statusid'];
         }
 
         $dataProvider = new CArrayDataProvider($rawData, array(
@@ -213,6 +212,54 @@ class AdmintransactionsController extends Controller
             'total'=>$total,
             'model'=>$model
         ));  
+    }
+    
+    
+    /* ----------------- IBO REPEAT PURCHASE COMMISSION ---------------- */
+    public function actionIboRpCommission()
+    {
+        $model = new IboRpCommission();
+             
+        if (isset($_POST['IboRpCommission']) && isset($_POST['btnSearch']))
+        {
+            $member_id = $_POST['member_id'];
+            $rawData = $model->getIboRpCommissionBySearchField($member_id);
+            $total = $model->getPayoutTotalBySearchField($member_id);
+        }
+        else if (isset($_POST['IboRpCommission']) && !isset($_POST['btnSearch']))
+        {            
+            $model->attributes = $_POST['IboRpCommission'];
+            $rawData = $model->getIboRpCommission();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['iborpcommission'] = $model->attributes;
+        }
+        else if (Yii::app()->request->isAjaxRequest && $_GET['ajax'] == "iborpcomm-grid")
+        {
+            $model->attributes = Yii::app()->session['iborpcommission'];
+            $rawData = $model->getIboRpCommission();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['iborpcommission'] = $model->attributes;
+        }
+        else
+        {
+            if(isset(Yii::app()->session['iborpcommission']))
+                unset(Yii::app()->session['iborpcommission']);
+        }
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                            'pageSize' => 25,
+                        ),
+        ));
+
+        $this->render('iborpcommission', array(
+            'dataProvider' => $dataProvider,
+            'model'=>$model,
+            'total'=>$total,
+        ));
     }
     
     
@@ -654,41 +701,6 @@ class AdmintransactionsController extends Controller
                                 ));
 
         $this->render('ipdrpcommission', array(
-                'dataProvider' => $dataProvider,
-                'model'=>$model,
-                'total'=>$total,
-            ));
-    }
-    
-    //For IBO RP Commission
-    public function actionIboRpCommission()
-    {
-        $model = new IboRpCommission();
-                
-        if (isset($_POST['IboRpCommission']))
-        {            
-            if(isset(Yii::app()->session['iborpcommission']))
-                unset(Yii::app()->session['iborpcommission']);
-        
-            $model->attributes = $_POST['IboRpCommission'];
-            Yii::app()->session['iborpcommission'] = $model->attributes;
-        }
-        else
-        {
-            $model->attributes = Yii::app()->session['iborpcommission'];
-        }
-        
-        $rawData = $model->getIboRpCommission();
-        $total = $model->getPayoutTotal();
-        
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                                                'keyField' => false,
-                                                'pagination' => array(
-                                                    'pageSize' => 25,
-                                                ),
-                                ));
-
-        $this->render('iborpcommission', array(
                 'dataProvider' => $dataProvider,
                 'model'=>$model,
                 'total'=>$total,

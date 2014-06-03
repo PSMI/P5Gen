@@ -5,7 +5,7 @@
 ------------------------*/
 
 $this->widget('bootstrap.widgets.TbGridView', array(
-        'id'=>'ipdrpcomm-grid',
+        'id'=>'iborpcomm-grid',
         'type'=>'striped bordered condensed',
         //'filter' => $model->search(),
         'dataProvider' => $dataProvider,
