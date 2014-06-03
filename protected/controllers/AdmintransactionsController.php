@@ -11,6 +11,157 @@ class AdmintransactionsController extends Controller
 {
     public $layout = 'column2';
     
+    /* ----------------- IBO DIRECT ENDORSEMENT ------------- */
+    public function actionDirectendorse()
+    {
+        $model = new DirectEndorsement();      
+        $model->date_claimed = date('Y-m-d');       
+        
+        if (isset($_POST["DirectEndorsement"]) && isset($_POST['btnSearch']))
+        {
+            $member_id = $_POST['member_id'];
+            $rawData = $model->getDirectEndorsementBySearchField($member_id);
+            $total = $model->getPayoutTotalBySearchField($member_id); 
+        }
+        else if (Yii::app()->request->isAjaxRequest && $_GET['ajax'] == 'directendorse-grid')
+        {
+            $model->attributes = Yii::app()->session['endorsements'];
+            $rawData = $model->getDirectEndorsement();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['endorsements'] = $model->attributes;
+        }
+        else if (isset($_POST["DirectEndorsement"]) && !isset($_POST['btnSearch']))
+        {
+            $model->attributes = $_POST['DirectEndorsement'];
+            $rawData = $model->getDirectEndorsement();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['endorsements'] = $model->attributes;
+        }
+        else
+        {
+            if(isset(Yii::app()->session['endorsements']))
+                unset(Yii::app()->session['endorsements']);
+        }
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+            'keyField' => false,
+            'pagination' => array(
+                'pageSize' => 25,
+            ),
+        ));
+
+        $this->render('directendorse', array(
+            'model'=>$model,
+            'dataProvider' => $dataProvider,
+            'total'=>$total,
+         ));
+    }
+    
+    
+    /* ----------------- IBO UNILEVEL PAYOUT ---------------- */
+    public function actionUnilevel()
+    {
+        $model = new Unilevel();
+        $reference = new ReferenceModel();
+        
+        if (isset($_POST["Unilevel"]) && isset($_POST['btnSearch']))
+        {
+            $member_id = $_POST['member_id'];
+            $rawData = $model->getUnilevelBySearchField($member_id);
+            $total = $model->getPayoutTotalBySearchField($member_id);
+        }
+        else if (isset($_POST["Unilevel"]) && !isset($_POST['btnSearch']))
+        {   
+            $cutoff = $reference->get_cutoff_by_id($model->cutoff_id);
+            
+            $model->last_cutoff_date = $cutoff['last_cutoff_date'];
+            $model->next_cutoff_date = $cutoff['next_cutoff_date'];
+        
+            $model->attributes = $_POST['Unilevel'];
+            $rawData = $model->getUnilevel();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['unilevel'] = $model->attributes;
+        }
+        else if (Yii::app()->request->isAjaxRequest && $_GET['ajax'] == 'unilvl-grid')
+        {
+            $cutoff = $reference->get_cutoff_by_id($model->cutoff_id);
+            
+            $model->last_cutoff_date = $cutoff['last_cutoff_date'];
+            $model->next_cutoff_date = $cutoff['next_cutoff_date'];
+            
+            $model->attributes = Yii::app()->session['unilevel'];
+            $rawData = $model->getUnilevel();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['unilevel'] = $model->attributes;
+        }
+        else
+        {
+            if(isset(Yii::app()->session['unilevel']))
+                unset(Yii::app()->session['unilevel']);
+        }
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                            'pageSize' => 25,
+                        ),
+        ));
+
+        $this->render('unilevel', array(
+                'dataProvider' => $dataProvider,
+                'model'=>$model,
+                'total'=>$total,
+            ));
+    }
+    
+    
+    /* ----------------- IBO GOC PAYOUT ---------------- */
+    public function actionGoc()
+    {
+        $model = new GroupOverrideCommission();
+         
+        if (isset($_POST["GroupOverrideCommission"]) && isset($_POST['btnSearch']))
+        {
+            $member_id = $_POST['member_id'];
+            $rawData = $model->getComissionsBySearchField($member_id);
+            $total = $model->getCommissionsTotalBySearchField($member_id);
+        }
+        else if (isset($_POST["GroupOverrideCommission"]) && !isset($_POST['btnSearch']))
+        {
+            $model->attributes = $_POST['GroupOverrideCommission'];
+            $rawData = $model->getComissions();
+            $total = $model->getCommissionsTotal();
+            
+            Yii::app()->session['groupoc'] = $model->attributes;
+        }
+        else if (Yii::app()->request->isAjaxRequest && $_GET['ajax'] == 'goc-grid')
+        {
+            $model->attributes = Yii::app()->session['groupoc'];
+            $rawData = $model->getComissions();
+            $total = $model->getCommissionsTotal();
+            
+            Yii::app()->session['groupoc'] = $model->attributes;
+        }
+        else
+        {
+            if (isset(Yii::app()->session['groupoc']))
+                unset(Yii::app()->session['groupoc']);
+        }
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                    'keyField' => false,
+                    'pagination' => array(
+                        'pageSize' => 25,
+                    ),
+                ));
+        
+        $this->render('goc', array('model'=>$model, 'dataProvider' => $dataProvider, 'total'=>$total));
+    }
+    
     //For Loan
     public function actionLoan()
     {
@@ -329,121 +480,6 @@ class AdmintransactionsController extends Controller
         echo CJSON::encode(array('result_code'=>$result_code, 'result_msg'=>$result_msg));
     }
     
-    //For GOC
-    public function actionGoc()
-    {
-        $model = new GroupOverrideCommission();
-
-        if (isset($_POST["GroupOverrideCommission"]))
-        {
-            unset(Yii::app()->session['groupoc']);
-            $model->attributes = $_POST['GroupOverrideCommission'];
-            Yii::app()->session['groupoc'] = $model->attributes;
-        }
-        else
-        {
-            $model->attributes = Yii::app()->session['groupoc'];
-        }
-        
-        $rawData = $model->getComissions();
-        $total = $model->getCommissionsTotal();
-        
-        /* 
-         * This function is intended for payout with search field (future purposes only).
-         *  
-        if (isset($_POST["GroupOverrideCommission"]) && isset($_POST['btnSearch']))
-        {
-            $member_id = $_POST['member_id'];
-            $rawData = $model->getComissionsBySearchField($member_id);
-            $total = $model->getCommissionsTotalBySearchField($member_id);
-        }
-        else
-        {
-            unset(Yii::app()->session['groupoc']);
-            $model->attributes = $_POST['GroupOverrideCommission'];
-            Yii::app()->session['groupoc'] = $model->attributes;
-            
-            $rawData = $model->getComissions();
-            $total = $model->getCommissionsTotal();
-        }*/
-        
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                    'keyField' => false,
-                    'pagination' => array(
-                        'pageSize' => 25,
-                    ),
-                ));
-        
-        $this->render('goc', array('model'=>$model, 'dataProvider' => $dataProvider, 'total'=>$total));
-    }
-    
-    //For Unilevel
-    public function actionUnilevel()
-    {
-        $model = new Unilevel();
-        $reference = new ReferenceModel();
-                
-        if (isset($_POST['Unilevel']))
-        {            
-            if(isset(Yii::app()->session['unilevel']))
-                unset(Yii::app()->session['unilevel']);
-            
-            $cutoff = $reference->get_cutoff_by_id($model->cutoff_id);
-            
-            $model->last_cutoff_date = $cutoff['last_cutoff_date'];
-            $model->next_cutoff_date = $cutoff['next_cutoff_date'];
-        
-            $model->attributes = $_POST['Unilevel'];
-            Yii::app()->session['unilevel'] = $model->attributes;
-        }
-        else
-        {
-            $model->attributes = Yii::app()->session['unilevel'];
-        }
-        
-        $rawData = $model->getUnilevel();
-        $total = $model->getPayoutTotal();
-        
-        
-        /* 
-         * This function is intended for payout with search field (future purposes only).
-         * 
-        if (isset($_POST["Unilevel"]) && isset($_POST['btnSearch']))
-        {
-            $member_id = $_POST['member_id'];
-            $rawData = $model->getUnilevelBySearchField($member_id);
-            $total = $model->getPayoutTotalBySearchField($member_id);
-        }
-        else
-        {   
-            if(isset(Yii::app()->session['unilevel']))
-                unset(Yii::app()->session['unilevel']);
-            
-            $cutoff = $reference->get_cutoff_by_id($model->cutoff_id);
-            
-            $model->last_cutoff_date = $cutoff['last_cutoff_date'];
-            $model->next_cutoff_date = $cutoff['next_cutoff_date'];
-        
-            $model->attributes = $_POST['Unilevel'];
-            Yii::app()->session['unilevel'] = $model->attributes;
-            
-            $rawData = $model->getUnilevel();
-            $total = $model->getPayoutTotal();
-        }*/
-        
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                                                'keyField' => false,
-                                                'pagination' => array(
-                                                    'pageSize' => 25,
-                                                ),
-                                ));
-
-        $this->render('unilevel', array(
-                'dataProvider' => $dataProvider,
-                'model'=>$model,
-                'total'=>$total,
-            ));
-    }
     
     //For IpdUnilevel
     public function actionIpdUnilevel()
@@ -488,6 +524,7 @@ class AdmintransactionsController extends Controller
                 'total'=>$total,
             ));
     }
+    
     //For Bonus
     public function actionBonus()
     {
@@ -503,61 +540,6 @@ class AdmintransactionsController extends Controller
                                 ));
 
         $this->render('bonus', array('dataProvider' => $dataProvider));
-    }
-    
-    //For Direct Endorsement
-    public function actionDirectendorse()
-    {
-        $model = new DirectEndorsement();      
-        $model->date_claimed = date('Y-m-d');
-        
-        if (isset($_POST["DirectEndorsement"]))
-        {
-            unset(Yii::app()->session['endorsements']);
-            $model->attributes = $_POST['DirectEndorsement'];
-            Yii::app()->session['endorsements'] = $model->attributes;
-                
-        }
-        else
-        {
-            $model->attributes = Yii::app()->session['endorsements'];
-        }
-        
-        $rawData = $model->getDirectEndorsement();
-        $total = $model->getPayoutTotal();
-        
-        
-        /* 
-         * This function is intended for payout with search field (future purposes only).
-         * 
-        if (isset($_POST["DirectEndorsement"]) && isset($_POST['btnSearch']))
-        {
-            $member_id = $_POST['member_id'];
-            $rawData = $model->getDirectEndorsementBySearchField($member_id);
-            $total = $model->getPayoutTotalBySearchField($member_id); 
-        }
-        else
-        {
-            unset(Yii::app()->session['endorsements']);
-            $model->attributes = $_POST['DirectEndorsement'];
-            Yii::app()->session['endorsements'] = $model->attributes;
-            
-            $rawData = $model->getDirectEndorsement();
-            $total = $model->getPayoutTotal();
-        }*/
-        
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                    'keyField' => false,
-                    'pagination' => array(
-                        'pageSize' => 25,
-                    ),
-                ));
-
-        $this->render('directendorse', array(
-            'model'=>$model,
-            'dataProvider' => $dataProvider,
-            'total'=>$total,
-         ));
     }
     
     //For IPD Direct Endorsement

@@ -34,7 +34,7 @@ echo $form->dropDownListRow($model,'cutoff_id', ReferenceModel::list_cutoffs(Tra
 
 $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Search', 'htmlOptions' => array('style' => 'margin-left: 10px;')));
 
-/*echo CHtml::hiddenField('member_id');
+echo CHtml::hiddenField('member_id');
 $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
     'model'=>$model,
     'attribute'=>'autocomplete_name',
@@ -59,7 +59,7 @@ $this->widget('bootstrap.widgets.TbButton', array(
     'icon'=>'icon-search',
     'label'=>'Search', 
     'htmlOptions'=>array('id'=>'btnSearch', 'name'=>'btnSearch','style'=>'margin-left:10px;')
-));*/
+));
 
 $this->widget("bootstrap.widgets.TbButton", array(
                                             "label"=>"Export to PDF",
