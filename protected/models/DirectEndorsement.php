@@ -310,7 +310,7 @@ class DirectEndorsement extends CFormModel
                     LEFT OUTER JOIN member_details md4
                       ON d.endorser_id = md4.member_id
                   WHERE d.endorser_id = :member_id
-                  GROUP BY direct_endorsement_id
+                  GROUP BY cutoff_id
                   ORDER BY md4.last_name;
                 ";
         

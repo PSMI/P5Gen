@@ -30,28 +30,75 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions'=>array('class'=>'well'),
 ));
 
-echo $form->dropDownListRow($model,'cutoff_id', ReferenceModel::list_cutoffs(TransactionTypes::IPD_UNILEVEL), array('class'=>'span3'));
+?>
 
-echo CHtml::label('RP Status:  &nbsp;', 'lblStatus', array('style'=>'margin-left: 20px;'));
+<table style="width: 100%;" class="table-condensed">
+    <tr>
+        <td><?php echo $form->dropDownListRow($model,'cutoff_id', ReferenceModel::list_cutoffs(TransactionTypes::IPD_UNILEVEL), array('class'=>'span3')); ?></td>
+        <td>
+            <?php
+                echo CHtml::hiddenField('member_id');
+                $this->widget('zii.widgets.jui.CJuiAutoComplete',array(
+                    'model'=>$model,
+                    'attribute'=>'autocomplete_name',
+                    'sourceUrl'=>  Yii::app()->createUrl('distributors/search'),
+                    'options'=>array(
+                        'minLength'=>'2',
+                        'showAnim'=>'fold',
+                        'focus' => 'js:function(event, ui){ $("#Unilevel_autocomplete_name").val(ui.item["value"]) }',
+                        'select' => 'js:function(event, ui){ $("#member_id").val(ui.item["id"]); }',
+                    ),
+                    'htmlOptions'=>array(
+                        'style'=>'margin-left: 10px',
+                        'rel'=>'tooltip',
+                        'title'=>'Please type the member\'s name.',
+                        'autocomplete'=>'off',
+                        'placeholder'=>'Search By Name'
+                    ),        
+                ));
 
-$options = array('0, 1, 2, 3'=>'All', '0'=>'Pending', '1'=>'Approved', '2'=>'Claimed', '3'=>'Flushed out', '4'=>'Completed' );
-echo $form->dropDownList($model, 'status', $options, array('style'=>'width: 120px;'));
+                $this->widget('bootstrap.widgets.TbButton', array(
+                    'buttonType'=>'submit', 
+                    'icon'=>'icon-search',
+                    'label'=>'Search', 
+                    'htmlOptions'=>array('id'=>'btnSearch', 'name'=>'btnSearch','style'=>'margin-left:10px;')
+                ));
 
-$this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Search', 'htmlOptions' => array('style' => 'margin-left: 10px;')));
+                $this->widget("bootstrap.widgets.TbButton", array(
+                    "label"=>"Export to PDF",
+                    "type"=>"info",
+                    'url'=>'pdfipdunilevelsummary?cutoff_id='.$model->cutoff_id,
+                    "htmlOptions"=>array("style"=>"float: right"),
+                ));
+            ?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <?php
+                echo CHtml::label('RP Status:&nbsp;', 'lblStatus', array('style'=>'margin-left: 20px;'));
+                $options = array('0, 1, 2, 3'=>'All', '0'=>'Pending', '1'=>'Approved', '2'=>'Claimed', '3'=>'Flushed out', '4'=>'Completed' );
+                echo $form->dropDownList($model, 'status', $options, array('style'=>'width: 120px;'));
+            ?>
+        </td>
+    </tr>
+</table>
 
-//if ($model->status == 0)
-//{
-//    $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Flush Out', 'htmlOptions' => array('style' => 'margin-left: 10px;', 'onclick' => 'if(!confirm("Are you sure you want to FLUSH OUT?")){return false;};')));
-//    echo CHtml::hiddenField('fout', '', array());
-//}
+<div style="margin-left: 9%">
+    <?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label'=>'Search', 'htmlOptions' => array('style' => 'margin-left: 10px;'))); ?>
+</div>
 
-$this->widget("bootstrap.widgets.TbButton", array(
-                                            "label"=>"Export to PDF",
-                                            //"icon"=>"icon-chevron-left",
-                                            "type"=>"info",
-                                            'url'=>'pdfipdunilevelsummary?cutoff_id='.$model->cutoff_id,
-                                            "htmlOptions"=>array("style"=>"float: right"),
-                                        ));
+<?php
+
+
+
+
+
+
+
+
+
+
 
 $this->endWidget(); 
 

@@ -15,7 +15,7 @@ Yii::app()->clientScript->registerScript('ui','
 ', CClientScript::POS_END);
 
 $this->widget('bootstrap.widgets.TbGridView', array(
-        'id'=>'directendorse-grid',
+        'id'=>'ipddirectendorse-grid',
         'type'=>'striped bordered condensed',
         'dataProvider' => $dataProvider,
         'htmlOptions'=>array('style'=>'font-size:12px'),

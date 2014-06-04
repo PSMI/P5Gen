@@ -263,6 +263,163 @@ class AdmintransactionsController extends Controller
     }
     
     
+    /* ----------------- IPD DIRECT ENDORSEMENT ---------------- */
+    public function actionIpdDirectendorse()
+    {
+        $model = new IpdDirectEndorsement();      
+        $model->date_claimed = date('Y-m-d');
+        
+        if (isset($_POST["IpdDirectEndorsement"]) && isset($_POST["btnSearch"]))
+        {
+            $member_id = $_POST["member_id"];
+            $rawData = $model->getDirectEndorsementBySearchField($member_id);
+            $total = $model->getPayoutTotalBySearchField($member_id);
+        }
+        else if (isset($_POST["IpdDirectEndorsement"]) && !isset($_POST["btnSearch"]))
+        {
+            $model->attributes = $_POST['IpdDirectEndorsement'];
+            $rawData = $model->getDirectEndorsement();
+            $total = $model->getPayoutTotal();
+        
+            Yii::app()->session['ipdendorsements'] = $model->attributes;  
+        }
+        else if (Yii::app()->request->isAjaxRequest && $_GET['ajax'] == "ipddirectendorse-grid")
+        {
+            $model->attributes = Yii::app()->session['ipdendorsements'];
+            $rawData = $model->getDirectEndorsement();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['ipdendorsements'] = $model->attributes;
+        }
+        else
+        {
+            if (isset(Yii::app()->session['ipdendorsements']))
+                unset(Yii::app()->session['ipdendorsements']);
+        }
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+            'keyField' => false,
+            'pagination' => array(
+                'pageSize' => 25,
+            ),
+        ));
+        
+        $this->render('ipddirectendorse', array(
+            'model'=>$model,
+            'dataProvider' => $dataProvider,
+            'total'=>$total,
+         ));
+    }
+    
+    
+    /* ----------------- IPD UNILEVEL PAYOUT ---------------- */
+    public function actionIpdUnilevel()
+    {
+        $model = new IpdUnilevel();
+        $reference = new ReferenceModel();
+        
+        if (isset($_POST['IpdUnilevel']) && isset($_POST["btnSearch"]))
+        {
+            $member_id = $_POST["member_id"];
+            $rawData = $model->getUnilevelBySearchField($member_id);
+            $total = $model->getPayoutTotalBySearchField($member_id);
+        }
+        else if (isset($_POST['IpdUnilevel']) && !isset($_POST["btnSearch"]))
+        {
+            $cutoff = $reference->get_cutoff_by_id($model->cutoff_id);
+            $model->last_cutoff_date = $cutoff['last_cutoff_date'];
+            $model->next_cutoff_date = $cutoff['next_cutoff_date'];
+            
+            $model->attributes = $_POST['IpdUnilevel'];
+            $rawData = $model->getUnilevel();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['ipdunilevel'] = $model->attributes;
+        }
+        else if (Yii::app()->request->isAjaxRequest && $_GET['ajax'] == "ipdunilvl-grid")
+        {
+            $cutoff = $reference->get_cutoff_by_id($model->cutoff_id);
+            $model->last_cutoff_date = $cutoff['last_cutoff_date'];
+            $model->next_cutoff_date = $cutoff['next_cutoff_date'];
+            
+            $model->attributes = Yii::app()->session['ipdunilevel'];
+            $rawData = $model->getUnilevel();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['ipdunilevel'] = $model->attributes;
+        }
+        else
+        {
+            if(isset(Yii::app()->session['ipdunilevel']))
+                unset(Yii::app()->session['ipdunilevel']);
+            
+            $model->status = "0, 1, 2, 3";
+        }
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+            'keyField' => false,
+            'pagination' => array(
+                'pageSize' => 25,
+            ),
+        ));
+        
+        $this->render('ipdunilevel', array(
+                'dataProvider' => $dataProvider,
+                'model'=>$model,
+                'total'=>$total,
+            ));
+    }
+    
+    
+    /* ----------------- IPD REPEAT PURCHASE COMMISSION ---------------- */
+    public function actionIpdRpCommission()
+    {
+        $model = new IpdRpCommission();
+        
+        if (isset($_POST['IpdRpCommission']) && isset($_POST['btnSearch']))
+        {
+            $member_id = $_POST["member_id"];
+            $rawData = $model->getIpdRpCommissionBySearchField($member_id);
+            $total = $model->getPayoutTotalBySearchField($member_id);
+        }
+        else if (isset($_POST['IpdRpCommission']) && !isset($_POST['btnSearch']))
+        {
+            $model->attributes = $_POST['IpdRpCommission'];
+            $rawData = $model->getIpdRpCommission();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['ipdrpcommission'] = $model->attributes;
+        }
+        else if (Yii::app()->request->isAjaxRequest && $_GET['ajax'] == "ipdrpcomm-grid")
+        {
+            $model->attributes = Yii::app()->session['ipdrpcommission'];
+            $rawData = $model->getIpdRpCommission();
+            $total = $model->getPayoutTotal();
+            
+            Yii::app()->session['ipdrpcommission'] = $model->attributes;
+        }
+        else
+        {
+            if(isset(Yii::app()->session['ipdrpcommission']))
+                unset(Yii::app()->session['ipdrpcommission']);
+        }
+        
+        $dataProvider = new CArrayDataProvider($rawData, array(
+                        'keyField' => false,
+                        'pagination' => array(
+                            'pageSize' => 25,
+                        ),
+        ));
+
+        $this->render('ipdrpcommission', array(
+                'dataProvider' => $dataProvider,
+                'model'=>$model,
+                'total'=>$total,
+            ));
+    }
+    
+    
+    /* ----------------- IMPORTANT! - PROCESS PAYOUT TRANSACTIONS ---------------- */
     public function actionProcessTransaction()
     {
         if(!Yii::app()->request->isAjaxRequest)
@@ -545,51 +702,6 @@ class AdmintransactionsController extends Controller
         echo CJSON::encode(array('result_code'=>$result_code, 'result_msg'=>$result_msg));
     }
     
-    
-    //For IpdUnilevel
-    public function actionIpdUnilevel()
-    {
-        $model = new IpdUnilevel();
-        $reference = new ReferenceModel();
-        if (isset($_POST['IpdUnilevel']))
-        {            
-            if(isset(Yii::app()->session['ipdunilevel']))
-                unset(Yii::app()->session['ipdunilevel']);
-            $cutoff = $reference->get_cutoff_by_id($model->cutoff_id);
-            $model->last_cutoff_date = $cutoff['last_cutoff_date'];
-            $model->next_cutoff_date = $cutoff['next_cutoff_date'];
-            $model->attributes = $_POST['IpdUnilevel'];
-            Yii::app()->session['ipdunilevel'] = $model->attributes;
-            
-            /*if ($model->status == "0")
-            {
-                if (isset($_POST['fout']))
-                {
-                    //$result = $model->flashOut();
-                    unset($_POST['fout']);
-                }
-            }*/
-        }
-        else
-        {
-            $model->attributes = Yii::app()->session['ipdunilevel'];
-            $model->status = "0, 1, 2, 3";
-        }
-        $rawData = $model->getUnilevel();
-        $total = $model->getPayoutTotal();
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                                                'keyField' => false,
-                                                'pagination' => array(
-                                                    'pageSize' => 25,
-                                                ),
-                                ));
-        $this->render('ipdunilevel', array(
-                'dataProvider' => $dataProvider,
-                'model'=>$model,
-                'total'=>$total,
-            ));
-    }
-    
     //For Bonus
     public function actionBonus()
     {
@@ -605,37 +717,6 @@ class AdmintransactionsController extends Controller
                                 ));
 
         $this->render('bonus', array('dataProvider' => $dataProvider));
-    }
-    
-    //For IPD Direct Endorsement
-    public function actionIpdDirectendorse()
-    {
-        $model = new IpdDirectEndorsement();      
-        $model->date_claimed = date('Y-m-d');
-        if (isset($_POST["IpdDirectEndorsement"]))
-        {
-            unset(Yii::app()->session['ipdendorsements']);
-            $model->attributes = $_POST['IpdDirectEndorsement'];
-            Yii::app()->session['ipdendorsements'] = $model->attributes;  
-        }
-        else
-        {
-            $model->attributes = Yii::app()->session['ipdendorsements'];
-        }
-        $rawData = $model->getDirectEndorsement();
-        $total = $model->getPayoutTotal();
-        
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                    'keyField' => false,
-                    'pagination' => array(
-                        'pageSize' => 25,
-                    ),
-                ));
-        $this->render('ipddirectendorse', array(
-            'model'=>$model,
-            'dataProvider' => $dataProvider,
-            'total'=>$total,
-         ));
     }
     
     //For Ipd Retention
@@ -666,41 +747,6 @@ class AdmintransactionsController extends Controller
                                 ));
 
         $this->render('ipdretention', array(
-                'dataProvider' => $dataProvider,
-                'model'=>$model,
-                'total'=>$total,
-            ));
-    }
-    
-    //For IDP RP Commission
-    public function actionIpdRpCommission()
-    {
-        $model = new IpdRpCommission();
-                
-        if (isset($_POST['IpdRpCommission']))
-        {            
-            if(isset(Yii::app()->session['ipdrpcommission']))
-                unset(Yii::app()->session['ipdrpcommission']);
-        
-            $model->attributes = $_POST['IpdRpCommission'];
-            Yii::app()->session['ipdrpcommission'] = $model->attributes;
-        }
-        else
-        {
-            $model->attributes = Yii::app()->session['ipdrpcommission'];
-        }
-        
-        $rawData = $model->getIpdRpCommission();
-        $total = $model->getPayoutTotal();
-        
-        $dataProvider = new CArrayDataProvider($rawData, array(
-                                                'keyField' => false,
-                                                'pagination' => array(
-                                                    'pageSize' => 25,
-                                                ),
-                                ));
-
-        $this->render('ipdrpcommission', array(
                 'dataProvider' => $dataProvider,
                 'model'=>$model,
                 'total'=>$total,

@@ -16,6 +16,7 @@ class IpdUnilevel extends CFormModel
     public $next_cutoff_date;
     public $last_cutoff_date;
     public $status;
+    public $autocomplete_name;
     
     public function __construct()
     {
@@ -557,17 +558,71 @@ class IpdUnilevel extends CFormModel
         $result = $command->queryRow();
         
         return $result;
+    }
+    
+    /**
+     * @author Noel Antonio
+     * @date 06-04-2014
+     */
+    public function getUnilevelBySearchField($member_id)
+    {
+        $conn = $this->_connection;
         
-//        $result = $command->queryRow();
-//
-//        if ($result['total'] > 251)
-//        {
-//            return true;
-//        }
-//        else
-//        {
-//            return false;
-//        }
+        $query = "SELECT
+                    u.unilevel_id,  
+                    u.cutoff_id,
+                    u.distributor_id,
+                CASE m.account_type_id
+                    WHEN 3 THEN 'IBO'
+                    WHEN 5 THEN 'IPD'
+                END account_type_id,
+                    CONCAT(md.last_name, ', ', md.first_name, ' ', md.middle_name) AS member_name,
+                    u.ipd_count,
+                    u.amount,
+                    u.date_created,
+                    DATE_FORMAT(u.date_approved, '%M %d, %Y') AS date_approved,
+                    CONCAT(md1.last_name, ', ', md1.first_name, ' ', md1.middle_name) AS approved_by,
+                    DATE_FORMAT(u.date_claimed, '%M %d, %Y') AS date_claimed,
+                    CONCAT(md2.last_name, ', ', md2.first_name, ' ', md2.middle_name) AS claimed_by,
+                    u.status
+                  FROM distributor_unilevel u
+                INNER JOIN members m ON u.distributor_id = m.member_id
+                    INNER JOIN member_details md
+                      ON u.distributor_id = md.member_id
+                    LEFT OUTER JOIN member_details md1
+                      ON u.approved_by_id = md1.member_id
+                    LEFT OUTER JOIN member_details md2
+                      ON u.claimed_by_id = md2.member_id
+                  WHERE u.distributor_id = :member_id 
+                  ORDER BY md.last_name;";        
+
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryAll();
+        
+        return $result;
+    }
+    
+    
+    /**
+     * @author Noel Antonio
+     * @date 06-04-2014
+     */
+    public function getPayoutTotalBySearchField($member_id)
+    {
+        $conn = $this->_connection;
+
+            $query = "SELECT
+                        sum(u.amount) as total_amount,
+                        sum(u.ipd_count) as total_ipd
+                      FROM distributor_unilevel u
+                      WHERE u.distributor_id = :member_id;";
+
+        $command =  $conn->createCommand($query);
+        $command->bindParam(':member_id', $member_id);
+        $result = $command->queryRow();
+        
+        return $result;
     }
 }
 ?>
