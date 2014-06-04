@@ -15,7 +15,9 @@ class AdmintransactionsController extends Controller
     public function actionDirectendorse()
     {
         $model = new DirectEndorsement();      
-        $model->date_claimed = date('Y-m-d');       
+        $model->date_claimed = date('Y-m-d'); 
+        $rawData = array();
+        $total = array();
         
         if (isset($_POST["DirectEndorsement"]) && isset($_POST['btnSearch']))
         {
@@ -65,6 +67,8 @@ class AdmintransactionsController extends Controller
     {
         $model = new Unilevel();
         $reference = new ReferenceModel();
+        $rawData = array();
+        $total = array();
         
         if (isset($_POST["Unilevel"]) && isset($_POST['btnSearch']))
         {
@@ -123,6 +127,8 @@ class AdmintransactionsController extends Controller
     public function actionGoc()
     {
         $model = new GroupOverrideCommission();
+        $rawData = array();
+        $total = array();
          
         if (isset($_POST["GroupOverrideCommission"]) && isset($_POST['btnSearch']))
         {
@@ -167,6 +173,8 @@ class AdmintransactionsController extends Controller
     public function actionLoan()
     {
         $model = new Loan();
+        $rawData = array();
+        $total = 0;
             
         if (isset($_POST["Loan"]) && isset($_POST['btnSearch']))
         {
@@ -219,6 +227,8 @@ class AdmintransactionsController extends Controller
     public function actionIboRpCommission()
     {
         $model = new IboRpCommission();
+        $rawData = array();
+        $total = array();
              
         if (isset($_POST['IboRpCommission']) && isset($_POST['btnSearch']))
         {
@@ -268,6 +278,8 @@ class AdmintransactionsController extends Controller
     {
         $model = new IpdDirectEndorsement();      
         $model->date_claimed = date('Y-m-d');
+        $rawData = array();
+        $total = array();
         
         if (isset($_POST["IpdDirectEndorsement"]) && isset($_POST["btnSearch"]))
         {
@@ -317,6 +329,8 @@ class AdmintransactionsController extends Controller
     {
         $model = new IpdUnilevel();
         $reference = new ReferenceModel();
+        $rawData = array();
+        $total = array();
         
         if (isset($_POST['IpdUnilevel']) && isset($_POST["btnSearch"]))
         {
@@ -375,6 +389,8 @@ class AdmintransactionsController extends Controller
     public function actionIpdRpCommission()
     {
         $model = new IpdRpCommission();
+        $rawData = array();
+        $total = array();
         
         if (isset($_POST['IpdRpCommission']) && isset($_POST['btnSearch']))
         {
