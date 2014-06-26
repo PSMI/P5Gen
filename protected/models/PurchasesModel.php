@@ -568,14 +568,28 @@ class PurchasesModel extends CFormModel
             $command2->bindParam(':purchase_retention', $retention);
             $command2->execute();
             
-            try
+            if(!$this->hasErrors())
             {
-                $trx->commit();
+                $query3 = "INSERT INTO repeat_purchases (purchase_summary_id, member_id, total)
+                           SELECT purchase_summary_id, member_id, total 
+                           FROM purchased_summary 
+                           WHERE purchase_summary_id = :purchase_summary_id
+                            AND member_id = :member_id;";
+                $command3 = $conn->createCommand($query3);
+                $command3->bindParam(':member_id', $this->member_id);
+                $command3->bindParam(':purchase_summary_id', $this->purchase_summary_id);
+                $command3->execute();
+                
+                try
+                {
+                    $trx->commit();
+                }
+                catch(PDOException $e)
+                {
+                    $trx->rollback();
+                }
             }
-            catch(PDOException $e)
-            {
-                $trx->rollback();
-            }
+            
         }
         
     }
@@ -602,22 +616,48 @@ class PurchasesModel extends CFormModel
         $conn = $this->_connection;
         $trx = $conn->beginTransaction();
         
-        $query = "DELETE FROM purchased_items 
+        $query = "SELECT * FROM purchased_summary"
+                . " WHERE purchase_summary_id = :purchase_summary_id ";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':purchase_summary_id', $this->purchase_summary_id);
+        $result = $command->queryRow();
+        
+        $item_quantity = $result['quantity'];
+        $item_total = $result['total'];
+        $item_savings = $result['savings'];
+        
+        $query1 = "DELETE FROM purchased_items 
                     WHERE purchase_summary_id = :purchase_summary_id 
                     AND purchase_id = :purchase_id";
-        $command = $conn->createCommand($query);
-        $command->bindParam(':purchase_id', $this->purchase_id);
-        $command->bindParam(':purchase_summary_id', $this->purchase_summary_id);
-        $command->execute();
+        $command1 = $conn->createCommand($query1);
+        $command1->bindParam(':purchase_id', $this->purchase_id);
+        $command1->bindParam(':purchase_summary_id', $this->purchase_summary_id);
+        $command1->execute();
         
-        try
+        if(!$this->hasErrors())
         {
-            $trx->commit();
+            $query2 = "UPDATE purchased_summary
+                        SET quantity = quantity - :old_quantity,
+                            total = total - :old_total,
+                            savings = savings - :old_savings
+                        WHERE purchase_summary_id = :purchase_summary_id;";
+            $command2 = $conn->createCommand($query2);
+            $command2->bindParam(':purchase_summary_id', $this->purchase_summary_id);
+            $command2->bindParam(':old_quantity', $item_quantity);
+            $command2->bindParam(':old_total', $item_total);
+            $command2->bindParam(':old_savings', $item_savings);
+            $command2->execute();
+            
+            try
+            {
+                $trx->commit();
+            }
+            catch(PDOException $e)
+            {
+                $trx->rollback();
+            }
         }
-        catch(PDOException $e)
-        {
-            $trx->rollback();
-        }
+        
     }
     
     public function cancel_items()
@@ -720,6 +760,17 @@ class PurchasesModel extends CFormModel
         $command = $conn->createCommand($query);
         $command->bindParam(':repeat_purchase_id', $this->repeat_purchase_id);
         $command->execute();
+        
+        //Replacement for the DB trigger
+        if(!$this->hasErrors())
+        {
+            $query2 = "INSERT INTO repeat_purchase_logs (purchase_summary_id, member_id, total, date_purchased)"
+                    . " SELECT purchase_summary_id, member_id, total, date_purchased FROM repeat_purchases"
+                    . " WHERE repeat_purchase_id = :repeat_purchase_id ;";
+            $command2 = $conn->createCommand($query2);
+            $command2->bindParam(':repeat_purchase_id', $this->repeat_purchase_id);
+            $command2->execute();
+        }
         
     }
     

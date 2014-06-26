@@ -652,6 +652,13 @@ class RegistrationForm extends CFormModel
                                         $command7->bindParam(':ipd_endorser_id', $endorser_id);
                                         $result7 = $command7->execute();
                                         
+                                        $query8 = "INSERT INTO unprocessed_distributor_logs (member_id, endorser_id, date_created)
+                                                    VALUES (:member_id, :ipd_endorser_id, now())";
+                                        $command8 = $conn->createCommand($query8);
+                                        $command8->bindParam(':member_id', $member_id);
+                                        $command8->bindParam(':ipd_endorser_id', $endorser_id);
+                                        $command8->execute();
+                                        
                                         if (count($result7) > 0)
                                         {
                                             $trx->commit();
@@ -881,6 +888,65 @@ class RegistrationForm extends CFormModel
         $command->bindParam(':filter', $filter);
         $result = $command->queryAll();        
         return $result;
+    }
+    
+    public function triggerRunningAccountAfterInsert()
+    {
+        $conn = $this->_connection;        
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE running_accounts
+                    SET direct_endorse = direct_endorse + 1
+                    WHERE member_id = :endorser_id;";
+        $command = $conn->createCommand($query);
+        $command->bindParam(':endorser_id', $this->member_id);
+        $command->execute();
+        
+        if(!$this->hasErrors())
+        {
+            $query2 = "SELECT direct_endorse
+                      FROM running_accounts
+                      WHERE member_id = :endorser_id;";
+            $command2 = $conn->createCommand($query2);
+            $command2->bindParam(':endorser_id', $this->member_id);
+            $result = $command2->queryRow();
+            $direct_endorse_count = $result['direct_endorse'];
+            
+            if($direct_endorse_count == 5)
+            {
+                $query3 = "UPDATE running_accounts
+                            SET date_first_five_completed = CURDATE()
+                            WHERE member_id = :endorser_id;";
+                $command3 = $conn->createCommand($query3);
+                $command3->bindParam(':endorser_id', $this->member_id);
+                $command3->execute();
+                
+            }
+            
+            if(!$this->hasErrors())
+            {
+                $query4 = "UPDATE metadata
+                           SET metadata_value = metadata_value + 1
+                           WHERE metadata_name = 'total_members';";
+                $command4 = $conn->createCommand($query4);
+                $command4->execute();
+                
+                $query5 = "INSERT INTO running_accounts (member_id)
+                                VALUES (:new_member_id);";
+                $command5 = $conn->createCommand($query5);
+                $command5->bindParam(':new_member_id', $this->new_member_id);
+                $command5->execute();
+
+                try
+                {
+                    $trx->commit();
+                }
+                catch (PDOException $e)
+                {
+                    $trx->rollback();
+                }
+            }
+        }
     }
     
 }

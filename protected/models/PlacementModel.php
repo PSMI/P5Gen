@@ -117,19 +117,28 @@ class PlacementModel extends CFormModel
         
         try
         {
-            if(count($result)>0)
+            if(!$this->hasErrors())
             {
-                $result2 = $this->addUnprocessedMembers();
-
-                if(count($result2)>0)
+                $query2 = "DELETE FROM pending_placements
+                           WHERE member_id = :member_id;";
+                $command2 = $conn->createCommand($query2);
+                $command2->bindParam(':member_id', $this->member_id);
+                $command2->execute();
+                
+                if(!$this->hasErrors())
                 {
-                    $trx->commit();
-                    return true;
-                }
-                else
-                {
-                    $trx->rollback();
+                    $this->addUnprocessedMembers();
+                    
+                    if(!$this->hasErrors())
+                    {
+                        $trx->commit();
+                        return true;
+                    }
+                    else
+                    {
+                        $trx->rollback();
                     return false;
+                    }
                 }
                 
             }
@@ -273,8 +282,19 @@ class PlacementModel extends CFormModel
         $command->bindParam(':member_id', $this->member_id);
         $command->bindParam(':upline_id', $this->upline_id);
         $command->bindParam(':endorser_id', $this->endorser_id);
-        $result = $command->execute();   
-        return $result;
+        $command->execute();   
+        
+        if(!$this->hasErrors())
+        {
+            $query2 = "INSERT INTO unprocessed_member_logs (member_id,upline_id,endorser_id, date_approved)
+                        VALUES (:member_id, :upline_id, :endorser_id, now())";
+        
+            $command2 = $conn->createCommand($query2);        
+            $command2->bindParam(':member_id', $this->member_id);
+            $command2->bindParam(':upline_id', $this->upline_id);
+            $command2->bindParam(':endorser_id', $this->endorser_id);
+            $command2->execute(); 
+        }
         
     }
     

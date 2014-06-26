@@ -86,11 +86,21 @@ return array(
 		// uncomment the following to use a MySQL database
 		
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=netmarketing;port=3306',
+                        //'connectionString' => 'mysql:host=localhost;dbname=hwebsolu_netmarketing', 
+                        'connectionString' => 'mysql:host=localhost;dbname=hwebsolu_netmarketing_test', 
+                        //'connectionString' => 'mysql:host=localhost;dbname=netmarketing',
 			'emulatePrepare' => true,
 			'username' => 'root',
 			'password' => 'admin',
 			'charset' => 'utf8',
+                    /*
+			'connectionString' => 'mysql:host=localhost;dbname=hwebsolu_netmarketing',
+			'emulatePrepare' => true,
+			'username' => 'hwebsolu_p5auser',
+			'password' => 'AGpzSNAy$x[o',
+			'charset' => 'utf8',
+                     * 
+                     */
 		),
 		
 		'errorHandler'=>array(

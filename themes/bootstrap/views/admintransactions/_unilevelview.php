@@ -192,7 +192,7 @@ Yii::app()->clientScript->registerScript('ui','
  
 <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h4>Modify Values </h4> <strong>Member </strong><span id="member_name"></span>
+    <h4>Fix Discrepancy </h4> <strong>Member </strong><span id="member_name"></span>
 </div>
 
 <div class="modal-body">    

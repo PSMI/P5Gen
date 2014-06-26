@@ -85,6 +85,7 @@ class RegistrationController extends Controller
             $retval = $model->register();                    
             if($retval['result_code'] == 0)
             {
+                $model->triggerRunningAccountAfterInsert();
                 // send email notification
                 $param['member_id'] = $model->new_member_id;
                 $param['plain_password'] = $model->plain_password;
